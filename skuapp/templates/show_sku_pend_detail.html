@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Pending订单详情</title>
+</head>
+<body>
+    <table align="center" width="95%"  border="1">
+        <tr align="center">
+            <th style="text-align:center">店铺</th>
+            <th style="text-align:center">ASIN</th>
+            <th style="text-align:center">亚马逊订单号</th>
+            <th style="text-align:center">店铺SKU</th>
+            <th style="text-align:center">店铺SKU拆分(按+拆分)</th>
+            <th style="text-align:center">商品SKU</th>
+            <th style="text-align:center">SKU组合数(*后的数值)</th>
+            <th style="text-align:center">Pending商品量</th>
+            <th style="text-align:center">下单时间</th>
+            <th style="text-align:center">订单刷新时间</th>
+            <th style="text-align:center">成本价</th>
+            <th style="text-align:center">总价</th>
+
+        </tr>
+
+        {% for pend in sku_pend_obj %}
+        <tr>
+            <td nowrap>{{pend.shop_name}}</td>
+            <td nowrap>{{pend.asin}}</td>
+            <td nowrap>{{pend.amazon_order_id}}</td>
+            <td nowrap>{{pend.seller_sku}}</td>
+            <td nowrap>{{pend.seller_sku_each}}</td>
+            <td nowrap>{{pend.product_sku}}</td>
+            <td nowrap>{{pend.quantity_multiply}}</td>
+            <td nowrap>{{pend.quantity_inventory}}</td>
+            <td nowrap>{{pend.purchase_date}}</td>
+            <td nowrap>{{pend.order_refresh_time}}</td>
+            <td nowrap>{{pend.sku_unit_price}}</td>
+            <td nowrap>{{pend.total_price}}</td>
+
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

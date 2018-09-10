@@ -1,0 +1,658 @@
+
+        <style>
+             .sybutton {
+                border-radius:10px 10px 10px 10px;
+                background-color:#428BCA;
+                border: none;
+                color: white;
+                padding: 5px 20px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 15px;
+                margin: 4px 2px;
+                cursor: pointer;
+             }
+
+            a.myj-aFocus {
+                display: inline-block;
+                vertical-align: middle;
+                line-height: 18px;
+            }
+
+            a.myj-aFocus:hover{
+                background-color: #428bca;
+                color: #fff;
+            }
+
+            .mRight20 {
+                margin-right: 30px;
+                margin-bottom: 5px;
+            }
+
+            .inline{
+                display: inline;
+            }
+
+            .satrdiv{
+                overflow: hidden;
+                width:100px;
+                height: 90px;
+                padding-top: 15px;
+            }
+
+            .padatr{
+                padding-top: 10px;
+                padding-bottom: 10px;
+                padding-left: 10px;
+            }
+
+            .textatr{
+                width: 550px;
+                height: 35px;
+                border-radius:10px;
+                color: grey;
+            }
+
+            .myj-active {
+                background-color: #428bca;
+                color: #fff;
+            }
+
+            .form-control{
+                width: 170px;
+                height: 35px;
+                display: inline;
+                margin-top: 5px;
+            }
+            .lefttd{
+                text-align: right;
+            }
+
+            table,table tr td {
+                //border:1px solid #0094ff;
+                padding:2px 12px;
+            }
+
+            .crumb-select-item{
+                background: #EDEAE1;
+                padding: 0px 6px 0px 5px;
+                border: #cccaca;
+
+            }
+
+            .re_echo{
+                font-size: 13px;
+                padding-bottom: 20px;
+                padding-left: 10px;
+                position: absolute;
+               // top: 80px;
+                color: grey;
+            }
+
+            select{
+                max-width: 900px;
+            }
+
+            #div_items {
+                position: absolute;
+                width: 364px;
+                height: 300px;
+                border: 1px solid #66afe9;
+                border-top: 0px;
+                overflow: auto;
+                display: none;
+                background-color: white;
+            }
+
+        </style>
+    <div class="re_echo">
+        搜索内容 &gt;
+        {% for k, v in navigation.items %}
+            &gt;<span class="crumb-select-item">{{ k }}:{{ v }}</span>
+        {% endfor %}
+    </div>
+    <br><br>
+    <div>
+        <div style="font-size:15px;">
+            <div class="padatr">
+                {% if lastupdatetime != '' and lastupdatetime != 'undefined' %}
+                    <em style="color: #d58512;font-size: 10px;"> 最近增量更新时间(Asia/Shanghai):{{ lastupdatetime }} </em>
+                {% endif %}
+                <br>
+                <div class="satrdiv inline mRight20" style="float: left;height: 34px;width: 65.3px;">店铺名称:</div>
+                <div class="inline" style="float: left">
+                    <input id="q" class="textatr" name="shopname" style="border-radius: 10px; width:364px;" onFocus="if(this.value=='搜索店铺...'){this.value='';}else{this.select();}this.style.color='black';"  value="{{ flag }}">
+                    <input type="button" class="sybutton" value="点击搜索" onclick="searchItemAmazon()">
+                    <div class="selectize-dropdown-content" id="div_items" style="z-index: 100;">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+        <br>
+        <br>
+    </div>
+
+    <div style="font-size:15px; ">
+         <div style="font-size:15px;">
+            <div class="padatr">
+                <div class="satrdiv inline mRight20">搜索类型:</div>
+                <div class="inline">
+                    <a id="search_hidden_id" style="display: none">{{ search_hidden_id }}</a>
+                    {% for k,v in Typeconfiguration.items %}
+                         <a name="setSearch" class="myj-aFocus mRight20" href="javascript:;" id="{{ k }}" onclick="setSearchType(this.id)">{% for a,b in v.items %} <li style="display: none">{{ a }}</li>{{ b }}{% endfor %}</a>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="padatr">
+                <div class="satrdiv inline mRight20">搜索内容:</div>
+                <div class="inline">
+                    <input type="text" class="textatr" id="searchItem" value="{{ search_hidden }}" onfocus="if(this.value.indexOf('搜索') != 0){}else{this.value = ''}"/>
+                    <!-- <input type="button" class="sybutton" value="搜索" onclick="searchItemAmazon()"> -->
+                    <a class="myj-aFocus mRight20" href="javascript:;" style="font-size: 10px;" onclick="advancedSearch()">&nbsp;&nbsp;高级搜索 <span id="show_tips" style="color: #d58512">{{ open_flag }}</span></a>
+
+                    <a id="open_flag" style="display: none">{{ open_flag }}</a>
+                    <div style="display:none;" id="ads_form">
+                        <table>
+<!--                             <tr>
+                                <td class="lefttd">7天order数: </td>
+                                <td>
+                                    <input type="text" class="form-control" id="orders7DaysStart"  maxlength="9"  onkeyup="this.value=this.value.replace(/[^0-9]/g,'')" value={{ orders7DaysStart }}>
+                                        -
+                                    <input type="text" class="form-control" id="orders7DaysEnd" maxlength="9"  onkeyup="this.value=this.value.replace(/[^0-9]/g,'')" value={{ orders7DaysEnd }}>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td class="lefttd">总销量: </td>
+                                <td>
+                                    <input type="text" class="form-control" id="OfSalesStart" maxlength="9" onkeyup="value=value.replace(/[^0-9]/g,'')" value={{ OfSalesStart }}>
+                                        -
+                                    <input type="text" class="form-control" id="OfSalesEnd" maxlength="9" onkeyup="value=value.replace(/[^0-9]/g,'')" value={{ OfSalesEnd }}>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td class="lefttd">我方商品评分: </td>
+                                <td>
+                                    <input type="text" class="form-control" id="ratingValueStart"  maxlength="9"  onkeyup="this.value=this.value.replace(/[^0-9\.]/g,'')" value={{ ratingValueStart }}>
+                                        -
+                                    <input type="text" class="form-control" id="ratingValueEnd" maxlength="9"  onkeyup="this.value=this.value.replace(/[^0-9\.]/g,'')" value={{ ratingValueEnd }}>
+                                </td>
+                            </tr> -->
+
+                            <tr>
+                                <td class="lefttd">
+                                    <a id="timeType_hiden" style="display:none;">{{ timeType_hiden }}</a>
+                                    <select class="form-control" id="advancedTime" style="width:105px;">
+                                        {% for k,v in timeType_config.items %}
+                                            {% for a, b in v.items %}
+                                                <option value="{{ b.left }}&{{ b.right }}">{{ a }}</option>
+                                            {% endfor %}
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="date" class="form-control" style="height:34px;" id="timeLift" type="text" value="{{ timeL }}">
+                                        -
+                                    <input type="date" class="form-control" style="height:34px;" id="timeRight" type="text" value="{{ timeR }}">
+                                </td>
+                            </tr>
+
+
+                            <tr>
+                                <td class="lefttd"></td>
+                                <td style="text-align:right;">
+                                    <a href="javascript:" id="closeProductListAdvancedSearch" class="myj-aFocus mRight20" onclick="advancedSearch();cleanContentAll()">取消</a>
+                                    <a onclick="cleanContentAll()" style="cursor:pointer!important;" class="myj-aFocus mRight20">重置</a>
+                                    <!-- <button type="button" class="sybutton" onclick="btnSearchIt();">搜索</button> -->
+                                </td>
+                            </tr>
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div >
+             <div class="padatr">
+                <div class="satrdiv inline mRight20">是否导入:</div>
+                <div class="inline">
+                    <a id="importFlagforms_id" style="display: none">{{ importFlagforms_id }}</a>
+                    {% for k,v in importFlagconfiguration.items %}
+                        <a class="myj-aFocus mRight20" href="javascript:;" name="importflagforms" id='{{ k }}' onclick="importflagforms(this.id)">{% for a,b in v.items %} <li style="display: none">{{ a }}</li>{{ b }}{% endfor %}</a>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="padatr" style="display: none">
+                <div class="satrdiv inline mRight20">排序:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                <div class="inline">
+                    <a class="myj-aFocus mRight20 myj-active" href="javascript:;">按更新时间</a>
+                    <a class="myj-aFocus mRight20" href="javascript:;">按创建时间</a>
+                    <a class="myj-aFocus mRight20" href="javascript:;">库存</a>
+                </div>
+            </div>
+        </div>
+        </br>
+    </div>
+
+    <div style="display: none">
+        <div class="dropdown" style="float: right;">
+            <button type="button" class="btn dropdown-toggle sybutton" id="dropdownMenu1" data-toggle="dropdown">
+                同步店铺数据
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                {% if synurl != '' %}
+                    <li role="presentation">
+                        <a role="menuitem" tabindex="-1" onclick="{location.href='{{ synurl }}&flag=0'}" >全量同步</a>
+                    </li>
+                    <li role="presentation">
+                        <a role="menuitem" tabindex="-1" onclick="{location.href='{{ synurl }}&flag=1'}" >增量同步</a>
+                    </li>
+                {% else %}
+                    <li role="presentation">
+                        <a style="color:red" role="menuitem" tabindex="-1">{{ refreshstatus }}</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- 模态框（Modal）全量刷新店铺 -->
+    <div class="modal fade" id="shopname_full" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">
+                        全量刷新店铺
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <span id="full_bar_yy">是否确定全量刷新该店铺数据，刷新速度可能较慢？</span>
+                    <div class="progress progress-striped active" id="full_bar" style="display: none">
+                        <div class="progress-bar progress-bar-success" role="progressbar"
+                             aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"
+                             style="width: 0%;" id="full_bar_id">
+                            <span class="sr-only">0% 完成</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="Refresh_Ajax_full()">
+                        提交更改
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+
+    <!-- 模态框（Modal）增量刷新店铺 -->
+    <div class="modal fade" id="shopname_part" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">
+                        增量刷新店铺
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <span id="part_bar_yy">是否确定增量刷新该店铺数据？</span>
+                    <div class="progress progress-striped active" id="part_bar" style="display: none">
+                        <div class="progress-bar progress-bar-success" role="progressbar"
+                             aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"
+                             style="width: 0%;" id="part_bar_id">
+                            <span class="sr-only">0% 完成</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="Refresh_Ajax('1')">
+                        提交更改
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+
+
+<script type="text/javascript">
+    var divdown = document.getElementById('div_items');
+    var node=divdown.nextSibling;
+    var shop_list = {{ objs|safe }};
+    var info = '';
+    for (var s=0;s<shop_list.length;s++){
+        info += '<div class="div_item" onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" onClick="ChangeText(this);">'+ shop_list[s] +'</div>';
+    }
+    divdown.innerHTML = info;
+    divdown.parentNode.insertBefore(divdown, node);
+    node=divdown.nextSibling;
+
+    if (document.getElementById('q').value == 'Joom-0000'){
+        document.getElementById('q').value = '搜索店铺...';
+    }
+    //弹出列表框
+    $("#q").click(function () {
+        $("#div_items").css('display', 'block');
+        return false;
+    });
+
+    //隐藏列表框
+    $("body").click(function () {
+        $("#div_items").css('display', 'none');
+    });
+
+
+    //移入移出效果
+    function getnewcolor(obj) {
+        $(obj).css('background-color', '#1C86EE').css('color', 'white');
+    }
+
+    function getoldcolor(obj) {
+        $(obj).css('background-color', 'white').css('color', 'black');
+    }
+
+    //文本框输入
+    $("#q").keyup(function () {
+        var intext = document.getElementById('q');
+        var inputtext = intext.value;
+        if (inputtext != "") {
+            var html = "";
+            for (var i = 0; i < shop_list.length; i++) {
+                if (shop_list[i].indexOf(inputtext) >= 0) {
+                    html += '<div class="div_item"onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" onClick="ChangeText(this);">'+ shop_list[i] +'</div>';
+                }
+            }
+            if (html != "") {
+                $("#div_items").show().html(html);
+            } else {
+                $("#div_items").hide().html("");
+            }
+        }else {
+            $("#div_items").show().html(info);
+        }
+    });
+
+    //项点击
+    function ChangeText(obj) {
+        var value = $(obj).text();
+        $("#q").val(value);
+        $("#div_items").show().html('<div class="div_item" onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" onClick="ChangeText(this);">'+ value +'</div>');
+    }
+
+    function sleep(n){
+        var start=new Date().getTime();//定义起始时间的毫秒数
+        while(true){
+            var time=new Date().getTime();//每次执行循环取得一次当前时间的毫秒数
+            if(time-start>n){//如果当前时间的毫秒数减去起始时间的毫秒数大于给定的毫秒数，即结束循环
+                break;
+            }
+        }
+    }
+
+    // Refresh_Ajax() 弹出框调用api，并显示进度条
+    function Refresh_Ajax_full() { //全量刷新
+        $.getJSON("{{ synurl }}&flag=0&bar=0", function(result){
+            alert('synflage======='+JSON.stringify(result));
+            if (result.resultCode == '3' && result.messages != 'Over'){
+                alert('该店铺正在同步在线数据，请稍等。。。');
+            }else {
+                alert('可以刷新数据');
+                document.getElementById('full_bar_yy').innerText = '已经开始同步数据，请稍等。。。';
+                document.getElementById('full_bar').style.display = '';
+                var i = 50;
+                document.getElementById('full_bar_id').style.width = i.toString() + '%';
+            }
+        });
+
+    }
+
+
+</script>
+
+
+<script>
+    function static_refresh(url) {
+        $.getJSON(url, function(result){
+            if (result.resultCode == '0'){
+                alert(result.messages);
+                // var r = confirm(result.messages + "！是否刷新页面？");
+                // if (r==true){
+                //     location.reload();;
+                // }else{
+                //     return;
+                // }
+            }else {
+                alert(result.messages);
+            }
+        });
+    }
+
+    function isHidden(oDiv){
+      var vDiv = document.getElementById(oDiv);
+      vDiv.style.display = (vDiv.style.display == 'none')?'block':'none';
+    }
+
+</script>
+
+<script>
+    var url_str = '/Project/admin/mymall_app/t_mymall_upload_product_info/';
+
+    //部分的回显
+    window.onload = function(){
+        var search_hidden_id = $("#search_hidden_id")[0].innerText
+        var importFlagforms_id = $("#importFlagforms_id")[0].innerText
+
+        var setSearch = document.getElementsByName("setSearch")
+        var importflagforms = document.getElementsByName("importflagforms")
+
+        selectAttribute(importFlagforms_id, importflagforms)
+        selectAttribute(search_hidden_id, setSearch)
+
+        var timeType_hiden = $('#timeType_hiden')[0].innerText
+        $("#advancedTime").val(timeType_hiden);
+
+        if (search_hidden_id == 0 && $("#searchItem").val() == ''){
+            $("#searchItem").val('搜索上传人...')
+        }
+
+    }
+
+    $(document).ready(function () {
+        //回车事件
+        $("#searchItem").keydown(function (e) {var curKey = e.which;if (curKey == 13) {searchItemAmazon(); }});
+        // $("#orders7DaysStart").keydown(function (e) {var curKey = e.which;if (curKey == 13) {searchItemAmazon(); }});
+        // $("#orders7DaysEnd").keydown(function (e) {var curKey = e.which;if (curKey == 13) {searchItemAmazon(); }});
+        // $("#OfSalesStart").keydown(function (e) {var curKey = e.which;if (curKey == 13) {searchItemAmazon(); }});
+        // $("#OfSalesEnd").keydown(function (e) {var curKey = e.which;if (curKey == 13) {searchItemAmazon(); }});
+        // $("#ratingValueStart").keydown(function (e) {var curKey = e.which;if (curKey == 13) {searchItemAmazon(); }});
+        // $("#ratingValueEnd").keydown(function (e) {var curKey = e.which;if (curKey == 13) {searchItemAmazon(); }});
+        $("#q").keydown(function (e) {var curKey = e.which;if (curKey == 13) {searchItemAmazon(); }});
+    });
+
+    function openDialog(){
+        document.getElementById('light').style.display='block';
+        document.getElementById('fade').style.display='block'
+    }
+    function closeDialog(){
+        document.getElementById('light').style.display='none';
+        document.getElementById('fade').style.display='none'
+    }
+    function setSearchType(index){
+        var setSearchs = document.getElementsByName("setSearch")
+        selectAttribute(index, setSearchs)
+        $('#searchItem').val('搜索'+$(" .myj-active")[0].innerText+'...')
+    }
+    function setsellingforms(index){
+        var setsellingforms = document.getElementsByName("setsellingforms")
+        selectAttribute(index, setsellingforms)
+        searchItemAmazon()
+    }
+
+    function setdataSourcesforms(index){
+        var setdataSourcesforms = document.getElementsByName("setdataSourcesforms")
+        selectAttribute(index, setdataSourcesforms)
+        searchItemAmazon()
+    }
+
+    function setEstatusforms(index) {
+        var setEstatusforms = document.getElementsByName("setEstatusforms")
+        selectAttribute(index, setEstatusforms)
+        searchItemAmazon()
+    }
+
+    function setreviewStateforms(index) {
+        var setreviewStateforms = document.getElementsByName("setreviewStateforms")
+        selectAttribute(index, setreviewStateforms)
+        searchItemAmazon()
+    }
+
+    function importflagforms(index) {
+        var importflagforms = document.getElementsByName("importflagforms")
+        selectAttribute(index, importflagforms)
+        // searchItemAmazon()
+    }
+
+    function selectAttribute(index, setSite){
+         for(var i=0; i<setSite.length; i++){
+            if(i == index){
+                setSite[i].setAttribute("class", "myj-aFocus mRight20 myj-active");
+            }else{
+                setSite[i].setAttribute("class", "myj-aFocus mRight20");
+            }
+        }
+    }
+    //高级搜索窗口
+    function advancedSearch() {
+        if($('#ads_form').is(':hidden')) {
+            window.document.getElementById('ads_form').setAttribute("style", "width:1500px;height: 200px;margin-top: 10px;margin-left:100px;background-color:#eee;padding:10px;");
+        }else{
+            window.document.getElementById('ads_form').setAttribute("style", "display:none");
+        }
+    }
+
+    //搜索事件
+    function btnSearchIt(){
+        searchItemAmazon();
+    }
+
+    //重置
+    function cleanContentAll() {
+        // $("#orders7DaysStart").val('');
+        // $("#orders7DaysEnd").val('');
+        // $("#OfSalesStart").val('');
+        // $("#OfSalesEnd").val('');
+        // $("#ratingValueStart").val('');
+        // $("#ratingValueEnd").val('');
+        $("#advancedTime").val('0');
+        $("#timeLift").val('');
+        $("#timeRight").val('');
+    }
+
+    //搜索条目
+    function searchItemAmazon() {
+        var s_item = ''
+        // var orders7DaysStart = $("#orders7DaysStart").val()
+        // var orders7DaysEnd = $("#orders7DaysEnd").val()
+        // var OfSalesStart = $("#OfSalesStart").val()
+        // var OfSalesEnd = $("#OfSalesEnd").val()
+        // var ratingValueStart = $("#ratingValueStart").val()
+        // var ratingValueEnd = $("#ratingValueEnd").val()
+        var timeLift = $("#timeLift").val()
+        var timeRight = $("#timeRight").val()
+
+        var tranStr = $('#advancedTime option:selected').val().split('&')[0]
+        var tranEnd = $('#advancedTime option:selected').val().split('&')[1]
+
+        var searchType = $(" .myj-active")[0].getElementsByTagName('li')[0].innerText
+        var importflag =  $(" .myj-active")[1].getElementsByTagName('li')[0].innerText
+
+        var shopname = $("#q").val()
+        var searchitem = $("#searchItem").val()
+
+        var priceParity_Status = "{{ priceParity_Status }}"
+        if (priceParity_Status != '') {
+            s_item += '&priceParity_Status=' + priceParity_Status
+        }
+
+        if(shopname === undefined){
+            shopname = ''
+        }
+
+        // if(orders7DaysStart != '' && orders7DaysEnd != ''){
+        //     if(parseInt(orders7DaysStart)>parseInt(orders7DaysEnd)){
+        //         alert('错误：请输入正确的order数查询区间！')
+        //         return;
+        //     }else{
+        //         s_item += '&orders7DaysStart='+ orders7DaysStart + '&orders7DaysEnd='+ orders7DaysEnd;
+        //     }
+        // }else if(orders7DaysStart != ''&& orders7DaysEnd == ''){
+        //     s_item += '&orders7DaysStart='+orders7DaysStart
+        // }else if(orders7DaysStart == ''&& orders7DaysEnd != '') {
+        //     s_item += '&orders7DaysEnd=' + orders7DaysEnd
+        // }
+
+        // if(OfSalesStart != '' && OfSalesEnd != ''){
+        //     if(parseInt(OfSalesStart)>parseInt(OfSalesEnd)){
+        //         alert('错误：请输入正确的总销量查询区间！')
+        //         return;
+        //     }else{
+        //         s_item += '&OfSalesStart='+ OfSalesStart + '&OfSalesEnd='+ OfSalesEnd;
+        //     }
+        // }else if(OfSalesStart != ''&& OfSalesEnd == ''){
+        //     s_item += '&OfSalesStart='+OfSalesStart
+        // }else if(OfSalesStart == ''&& OfSalesEnd != '') {
+        //     s_item += '&OfSalesEnd=' + OfSalesEnd
+        // }
+
+        // if(ratingValueStart != '' && ratingValueEnd != ''){
+        //     if(parseFloat(ratingValueStart)>parseFloat(ratingValueEnd)){
+        //         alert('错误：请输入正确的order数查询区间！')
+        //         return;
+        //     }else{
+        //         s_item += '&ratingValueStart='+ ratingValueStart + '&ratingValueEnd='+ ratingValueEnd;
+        //     }
+        // }else if(ratingValueStart != ''&& ratingValueEnd == ''){
+        //     s_item += '&ratingValueStart='+ratingValueStart
+        // }else if(ratingValueStart == ''&& ratingValueEnd != '') {
+        //     s_item += '&ratingValueEnd=' + ratingValueEnd
+        // }
+
+        if(timeLift != '' && timeRight != ''){
+             var d1 = new Date(timeLift.replace(/\-/g, "\/"));
+             var d2 = new Date(timeRight.replace(/\-/g, "\/"));
+             if(d1 > d2) {
+                alert('错误：请输入正确时间区间!')
+                return;
+             }else{
+                s_item += '&'+tranStr+'='+timeLift+'&'+tranEnd+'='+ timeRight;
+             }
+        }else if(timeLift != ''&& timeRight == ''){
+            s_item += '&'+tranStr+'='+timeLift
+        }else if(timeLift == ''&& timeRight != '') {
+            s_item += '&'+tranEnd+'='+ timeRight
+        }
+        if(searchType != '' && searchitem != '' && searchitem.indexOf('搜索') != 0){s_item += '&'+searchType+'='+searchitem.replace(/\+/g,"%2B").replace(/\#/g,"%23");}
+
+        if(shopname != '' && shopname != undefined && shopname.indexOf('搜索') == -1){s_item += '&shopname='+ shopname;}
+        if(importflag != ''){s_item += '&importFlag='+ importflag;}
+        if(s_item != ''){
+           s_item = '?'+s_item.substring(1,s_item.length)
+        }
+        window.location.href = url_str+s_item;
+    }
+
+</script>

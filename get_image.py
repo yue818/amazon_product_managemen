@@ -1,0 +1,169 @@
+# -*- coding:utf-8 -*-
+
+"""  
+ @desc:  
+ @author: wuchongxiang 
+ @site: 
+ @software: PyCharm
+ @file: get_image.py
+ @time: 2018-04-12 8:30
+"""
+import oss2
+import pymysql as MySQLdb
+import os
+import urllib
+import traceback
+import random
+
+ACCESS_KEY_ID = 'LTAIH6IHuMj6Fq2h'
+ACCESS_KEY_SECRET = 'N5eWsbw8qBkMfPREkgF2JnTsDASelM'
+ENDPOINT_OUT = 'oss-cn-shanghai.aliyuncs.com'
+BUCKETNAME_APIVERSION = 'fancyqube-all-mainsku-pic'
+
+# Random Code Info
+Upper = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+Lower = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+Number = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+
+
+def random_code():
+    code = []
+    for i in range(2):
+        code.append(random.choice(Number))
+    letter = Upper + Lower
+    for i in range(9):
+        code.append(random.choice(letter))
+    result = ''.join(code)
+    return result
+
+
+def get_image(db_connect, upload_id):
+    """
+    从t_templet_amazon_wait_upload表取主sku图片信息
+    从t_templet_amazon_published_variation取变体sku图片信息
+    若有变体则只上传变体图片，若无则上传主体图片
+    返回sku图片字典，格式如下
+    {'seller_sku':{'main_url':main_image_url, 'other_url1':other_url1,'other_url12:other_url2,……}}
+
+    """
+    auth = oss2.Auth(ACCESS_KEY_ID, ACCESS_KEY_SECRET)
+    bucket = oss2.Bucket(auth, ENDPOINT_OUT, BUCKETNAME_APIVERSION)
+    cursor = db_connect.cursor()
+    try:
+        # 主体图片信息
+        sql_main = "SELECT id, prodcut_variation_id, item_sku, productSKU, main_image_url, other_image_url1, other_image_url2, other_image_url3, other_image_url4, other_image_url5, other_image_url6, other_image_url7, other_image_url8,ShopSets FROM 	t_templet_amazon_wait_upload a WHERE 	id = %s" % upload_id
+        cursor.execute(sql_main)
+        main_image_info = cursor.fetchone()
+        # 根据主体建本地图片目录
+        image_path = 'C:\Users\\admin\Desktop\oss\\'  # 本地图片根目录
+        is_path_exist = os.path.exists(image_path)
+        if not is_path_exist:
+            os.makedirs(image_path)
+        # 变体图片信息
+        sql_variation = "SELECT 	id, prodcut_variation_id, child_sku, productSKU, main_image_url, other_image_url1, other_image_url2, other_image_url3, other_image_url4, other_image_url5, other_image_url6, other_image_url7, other_image_url8 FROM 	t_templet_amazon_published_variation a WHERE prodcut_variation_id = %s" % main_image_info[1]
+        cursor.execute(sql_variation)
+        variation_image_info = cursor.fetchall()
+
+        image_all_dic = {}
+        if variation_image_info:  # 有变体则只上传变体图片
+            for variation_image in variation_image_info:
+                image_each_dic = {}
+                for i in range(4, 13):
+                    if variation_image[i]:
+                        image_url = variation_image[i].split('/', 3)[-1]
+                        code = random_code()
+                        image_url_local = code + '.' + variation_image[i].split('.')[-1]
+                        bucket.get_object_to_file(image_url, image_path + image_url_local)
+                        if i == 4:
+                            image_each_dic['main_url'] = image_url_local
+                        else:
+                            image_each_dic['other_url' + str(i-4)] = image_url_local
+                image_all_dic[variation_image[2]] = image_each_dic
+        else:  # 无变体上传主体的图片
+            image_each_dic = {}
+            for i in range(4,13):
+                if main_image_info[i]:
+                    image_url = main_image_info[i].split('/',3)[-1]
+                    code = random_code()
+                    image_url_local = code + '.' + main_image_info[i].split('.')[-1]
+                    bucket.get_object_to_file(image_url, image_path + image_url_local)
+                    if i == 4:
+                        image_each_dic['main_url'] = image_url_local
+                    else:
+                        image_each_dic['other_url' + str(i - 4)] = image_url_local
+            image_all_dic[main_image_info[2]] = image_each_dic
+        return image_all_dic
+    except Exception as e:
+        traceback.print_exc()
+        return None
+    finally:
+        cursor.close()
+
+
+def get_image_xml(image_info, seller_id):
+    # Image XML
+    IMAGE_HEAD_XML = '''<?xml version="1.0" encoding="utf-8" ?>
+    <AmazonEnvelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="amznenvelope.xsd">
+        <Header>
+            <DocumentVersion>1.01</DocumentVersion>
+            <MerchantIdentifier>SELLERID</MerchantIdentifier>
+        </Header>
+        <MessageType>ProductImage</MessageType>'''
+    IMAGE_BODY_XML = '''
+        <Message>
+            <MessageID>MESSAGENUM</MessageID>
+            <OperationType>Update</OperationType>
+            <ProductImage>
+                <SKU>PRODUCTSKU</SKU>
+                <ImageType>CHANGE_IMAGE_TYPE</ImageType>
+                <ImageLocation>IMAGELOCALTIONURL</ImageLocation>
+            </ProductImage>
+        </Message>'''
+    IMAGE_FEET_XML = '''
+    </AmazonEnvelope>'''
+
+    num = 1
+    image_xml = {}
+    for key, value in image_info.items():
+        for key_child in sorted(value.keys()):
+            if key_child == 'main_url':
+                image_type = 'Main'
+            else:
+                image_type = 'PT' + key_child[-1]
+            # image_url = 'http://' + self.realIP + '/' + images[i]
+            image_url = 'http://' + 'localhost' + '/' + value[key_child]
+            image_xml[num] = IMAGE_BODY_XML
+            image_xml[num] = image_xml[num].replace('MESSAGENUM', str(num))
+            image_xml[num] = image_xml[num].replace('PRODUCTSKU', key)
+            image_xml[num] = image_xml[num].replace('CHANGE_IMAGE_TYPE', image_type)
+            image_xml[num] = image_xml[num].replace('IMAGELOCALTIONURL', image_url)
+            num += 1
+    image_complete_xml = ''
+    image_complete_xml += IMAGE_HEAD_XML
+    image_complete_xml = image_complete_xml.replace('SELLERID', seller_id)
+    for i in image_xml:
+        image_complete_xml += image_xml[i]
+    image_complete_xml += IMAGE_FEET_XML
+    return image_complete_xml
+
+
+DATABASES = {
+    'NAME': 'hq_db',
+    'HOST': 'rm-uf6kd5a4wee2n2ze6o.mysql.rds.aliyuncs.com',
+    'PORT': '3306',
+    'USER': 'by15161458383',
+    'PASSWORD': 'K120Esc1'
+}
+
+db_conn = MySQLdb.connect(DATABASES['HOST'], DATABASES['USER'], DATABASES['PASSWORD'], DATABASES['NAME'])
+try:
+    image_dict = get_image(db_conn, 48)
+    print 'image_dict is '
+    print image_dict
+    image_xml = get_image_xml(image_dict, 'hahahhahahha')
+    print 'image_xml is'
+    print image_xml
+except Exception as e:
+    traceback.print_exc()
+finally:
+    db_conn.close()

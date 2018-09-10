@@ -1,0 +1,258 @@
+<body>
+<form id="editAmazonVariation" name="editAmazonVariation"
+      action="t_templet_amazon_wait_upload/variation/?prodcut_variation_id={{ prodcut_variation_id }}&sizeCount={{ sizeCount }}&productSKU={{ productSKU }}" method="POST">
+    <input id="sizeCount" type="hidden" name="sizeCount" value="{{ sizeCount }}" style="border-collapse:separate; border-spacing: 10px;" />
+    <table align="center" width="1300" id="tb">
+        <tr align="center">
+            <th style="text-align:center">变体图</th>
+            <th style="text-align:center">类型</th>
+            <th>主SKU</th>
+            <th>子SKU</th>
+            <th>商品SKU</th>
+            <th>颜色</th>
+            <th>尺寸</th>
+            <th>材质</th>
+            <th>价格</th>
+            <th>包装数</th>
+            <th>操作</th>
+        </tr>
+        {% for obj in objs %}
+        <tr align="center">
+
+            <input id="variation_id" type="hidden" name="variation_id" value="{{ obj.id }}" />
+            <td style="text-align:center">
+                <img id="{{ forloop.counter }}" name="shopsku_image" width="40" height="40"
+                      src="{{ obj.main_image_url }}"
+                      alt="变体图_{{ forloop.counter }}" onclick="change_image({{ forloop.counter }})"/>
+                <input id="imgs_{{ forloop.counter }}" type="hidden" name="myimgs" value="{{ obj.main_image_url }}" />
+            </td>
+            <td><input style="width: 120px;" id="variation_theme_{{ forloop.counter }}" type="hidden"
+                       name="variation_theme_1" value="{{ obj.variation_theme }}" />
+                <select id="select_id_variation_theme_{{ forloop.counter }}" name="variation_theme" value="{{ obj.variation_theme }}" onchange="select_theme({{ forloop.counter }},this.value)">
+                    {% if select_type == 0 %}
+                        <option id="option_2" value="Color">颜色</option>
+                        <option id="option_3" value="Size">尺寸</option>
+                        <option id="option_5" value="Size-Color">颜色-尺寸</option>
+                    {% endif %}
+                    {% if select_type == 1 %}
+                        <option id="option_2" value="Color">颜色</option>
+                        <option id="option_3" value="Size">尺寸</option>
+                    {% endif %}
+                    {% if select_type == 2 %}
+                        <option id="option_2" value="Color">颜色</option>
+                    {% endif %}
+                    {% if select_type == 3 %}
+                        <option id="option_1" value="MetalType">材质</option>
+                        <option id="option_2" value="Color">颜色</option>
+                    {% endif %}
+                    {% if select_type == 4 %}
+                        <option id="option_1" value="MetalType">材质</option>
+                        <option id="option_2" value="Color">颜色</option>
+                        <option id="option_3" value="Size">尺寸</option>
+                        <option id="option_4" value="MetalType-Size">材质-尺寸</option>
+                        <option id="option_5" value="Size-Color">颜色-尺寸</option>
+                    {% endif %}
+                    {% if select_type == 5 %}
+                        <option id="option_4" value="MetalType-Size">材质-尺寸</option>
+                    {% endif %}
+                </select>
+            </td>
+{#            <td><input style="width: 120px;" type="text" name="UPC" value="{{ obj.external_product_id }}"#}
+{#                 onkeyup="this.value=this.value.replace(/\D/g,'')"/></td>#}
+            <td><input style="width: 100px;" readonly="readonly" type="text" name="parent_sku" value="{{ obj.parent_sku }}" /></td>
+            <td><input style="width: 100px;" readonly="readonly" type="text" name="child_sku" value="{{ obj.child_sku }}" /></td>
+            <td><input id="product_SKU_{{ forloop.counter }}" style="width: 100px;" type="text" name="product_SKU" value="{{ obj.productSKU }}" required="required"/></td>
+            <td><input id="color_name_{{ forloop.counter }}" style="width: 80px;" type="text" name="color_name" value="{{ obj.color_name }}" /></td>
+            <td><input id="size_name_{{ forloop.counter }}" style="width: 80px;" type="text" name="size_name" value="{{ obj.size_name }}" /></td>
+            <td><input id="MetalType_{{ forloop.counter }}" style="width: 80px;" type="text" name="MetalType" value="{{ obj.MetalType }}" /></td>
+            <td><input id="price_{{ forloop.counter }}" style="width: 80px;" name="price" value="{{ obj.price }}" step="0.01" type="number" required="required" /></td>
+            <td><input id="item_quantity_{{ forloop.counter }}" style="width: 80px;" type="number" name="item_quantity" value="{{ obj.item_quantity }}" step="1" required="required"/></td>
+            <td><a href="javascript:void(0)" onclick="delIndex(this)">删除</a></td>
+        </tr>
+        {% endfor %}
+    </table>
+    {% if update_view == 0 %}
+        <table align="center">
+            <tr>
+                <td>
+                    <input type="button" class="button" onclick="to_submit()" value="确定保存">
+                </td>
+                <td>
+                    <input type="button" class="button" value="添加一行" onclick="add('-1')" >
+                </td>
+            </tr>
+        </table>
+    {% endif %}
+    {% csrf_token %}
+</form>
+<input id="select_type" type="hidden" value="{{ select_type }}" />
+</body>
+<script type="text/javascript">
+    window.onload = function () {
+        var sizeCount = document.getElementById('sizeCount').value;
+        for(var i = 1; i <= sizeCount; i++){
+            var all_options = document.getElementById("select_id_variation_theme_" + i).options;
+            var variation_theme = document.getElementById("variation_theme_" + i).value;
+            for (j=0; j<all_options.length; j++){
+                if (all_options[j].value == variation_theme)
+                {
+                    all_options[j].selected = true;
+                }
+            }
+        }
+
+    }
+{#    var ind = parent.layer.getFrameIndex(window.name);#}
+    function to_submit() {
+        var variation_themes = document.getElementsByName('variation_theme');
+        var can_insert = 1;
+        for(var i=1; i<= variation_themes.length; i++){
+            var id_str = variation_themes[i-1].id;
+            var index = id_str .lastIndexOf("_");
+            var end_num = id_str .substring(index + 1, id_str.length);
+            console.log(end_num);
+            var product_SKU = document.getElementById('product_SKU_'+end_num).value;
+            var price = document.getElementById('price_'+end_num).value;
+            var item_quantity = document.getElementById('item_quantity_'+end_num).value;
+            if(product_SKU==''||product_SKU==null){
+                can_insert = 0;
+                alert('第'+i+'行变体商品SKU不能为空！');
+                break;
+            }
+            if(price==''||price==null){
+                can_insert = 0;
+                alert('第'+i+'行变体价格不能为空！');
+                break;
+            }
+            if(item_quantity==''||item_quantity==null){
+                can_insert = 0;
+                alert('第'+i+'行变体包装数不能为空！');
+                break;
+            }
+            if(variation_themes[i-1].value.indexOf("Color") != -1){
+                var color_name = document.getElementById('color_name_'+end_num).value;
+                if(color_name==''||color_name==null){
+                    can_insert = 0;
+                    alert('第'+i+'行变体颜色不能为空！');
+                    break;
+                }
+            }else if(variation_themes[i-1].value.indexOf("Size") != -1){
+                var size_name = document.getElementById('size_name_'+end_num).value;
+                if(size_name==''||size_name==null){
+                    can_insert = 0;
+                    alert('第'+i+'行变体大小不能为空！');
+                    break;
+                }
+            }
+            else if(variation_themes[i-1].value.indexOf("MetalType") != -1){
+                var MetalType = document.getElementById('MetalType_'+end_num).value;
+                if(MetalType==''||MetalType==null){
+                    can_insert = 0;
+                    alert('第'+i+'行变体材料不能为空！');
+                    break;
+                }
+            }
+        }
+        if(can_insert==1){
+            parent.layer.confirm('确定提交变更吗？', {
+                skin: 'layui-layer-lan',
+                title:'变更提示。。',
+                btn: ['确定','算了'], //按钮
+                btn1:function(){
+                    document.getElementById('editAmazonVariation').submit();
+                },
+            });
+        }
+    };
+{##}
+{#    function totxt(seltxt, tbindex){#}
+{#        console.log(seltxt+'************'+tbindex);#}
+{#        document.getElementById("variation_theme_" + tbindex).value=seltxt;#}
+{#    }#}
+
+    function delIndex(obj) {
+        var rowIndex = obj.parentNode.parentNode.rowIndex;//获得行下标
+{#alert(rowIndex);#}
+        var tb = document.getElementById("tb");
+        tb.deleteRow(rowIndex);//删除当前行
+{#        add(rowIndex);//在当前行插入一行#}
+    }
+    function add(rowIndex) {
+        var tb = document.getElementById("tb");
+        if (rowIndex == "-1") {
+            rowIndex = tb.rows.length;//默认在末尾插入一行
+        }
+        //表格行数
+        var rows = tb.rows.length ;
+        var count = rows + 1;
+        var select_type = document.getElementById('select_type').value;
+        var row = tb.insertRow(rowIndex);//在表格的指定插入一行
+        row.setAttribute('align','center');//height
+        row.setAttribute('height','39.76px');
+        row.innerHTML = '<input id="variation_id" type="hidden" name="variation_id" value="new_add" />';
+        var c1 = row.insertCell(0);
+        c1.innerHTML = '<td style="text-align:center">新添加变体</td>';
+        var c2 = row.insertCell(1);
+        var c2_innerHTML = '<td><input style="width: 120px;" id="variation_theme_'+count+'" type="hidden" name="variation_theme_1" value="Color" />' +
+            '                <select id="select_id_variation_theme_'+count+'" name="variation_theme" value="" onchange="select_theme('+count+',this.value)">';
+        if(select_type==0){
+            c2_innerHTML += '                        <option id="option_2" value="Color">颜色</option>' +
+            '                        <option id="option_3" value="Size">尺寸</option>' +
+            '                        <option id="option_5" value="Size-Color">颜色-尺寸</option>';
+        }else if(select_type==1){
+            c2_innerHTML += '<option id="option_2" value="Color">颜色</option>' +
+                '                        <option id="option_3" value="Size">尺寸</option>';
+        }else if(select_type==2){
+            c2_innerHTML += '<option id="option_2" value="Color">颜色</option>';
+        }else if(select_type==3){
+            c2_innerHTML += '<option id="option_1" value="MetalType">材质</option>' +
+                '                        <option id="option_2" value="Color">颜色</option>';
+        }else if(select_type==4){
+            c2_innerHTML += '<option id="option_1" value="MetalType">材质</option>' +
+                '                        <option id="option_2" value="Color">颜色</option>' +
+                '                        <option id="option_3" value="Size">尺寸</option>' +
+                '                        <option id="option_4" value="MetalType-Size">材质-尺寸</option>' +
+                '                        <option id="option_5" value="Size-Color">颜色-尺寸</option>';
+        }else if(select_type==5){
+            c2_innerHTML += '<option id="option_4" value="MetalType-Size">材质-尺寸</option>';
+        }
+        c2_innerHTML += '                </select>' +
+            '            </td>';
+        c2.innerHTML = c2_innerHTML;
+        var c3 = row.insertCell(2);
+        c3.innerHTML = '<td><input style="width: 100px;" readonly="readonly" type="text" name="parent_sku" value="" /></td>';
+        var c4 = row.insertCell(3);
+        c4.innerHTML = '<td><input style="width: 100px;" readonly="readonly" type="text" name="child_sku" value="" /></td>';
+        var c10 = row.insertCell(4);
+        c10.innerHTML = '<td><input id="product_SKU_'+count+'" style="width: 100px;" type="text" name="product_SKU" required="required"/></td>';
+        var c5 = row.insertCell(5);
+        c5.innerHTML = '<td><input id="color_name_'+count+'" style="width: 80px;" type="text" name="color_name" /></td>';
+        var c6 = row.insertCell(6);
+        c6.innerHTML = '<td><input id="size_name_'+count+'" style="width: 80px;" type="text" name="size_name" /></td>';
+        var c7 = row.insertCell(7);
+        c7.innerHTML = '<td><input id="MetalType_'+count+'" style="width: 80px;" type="text" name="MetalType" /></td>';
+        var c7 = row.insertCell(8);
+        c7.innerHTML = '<td><input id="price_'+count+'" style="width: 80px;" name="price" step="0.01" type="number" required="required" /></td>';
+        var c7 = row.insertCell(9);
+        c7.innerHTML = '<td><input id="item_quantity_'+count+'" style="width: 80px;" type="number" name="item_quantity" step="1" required="required"/></td>';
+        var c7 = row.insertCell(10);
+        c7.innerHTML = '<td><a href="javascript:void(0)" onclick="delIndex(this)">删除</a></td>';
+    }
+    function select_theme(num,select_value) {
+{#        if(select_value.indexOf("Color") != -1){#}
+{#            document.getElementById('color_name_'+num).setAttribute('required', 'required');#}
+{#        }else {#}
+{#            document.getElementById('color_name_'+num).setAttribute('required', false);#}
+{#        }#}
+{#        if(select_value.indexOf("Size") != -1){#}
+{#            document.getElementById('size_name_'+num).setAttribute('required', 'required');#}
+{#        }else {#}
+{#            document.getElementById('size_name_'+num).setAttribute('required', false);#}
+{#        }#}
+{#        if(select_value.indexOf("MetalType") != -1){#}
+{#            document.getElementById('MetalType_'+num).setAttribute('required', 'required');#}
+{#        }else {#}
+{#            document.getElementById('MetalType_'+num).setAttribute('required', false);#}
+{#        }#}
+    }
+</script>

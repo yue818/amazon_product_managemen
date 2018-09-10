@@ -1,0 +1,341 @@
+<!-- {#<div class="form-group">#}
+{#    <label for="firstname" class="col-sm-2 control-label">标题:</label>#}
+{#    <div class="col-sm-10">#}
+{#        <input type="text" class="form-control" id="title" name="title" placeholder="请输入标题">#}
+{#    </div>#}
+{#</div>#}
+{#<div class="form-group">#}
+{#    <label for="lastname" class="col-sm-2 control-label">描述:</label>#}
+{#    <div class="col-sm-10">#}
+{#        <input type="text" class="form-control" id="descri" name="descri" placeholder="请输入描述">#}
+{#    </div>#}
+{#</div>#}
+{#<div class="form-group">#}
+{#    <div class="col-sm-offset-2 col-sm-10">#}
+{#        <div class="checkbox">#}
+{#            <label>#}
+{#                <input type="checkbox"> 请记住我#}
+{#            </label>#}
+{#        </div>#}
+{#    </div>#}
+{#</div>#}
+{##}
+
+{#<link href="/static/wishpubapp/" rel="stylesheet" type="text/css" />#} -->
+<script src="/static/mymall_app/mymall_pub_form.js"></script>
+<script type="text/javascript">
+    function checknum(num)
+    {
+        if (isNaN(num)) {
+            alert('输入数字有误，请重新输入!')
+        }
+    }
+</script>
+
+<div class="panel panel-default fieldset unsort " id="box-8">
+    <div class="panel-heading">
+        <i class="icon fa fa-chevron-up chevron"></i>
+        <h3 class="panel-title">基本信息</h3>
+    </div>
+    <div class="panel-body ">
+        <div id="div_id_title" class="form-group">
+            <label for="id_title" class="control-label " style="float:left;width: 170px;padding-top: 22px !important;text-align: right">
+                        产品标题
+                    </label>
+            <div class="controls " style="margin-left: 175px;border-left: 1px solid #EEE;">
+                <input class="text-field admintextinputwidget form-control" id="id_title" maxlength="256" name="title" type="text" style="max-width: 1200px;" value="{{ AllDict.Title }}">
+            </div>
+        </div>
+
+        <div class="form-inline form-group">
+            <div id="div_id_descri" class="form-group col-sm-12">
+                <label for="id_descri" class="control-label " style="float:left;width: 170px;padding-top: 22px !important;text-align: right">
+                    产品描述
+                </label>
+                <div class="controls " style="margin-left: 175px;border-left: 1px solid #EEE;">
+                    <textarea class="textarea-field admintextareawidget form-control" cols="40" id="id_descri" name="descri" rows="10">{{ AllDict.Description }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <div id="div_id_tags" class="form-group">
+            <label for="id_tags" class="control-label " style="float:left;width: 170px;padding-top: 22px !important;text-align: right">
+                        产品标签
+                    </label>
+            <div class="controls " style="margin-left: 175px;border-left: 1px solid #EEE;">
+                <input class="text-field admintextinputwidget form-control" id="id_tags" maxlength="256" name="tags" type="text" style="max-width: 1200px;" value="{{ AllDict.Tags }}" onkeyup="this.value=this.value.replace(/[^\w\s\,]/g,'')"><br>
+                <span style="color: red">用英文逗号进行分隔！！！</span>
+            </div>
+        </div>
+        <div id="div_id_classification " class="form-group" style="display: none">
+            <label for="id_classification " class="control-label " style="float:left;width: 170px;padding-top: 22px !important;text-align: right">
+                        产品分类
+                    </label>
+            <div class="controls " style="margin-left: 175px;border-left: 1px solid #EEE;">
+                <select name="catetype">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 主信息显示 -->
+<div class="panel panel-default fieldset unsort " id="box-8">
+    <div class="panel-heading">
+        <i class="icon fa fa-chevron-up chevron"></i>
+        <h3 class="panel-title">价格和运送</h3>
+    </div>
+    <div class="panel-body ">
+        <div class="form-inline form-group">
+            <div id="div_id_MSRP" class="form-group col-sm-6">
+                <label for="id_MSRP" class="control-label " style="float:left;width: 170px;padding-top: 22px !important;text-align: right">
+                    MSRP
+                </label>
+                <div class="controls " style="margin-left: 175px;border-left: 1px solid #EEE;">
+                    <input class="text-field admintextinputwidget form-control" id="id_MSRP" maxlength="32" name="MSRP" type="text" value="{{ AllDict.MainInfo.MSRP }}" onblur="checknum(this.value)">
+                </div>
+            </div>
+            <div id="div_id_Price" class="form-group col-sm-6">
+                <label for="id_Price" class="control-label " style="float:left;width: 170px;padding-top: 22px !important;text-align: right">
+                    价格
+                </label>
+                <div class="controls " style="margin-left: 175px;border-left: 1px solid #EEE;">
+                    <input class="text-field admintextinputwidget form-control" id="id_Price" maxlength="16" name="Price" type="text" value="{{ AllDict.MainInfo.Price }}"  onblur="checknum(this.value)">
+                </div>
+            </div>
+        </div>
+        <div class="form-inline form-group">
+            <div id="div_id_Shipping" class="form-group col-sm-6">
+                <label for="id_Shipping" class="control-label "  style="float:left;width: 170px;padding-top: 22px !important;text-align: right">
+                    运费
+                </label>
+                <div class="controls " style="margin-left: 175px;border-left: 1px solid #EEE;">
+                    <input class="text-field admintextinputwidget form-control" id="id_Shipping" maxlength="32" name="Shipping" type="text" value="{{ AllDict.MainInfo.Shipping }}" onblur="checknum(this.value)">
+                </div>
+            </div>
+            <div id="div_id_ShippingTime" class="form-group col-sm-6">
+                <label for="id_ShippingTime" class="control-label " style="float:left;width: 170px;padding-top: 22px !important;text-align: right">
+                    运送时间
+                </label>
+                <div class="controls " style="margin-left: 175px;border-left: 1px solid #EEE;">
+                    <input class="text-field admintextinputwidget form-control" id="id_ShippingTime" maxlength="16" name="ShippingTime" type="text" value="{{ AllDict.MainInfo.ShippingTime }}">
+                </div>
+            </div>
+        </div>
+        <div class="form-inline form-group">
+            <div id="div_id_KC" class="form-group col-sm-6">
+                <label for="id_KC" class="control-label " style="float:left;width: 170px;padding-top: 22px !important;text-align: right">
+                    库存
+                </label>
+                <div class="controls " style="margin-left: 175px;border-left: 1px solid #EEE;">
+                    <input class="text-field admintextinputwidget form-control" id="id_KC" maxlength="32" name="KC" type="text" value="{{ AllDict.MainInfo.KC }}" onblur="checknum(this.value)">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 主图 -->
+<div class="panel panel-default fieldset unsort " id="box-8">
+    <div class="panel-heading">
+        <i class="icon fa fa-chevron-up chevron"></i>
+        <h3 class="panel-title">主图</h3>
+    </div>
+    <div class="panel-body ">
+        <div class="form-inline form-group">
+            <div id="div_id_MainPic" class="form-group col-sm-6">
+                <label for="id_MainPic" class="control-label " style="float:left;width: 170px;padding-top: 22px !important;text-align: right">
+                上传主图 <span class="asteriskField">*</span>
+                </label>
+                <div class="controls " style="float:left;">
+                    {% if AllDict.MainImage %}
+                        <img id="id_Pic_0" src="{{ AllDict.MainImage }}" width="120" height="120" alt = "{{ AllDict.MainImage }}" title="{{ AllDict.MainImage }}"
+                             data-toggle="modal" data-target="#upload_image" onclick="change_vPic('0')"/>
+                    {% else %}
+                        <img id="id_Pic_0" src="http://ou3qh0g46.bkt.clouddn.com/fancyqube.jpg"
+                             width="120" height="120"
+                             alt = "http://ou3qh0g46.bkt.clouddn.com/fancyqube.jpg"
+                             title="http://ou3qh0g46.bkt.clouddn.com/fancyqube.jpg"
+                             data-toggle="modal" data-target="#upload_image" onclick="change_vPic('0')"/>
+                    {% endif %}
+                        <input type="hidden" value="{{ AllDict.MainImage }}" name="MainPic" id="id_MainPic">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 主SKU生成变体 -->
+<div class="panel panel-default fieldset unsort " id="box-8">
+    <div class="panel-heading">
+        <i class="icon fa fa-chevron-up chevron"></i>
+        <h3 class="panel-title">主SKU</h3>
+    </div>
+    <div class="panel-body ">
+        <div class="form-inline form-group">
+            <div id="div_id_MainSKU" class="form-group col-sm-4">
+                <label for="id_MainSKU" class="control-label "  style="float:left;width: 170px;padding-top: 22px !important;text-align: right">
+                    主SKU<span class="asteriskField">*</span>
+                </label>
+                <div class="controls " style="margin-left: 175px;border-left: 1px solid #EEE;">
+                    <input class="text-field admintextinputwidget form-control" id="id_MainSKU" maxlength="32" name="MainSKU" type="text" value="{{ AllDict.MainSKU }}">
+                </div>
+            </div>
+            <div id="div_Variant" class="form-group col-sm-4">
+                <div class="controls "  style="float:left;">
+                    <button type="button" class="btn btn-primary" onclick="get_Variant()">
+                        <span style="color:#ffffff;">生成变体</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 变体显示 -->
+<div class="panel panel-default fieldset unsort " id="box-8">
+    <div class="panel-heading">
+        <i class="icon fa fa-chevron-up chevron"></i>
+        <h3 class="panel-title">变体信息</h3>
+    </div>
+    <div class="panel-body ">
+        <table class="table table-bordered table-striped table-hover" id="VariantInfo">
+            <thead>
+                <tr>
+                    <th>变体图</th>
+                    <th>商品SKU</th>
+                    <th>ShopSKU</th>
+                    <th>尺寸</th>
+                    <th>颜色</th>
+                    <th>MSRP</th>
+                    <th>价格</th>
+                    <th>库存</th>
+                    <th>运费</th>
+                    <th>运输时间</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for V_info in AllDict.Variants %}
+                <tr>
+                    <td>
+                        {% if V_info.vPic %}
+                            <img id="id_vPic_{{ forloop.counter }}" src="{{ V_info.vPic }}" width="35" height="35" alt = "{{ V_info.vPic }}" title="{{ V_info.vPic }}"
+                                 data-toggle="modal" data-target="#upload_image" onclick="change_vPic('v_{{ forloop.counter }}')"/>
+                        {% else %}
+                            <img id="id_vPic_{{ forloop.counter }}" src="http://ou3qh0g46.bkt.clouddn.com/fancyqube.jpg"
+                             width="35" height="35"
+                             alt = "http://ou3qh0g46.bkt.clouddn.com/fancyqube.jpg"
+                             title="http://ou3qh0g46.bkt.clouddn.com/fancyqube.jpg"
+                                 data-toggle="modal" data-target="#upload_image" onclick="change_vPic('v_{{ forloop.counter }}')"/>
+                        {% endif %}
+                        <input type="hidden" value="{{ V_info.vPic }}" name="vPic" id="vPic_{{ forloop.counter }}">
+                    </td>
+                    <td>
+                        <input type="text" value="{{ V_info.SKU }}" name="productsku">
+                    </td>
+                    <td>
+                        <input type="text" value="{{ V_info.ShopSKU }}" name="shopsku">
+                    </td>
+                    <td>
+                        <input type="text" value="{{ V_info.Size }}" name="size">
+                    </td>
+                    <td>
+                        <input type="text" value="{{ V_info.Color }}" name="color">
+                    </td>
+                    <td>
+                        <input type="text" value="{{ V_info.Msrp }}" name="msrp" onblur="checknum(this.value)">
+                    </td>
+                    <td>
+                        <input type="text" value="{{ V_info.Price }}" name="price" onblur="checknum(this.value)">
+                    </td>
+                    <td>
+                        <input type="text" value="{{ V_info.Kc }}" name="kc" onblur="checknum(this.value)">
+                    </td>
+                    <td>
+                        <input type="text" value="{{ V_info.Shipping }}" name="shipping" onblur="checknum(this.value)">
+                    </td>
+                    <td>
+                        <input type="text" value="{{ V_info.Shippingtime }}" name="shippingtime">
+                    </td>
+                    <td>
+                        <input type="button" class="btn btn-default" value="移除" name="delone" onclick="to_del(this)">
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div id="div_Variant_next" class="form-group col-sm-4">
+            <div class="controls "  style="float:left;">
+                <button type="button" class="btn btn-primary" onclick="add_V()">
+                    <span style="color:#ffffff;">增加变体</span>
+                </button>
+                <button type="button" class="btn btn-primary" onclick="getShopSKU()">
+                    <span style="color:#ffffff;">店铺SKU一键生成</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 附图显示 -->
+<div class="panel panel-default fieldset unsort " id="box-8">
+    <div class="panel-heading">
+        <i class="icon fa fa-chevron-up chevron"></i>
+        <h3 class="panel-title">附图</h3>
+    </div>
+    <div class="panel-body " id="ePic_All">
+        {% for ePic in AllDict.EPIC %}
+        <div id="div_id_ePic_{{ forloop.counter }}" class="form-group col-sm-1">
+            <label for="id_ePic{{ forloop.counter }}" class="control-label " style="float:left;width: 120px;padding-top: 22px !important;text-align: right">
+                附图{{ forloop.counter }} <span class="asteriskField">*</span>
+            </label>
+            <div class="controls " style="float:left;">
+                {% if ePic %}
+                    <img id="id_ePic_{{ forloop.counter }}" src="{{ ePic }}" width="120" height="120" alt = "{{ ePic }}" title="{{ ePic }}"
+                    data-toggle="modal" data-target="#upload_image" onclick="change_vPic('e_{{ forloop.counter }}')"/>
+                {% else %}
+                    <img id="id_ePic_{{ forloop.counter }}" src="http://ou3qh0g46.bkt.clouddn.com/fancyqube.jpg"
+                         width="120" height="120"
+                         alt = "http://ou3qh0g46.bkt.clouddn.com/fancyqube.jpg"
+                         title="http://ou3qh0g46.bkt.clouddn.com/fancyqube.jpg"
+                         data-toggle="modal" data-target="#upload_image" onclick="change_vPic('e_{{ forloop.counter }}')"/>
+                {% endif %}
+                <input type="hidden" value="{{ ePic }}" name="ePic" id="ePic_{{ forloop.counter }}">
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="upload_image" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    请选择图片上传
+                </h4>
+            </div>
+            <input type="hidden" value="" id="modal_hidden_id">
+            <input class="adminimagewidget form-control" id="id_upload_img" label="上传图片" name="IMG_upload" type="file" accept="image/.jpg" value="">
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                </button>
+                <button type="button" class="btn btn-primary" onclick="upload_Img()" id="upload_image_button">
+                    提交更改
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+

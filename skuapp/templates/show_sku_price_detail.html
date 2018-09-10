@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>商品价格详情</title>
+</head>
+<body>
+    <table align="center" width="95%"  border="1">
+        <tr align="center">
+            <th style="text-align:center">店铺</th>
+            <th style="text-align:center">ASIN</th>
+            <th style="text-align:center">店铺SKU</th>
+            <th style="text-align:center">店铺SKU拆分(按+拆分)</th>
+            <th style="text-align:center">商品SKU</th>
+            <th style="text-align:center">SKU组合数(*后的数值)</th>
+            <th style="text-align:center">库存量</th>
+            <th style="text-align:center">成本价</th>
+            <th style="text-align:center">总价</th>
+            <th style="text-align:center">状态</th>
+
+        </tr>
+
+        {% for price in sku_price_obj %}
+        <tr>
+            <td nowrap>{{price.shop_name}}</td>
+            <td nowrap>{{price.asin}}</td>
+            <td nowrap>{{price.seller_sku}}</td>
+            <td nowrap>{{price.seller_sku_each}}</td>
+            <td nowrap>{{price.product_sku}}</td>
+            <td nowrap>{{price.quantity_multiply}}</td>
+            <td nowrap>{{price.quantity_inventory}}</td>
+            <td nowrap>{{price.sku_unit_price}}</td>
+            <td nowrap>{{price.total_price}}</td>
+            <td nowrap>{{price.status}}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<link href="/static/js/t_online_info_wish_store_search.css?t=201803211234" rel="stylesheet" type="text/css" />
+<script src="/static/js/t_online_info_wish_store_search.js?t=201803211234"></script>
+    <ul id="myTab" class="nav nav-tabs">
+        <li {% if activeflag == '' or activeflag == 'ALL' %} class="active" {% endif %}>
+            <a href="{{ nowurl }}FBFLAG=ALL">
+                 ALL
+            </a>
+        </li>
+        <li {% if activeflag == 'FBA' %} class="active" {% endif %}>
+            <a href="{{ nowurl }}FBFLAG=FBA">
+                FBA
+            </a>
+        </li>
+        <li {% if activeflag == 'FBM' %} class="active" {% endif %}>
+            <a href="{{ nowurl }}FBFLAG=FBM">
+                FBM
+            </a>
+        </li>
+    </ul>
+    <br>
+    <div>
+        <div style="font-size:15px;">
+            <div class="padatr">
+                <br>
+                <div class="satrdiv inline mRight20" style="float: left;height: 34px;width: 65.3px;">店铺名称:</div>
+                <div class="inline" style="float: left">
+                    <input id="q" class="textatr" name="shopname" style="border-radius: 10px;width:364px; " onFocus="if(this.value=='搜索店铺...'){this.value='';}else{this.select();}this.style.color='black';"  value="{{ flag }}">
+                    <input type="button" class="sybutton" value="点击搜索" onclick="searchItemAmazon()">
+                    <div class="selectize-dropdown-content" id="div_items" style="z-index: 100;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script type="text/javascript">
+    var divdown = document.getElementById('div_items');
+    var node=divdown.nextSibling;
+    var shop_list = {{ objs|safe }};
+    var info = '';
+    for (var s=0;s<shop_list.length;s++){
+        info += '<div class="div_item" onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" onClick="ChangeText(this);">'+ shop_list[s] +'</div>';
+    }
+    divdown.innerHTML = info;
+    divdown.parentNode.insertBefore(divdown, node);
+    node=divdown.nextSibling;
+
+    if (document.getElementById('q').value == 'AMZ-0000'){
+        document.getElementById('q').value = '搜索店铺...';
+    }
+    //弹出列表框
+    $("#q").click(function () {
+        $("#div_items").css('display', 'block');
+        return false;
+    });
+
+    //隐藏列表框
+    $("body").click(function () {
+        $("#div_items").css('display', 'none');
+    });
+
+
+    //移入移出效果
+    function getnewcolor(obj) {
+        $(obj).css('background-color', '#1C86EE').css('color', 'white');
+    }
+
+    function getoldcolor(obj) {
+        $(obj).css('background-color', 'white').css('color', 'black');
+    }
+
+    //文本框输入
+    $("#q").keyup(function () {
+        var intext = document.getElementById('q');
+        var inputtext = intext.value;
+        if (inputtext != "") {
+            var html = "";
+            for (var i = 0; i < shop_list.length; i++) {
+                if (shop_list[i].indexOf(inputtext) >= 0) {
+                    html += '<div class="div_item"onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" onClick="ChangeText(this);">'+ shop_list[i] +'</div>';
+                }
+            }
+            if (html != "") {
+                $("#div_items").show().html(html);
+            } else {
+                $("#div_items").hide().html("");
+            }
+        }else {
+            $("#div_items").show().html(info);
+        }
+    });
+
+    //项点击
+    function ChangeText(obj) {
+        var value = $(obj).text();
+        $("#q").val(value);
+        $("#div_items").show().html('<div class="div_item" onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" onClick="ChangeText(this);">'+ value +'</div>');
+    }
+
+    function sleep(n){
+        var start=new Date().getTime();//定义起始时间的毫秒数
+        while(true){
+            var time=new Date().getTime();//每次执行循环取得一次当前时间的毫秒数
+            if(time-start>n){//如果当前时间的毫秒数减去起始时间的毫秒数大于给定的毫秒数，即结束循环
+                break;
+            }
+        }
+    }
+
+</script>
+
+<script>
+    function searchItemAmazon() {
+        var url_str = '/Project/admin/skuapp/t_online_info_amazon_listing/';
+        var s_item = ''
+        var shopname = $("#q").val()
+        if(shopname === undefined){
+            shopname = ''
+        }
+        if(shopname != '' && shopname != undefined && shopname.indexOf('搜索') == -1){s_item += '&shopname='+ shopname;}
+        if(s_item != ''){
+           s_item = '?'+s_item.substring(1,s_item.length)
+        }
+        window.location.href = url_str+s_item;
+    }
+</script>

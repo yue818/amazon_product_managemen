@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>移除订单详情</title>
+</head>
+<body>
+    <table align="center" width="95%"  border="1">
+        <tr align="center">
+            <th style="text-align:center">店铺</th>
+            <th style="text-align:center">ASIN</th>
+            <th style="text-align:center">店铺SKU</th>
+            <th style="text-align:center">订单编号</th>
+            <th style="text-align:center">店铺SKU拆分(按+拆分)</th>
+            <th style="text-align:center">商品SKU</th>
+            <th style="text-align:center">SKU组合数(*后的数值)</th>
+            <th style="text-align:center">移除增量</th>
+            <th style="text-align:center">时间跨度</th>
+            <th style="text-align:center">起始时间</th>
+            <th style="text-align:center">起始处理量</th>
+            <th style="text-align:center">截止时间</th>
+            <th style="text-align:center">截止处理量</th>
+            <th style="text-align:center">成本价</th>
+            <th style="text-align:center">总价</th>
+
+        </tr>
+
+        {% for remove in sku_remove_obj %}
+        <tr>
+            <td nowrap>{{remove.shop_name}}</td>
+            <td nowrap>{{remove.asin}}</td>
+            <td nowrap>{{remove.order_id}}</td>
+            <td nowrap>{{remove.seller_sku}}</td>
+            <td nowrap>{{remove.seller_sku_each}}</td>
+            <td nowrap>{{remove.product_sku}}</td>
+            <td nowrap>{{remove.quantity_multiply}}</td>
+            <td nowrap>{{remove.quantity_inventory}}</td>
+            <td nowrap>{{remove.time_span}}</td>
+            <td nowrap>{{remove.begin_time}}</td>
+            <td nowrap>{{remove.first_disposed_quantity}}</td>
+            <td nowrap>{{remove.end_time}}</td>
+            <td nowrap>{{remove.last_disposed_quantity}}</td>
+            <td nowrap>{{remove.sku_unit_price}}</td>
+            <td nowrap>{{remove.total_price}}</td>
+
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

@@ -1,0 +1,16 @@
+<link href="/static/js/t_online_info_wish_store_search.css?t=201803211234" rel="stylesheet" type="text/css" />
+<script src="/static/js/t_online_info_wish_store_search.js?t=201803211234"></script>
+    <ul id="myTab" class="nav nav-tabs">
+        <li {% if activeflag == '' or activeflag == 'STANDARD' %} class="active" {% endif %}>
+            <a href="{{ nowurl }}EXPRESS=STANDARD">
+                 FBA
+            </a>
+        </li>
+        <li {% if activeflag == 'DE' %} class="active" {% endif %}>
+            <a href="{{ nowurl }}EXPRESS=DE">
+                FBM
+            </a>
+        </li>
+    </ul>
+
+

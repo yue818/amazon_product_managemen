@@ -1,0 +1,101 @@
+<style>
+    .tr1 {  width:500px;
+                border-left:0px;
+                border-right:0px;
+                margin-top:8px;}
+    .border1 {
+                  border-spacing:5px;
+                  margin-top:-15px;
+                  padding-left:5px;
+                  width:100%;align:left;
+                  border-radius:5px;
+                  border-collapse:separate;
+                  }
+</style>
+<script type="text/javascript" src="/static/amazon_upload/xadmin.plugin.variation_item_amazon_plugin.html.js"></script>
+<input type="hidden" id="update_flag" value="{{ update_flag }}">
+<input id="sourceURLs" name="sourceURLs" type="hidden" value="{{ sourceURLs }}">
+<input id="sourceURL" name="sourceURL" type="hidden" value="{{ sourceURL }}">
+{% if update_flag == '0' %}
+    <div class="panel panel-default fieldset unsort " id="box-9" >
+        <div class="panel-heading"><i class='icon fa fa-chevron-up chevron'></i><h3 class="panel-title">
+            变体信息/单体图片</h3></div>
+        <div class="panel-body " >
+            <div  class="form-inline form-group" >
+                <div id="div_id_variation_theme" class="form-group col-sm-12">
+
+                    <div class="controls ">
+                        <label for="id_variation_theme" class="control-label ">
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            变体分辨类型/单体图片&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        </label>
+                        <select class="adminselectwidget form-control" id="select_id_variation_theme" name="variation_theme" onchange="sele_Change()">
+                            <option selected="selected" value="0">---</option>
+                            {% if select_type == 0 %}
+                                <option id="option_2" value="Color">颜色</option>
+                                <option id="option_3" value="Size">尺寸</option>
+                                <option id="option_5" value="Size-Color">颜色-尺寸</option>
+                            {% endif %}
+                            {% if select_type == 1 %}
+                                <option id="option_2" value="Color">颜色</option>
+                                <option id="option_3" value="Size">尺寸</option>
+                            {% endif %}
+                            {% if select_type == 2 %}
+                                <option id="option_2" value="Color">颜色</option>
+                            {% endif %}
+                            {% if select_type == 3 %}
+                                <option id="option_1" value="MetalType">材质</option>
+                                <option id="option_2" value="Color">颜色</option>
+                            {% endif %}
+                            {% if select_type == 4 %}
+                                <option id="option_1" value="MetalType">材质</option>
+                                <option id="option_2" value="Color">颜色</option>
+                                <option id="option_3" value="Size">尺寸</option>
+                                <option id="option_4" value="MetalType-Size">材质-尺寸</option>
+                                <option id="option_5" value="Size-Color">颜色-尺寸</option>
+                            {% endif %}
+                            {% if select_type == 5 %}
+                                <option id="option_4" value="MetalType-Size">材质-尺寸</option>
+                            {% endif %}
+                            {% if select_type == 6 %}
+                                <option id="option_4" value="Size-Color">颜色-尺寸</option>
+                            {% endif %}
+                        </select>
+                        <span style="display:none" id="addItems_span">
+                            <input type="button" id="addItems" class="btn btn-primary" value="添加" onclick="add_items()" />
+                        </span>
+                        <span id="add_images_span">
+                            <input type="button" id="add_images_parent" class="btn btn-primary" value="上传图片" onclick="add_images()" />
+                            <input type="hidden" id="id_image_main" name="main_images" value="" />
+                        </span>
+                    </div>
+
+                    <div class="controls " id="div_id_color_name" style="display: none">
+
+                    </div>
+
+                    <div class="controls " id="div_id_size_name" style="display: none">
+
+                    </div>
+
+                    <div class="controls " id="div_id_size_color" style="display: none">
+
+                    </div>
+
+                    <div class="controls " id="div_id_MetalType" style="display: none">
+
+                    </div>
+
+                    <div class="controls " id="div_id_size_MetalType" style="display: none">
+
+                    </div>
+
+                    <div class="controls " id="div_id_MetalType_color" style="display: none">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endif %}

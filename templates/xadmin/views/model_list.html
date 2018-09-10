@@ -1,0 +1,222 @@
+{% extends base_template %}
+{% load i18n %}
+
+{% load xadmin_tags %}
+
+{% block extrastyle %}
+<style type="text/css">
+  .btn-toolbar{margin-top: 0;}
+  #content-block.full-content{margin-left: 0;}
+</style>
+{% endblock %}
+{% block bodyclass %}change-list{% endblock %}
+
+{% block nav_title %}{% if brand_icon %}<i class="{{brand_icon}}"></i> {% endif %}{{brand_name}}{% endblock %}
+
+{% block nav_toggles %}
+{% include "xadmin/includes/toggle_menu.html" %}
+{% if has_add_permission %}
+  <a href="{{add_url}}" class="navbar-toggle pull-right"><i class="fa fa-plus"></i></a>
+{% endif %}
+<button class="navbar-toggle pull-right" data-toggle="collapse" data-target=".content-navbar .navbar-collapse">
+  <i class="fa fa-filter"></i>
+</button>
+{% endblock %}
+<!--增加按钮-->
+{% block nav_btns %}
+  {% if has_add_permission %}
+    <a href="{{add_url}}" id="add" class="btn btn-primary" ><i class="fa fa-plus"></i> 
+    {% blocktrans with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}</a>
+  {% endif %}
+{% endblock nav_btns %}
+<!--增加按钮-->
+{% block content %}
+  <div class="content-toolbar btn-toolbar pull-right clearfix">
+    {% if request.user.username == 'fancyqube' %}
+      <!--导出功能-->
+        {% view_block 'top_toolbar' %}
+    {% endif %}
+	{% view_block 'show_page' %}
+    <!--显示列-->
+    {% block toolbar_column %}
+    <div class="btn-group">
+      <!--<a class="dropdown-toggle btn btn-default btn-sm" type="button" onclick="show_all_col()">-->
+        <!--<i class="fa fa-list-alt"></i> {% trans "Columns" %} <span class="caret"></span>-->
+      <!--</a>-->
+    <button class="dropdown-toggle btn btn-default btn-sm" onclick="show_all_col()"> {% trans "Columns" %} </button>
+   <!--
+    <div class="btn-group export">
+      <a class="dropdown-toggle btn btn-default btn-sm" data-toggle="dropdown" href="#">
+       列宽
+      </a>
+      <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+          <li><a data-toggle="modal" onclick="save_col_widths(1)">保存</a></li>
+          <li><a data-toggle="modal" onclick="save_col_widths(2)">默认</a></li>
+      </ul>
+    </div>
+	-->
+      <div id="oSelectList" style="display: none;position:absolute; line-height:normal;text-align:left;
+      width: 800px;background-color:white;right: 8px;top: 50px;border:1px solid #000 ;z-index: 2000;">
+        <div class="hasBeenSelected clearfix">
+          <!--<div style="float:right;" class="eliminateCriteria">【清空全部】 </div>-->
+          <dl>
+            <dt>已选条件：</dt>
+            <form id="condition_form" action="" method="POST">
+              <input type="hidden" id="param" name="param" value="">
+              <input type="hidden" id="model" name="model" value="{{bk_post_url}}">
+              {% csrf_token %}
+              <dd style="DISPLAY: none" class=clearDd>
+              <div class=clearList></div>
+            </form>
+          </dl>
+        </div>
+        <script type="text/javascript" src="/static/js/display_col.js"></script>
+        <link rel="stylesheet" type="text/css" href="/static/js/display_col.css"/>
+        <table style="margin:5% 5% 5% 5%">
+          <tr><input type="hidden" id="model_fields_length" value="{{model_fields|length}}">
+          {% for f, selected, flink in model_fields %}
+            <input type="hidden" id="{{f.name}}" value="{{flink}}">
+            {% if selected %}
+            <td id='{{forloop.counter}}_{{forloop.counter}}'>
+              <input id='{{forloop.counter}}' type="checkbox" name="checkbox_name" value="{{f.name}}" checked="checked" disabled="disabled" />
+              <label onclick="change('{{f.name}}','{{forloop.counter}}','{{f.verbose_name|striptags}}')">{{f.verbose_name|cut:'<br>'}}</label>
+            </td>
+            {% else %}
+            <td id='{{forloop.counter}}_{{forloop.counter}}'>
+              <input id='{{forloop.counter}}' type="checkbox" name="checkbox_name" value="{{f.name}}" disabled="disabled" />
+              <label onclick="change('{{f.name}}','{{forloop.counter}}','{{f.verbose_name|striptags}}')">{{f.verbose_name|cut:'<br>'}}</label>
+            </td>
+            {% endif %}
+            {% if forloop.counter|divisibleby:4 %}
+            </tr><tr>
+            {% endif %}
+          {% endfor %}
+          </tr>
+        <!--</li>-->
+        <tr>
+          <td><button class="dropdown-toggle btn btn-default btn-sm" onclick="go_url_page()">{% trans "Save" %}</button></td>
+          <td><button class="dropdown-toggle btn btn-default btn-sm" onclick="window.location.href='{{clean_select_field_url}}'">{% trans "Restore Selected" %}</button></td>
+          <td></td>
+        </tr>
+        </table>
+      </div>
+    </div>
+    {% endblock toolbar_column %}
+    {% block toolbar_layouts %}
+    <div class="btn-group layout-btns" data-toggle="buttons">
+      <label class="btn btn-default btn-sm layout-normal active">
+        <input type="radio"> <i class="fa fa-th-large"></i>
+      </label>
+      <label class="btn btn-default btn-sm layout-condensed">
+        <input type="radio"> <i class="fa fa-th"></i>
+      </label>
+      {% view_block 'top_layout_btns' %}
+    </div>
+    {% endblock toolbar_layouts %}
+    {% block toolbar_fullscreen %}
+    <div class="btn-group layout-btns" data-toggle="buttons-checkbox">
+      <button type="button" class="btn btn-default btn-sm layout-full"><i class="fa fa-expand"></i></button>
+      {% view_block 'top_check_btns' %}
+    </div>
+    {% endblock toolbar_fullscreen %}
+    {% view_block 'top_btns' %}
+  </div>
+
+  <ul class="pagination pagination-sm pagination-left pagination-inline">
+    {% view_block 'pagination' 'small' %}
+	{% view_block 'luru' %}
+  </ul>
+<style type="text/css">
+*{margin:0;padding:0;list-style-type:none;}
+table{empty-cells:show;border-collapse:collapse;border-spacing:0;}
+
+.rc-handle-container{position:relative;}
+.rc-handle{position:absolute;width:7px;cursor:ew-resize;*cursor:pointer;margin-left:-3px;}
+
+</style>
+
+  <form id="changelist-form" action="" method="post"{% view_block 'result_list_form' %}>{% csrf_token %}
+  {% view_block 'results_top' %}
+  <div class="results table-responsive">
+  {% if results %}
+  {% block results_grid %}
+  <table class="table table-bordered table-striped table-hover" id="idTableFixed" data-resizable-columns-id="demo-table">
+    {% block results_grid_head %}
+    <thead>
+      <tr>{% for o in result_headers.cells %}
+        <th {{o.tagattrs}}>
+          {% if o.btns %}
+            <div class="pull-right">
+              {% for b in o.btns %}
+                {{b|safe}}
+              {% endfor %}
+            </div>
+          {% endif %}
+          {% if forloop.counter != 1 %}
+            <input type="hidden" name="nowshow" value="{{ o.label|striptags }}">
+          {% endif %}
+          {% if o.menus %}
+            <div class="dropdown pull-left">
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                {{ o.label }}
+              </a>
+              <ul class="dropdown-menu" role="menu">
+                {% for m in o.menus %}
+                  {{m|safe}}
+                {% endfor %}
+              </ul>
+            </div>
+          {% else %}
+          {{ o.label }}
+          {% endif %}
+        </th>{% endfor %}
+      </tr>
+      {% view_block 'result_head' %}
+    </thead>
+    {% endblock results_grid_head %}
+    {% block results_grid_body %}
+    <tbody>
+    {% for row in results %}
+      <tr class="grid-item">{% for o in row.cells %}
+        <td {{o.tagattrs}}>
+          {% if o.btns %}
+            <div class="btn-group pull-right">
+              {% for b in o.btns %}
+                {{b|safe}}
+              {% endfor %}
+            </div>
+          {% endif %}
+          {% if o.menus %}
+            <div class="dropdown">
+              <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                {{ o.label }}
+              </a>
+              <ul class="dropdown-menu">
+                {% for m in o.menus %}
+                  {{m|safe}}
+                {% endfor %}
+              </ul>
+            </div>
+          {% else %}
+            {{ o.label }}
+          {% endif %}
+        </td>
+      {% endfor %}</tr>
+      {% view_block 'result_row' row %}
+    {% endfor %}
+    </tbody>
+    {% endblock results_grid_body %}
+  </table>
+  {% endblock results_grid %}
+
+  {% else %}
+    <p class="well">{% trans "Empty list" %}</p>
+  {% endif %}
+  </div>
+  {% view_block 'results_bottom' %}
+  </form>
+
+  <ul class="pagination">
+    {% view_block 'pagination' %}
+  </ul>
+{% endblock %}

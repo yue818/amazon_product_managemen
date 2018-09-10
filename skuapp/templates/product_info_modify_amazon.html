@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en-us" >
+<head>
+    <link href="/static/xadmin/vendor/bootstrap/css/bootstrap.css" type="text/css" media="screen" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="/static/xadmin/css/themes/bootstrap-xadmin.css" />
+    <link href="/static/xadmin/vendor/font-awesome/css/font-awesome.min.css" type="text/css" media="screen" rel="stylesheet" />
+    <link href="/static/xadmin/css/xadmin.main.css" type="text/css" media="screen" rel="stylesheet" />
+    <!--<link href="/static/xadmin/css/xadmin.plugins.css" type="text/css" media="screen" rel="stylesheet" />-->
+    <!--<link href="/static/xadmin/css/xadmin.responsive.css" type="text/css" media="screen" rel="stylesheet" />-->
+    <!--<link href="/static/xadmin/vendor/select2/select2.css" type="text/css" media="screen" rel="stylesheet" />-->
+    <!--<link href="/static/xadmin/vendor/selectize/selectize.css" type="text/css" media="screen" rel="stylesheet" />-->
+    <!--<link href="/static/xadmin/vendor/selectize/selectize.bootstrap3.css" type="text/css" media="screen" rel="stylesheet" />-->
+    <!--<link href="/static/xadmin/vendor/bootstrap-datepicker/css/datepicker.css" type="text/css" media="screen" rel="stylesheet" />-->
+    <link href="/static/xadmin/vendor/bootstrap-clockpicker/bootstrap-clockpicker.min.css" type="text/css" media="screen" rel="stylesheet" />
+    <link href="/static/xadmin/css/xadmin.form.css" type="text/css" media="screen" rel="stylesheet" />
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+        #body-content {
+             margin-top:  0px;
+        }
+         .goods{
+             margin-bottom: 50px;
+         }
+        .goods>li{
+            cursor: pointer;
+            float: left;
+            list-style: none;
+            padding: 0 16px;
+        }
+          .goods>li:hover{
+             color: #0094ff;
+        }
+    </style>
+
+    <script src="/static/xadmin/js/jquery-1.7.1.min.js" type="text/javascript"></script>
+   <script type="text/javascript">
+    window.__admin_media_prefix__ = "/static/xadmin/";
+    window.__admin_path_prefix__ = "/Project/admin/";
+    window.__admin_language_code__ = "";
+    </script>
+    <script type="text/javascript" src="/Project/admin/jsi18n/"></script>
+</head>
+
+<body id = "mainbody" class="skuapp-t_templet_amazon_wait_upload change-form">
+     <ul class="goods">
+                  <li>  商品信息 </li>
+                  <li>  商品价格 </li>
+                  <li> 商品图片 </li>
+     </ul>
+    <!--<form action = "/product_info_modify_amazon/" method="POST" >-->
+        <div id="body-content" class="clearfix row">
+          <div id="content-block" class="col-sm-11 col-md-10">
+
+            <form class="exform" style="display: block;" enctype="multipart/form-data" action="/product_info_modify_amazon/" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="modify_type" value="product_info_modify">
+                <input type="hidden" name="pri_id" value="{{product_list_obj.id}}">
+                <input type="hidden" name="seller_sku" value="{{product_list_obj.seller_sku}}">
+                <input type="hidden" name="asin1" value="{{product_list_obj.asin1}}">
+                <div class="form-container row clearfix" >
+                    <div id="column-0" class="formColumn column form-column full col col-sm-12 form-horizontal"  span="12" horizontal>
+                        <div class="panel panel-default fieldset unsort " id="box-1" >
+                             <div class="panel-heading"><i class='icon fa fa-chevron-up chevron'></i><h3 class="panel-title">产品主要信息</h3></div>
+                             <div class="panel-body " >
+                                 <div class="form-inline form-group" >
+
+                                     <div id="div_id_item_name" class="form-group col-sm-12">
+                                         <label for="id_item_name" class="control-label  requiredField">商品名称<span class="asteriskField">*</span></label>
+                                        <div class="controls ">
+                                            <input class="text-field admintextinputwidget form-control"  style ="max-width: 1000px; width:400%;" id="id_item_name" maxlength="248" name="item_name" type="text" value="{{product_list_obj.item_name}}">
+                                        </div>
+                                    </div>
+                                 </div>
+                             </div>
+                        </div>
+
+                        <div class="panel panel-default fieldset unsort " id="box-2">
+                            <div class="panel-heading"><i class="icon chevron fa-chevron-up fa"></i><h3 class="panel-title">商品描述</h3></div>
+                            <div class="panel-body " style="overflow: hidden; display: block;">
+                                <div class="form-inline form-group">
+                                    <div id="div_id_bullet_point1" class="form-group col-sm-6">
+                                         <label for="id_bullet_point1" class="control-label  requiredField">商品描述1<span class="asteriskField">*</span> </label>
+                                         <br>
+                                         <div class="controls ">
+                                             <input class="text-field admintextinputwidget form-control" id="id_bullet_point1" maxlength="248" name="bullet_point1" type="text" value="{{product_list_obj.bullet_point1}}">
+                                         </div>
+                                    </div>
+
+                                    <div id="div_id_bullet_point2" class="form-group col-sm-6">
+                                        <label for="id_bullet_point2" class="control-label  requiredField">商品描述2<span class="asteriskField">*</span> </label>
+                                        <div class="controls ">
+                                            <input class="text-field admintextinputwidget form-control" id="id_bullet_point2" maxlength="248" name="bullet_point2" type="text" value="{{product_list_obj.bullet_point2}}">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-inline form-group">
+                                    <div id="div_id_bullet_point3" class="form-group col-sm-6">
+                                        <label for="id_bullet_point3" class="control-label  requiredField">商品描述3<span class="asteriskField">*</span> </label>
+                                        <div class="controls ">
+                                            <input class="text-field admintextinputwidget form-control" id="id_bullet_point3" maxlength="248" name="bullet_point3" type="text" value="{{product_list_obj.bullet_point3}}">
+                                        </div>
+                                    </div>
+                                    <div id="div_id_bullet_point4" class="form-group col-sm-6">
+                                        <label for="id_bullet_point4" class="control-label  requiredField">商品描述4<span class="asteriskField">*</span> </label>
+                                        <div class="controls ">
+                                            <input class="text-field admintextinputwidget form-control" id="id_bullet_point4" maxlength="248" name="bullet_point4" type="text" value="{{product_list_obj.bullet_point4}}">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-inline form-group">
+                                    <div id="div_id_bullet_point5" class="form-group col-sm-12">
+                                         <label for="id_bullet_point5" class="control-label  requiredField">商品描述5<span class="asteriskField">*</span></label>
+                                        <div class="controls ">
+                                            <input class="text-field admintextinputwidget form-control" id="id_bullet_point5" maxlength="248" name="bullet_point5" type="text" value="{{product_list_obj.bullet_point5}}">
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                <div class="form-inline form-group">
+                                    <div id="div_id_product_description" class="form-group col-sm-12">
+                                        <label for="id_product_description" class="control-label  requiredField">产品描述<span class="asteriskField">*</span> </label>
+                                        <div class="controls ">
+                                            <textarea class="textarea-field admintextareawidget form-control" cols="40" id="id_product_description" name="product_description" rows="10">{{product_list_obj.product_description}}</textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="panel panel-default fieldset unsort " id="box-4">
+                            <div class="panel-heading"><i class="icon chevron fa-chevron-up fa"></i><h3 class="panel-title">关键词</h3></div>
+                            <div class="panel-body " style="overflow: hidden; display: block;">
+                                <div class="form-inline form-group">
+                                    <div id="div_id_generic_keywords1" class="form-group col-sm-6">
+                                        <label for="id_generic_keywords1" class="control-label  requiredField">关键词1<span class="asteriskField">*</span> </label>
+                                        <div class="controls ">
+                                            <input class="text-field admintextinputwidget form-control" id="id_generic_keywords1" maxlength="48" name="generic_keywords1" type="text" value="{{product_list_obj.generic_keywords1}}">
+                                        </div>
+                                    </div>
+                                    <div id="div_id_generic_keywords2" class="form-group col-sm-6">
+                                        <label for="id_generic_keywords2" class="control-label  requiredField">关键词2<span class="asteriskField">*</span> </label>
+                                        <div class="controls ">
+                                            <input class="text-field admintextinputwidget form-control" id="id_generic_keywords2" maxlength="48" name="generic_keywords2" type="text" value="{{product_list_obj.generic_keywords2}}">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="form-inline form-group">
+                                    <div id="div_id_generic_keywords3" class="form-group col-sm-6">
+                                        <label for="id_generic_keywords3" class="control-label  requiredField">关键词3<span class="asteriskField">*</span> </label>
+                                        <div class="controls ">
+                                            <input class="text-field admintextinputwidget form-control" id="id_generic_keywords3" maxlength="48" name="generic_keywords3" type="text" value="{{product_list_obj.generic_keywords3}}">
+                                        </div>
+                                    </div>
+                                    <div id="div_id_generic_keywords4" class="form-group col-sm-6">
+                                        <label for="id_generic_keywords4" class="control-label  requiredField">关键词4<span class="asteriskField">*</span> </label>
+                                        <div class="controls ">
+                                            <input class="text-field admintextinputwidget form-control" id="id_generic_keywords4" maxlength="48" name="generic_keywords4" type="text" value="{{product_list_obj.generic_keywords4}}">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-inline form-group">
+                                    <div id="div_id_generic_keywords5" class="form-group col-sm-12">
+                                        <label for="id_generic_keywords5" class="control-label  requiredField">关键词5<span class="asteriskField">*</span> </label>
+                                        <div class="controls ">
+                                            <input class="text-field admintextinputwidget form-control" id="id_generic_keywords5" maxlength="48" name="generic_keywords5" type="text" value="{{product_list_obj.generic_keywords5}}">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                    <center><input type="submit" name="save" value="✓修改描述信息"></center>
+            </form>
+
+            <form class="exform" style="display: none;" enctype="multipart/form-data" action="/product_info_modify_amazon/" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="modify_type" value="product_price_modify">
+                <input type="hidden" name="pri_id" value="{{product_list_obj.id}}">
+                <input type="hidden" name="seller_sku" value="{{product_list_obj.seller_sku}}">
+                <input type="hidden" name="asin1" value="{{product_list_obj.asin1}}">
+                <div class="form-container row clearfix" >
+                    <div id="column-0" class="formColumn column form-column full col col-sm-12 form-horizontal"  span="12" horizontal>
+                        <div class="panel panel-default fieldset unsort " id="box-3" >
+                            <div class="panel-heading"><i class='icon fa fa-chevron-up chevron'></i>
+                                <h3 class="panel-title">产品价格/促销</h3>
+                            </div>
+                            <div class="panel-body " >
+                                <div class="form-inline form-group" >
+                                    <div id="div_id_standard_price" class="form-group col-sm-6">
+                                        <label for="id_standard_price" class="control-label  requiredField">商品价格<span class="asteriskField">*</span> </label>
+                                        <div class="controls "> <input class="numberinput form-control" id="id_standard_price" name="standard_price" step="0.01" type="number" value="{{product_list_obj.price}}" /> </div>
+                                    </div>
+                                    <div id="div_id_sale_price" class="form-group col-sm-6"> <label for="id_sale_price" class="control-label ">促销价格</label>
+                                        <div class="controls "> <input class="numberinput form-control" id="id_sale_price" name="sale_price" step="0.01" type="number"  value="{{product_list_obj.sale_price}}"/> </div>
+                                    </div>
+                                </div>
+                                <div class="form-inline form-group" >
+                                    <div id="div_id_sale_from_date" class="form-group col-sm-6"> <label for="id_sale_from_date_0" class="control-label ">促销开始时间</label>
+                                        <div class="controls ">
+                                            <div class="datetime clearfix">
+                                                <div class="input-group date bootstrap-datepicker" style="max-width: 200px; "><span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                    <input class="date-field admindatewidget" style="line-height:2.2" id="id_sale_from_date_0" name="sale_from_date_0" size="10" type="text" value="{{sale_from_date_0}}"/>
+                                                    <span class="input-group-btn"><button class="btn btn-default" style="margin-left:-60px" type="button">今天</button></span>
+                                                </div>
+                                                <div class="input-group time bootstrap-clockpicker"><span class="input-group-addon"><i class="fa fa-clock-o"></i></span>
+                                                    <input class="time-field admintimewidget"  style="line-height:2.2" id="id_sale_from_date_1" name="sale_from_date_1" size="8" type="text" value="{{sale_from_date_1}}"/> <span class="input-group-btn">
+                                                        <button class="btn btn-default" type="button">现在</button>
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="div_id_sale_end_date" class="form-group col-sm-6"> <label for="id_sale_end_date_0" class="control-label ">促销结束时间</label>
+                                        <div class="controls ">
+                                            <div class="datetime clearfix">
+                                                <div class="input-group date bootstrap-datepicker" style="max-width: 200px; ">
+                                                     <span class="input-group-addon"><i class="fa fa-calendar"></i></span>
+                                                     <input class="date-field admindatewidget" id="id_sale_end_date_0" style="line-height:2.2" name="sale_end_date_0" size="10" type="text" value="{{sale_end_date_0}}" />
+                                                     <span class="input-group-btn"><button class="btn btn-default" style="margin-left: -60px;" type="button">今天</button></span>
+                                                </div>
+                                                <div class="input-group time bootstrap-clockpicker">
+                                                    <span class="input-group-addon"><i class="fa fa-clock-o"></i></span>
+                                                    <input class="time-field admintimewidget" style="line-height:2.2" id="id_sale_end_date_1" name="sale_end_date_1" size="8" type="text" value="{{sale_end_date_1}}" />
+                                                    <span class="input-group-btn"><button class="btn btn-default" type="button">现在</button></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                    <center><input type="submit" name="save" value="✓修改价格信息"></center>
+            </form>
+
+            <form style="display: none;" action = "/product_info_modify_amazon/" method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="modify_type" value="product_image_modify">
+                <input type="hidden" name="pri_id" value="{{product_list_obj.id}}">
+                <input type="hidden" name="seller_sku" value="{{product_list_obj.seller_sku}}">
+                <input type="hidden" name="asin1" value="{{product_list_obj.asin1}}">
+                <input type="hidden" name="shop_name" value="{{product_list_obj.ShopName}}">
+                <input type="hidden" name="parent_sku" value="{{parent_sku}}">
+                 <div class="panel panel-default fieldset unsort " id="box-5" >
+                <table>
+                        <img src="{{ product_list_obj.image_url }}"  width="100" height="100""  />
+                        <!--<a id ='delete_image' href = '/product_info_modify_amazon/'>删除</a>-->
+                </table>
+                <br>
+
+                <div>
+
+                <div>
+                    <label>选择本地图片&nbsp;&nbsp;
+                        <input type="file" name="image_local" value='' />
+                    </label>
+                </div>
+
+                </div>
+                <br>
+
+                <div>
+                    <label>填写图片链接&nbsp;&nbsp;
+                        <input type="text" name="image_url" value='' />
+                    </label>
+                </div>
+                <br>
+                <div>
+                    &nbsp;&nbsp;&nbsp;<center><button type='submit' style="height: 30px;width: 200px;">修改图片信息</button></center>
+                </div>
+                 </div>
+            </form>
+          </div>
+        </div>
+
+        <script type="text/javascript" src="/static/xadmin/vendor/jquery-ui/jquery.ui.core.min.js"></script>
+        <script type="text/javascript" src="/static/xadmin/vendor/jquery-ui/jquery.ui.widget.min.js"></script>
+        <script type="text/javascript" src="/static/xadmin/vendor/jquery-ui/jquery.ui.mouse.min.js"></script>
+        <script type="text/javascript" src="/static/xadmin/vendor/jquery-ui/jquery.ui.sortable.min.js"></script>
+        <script type="text/javascript" src="/static/xadmin/js/xadmin.main.js"></script>
+        <script type="text/javascript" src="/static/xadmin/js/xadmin.responsive.js"></script>
+        <script type="text/javascript" src="/static/xadmin/js/xadmin.plugin.portal.js"></script>
+        <script type="text/javascript" src="/static/xadmin/vendor/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+        <script type="text/javascript" src="/static/xadmin/js/xadmin.widget.datetime.js"></script>
+        <script type="text/javascript" src="/static/xadmin/vendor/bootstrap-clockpicker/bootstrap-clockpicker.min.js"></script>
+        <!--<center><button id="submit_button">✓提交</button></center>-->
+        <!--<input type="submit" name="save" value="✓提交">-->
+        <!--</form>-->
+        <!--<script type="text/javascript" src="/static/xadmin/js/xadmin.page.form.js"></script>-->
+        <!--<script type="text/javascript" src="/static/xadmin/vendor/bootstrap/js/bootstrap.min.js"></script>-->
+        <!--<script type="text/javascript" src="/static/xadmin/vendor/selectize/selectize.min.js"></script>-->
+        <!--<script type="text/javascript" src="/static/xadmin/vendor/select2/select2.min.js"></script>-->
+        <!--<script type="text/javascript" src="/static/xadmin/vendor/select2/select2_locale_zh-hans.js"></script>-->
+        <!--<script type="text/javascript" src="/static/xadmin/js/xadmin.widget.select.js"></script>-->
+
+     <script type="text/javascript" >
+
+       $('.goods>li').on( 'click',function () {
+
+           var  idx = $(this).index();
+
+           $('#content-block>form').css('display','none');
+           $('#content-block>form').eq(idx).css('display','block');
+
+       } )
+
+
+
+
+
+     </script>
+
+</body>
+</html>

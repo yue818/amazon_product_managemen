@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+          .sybutton {
+                border-radius:10px 10px 10px 10px;
+                background-color:#428BCA;
+                border: none;
+                color: white;
+                padding: 5px 20px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 15px;
+                margin: 4px 2px;
+                cursor: pointer;
+             }
+    </style>
+</head>
+
+<body>
+    <input  id="data_refresh" type="button" class="sybutton"  style="float: right;"  value="数据刷新" onclick="data_refresh('{{ refresh_type }}')">
+</body>
+<script>
+     function data_refresh(refresh_type)
+     {
+        if (refresh_type == 'remove_cost')
+        {
+            width_len = screen.width*0.25;
+            height_len = screen.height*0.2;
+            layer.open(
+                {
+                type: 1,
+                title:'移除订单增量刷新',
+                skin:'layui-layer-lan',
+                area:['450px', '250px'],
+                shadeClose: true,
+                scrollbar:false,
+
+                content: ' <div class="row" style="width: 420px;  margin-left:7px; margin-top:10px;">'
+
+                    +'<div class="col-sm-12" style="margin-top: 10px">'
+                    +'<div class="input-group">'
+                    +'<span class="input-group-addon"> 开始时间   :</span>'
+                    +'<input id="begin_time" type="date" class="form-control">'
+                    +'</div>'
+                    +'</div>'
+
+                    +'<div class="col-sm-12" style="margin-top: 10px">'
+                    +'<div class="input-group">'
+                    +'<span class="input-group-addon"> 结束时间   :</span>'
+                    +'<input id="end_time" type="date" class="form-control">'
+                    +'</div>'
+                    +'</div>',
+                btn:['确定','取消'],
+
+                btn1: function ()
+                {
+                    var begin_time = $("#begin_time").val()
+                    var end_time = $("#end_time").val()
+                     if (begin_time === undefined || begin_time == '' ||end_time === undefined || end_time == '' )
+                     {
+                         alert('请输入开始和结束时间')
+                         return
+                     }
+
+                     alert(begin_time)
+                     alert(end_time)
+                      var cost_refresh_url = '/amazon_product_cost_refresh/'
+                      window.location.href = cost_refresh_url + '?refresh_type=' + refresh_type.toString() + '&begin_time='+ begin_time.toString() + '&end_time=' + end_time.toString()
+                },
+
+                btn2:function (index,layero) {
+                     layer.close(index);
+                }
+            })
+        }
+
+    }
+</script>
+</html>

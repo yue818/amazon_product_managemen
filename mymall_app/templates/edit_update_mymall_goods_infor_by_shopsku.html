@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<script src="/static/xadmin/js/jquery-1.7.1.min.js"></script>
+<script src="/static/xadmin/vendor/bootstrap/js/bootstrap.js"></script>
+<link rel="stylesheet" type="text/css" href="/static/xadmin/vendor/bootstrap/css/bootstrap.css">
+
+<script>
+    function static_refresh(url) {
+        $.getJSON(url, function(result){
+            if (result.resultCode == '0'){
+                alert(result.messages);
+                // var r = confirm(result.messages + "！是否刷新页面？");
+                // if (r==true){
+                //     location.reload();;
+                // }else{
+                //     return;
+                // }
+            }else {
+                alert(result.messages);
+            }
+        });
+    }
+
+    function change_vPic(num, shopname) {
+        // alert('----'+num);
+        $("#modal_hidden_id").val(num);
+        $("#shopname_hidden_id").val(shopname);
+    }
+
+    function upload_Img() {
+        // alert('0000000000');
+        var imgFlagTmp = document.getElementById('modal_hidden_id');
+        var ImgFlag = imgFlagTmp.value;
+
+        var shopnameTmp = document.getElementById('shopname_hidden_id');
+        var shopname = shopnameTmp.value;
+
+        var fileObj = document.getElementById("id_upload_img").files[0]; // js 获取文件对象
+        if (typeof (fileObj) == "undefined" || fileObj.size <= 0) {
+           alert("请选择图片");
+           return;
+        }
+
+        if (shopname) {
+            // alert('111111111');
+            var formFile = new FormData();
+            formFile.append("action", "/mymallapp/mymall_pub_save_image/?imageflag="+ImgFlag+'&shopname='+shopname);
+            formFile.append("PIC", fileObj); //加入文件对象
+
+            //第一种  XMLHttpRequest 对象
+            //var xhr = new XMLHttpRequest();
+            //xhr.open("post", "/Admin/Ajax/VMKHandler.ashx", true);
+            //xhr.onload = function () {
+            //    alert("上传完成!");
+            //};
+            //xhr.send(formFile);
+
+            //第二种 ajax 提交
+
+            var data = formFile;
+            $.ajax({
+                url: "/mymallapp/mymall_pub_save_image/?imageflag="+ImgFlag+'&shopname='+shopname,
+                data: data,
+                type: "Post",
+                dataType: "json",
+                cache: false,//上传文件无需缓存
+                processData: false,//用于对data参数进行序列化处理 这里必须false
+                contentType: false, //必须
+                success: function (result) {
+                    if (result.Code == '0'){
+                        // alert("===="+result.PicPath);
+                        var picTmp = {};
+                        if(ImgFlag){ //主图上传
+                            picTmp = document.getElementById(ImgFlag);
+                            // $("#"+ImgFlag).val(result.PicPath);
+                            document.getElementById('imgs_'+ImgFlag).value = result.PicPath;
+                        // }else if (ImgFlag.indexOf('v_') == 0){ //变体图
+                        //     var vIdx = ImgFlag.split('_')[1];
+                        //     picTmp = document.getElementById('id_vPic_'+vIdx);
+                        //     $("#vPic_"+vIdx).val(result.PicPath);
+                        // }else if (ImgFlag.indexOf('e_') == 0){ //附图
+                        //     var eIdx = ImgFlag.split('_')[1];
+                        //     picTmp = document.getElementById('id_ePic_'+eIdx);
+                        //     $("#ePic_"+eIdx).val(result.PicPath);
+                        }
+                        if (picTmp){
+                            picTmp.src = result.PicPath;
+                            picTmp.alt = result.PicPath;
+                            picTmp.title = result.PicPath;
+                        }
+                        $('#upload_image').modal('hide');
+                    }else {
+                        alert(result.PicPath);
+                    }
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                   alert('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                }
+            });
+            cleanFile();
+        }else{
+            alert('请选择店铺名称。。')
+        }
+    }
+
+    function cleanFile() {
+        var file = document.getElementById("id_upload_img");
+        // for IE, Opera, Safari, Chrome
+        if (file.outerHTML) {
+            file.outerHTML = file.outerHTML;
+        } else { // FF(包括3.5)
+            file.value = "";
+        }
+    }
+
+    function change_image(num){
+        top.img_path = '';
+        top.flag = 0;
+        top.layer.open({
+            type: 2,
+            skin: 'layui-layer-lan', //加上边框
+            shadeClose: true,
+            area: ['600px', '300px'], //宽高
+            content: '/change_mall_image/?abc={{ productid }}',
+            end: function(index){
+                if (top.flag == 1){
+                    document.getElementById(num).src = top.img_path;
+                    document.getElementById('imgs_' + num).value = top.img_path;
+                }
+            },
+        });
+    }
+
+    function writeObj(obj){
+        var description = "";
+        for(var i in obj){
+            var property=obj[i];
+            description+=i+" = "+property+"\n";
+        }
+        alert(description);
+    }
+
+    function ityzl_SHOW_LOAD_LAYER(){
+        return parent.layer.msg('努力修改中...', {icon: 16,shade: [0.5, '#f5f5f5'],scrollbar: false,offset: '50%', time:100000}) ;
+    }
+    function ityzl_CLOSE_LOAD_LAYER(index){
+        parent.layer.close(index);
+    }
+    function ityzl_SHOW_TIP_LAYER(){
+        parent.layer.msg('修改完成！',{time: 1000,offset: '50%'});
+    }
+
+    function to_submit() {
+        parent.layer.confirm('确定提交变更吗？', {
+            skin: 'layui-layer-lan',
+            title:'变更提示。。',
+            btn: ['确定','算了'], //按钮
+            btn1:function(){
+                // 所有ShopSKU
+                var shopskulist = document.getElementsByName('ShopSKU');
+                // 循环提取所有被修改的过的数据
+                var datadict = {};
+                for (var s=0;s<shopskulist.length;s++){
+                    var tmpdict = {};
+                    var namelist = ['myimgs','color','size','msrp','price','inventory','shipping','shipping_time'];
+                    for (var n=0;n<namelist.length;n++){
+                        var nametmp = document.getElementsByName(namelist[n])[s];
+                        var nowvalue = nametmp.value;
+                        var oldvalue = nametmp.defaultValue;
+
+                        if (namelist[n] == 'myimgs'){
+                            var oldimg = document.getElementsByName(namelist[n]+'_copy')[s];
+                            oldvalue = oldimg.defaultValue;
+                        }
+                        if (namelist[n] == 'price' || namelist[n] == 'inventory' || namelist[n] == 'shipping'){
+                            if (isNaN(nowvalue)) {
+                                alert(namelist[n] + ' is not a valid number: ' + nowvalue)
+                                return
+                            }
+                        }
+                        if(nowvalue != oldvalue){
+                            tmpdict[namelist[n]] = nametmp.value;
+                        }
+                    }
+                    var a = JSON.stringify(tmpdict);
+                    if (a != '{}'){
+                        datadict[shopskulist[s].value] = JSON.stringify(tmpdict); // 这里提取了所有变化的值 {shopsku:{color:value,}}
+                    }
+                }
+                var a = JSON.stringify(datadict);
+                if (a != '{}'){
+                    start_ajax(a);
+                }else {
+                    alert('没有修改的信息');
+                }
+            }
+        });
+    }
+
+    function start_ajax(a) {
+        var i;
+        // 这里开始调取api
+        $.ajax({
+            url: "/mymallapp/t_mymall_online_info/ShopSKU/?abc={{ ProductID }}",
+            type: "POST",
+            dataType: "json",
+            data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                alldata: a
+            },
+            beforeSend: function () {
+                i = ityzl_SHOW_LOAD_LAYER();
+            },
+            success: function (result) {
+                if (result.resultCode == 0) {
+                    ityzl_CLOSE_LOAD_LAYER(i);
+                    ityzl_SHOW_TIP_LAYER();
+                    window.location.href = "/mymallapp/t_mymall_online_info/ShopSKU/?abc={{ ProductID }}";
+                } else {
+                    ityzl_CLOSE_LOAD_LAYER(i);
+                }
+            },
+            error: function () {
+                ityzl_CLOSE_LOAD_LAYER(i);
+            }
+        });
+    }
+
+    function shopsku_enordis(ff,shopsku,shopname,productid) {
+        var message = '';
+        if (ff == 'enshopsku'){
+            message = '上架'
+        }else {
+            message = '下架'
+        }
+        parent.layer.confirm(shopsku + ' 请问确定要进行' + message + '操作吗？',{
+            btn: ['确定','算了'],
+            yes:function(index, layero){
+                parent.layer.close(index);
+                shopsku = shopsku.replace('#', '%23');
+                // window.location.href='/mymallapp/up_dis_by_mymall_api_shopsku/?'+ff+'='+shopsku + '&shopname=' + shopname + '&productid=' + productid + '&flag=1';
+                static_refresh('/mymallapp/up_dis_by_mymall_api_shopsku/?'+ff+'='+shopsku + '&shopname=' + shopname + '&productid=' + productid + '&flag=1');
+            }
+        });
+    }
+
+</script>
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<style>
+.button {
+    background-color: #428bca;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+</style>
+<body>
+<!-- <a  style=" color:red; font-size:12px;" >注*：目前该页面功能,除修改图片外，均可使用</a> -->
+<form id="updateshopskuform" name="updateshopskuform" action="" method="">
+{% csrf_token %}
+    <table align="center" width="1500">
+        <tr align="center">
+            <th style="text-align:center">变体图</th>
+            <th style="text-align:center">子SKU</th>
+            <th style="text-align:center">采购未入库</th>
+            <th style="text-align:center">状态</th>
+            <th style="text-align:center">库存</th>
+            <th style="text-align:center">占用</th>
+            <th style="text-align:center">可用数量</th>
+            <th style="text-align:center">可售天数</th>
+            <th>店铺SKU</th>
+            <th>颜色</th>
+            <th>尺寸</th>
+            <th>标签价</th>
+            <th>价格</th>
+            <th>库存量</th>
+            <th>运费</th>
+            <th>运输时间</th>
+            <th>状态</th>
+            <th>操作</th>
+        </tr>
+        {% for my in mylist %}
+        <tr align="center">
+            <td style="text-align:center">
+                <img id="{{ forloop.counter }}" name="shopsku_image" width="40" height="40" src="{{ my.ShopSKUImage }}"
+                      alt="变体图_{{ forloop.counter }}" data-toggle="modal" data-target="#upload_image" onclick="change_vPic('{{ forloop.counter }}', '{{ my.ShopName }}')" />
+                <input id="imgs_{{ forloop.counter }}" type="hidden" name="myimgs" value="{{ my.ShopSKUImage }}" />
+                <input id="imgs_{{ forloop.counter }}_copy" type="hidden" name="myimgs_copy" value="{{ my.ShopSKUImage }}" />
+            </td>
+            <td><input style="width: 120px;" readonly="readonly" type="text" name="SKU" value="{{ my.SKU }}" /></td>
+            <td>{{ my.nn }}</td>
+            <td>{{ my.goodsstatus }}</td>
+            <td>{{ my.inventory }}</td>
+            <td>{{ my.occupyNum }}</td>
+            <td>{{ my.canuse }}</td>
+            <td>{{ my.CanSaleDay }}</td>
+            <td><input style="width: 120px;" readonly="readonly" type="text" name="ShopSKU" value="{{ my.ShopSKU }}" /></td>
+            <td><input style="width: 80px;" type="text" name="color" value="{{ my.Color }}" /></td>
+            <td><input style="width: 80px;" type="text" name="size" value="{{ my.Size }}" /></td>
+            <td><input style="width: 80px;" type="text" name="msrp" value="{{ my.msrp }}" /></td>
+            <td><input style="width: 80px;" type="text" name="price" value="{{ my.Price }}" /></td>
+            <td><input style="width: 80px;" type="text" name="inventory" value="{{ my.Quantity }}" /></td>
+            <td><input style="width: 80px;" type="text" name="shipping" value="{{ my.Shipping }}" /></td>
+            <td><input style="width: 80px;" type="text"  name="shipping_time" value="{{ my.ShippingTime }}" /></td>
+            {% if my.Status == '1' %}
+                <td>True</td>
+            {% else %}
+                <td>False</td>
+            {% endif %}
+            <td>
+                <button type="button" onclick="shopsku_enordis('enshopsku','{{ my.ShopSKU }}','{{ my.ShopName }}','{{ my.ProductID }}')">上架</button>
+                //
+                <button type="button" onclick="shopsku_enordis('disshopsku','{{ my.ShopSKU }}','{{ my.ShopName }}','{{ my.ProductID }}')">下架</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <table align="center">
+        <tr>
+            <td>
+                <input type="button" class="button" onclick="to_submit()" value="确定保存">
+            </td>
+        </tr>
+    </table>
+</form>
+</body>
+</html>
+
+
+<!-- 模态框（Modal） -->
+<div class="modal fade" id="upload_image" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    请选择图片上传
+                </h4>
+            </div>
+            <input type="hidden" value="" id="modal_hidden_id">
+            <input type="hidden" value="" id="shopname_hidden_id">
+            <input class="adminimagewidget form-control" id="id_upload_img" label="上传图片" name="IMG_upload" type="file" accept="image/.jpg" value="">
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                </button>
+                <button type="button" class="btn btn-primary" onclick="upload_Img()" id="upload_image_button">
+                    提交更改
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>

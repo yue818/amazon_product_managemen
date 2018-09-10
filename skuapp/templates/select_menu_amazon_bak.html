@@ -1,0 +1,318 @@
+<style type="text/css">
+        .div_all {
+            overflow-x:scroll;
+            height:400px;
+            width: 100%;
+            margin-top:50px;
+            border:1px solid #00F
+        }
+        .select_i {
+            float: left; white-space: nowrap; text-overflow: ellipsis;width:80%;
+        }
+        .select_j {
+            float: right;width:5%;
+        }
+        .div_select {
+            float: left;
+            overflow-y:scroll;
+            height:350px;
+            margin-top:1px;
+        }
+        .btn{border:0px;background-color:transparent;background-color: ghostwhite;width: 100%}
+</style>
+<script type="text/javascript">
+    var to_url = '';
+    window.onload = function () {
+        var groupRoot = document.getElementById('groupRoot').value;
+        var group2 = document.getElementById('group2').value;
+        var group3 = document.getElementById('group3').value;
+        var group4 = document.getElementById('group4').value;
+        var group5 = document.getElementById('group5').value;
+        var group6 = document.getElementById('group6').value;
+        var group7 = document.getElementById('group7').value;
+        var group2s = document.getElementById('group2s').value;
+        var group3s = document.getElementById('group3s').value;
+        var group4s = document.getElementById('group4s').value;
+        var group5s = document.getElementById('group5s').value;
+        var group6s = document.getElementById('group6s').value;
+        var group7s = document.getElementById('group7s').value;
+        var group8s = document.getElementById('group8s').value;
+        var groups_list = [group2s,group3s,group4s,group5s,group6s,group7s,group8s]
+        var div_list = ['select_group2','select_group3','select_group4','select_group5','select_group6','select_group7','select_group8']
+        var last_group = document.getElementById('last_group').value;
+        var itemType = document.getElementById('itemType').value;
+        var uploadProductType = document.getElementById('uploadProductType').value;
+        var product_type_select = document.getElementById('product_type_select');
+{#        alert('-------------------'+product_type_select.length);#}
+        for(var i = 0; i < product_type_select.length; i++){
+{#            console.log('**********' + i + '---------------------' + product_type_select[i].value + '//////////' + uploadProductType);#}
+            if(product_type_select[i].value == uploadProductType){
+                product_type_select[i].selected = true;
+            }
+        }
+        to_url = document.getElementById('to_url').value;
+
+        if(last_group=='1'){
+            document.getElementById('select_group9').style.display="";
+        }
+        for(var i = 0; i < 7 ;i++){
+            console.log(groups_list[i]);
+            if(groups_list[i] == ''||groups_list[i] == null||groups_list[i] == '[]'){
+                document.getElementById(div_list[i]).style.display="none";
+            }else {
+                document.getElementById(div_list[i]).style.display="";
+            }
+        }
+
+    };
+
+    function  change_groupRoot(obj) {
+        windowReloadAction('groupRoot', obj);
+    }
+    function  change_group2(obj) {
+        windowReloadAction('group2', obj);
+    }
+    function  change_group3(obj) {
+        windowReloadAction('group3', obj);
+    }
+    function  change_group4(obj) {
+        windowReloadAction('group4', obj);
+    }
+    function  change_group5(obj) {
+        windowReloadAction('group5', obj);
+    }
+    function  change_group6(obj) {
+        windowReloadAction('group6', obj);
+    }
+    function  change_group7(obj) {
+        windowReloadAction('group7', obj);
+    }
+    function  change_group8(obj) {
+        windowReloadAction('group8', obj);
+    }
+    function windowReloadAction(action, obj) {
+{#        alert(product_type_select_value);#}
+        if(action=='groupRoot'){
+            to_url = to_url.split('?')[0] +  '?' + action + '=' + obj.replace(/&/g, 'RBNAND');
+        }else {
+            to_url = to_url.split('&' + action)[0] +  '&' + action + '=' + obj.replace(/&/g, 'RBNAND');
+        }
+        var product_type_select_value = document.getElementById('product_type_select').value;
+        if(product_type_select_value!=''){
+            to_url = to_url.split('&uploadProductType')[0] +  '&uploadProductType=' + product_type_select_value;
+        }
+        var searchSite = document.getElementById('searchSite').value;
+        if(searchSite!=''){
+            to_url = to_url.split('&searchSite')[0] +  '&searchSite=' + searchSite;
+        }
+        window.location.href=to_url;
+    }
+
+{#    function search_item_type() {#}
+{#        var item_type = document.getElementById('item_type').value;#}
+{#        if(item_type==''||item_type==null){#}
+{#            alert('请输入节点类型！');#}
+{#        }else {#}
+{#            to_url = to_url.split('/?')[0] + '/?itemType=' + item_type;#}
+{#            var product_type_select_value = document.getElementById('product_type_select').value;#}
+{#            if(product_type_select_value!=''){#}
+{#                to_url = to_url.split('&uploadProductType')[0] +  '&uploadProductType=' + product_type_select_value;#}
+{#            }#}
+{#            window.location.href=to_url;#}
+{#        }#}
+{#    }#}
+
+    function select_groupRoot(){
+        //阻止冒泡上层click
+        event.stopPropagation();
+    }
+    var callbackdata = function () {
+        var item_type = document.getElementById('itemType').value;
+        var RootID = document.getElementById('RootID').value;
+        var groupRoot = document.getElementById('groupRoot').value;
+        var recommended_browse_nodes_str = document.getElementById('recommended_browse_nodes_str').value;
+        var product_type_select_value = document.getElementById('product_type_select').value;
+        if(product_type_select_value==''){
+            alert('请选择刊登种类！！！');
+        }else {
+            var data = {
+                RootID: RootID,
+                groupRoot: groupRoot,
+                product_type_select_value: product_type_select_value,
+                recommended_browse_nodes_str: recommended_browse_nodes_str,
+                item_type:item_type
+            };
+            return data;
+        }
+    }
+</script>
+<input id="to_url" type="hidden" value="{{ url }}">
+<input id="groupRoot" type="hidden" value="{{ groupRoot }}">
+<input id="group2" type="hidden" value="{{ group2 }}">
+<input id="group3" type="hidden" value="{{ group3 }}">
+<input id="group4" type="hidden" value="{{ group4 }}">
+<input id="group5" type="hidden" value="{{ group5 }}">
+<input id="group6" type="hidden" value="{{ group6 }}">
+<input id="group7" type="hidden" value="{{ group7 }}">
+<input id="group8" type="hidden" value="{{ group8 }}">
+<input id="group2s" type="hidden" value="{{ group2s }}">
+<input id="group3s" type="hidden" value="{{ group3s }}">
+<input id="group4s" type="hidden" value="{{ group4s }}">
+<input id="group5s" type="hidden" value="{{ group5s }}">
+<input id="group6s" type="hidden" value="{{ group6s }}">
+<input id="group7s" type="hidden" value="{{ group7s }}">
+<input id="group8s" type="hidden" value="{{ group8s }}">
+<input id="last_group" type="hidden" value="{{ last_group }}">
+<input id="itemType" type="hidden" value="{{ itemType }}">
+<input id="searchSite" type="hidden" value="{{ searchSite }}">
+<input id="uploadProductType" type="hidden" value="{{ uploadProductType }}">
+<input type="hidden" id="RootID" value="{{ tid }}">
+<input type="hidden" id="recommended_browse_nodes_str" value="{{ recommended_browse_nodes_str }}">
+<div style="height: 40px;">
+    {% if groupRoot != '' %}
+        <span>{{ groupRoot }}</span>
+        {% if group2 != '' %}
+            <span>&nbsp;>&nbsp;{{ group2 }}</span>
+            {% if group3 != '' %}
+                <span>&nbsp;>&nbsp;{{ group3 }}</span>
+                {% if group4 != '' %}
+                    <span>&nbsp;>&nbsp;{{ group4 }}</span>
+                    {% if group5 != '' %}
+                        <span>&nbsp;>&nbsp;{{ group5 }}</span>
+                        {% if group6 != '' %}
+                            <span>&nbsp;>&nbsp;{{ group6 }}</span>
+                            {% if group7 != '' %}
+                                <span>&nbsp;>&nbsp;{{ group7 }}</span>
+                                {% if group8 != '' %}
+                                    <span>&nbsp;>&nbsp;{{ group8 }}</span>
+                                {% endif %}
+                            {% endif %}
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+            {% endif %}
+        {% endif %}
+    {% endif %}
+</div>
+{#<span style="font-size: 18px">刊登站点：</span>#}
+{#<input id="site" name="site" style="font-size: 16px">#}
+{#<button type="button" value="搜索" style="" onclick="search_site()">搜索</button>#}
+{#<br />#}
+<p>---------------------------------------------------------</p>
+<span style="font-size: 18px">刊登种类：</span>
+<select id="product_type_select" style="font-size: 18px">
+    <option value="" style="font-size: 18px">--------------</option>
+    {% for product_type in all_product_type %}
+        <option value="{{ product_type }}" style="font-size: 18px">{{ product_type }}</option>
+    {% endfor %}
+</select>
+{#<span style="font-size: 18px">节点类型：</span>#}
+{#<input id="item_type" name="item_type" style="font-size: 16px">#}
+{#<button type="button" value="搜索" style="" onclick="search_item_type()">搜索</button>#}
+<br />
+<span style="font-size: 18px">类目选择：</span>
+<div class="div_all">
+<div style="width: 3000px">
+    <div class="div_select" id="select_group1">
+        {% for groupRoot in groupRoots %}
+            <button type="button" class="btn" value="{{ groupRoot }}" onclick="select_groupRoot()">
+                <span class="glyphicon glyphicon-tags" aria-hidden="true"></span>
+                <div align="left"><span class="label label-danger" value="{{ groupRoot }}" style="font-size: 15px;"
+                                            onclick="change_groupRoot('{{ groupRoot }}')">
+                    <div class="select_i" >{{ groupRoot }}</div></span>
+                    <div class="select_j" >&nbsp;></div></div>
+            </button>
+            <br/>
+        {% endfor %}
+    </div>
+    <div class="div_select" id="select_group2" style="display: none">
+        {% for group2 in group2s %}
+            <button type="button" class="btn" value="{{ group2 }}" onclick="select_groupRoot()">
+                <span class="glyphicon glyphicon-tags" aria-hidden="true"></span>
+                <div align="left"><span class="label label-danger" value="{{ group2 }}" style="font-size: 15px;"
+                                            onclick="change_group2('{{ group2 }}')">
+                    <div class="select_i" >{{ group2 }}</div></span>
+                    <div class="select_j" >&nbsp;></div></div>
+            </button>
+            <br/>
+        {% endfor %}
+    </div>
+    <div class="div_select" id="select_group3" style="display: none">
+        {% for group3 in group3s %}
+            <button type="button" class="btn" value="{{ group3 }}" onclick="select_groupRoot()">
+                <span class="glyphicon glyphicon-tags" aria-hidden="true"></span>
+                <div align="left"><span class="label label-danger" value="{{ group3 }}" style="font-size: 15px;"
+                                            onclick="change_group3('{{ group3 }}')">
+                    <div class="select_i" >{{ group3 }}</div></span>
+                    <div class="select_j" >&nbsp;></div></div>
+            </button>
+            <br/>
+        {% endfor %}
+    </div>
+    <div class="div_select" id="select_group4" style="display: none">
+        {% for group4 in group4s %}
+            <button type="button" class="btn" value="{{ group4 }}" onclick="select_groupRoot()">
+                <span class="glyphicon glyphicon-tags" aria-hidden="true"></span>
+                <div align="left"><span class="label label-danger" value="{{ group4 }}" style="font-size: 15px;"
+                                            onclick="change_group4('{{ group4 }}')">
+                    <div class="select_i" >{{ group4 }}</div></span>
+                    <div class="select_j" >&nbsp;></div></div>
+            </button>
+            <br/>
+        {% endfor %}
+    </div>
+    <div class="div_select" id="select_group5" style="display: none">
+        {% for group5 in group5s %}
+            <button type="button" class="btn" value="{{ group5 }}" onclick="select_groupRoot()">
+                <span class="glyphicon glyphicon-tags" aria-hidden="true"></span>
+                <div align="left"><span class="label label-danger" value="{{ group5 }}" style="font-size: 15px;"
+                                            onclick="change_group5('{{ group5 }}')">
+                    <div class="select_i" >{{ group5 }}</div></span>
+                    <div class="select_j" >&nbsp;></div></div>
+            </button>
+            <br/>
+        {% endfor %}
+    </div>
+    <div class="div_select" id="select_group6" style="display: none">
+        {% for group6 in group6s %}
+            <button type="button" class="btn" value="{{ group6 }}" onclick="select_groupRoot()">
+                <span class="glyphicon glyphicon-tags" aria-hidden="true"></span>
+                <div align="left"><span class="label label-danger" value="{{ group6 }}" style="font-size: 15px;"
+                                            onclick="change_group6('{{ group6 }}')">
+                    <div class="select_i" >{{ group6 }}</div></span>
+                    <div class="select_j" >&nbsp;></div></div>
+            </button>
+            <br/>
+        {% endfor %}
+    </div>
+    <div class="div_select" id="select_group7" style="display: none">
+        {% for group7 in group7s %}
+            <button type="button" class="btn" value="{{ group7 }}" onclick="select_groupRoot()">
+                <span class="glyphicon glyphicon-tags" aria-hidden="true"></span>
+                <div align="left"><span class="label label-danger" value="{{ group7 }}" style="font-size: 15px;"
+                                            onclick="change_group7('{{ group7 }}')">
+                    <div class="select_i" >{{ group7 }}</div></span>
+                    <div class="select_j" >&nbsp;></div></div>
+            </button>
+            <br/>
+        {% endfor %}
+    </div>
+    <div class="div_select" id="select_group8" style="display: none">
+        {% for group8 in group8s %}
+            <button type="button" class="btn" value="{{ group8 }}" onclick="select_groupRoot()">
+                <span class="glyphicon glyphicon-tags" aria-hidden="true"></span>
+                <div align="left"><span class="label label-danger" value="{{ group8 }}" style="font-size: 15px;"
+                                            onclick="change_group8('{{ group8 }}')">
+                    <div class="select_i" >{{ group8 }}</div></span>
+                    <div class="select_j" >&nbsp;></div></div>
+            </button>
+            <br/>
+        {% endfor %}
+    </div>
+    <div class="div_select" id="select_group9" style="display: none;">
+        <div style="margin-top:150px;">
+            <span>已到最后一级类目&nbsp;<br/>请点击右下角确定&nbsp;</span>
+        </div>
+    </div>
+</div>
+</div>

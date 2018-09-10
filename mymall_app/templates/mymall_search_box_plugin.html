@@ -1,0 +1,207 @@
+<link href="/static/searchbox/xadmin.plugin.search_box_plugin.html.css" type="text/css" rel="stylesheet"/>
+
+{% for input_id1 in inputs_id1 %}
+    <input name="input_id1" type="hidden" value="{{ input_id1 }}">
+{% endfor %}
+{% for input_id2 in inputs_id2 %}
+    <input name="input_id2" type="hidden" value="{{ input_id2 }}">
+{% endfor %}
+<input id="url" type="hidden" value="{{ newUrl }}">
+<br>
+
+
+<div style="width:100% ">
+<label id="ShopNameData" style="display:none">{{ ShopNameData }}</label>
+<label id="SupplierData" style="display:none">{{ SupplierData }}</label>
+<label id="cat_Dic" style="display:none">{{ cat_Dic }}</label>
+<label id="shopNData" style="display:none">{{ shopNData|safe }}</label>
+<label id="Create_manData" style="display:none">{{ Create_manData }}</label>
+<label id="shopNameOfficialData" style="display:none">{{ shopNameOfficialData }}</label>
+
+    <table class="border1">
+        {% for input1 in inputs1%}
+            {% if input1.startNum == 0 %}
+                <tr class="tr1" style="height: 30px;">
+            {% endif %}
+            {% if input1.selection == 0 %}
+                <td class="td1">{{ input1.descri }}：</td>
+
+                {% if input1.id_name == 'shopname' %}
+                    <td width="25%"style=" font-size:15px;border-left:1px solid #ddd">
+                        <input id="value{{ input1.id }}" style=" padding-left:-200px height:25px;width:190px;font-size: 15px;border-radius: 5px;" class="myInput" value="{{ input1.value1 }}" placeholder="{{ input1.defult_value1 }}"
+                        onkeyup="if(this.value.length>4){this.value=this.value.substr(0,4)};this.value=this.value.replace(/[^\d]/g,'');"></td>
+                {% elif input1.id_name == 'ShopName_ZY' %}
+                    <td width="25%">
+                    <div id="container">
+                    <div id="content">
+                    <div class="first">
+                        <input id="value{{ input1.id }}"  style=" height:25px;width:190px;font-size: 15px;border-radius: 5px;" class="myInput" value="{{ input1.value1 }}"
+                           placeholder="{{ input1.defult_value1 }}" onKeyup="getContent(this);">
+                    </div>
+                    <div id="append" style="width: 190px;height:200px;"></div>
+                {% elif input1.id_name == 'SupplierID' and AAA != 't_product_b_goods' %}
+                    <td width="25%">
+                    <div id="container">
+                    <div id="content">
+                    <div class="first">
+                        <input id="value{{ input1.id }}"  style=" height:25px;width:190px;font-size: 15px;border-radius: 5px;" class="myInput" value="{{ input1.value1 }}"
+                           placeholder="{{ input1.defult_value1 }}" onKeyup="getContent2(this);">
+                    </div>
+                    <div id="append2" style="width: 190px;height:200px;"></div>
+                {% elif input1.id_name == 'SupplierID' and AAA == 't_product_b_goods'%}
+                    <td width="25%">
+                    <div id="container">
+                    <div id="content">
+                    <div class="first">
+                        <input id="value{{ input1.id }}"  style=" height:25px;width:190px;font-size: 15px;border-radius: 5px;" class="myInput" value="{{ input1.value1 }}"
+                           placeholder="{{ input1.defult_value1 }}"  onchange="sup_ajax()">
+                    </div>
+                    <div id="append2" style="width: 190px;height:200px;"></div>
+                {% elif input1.id_name == 'ShopName' %}
+                    <td width="25%">
+                    <div id="container">
+                    <div id="content">
+                    <div class="first">
+                        <input id="value{{ input1.id }}"  style=" height:25px;width:190px;font-size: 15px;border-radius: 5px;" class="myInput" value="{{ input1.value1 }}"
+                           placeholder="{{ input1.defult_value1 }}" onKeyup="getContent3(this);">
+                    </div>
+                    <div id="append3" style="width: 190px;height:200px;"></div>
+                    </div>
+                    </div>
+                    </td>
+                {% elif input1.id_name == 'Create_manData' %}
+                    <td width="25%">
+                    <div id="container">
+                    <div id="content">
+                    <div class="first">
+                        <input id="value{{ input1.id }}"  style=" height:25px;width:190px;font-size: 15px;border-radius: 5px;" class="myInput" value="{{ input1.value1 }}"
+                           placeholder="{{ input1.defult_value1 }}" onKeyup="getContent4(this);">
+                    </div>
+                    <div id="append4" style="width: 190px;height:200px;"></div>
+                    </div>
+                    </div>
+                    </td>
+				{% elif input1.id_name == 'shopNameOfficial' %}
+                    <td width="25%">
+                    <div id="container">
+                    <div id="content">
+                    <div class="first">
+                        <input id="value{{ input1.id }}"  style=" height:25px;width:190px;font-size: 15px;border-radius: 5px;" class="myInput" value="{{ input1.value1 }}"
+                           placeholder="{{ input1.defult_value1 }}" onKeyup="getContent5(this);">
+                    </div>
+                    <div id="append5" style="width: 190px;height:200px;"></div>
+                    </div>
+                    </div>
+                    </td>
+                {% else %}
+                    
+                    <td width="25%">
+                        <input id="value{{ input1.id }}" type="text" style=" height:25px;width:190px;font-size: 15px;border-radius: 5px;" class="myInput" value="{{ input1.value1 }}"
+                           placeholder="{{ input1.defult_value1 }}"></td>
+                           
+                {% endif %}
+            {% elif input1.selection == 1 %}
+                <td class="td1">{{ input1.descri }}：</td>
+                <td width="25%">
+                    <input name="radio{{ input1.id_name }}[]" type="radio" value="" style="margin-left:-100px font-size: 15px;border-radius: 5px;" id="radio_{{ input1.id_name }}_all" />
+                    <label for="radio_{{ input1.id_name }}_all"><p style="margin-left: 15px; padding-left:10px;"><font style="margin-left:-15px;padding-bottom:3px;">全部</font></p></label>
+                    {% for k,v in input1.defult_value1.items %}
+                        <input name="radio{{ input1.id_name }}[]" type="radio" value="{{ v }}" style="margin-left:-100px padding-left:-10px; font-size: 15px;border-radius: 5px;" id="radio_{{ input1.id_name }}{{ forloop.counter }}" />
+                        <label for="radio_{{ input1.id_name }}{{ forloop.counter }}"><p style="margin-left: -5px; padding-left:15px;"><font style="margin-left:-5px;padding-bottom:3px;">{{ k }}</font></p></label>
+                    {% endfor %}
+                
+                </td>
+            {% elif input1.selection == 2 %}
+                <td class="td1" >{{ input1.descri }}：</p> </td>
+                <td width="25%" style="font-size:10px">
+                    {% for k,v in input1.defult_value1.items %}
+                        <input name="checkbox{{ input1.id_name }}[]" type="checkbox" value="{{ v }}" style="margin-left:-100px font-size:25px;border-radius: 5px;" id="checkbox_{{ input1.id_name }}{{ forloop.counter }}" />
+                        <label for="checkbox_{{ input1.id_name }}{{ forloop.counter }}">{{ k }} </p> </label>
+                    {% endfor %}
+                </td>
+            {% elif input1.selection == 3 %}
+                <td class="td1">{{ input1.descri }}：</td>
+                <td width="25%"><select id="select_{{ input1.id }}"  style="margin-left:-100px height:30px;width:120px ;font-size: 15px;border-radius: 5px;"{% if  AAA  == 't_product_b_goods' and input1.id == '19'%}onchange="clickOpt()" {% endif %}>
+                                    <option value=""></option>
+                                    {% for k,v in input1.defult_value1.items %}
+                                        <option value="{{ v }}">{{ k }}</option>
+                                    {% endfor %}
+                                </select>
+               
+                </td>
+            {% elif input1.selection == 4 %}
+                <td class="td1">{{ input1.descri }}：</td>
+                <td width="25%">
+                        <input id="value{{ input1.id }}"  style=" height:25px;width:190px;font-size: 15px;border-radius: 5px;" class="myInput" onkeyup="checkNum(this)" value="{{ input1.value1 }}"
+                           placeholder="{{ input1.defult_value1 }}"></td>
+            {% endif %}
+            <input id="inputs{{ input1.id }}"  type="hidden" value="{{ input1.inputs }}" >
+            <input id="id_{{ input1.id }}" type="hidden" value="{{ input1.id_name }}">
+            <input id="urlname{{ input1.id }}" type="hidden" value="{{ input1.urlname1 }}">
+            <input id="dvalue{{ input1.id }}" type="hidden" value="{{ input1.value1 }}">
+            <input id="select{{ input1.id }}" type="hidden" value="{{ input1.selection }}">
+            <input type="hidden" value="{{ input1.defult_value1 }}">
+            <input name="count" type="hidden" value="">
+            {% if input1.endNum == 0 %}
+                <td width="100px;"></td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+
+
+        {% for input2 in inputs2%}
+            {% if input2.startNum == 0 %}
+                <tr class="tr1" style="height: 35px">
+            {% endif %}
+			{% if input2.isDate == 0 %}
+				<td class="td3">{{ input2.descri }}：</td>
+				<td width="32%" style="margin-left:-100px">
+					<input id="value1{{ input2.id }}" type="text" placeholder="{{ input2.defult_value1 }}" style="height: 25px;width: 100px;font-size: 15px;border-radius: 5px;" onkeyup="if(!/^\d+$/.test(this.value)) {this.value=this.value.replace(/[^\d]+/g,'');}" value="{{ input2.value1 }}" />
+					----
+					<input id="value2{{ input2.id }}" type="text" placeholder="{{ input2.defult_value2 }}" style="height: 25px;width: 100px;font-size: 15px;border-radius: 5px;" onkeyup="if(!/^\d+$/.test(this.value)) {this.value=this.value.replace(/[^\d]+/g,'');}" value="{{ input2.value2 }}" />
+				</td>
+			{% elif input2.isDate == 2 %}
+				<td class="td3">{{ input2.descri }}：</td>
+				<td>
+				    <input id="value1{{ input2.id }}" type="number" step="0.01" placeholder="{{ input2.defult_value1 }}" style="height: 25px;width: 170px;font-size: 15px;border-radius: 5px;" value="{{ input2.value1 }}" />
+				    ----
+				    <input id="value2{{ input2.id }}" type="number" step="0.01" placeholder="{{ input2.defult_value2 }}" style="height: 25px;width: 170px;font-size: 15px;border-radius: 5px;" value="{{ input2.value2 }}" />
+				</td>
+			{% else %}
+				<td class="td3">{{ input2.descri }}：</td>
+				<td width="32%" style="margin-left:-100px">
+					<input id="value1{{ input2.id }}" type="date" placeholder="{{ input2.defult_value1 }}" style="height: 25px;width: 140px;font-size: 15px;border-radius: 5px;" value="{{ input2.value1 }}" />
+					----
+					<input id="value2{{ input2.id }}" type="date" placeholder="{{ input2.defult_value2 }}" style="height: 25px;width: 140px;font-size: 15px;border-radius: 5px;" value="{{ input2.value2 }}" />
+				</td> 
+			{% endif %}
+
+            <input id="inputs{{ input2.id }}"  type="hidden" value="{{ input2.inputs }}" >
+            <input id="id{{ input2.id }}" type="hidden" value="{{ input2.id_name }}">
+            <input id="urlname1{{ input2.id }}" type="hidden" value="{{ input2.urlname1 }}">
+            <input id="urlname2{{ input2.id }}" type="hidden" value="{{ input2.urlname2 }}">
+            <input id="date{{ input2.id }}" type="hidden" value="{{ input2.isDate }}">
+            <input id="dvalue1{{ input2.id }}" type="hidden" value="{{ input2.value1 }}">
+            <input id="dvalue2{{ input2.id }}" type="hidden" value="{{ input2.value2 }}">
+            <input type="hidden" value="{{ input2.defult_value1 }}">
+            <input name="countTwo" type="hidden" value="">
+            {% if input2.endNum == 0 %}
+                <td width="100px;"></td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+        
+    </table>
+</div>
+<br/>
+<div style="width: 100%">
+    <button class="btn btn-primary" id="search" onclick="my_Search()" style="margin-left:1000px">查询</button>
+    <button type="reset" value="Reset" class="btn btn-primary" onclick="myReset()">重置</button>
+    <button class="btn btn-primary" onclick="clearAll()">一键清空</button>
+    {% if  AAA  == 't_product_b_goods' %}
+        <button id="show" class="btn btn-primary" onclick="fideinfunShow()" style="display: none">显示搜索</button>
+        <button id="hide" class="btn btn-primary" onclick="fideinfunHide()">隐藏搜索</button>
+    {% endif %}
+</div>
+<script type="text/javascript" src="/static/searchbox/xadmin.plugin.search_box_plugin.html.js"></script>
+<br/>

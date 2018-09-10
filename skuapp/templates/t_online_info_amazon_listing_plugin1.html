@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="/static/js/t_online_info_wish_store_search.css?t=201803211234" rel="stylesheet" type="text/css" />
+    <script src="/static/js/t_online_info_wish_store_search.js?t=201803211234"></script>
+    <title>Title</title>
+        <style>
+            .button {
+                border-radius:10px 10px 10px 10px;
+                background-color: #4CAF50;
+                border: none;
+                color: white;
+                padding: 5px 20px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 12px;
+                margin: 4px 2px;
+                cursor: pointer;
+            }
+
+             .sybutton {
+                border-radius:10px 10px 10px 10px;
+                background-color:#428BCA;
+                border: none;
+                color: white;
+                padding: 5px 20px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 15px;
+                margin: 4px 2px;
+                cursor: pointer;
+             }
+
+            a.myj-aFocus {
+                display: inline-block;
+                vertical-align: middle;
+                line-height: 18px;
+            }
+
+            a.myj-aFocus:hover{
+                background-color: #428bca;
+                color: #fff;
+            }
+
+            .mRight20 {
+                margin-right: 30px;
+                margin-bottom: 5px;
+            }
+
+            .mLeft20 {
+                margin-right: 50px;
+                margin-left: 50px;
+                width: 80px;
+                height: 30px;
+            }
+
+            .inline{
+                display: inline;
+            }
+
+            .satrdiv{
+                overflow: hidden;
+                width:100px;
+                height: 90px;
+                padding-top: 15px;
+            }
+
+            .padatr{
+                padding-top: 10px;
+                padding-bottom: 10px;
+                padding-left: 10px;
+            }
+
+            .textatr{
+                width: 450px;
+                height: 35px;
+                border-radius:10px;
+                color: grey;
+            }
+
+            .black_overlay{
+                display: none;
+                position: absolute;
+                top: 0%;
+                left: 0%;
+                width: 100%;
+                height: 1000px;
+                background-color: #edeae1;
+                z-index:1001;
+                -moz-opacity: 0.3;
+                opacity:.5;
+                filter: alpha(opacity=88);
+            }
+            .white_content {
+                display: none;
+                position: absolute;
+                top: 75px;
+                left: 3%;
+                width: 1500px;
+                height:350px;
+                //padding: 20px;
+                //border: 10px solid orange;
+                background-color: white;
+                z-index:1002;
+                overflow: auto;
+            }
+
+
+             #shop_title{
+                 position: absolute;
+                 display: none;
+                 top: 35px;
+                 left: 3%;
+                 width: 1500px;
+                 height:40px;
+                 padding-top: 5px;
+                 padding-left: 10px;
+                 font-size: 20px;
+                 color:white;
+                 text-align: center;
+                 background: #428BCA;
+                 z-index:1002;
+            }
+
+
+            #shop_close{
+                display: none;
+                position: absolute;
+                 top: 420px;
+                 left: 3%;
+                 width: 1500px;
+                 height:40px;
+                 padding-top: 5px;
+                 padding-left: 10px;
+                 font-size: 20px;
+                 color:white;
+                 text-align: center;
+                 background: #428BCA;
+                 z-index:1002;
+            }
+            #s_title{
+                height:15%;
+                width:100%;
+                padding-left: 10px;
+                padding-top: 10px;
+                text-align: center;
+                font-size: 20px;
+                color:white;
+                background: #ccccc6;
+            }
+
+             #isclose{
+                 position: absolute;
+                 bottom: 0px;
+                 height:20%;
+                 width:100%;
+                 padding-right:30px;
+                 padding-top: 5px;
+                 text-align: right;
+                 font-size: 20px;
+                 color:white;
+                 border-top: 1px solid #e5e5e5;
+                 //background: #428BCA;
+            }
+
+            .myj-active {
+                background-color: #428bca;
+                color: #fff;
+            }
+
+            .form-control{
+                width: 170px;
+                height: 35px;
+                display: inline;
+                margin-top: 5px;
+            }
+            .lefttd{
+                text-align: right;
+            }
+
+            table,table tr td {
+                //border:1px solid #0094ff;
+                padding:2px 12px;
+            }
+
+            .crumb-select-item{
+                background: #EDEAE1;
+                padding: 0px 6px 0px 5px;
+                border: #cccaca;
+
+            }
+
+            .re_echo{
+                font-size: 13px;
+                padding-bottom: 20px;
+                padding-left: 10px;
+            }
+
+            select{
+                max-width: 900px;
+            }
+
+            .white_bar{
+                display: none;
+                position: absolute;
+                top:60px;
+                left: 33%;
+                width: 700px;
+                height: 260px;
+                background-color: white;
+                z-index:1002;
+                overflow: auto;
+                border:1px solid #e5e5e5;
+                border-radius: 4px;
+            }
+            #reverse_title{
+                height:25%;
+                width:100%;
+                padding-left: 10px;
+                padding-top: 10px;
+                //text-align: center;
+                font-size: 20px;
+                color:white;
+                background:#428BCA;
+            }
+
+            .white_reverse{
+                display: none;
+                position: absolute;
+                top:60px;
+                left: 33%;
+                width: 400px;
+                height: 200px;
+                background-color: white;
+                z-index:1002;
+                overflow: auto;
+                border:1px solid #e5e5e5;
+                border-radius: 4px;
+            }
+        </style>
+
+</head>
+<body>
+
+<!--     <div class="re_echo" style="display: none;">
+        搜索内容 &gt;
+        {% for k, v in navigation.items %}
+            &gt;<span class="crumb-select-item">{{ k }}:{{ v }}</span>
+        {% endfor %}
+    </div> -->
+
+    <!-- <div style="font-size:15px; border:1px solid #cccaca;"> -->
+    <div>
+        <ul id="myTab" class="nav nav-tabs">
+            <!--
+            <li {% if activeflag == '' %} class="active" {% endif %}>
+                <a href="{{ nowurl }}">
+                     ALL
+                </a>
+            </li>
+            -->
+            <li id="fbm_id" {% if activeflag == '0' %} class="active" {% endif %}>
+                <a href="{{ nowurl }}_p_is_fba=0">
+                    FBM
+                </a>
+            </li>
+            <li id="fba_id" {% if activeflag == '1' %} class="active" {% endif %}>
+                <a href="{{ nowurl }}_p_is_fba=1">
+                    FBA
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div>
+        <div style="font-size:15px;">
+            <div class="padatr">
+                <br>
+                <div class="satrdiv inline mRight20" style="float: left;height: 34px;width: 65.3px;">店铺名称:</div>
+                <div class="inline" style="float: left">
+                    <input id="q" class="textatr" autocomplete="off" name="shopname" style="border-radius: 10px;width:364px; " onFocus="if(this.value=='搜索店铺...'){this.value='';}else{this.select();}this.style.color='black';"  value="{{ flag }}">
+                    <input type="button" class="sybutton" value="点击搜索" onclick="searchItemAmazon()">
+                    <div class="selectize-dropdown-content" id="div_items" style="z-index: 100;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <select id="synPro" class="sybutton" style="display: inline;float: right; width: 125px;text-align:center;" onchange="syndata(this.options[this.selectedIndex])">
+        <option value="syn" style="display: none">同步产品</option>
+        {% for k,v in synTypeDict.items %}
+            {% for a, b in v.items %}
+                <option value="{{ a }}">{{ b }}</option>
+            {% endfor %}
+        {% endfor %}
+    </select>
+
+
+    <select id="pull-down" class="sybutton" style="display: inline;float: right; width: 125px;text-align:center;" onchange="carriagedata(this.options[this.selectedIndex])">
+        <option value="u_d" style="display: none">上 下 架</option>
+        <option value="load">产品上架</option>
+        <option value="unload">产品下架</option>
+    </select>
+
+    <div id="bar_light" class="white_bar" >
+        <div id="s_title">从amazon同步产品</div>
+        <p style="text-align:center; padding-top: 35px;">
+            <progress max="100" value="0" id="pg" style="width:600px; height: 25px; color: #5cb85c;" class="inline"></progress>
+            <div style="width: 600px; height: 60px; margin-left: 50px;">
+                </br>
+                <span>状态:&nbsp;<em style="color: #d58512" id="p_status">进行中...</em></span></br>
+                <span>详情:</span></br>
+                <span id="n_time" style="margin-left:35px"></span></td>
+            </div>
+            <!--
+                <canvas id="myCanvas" width="550" height="60" >Your browser does not have support for canvas.</canvas>
+                <br><span id="has_num"></span>
+            -->
+        </p>
+        <div id="isclose" style="">
+            <input type="button" class="sybutton" style="height: 30px" value="后台执行" onclick = "closeDialog_bar()"/>
+        </div>
+    </div>
+    <div id="bar_fade" class="black_overlay"></div>
+
+    <!-- </div> -->
+    </br></br>
+    <span id="currentURL" style="display: none">{{ currentURL }}</span>
+    <span id="taskURL" style="display: none">{{ taskURL }}</span>
+    <span id="completeURL" style="display: none">{{ completeURL }}</span>
+    <span id="platform_flg" style="display: none">{{ platform_flg }}</span>
+    <span id="pdURL" style="display:none;">{{ pdURL }}</span>
+    <!-- <meter value="50" min="0" max="100" style="width:600px; height: 25px; color: #5cb85c;">进度条二</meter> -->
+</body>
+
+<script type="text/javascript" src="/static/xadmin/js/jquery-1.7.1.min.js"></script>
+<!--<script src="http://code.jquery.com/jquery-1.8.0.min.js"></script>-->
+<script type="text/javascript">
+    var divdown = document.getElementById('div_items');
+    var node=divdown.nextSibling;
+    var shop_list = {{ objs|safe }};
+    var info = '';
+    for (var s=0;s<shop_list.length;s++){
+        info += '<div class="div_item" onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" onClick="ChangeText(this);">'+ shop_list[s] +'</div>';
+    }
+    divdown.innerHTML = info;
+    divdown.parentNode.insertBefore(divdown, node);
+    node=divdown.nextSibling;
+
+    if (document.getElementById('q').value == 'AMZ-0000'){
+        document.getElementById('q').value = '搜索店铺...';
+    }
+    //弹出列表框
+    $("#q").click(function () {
+        $("#div_items").css('display', 'block');
+        return false;
+    });
+
+    //隐藏列表框
+    $("body").click(function () {
+        $("#div_items").css('display', 'none');
+    });
+
+
+    //移入移出效果
+    function getnewcolor(obj) {
+        $(obj).css('background-color', '#1C86EE').css('color', 'white');
+    }
+
+    function getoldcolor(obj) {
+        $(obj).css('background-color', 'white').css('color', 'black');
+    }
+
+    //文本框输入
+    $("#q").keyup(function () {
+        var intext = document.getElementById('q');
+        var inputtext = intext.value;
+        if (inputtext != "") {
+            var html = "";
+            for (var i = 0; i < shop_list.length; i++) {
+                if (shop_list[i].indexOf(inputtext) >= 0) {
+                    html += '<div class="div_item"onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" onClick="ChangeText(this);">'+ shop_list[i] +'</div>';
+                }
+            }
+            if (html != "") {
+                $("#div_items").show().html(html);
+            } else {
+                $("#div_items").hide().html("");
+            }
+        }else {
+            $("#div_items").show().html(info);
+        }
+    });
+
+    //项点击
+    function ChangeText(obj) {
+        var value = $(obj).text();
+        $("#q").val(value);
+        $("#div_items").show().html('<div class="div_item" onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" onClick="ChangeText(this);">'+ value +'</div>');
+    }
+
+    function sleep(n){
+        var start=new Date().getTime();//定义起始时间的毫秒数
+        while(true){
+            var time=new Date().getTime();//每次执行循环取得一次当前时间的毫秒数
+            if(time-start>n){//如果当前时间的毫秒数减去起始时间的毫秒数大于给定的毫秒数，即结束循环
+                break;
+            }
+        }
+    }
+
+</script>
+<script>
+    function syndata(data){
+        $("#synPro").val('syn'); // 保持默认值
+        //alert(data.value)
+        if(confirm('确定'+data.innerText+'店铺数据?') == true && data != 'syn'){
+            var platform_flg = $('#platform_flg')[0].innerText
+            if(platform_flg == 'AMZON'){
+                 synshopdata(data.value)
+            }else if(platform_flg = 'WISH'){
+                //其他平台
+                synwishdata(data)
+            }
+        }
+    }
+
+    //上下架
+    function carriagedata(data){
+         //alert('hshhagd')
+         //var lvChecked = $("#idTableFixed tbody tr td input:checked");
+         $("#pull-down").val('u_d');
+         var check_val = getSelectItems()
+         if(check_val === undefined || check_val.length == 0 ){
+             alert('请勾选需要'+data.innerText+'的条目！！！')
+             return   // 不执行且返回
+         }else if(check_val.length !=  0){
+             var pdURL = $('#pdURL')[0].innerText
+             // var pd_params = {'id':check_val.toString(),'synType':data.value}    // up 或 down
+             //alert(check_val)
+             // var calldata = tosynamazon(pdURL, pd_params)
+             //searchItemAmazon()
+             // alert(calldata)
+             // window.location.href = document.location.href + '&' + calldata
+             window.location.href = pdURL + '?id='+check_val.toString()+'&synType='+data.value.toString()
+
+         }
+    }
+
+     //wish同步
+    function synwishdata(data) {
+        var check_val = getSelectItems(data)
+        //alert(check_val +'<---value')
+        //alert('length-->'+check_val.length)
+        //alert('check_val.toString()->>'+check_val.toString())
+        var ShopName = $("#current_shop").val()
+        if (ShopName === undefined || ShopName == '' ) {
+            alert('无法同步店铺,请选择一个店铺!')
+        }else if(data.value == 'syspro' && check_val.length == 0){
+            alert('请勾选同步的条目！')
+        }else if(ShopName !== undefined && ShopName != ''){
+            var pdURL = $('#pdURL')[0].innerText
+            var pd_params = {'id':check_val.toString(),'ShopName':ShopName,'synType':data.value}
+            var callback = tosynamazon(pdURL, pd_params)
+        }
+    }
+
+    function tocreateProduct() {
+        var ShopName = $("#current_shop").val()
+        //var searchSite = $(" .myj-active")[1].getElementsByTagName('li')[0].innerText
+        if (ShopName === undefined) {
+            ShopName = ''
+        }
+        if (ShopName == '' || searchSite == 'ALL') {
+            alert('无法创建,务必同时选中店铺和站点!')
+        }else{
+            window.location.href='/Project/admin/skuapp/t_templet_amazon_wait_upload/add/?ShopName='+ShopName
+        }
+    }
+
+
+    //获取被选中条目
+    function getSelectItems(){
+         var check_val = [];
+         $("input[name='_selected_action']:checked").each(function () {
+             check_val.push($(this).val());
+         });
+        return check_val
+    }
+
+    // 同步进度条
+    var is_syn  //轮询后台定时器
+    var timertask
+
+    function synshopdata(syn_type) {
+        var ShopName = $("#q").val()
+
+        //var searchSite = $(" .myj-active")[1].getElementsByTagName('li')[0].innerText
+        //alert(searchSite)
+        if (ShopName === undefined) {
+            ShopName = ''
+        }
+        //alert(syn_type)
+        if(syn_type != 'synpro'){
+            if (ShopName == '') {
+                alert('无法同步店铺,请选择一个店铺和站点!')
+            } else {
+                getprogress(ShopName,syn_type)
+            }
+        }else if(syn_type == 'synpro' && ShopName == '') {
+            alert('请选择一个店铺!')
+        }else if(syn_type == 'synpro' && ShopName != ''){
+            var check_val = getSelectItems()
+            //alert(check_val)
+            if(check_val === undefined || check_val.length == 0 ) {
+                alert('请勾选需要同步刷新的条目！！！')
+                return   // 不执行且返回
+            }else if(check_val.length !=  0) {
+                var synproURL = '/refresh_product_amzon/'
+                var pd_params = {'id': check_val.toString(), 'synType': syn_type}    // up 或 down
+                //alert(check_val)
+                var calldata = tosynamazon(synproURL, pd_params)
+                searchItemAmazon()
+            }
+        }
+    }
+
+    //进度条动画
+    function getprogress(ShopName,syn_type){
+        openDialog_bar();
+        var pg_rate = ''
+        var syn_num
+        var syn_progress
+        var now_num = 0
+        //alert(pg_rate)
+        var pg = document.getElementById('pg');
+        pg.value = 0;
+        var timenum = 300000
+        //alert(syn_type)
+        //执行后台同步任务
+        var taskURL = $('#taskURL')[0].innerText
+        var s_params = {'ShopName':ShopName,'synType':syn_type}
+        var uuid = tosynamazon(taskURL,s_params)
+        //询问后台同步情况
+        var completeURL = $('#completeURL')[0].innerText
+        var c_params = {'ShopName':ShopName,'uuid':uuid}
+        is_syn = setInterval(function (e) {
+            pg_rate = issyncomplete(completeURL,c_params)
+        }, 1000)
+        //alert(uuid)
+        //进度展示
+        syn_progress = pg.value
+        $('#p_status').text('正在提交报告!')
+        $('#n_time').text('')
+        timertask = setInterval(function (e) {
+            timenum = timenum - 3
+            //pg.value = Math.ceil(pg.value)
+            //$('#n_time').text('已完成'+pg.value+'%'+'预计需要' + Math.floor(timenum / 60000) + '分' + (timenum % 60000) / 1000 + '秒')
+            //$('#n_time').text(pg.value+'%')
+
+            if (pg_rate == 'submit') {
+                $('#p_status').text('正在提交报告!')
+                if(pg.value < 10){
+                    pg.value += 0.01;
+                }
+                $('#n_time').text('已完成'+pg.value.toFixed(1)+'%')
+                syn_progress = pg.value
+            }else if(pg_rate == 'progress'){
+                //亚马逊处理中 30%
+                $('#p_status').text('亚马逊处理中!')
+                if(pg.value < 30){
+                    pg.value += 0.01;
+                }
+                $('#n_time').text('已完成'+pg.value.toFixed(1)+'%')
+                syn_progress = pg.value
+            }else if(pg_rate == 'done'){
+                //亚马逊处理完成 50%
+                $('#p_status').text('亚马逊处理完成!')
+                if(pg.value < 50){
+                    pg.value += 0.01;
+                }
+                $('#n_time').text('已完成'+pg.value.toFixed(1)+'%')
+                syn_progress = pg.value
+            }else if(pg_rate == 'getdata'){
+                //获取亚马逊处理结果 65%
+                $('#p_status').text('获取亚马逊处理结果!')
+                if(pg.value < 65){
+                    pg.value += 0.01;
+                }
+                $('#n_time').text('已完成'+pg.value.toFixed(1)+'%')
+                syn_progress = pg.value
+            }else if(pg_rate.indexOf('backfill') != -1){
+                //更新本地数据库 80%
+                $('#p_status').text('更新本地数据库!')
+                syn_num = pg_rate.substring(9,pg_rate.length)
+                //alert(syn_num)
+                if(pg.value < 99){
+                    pg.value += (98-syn_progress)/(syn_num*1000);
+                }
+                if(now_num  < syn_num*1000){
+                    now_num += 1
+                }
+                $('#n_time').text('已完成'+pg.value.toFixed(1)+'%' + '  已同步数据'+Math.ceil(now_num/1000)+'/'+syn_num)
+            }else if(pg_rate == 'success'){
+                //处理完成 100%
+                $('#p_status').text('处理完成!')
+                if(pg.value == 100 || pg.value > 100){
+                    clearInterval(timertask)
+                    pg.value = 100
+                    $('#n_time').text('已完成'+pg.value+'%'+'  同步数据'+syn_num+'条')
+                }
+                if(pg.value < 100){
+                    pg.value += (99-syn_progress)/(syn_num*1000);
+                    now_num += 1
+                    $('#n_time').text('已完成'+pg.value.toFixed(1)+'%' + '  已同步数据'+Math.ceil(now_num/1000)+'/'+syn_num)
+                }
+            }else if(pg_rate == 'fail'){
+                //处理失败 停住
+                //window.document.getElementById('pg').setAttribute("style", "width:600px; height: 25px; color: #D53351;");
+                //alert('sss')
+                clearInterval(timertask)
+                clearInterval(is_syn)
+                $('#p_status').text('处理失败!')
+            }else if(pg_rate == 'cancel'){
+                //请求被亚马逊取消  停住
+                clearInterval(timertask)
+                clearInterval(is_syn)
+                $('#p_status').text('请求被亚马逊取消!')
+            }else if(pg_rate == 'timeout'){
+                //请求超时 停住
+                clearInterval(timertask)
+                clearInterval(is_syn)
+                $('#p_status').text('请求超时!')
+            }
+        }, 3)
+    }
+
+    //执行任务 :: params = {'ShopName':ShopName,  'synType':syntype}
+    function tosynamazon(url,params){
+        //alert(url)
+        //alert('sagdhagsd---------->'+params)
+        var uuid = ''
+        //alert(syntype)
+        $.ajax({
+            url:url,
+            type:'GET',
+            //datatype:'json',
+            async: false,
+            data:params,
+            success:function(data){
+                //alert('我先返回复命  tasks.delay任务还在后台执行.... ')
+                //alert(data)
+                uuid = data
+            },
+            //traditional:true,
+            error:function () {
+                alert('未知异常,请重试！')
+            }
+        })
+        return uuid
+    }
+
+    // 查询进度
+    function issyncomplete(url,params){
+        pg_rate = ''
+        $.ajax({
+            url:url,
+            type:'GET',
+            //datatype:'json',
+            async: false,
+            data:params,
+            success:function(data){
+                //alert(data)
+                pg_rate = data
+                //alert('url-->'+url+'params-->'+params+'data-->'+data)
+                //alert('刚去询问了进度... 同步xxxx')
+            },
+            error:function () {
+                alert('未知异常,请重试！')
+            }
+        })
+        return pg_rate
+    }
+
+    var url_str = $('#currentURL')[0].innerText
+    //alert(url_str)
+
+
+
+
+
+    function openDialog(){
+        document.getElementById('light').style.display='block';
+        document.getElementById('fade').style.display='block';
+        document.getElementById('shop_title').style.display='block';
+        document.getElementById('shop_close').style.display='block';
+    }
+    function closeDialog(){
+        document.getElementById('light').style.display='none';
+        document.getElementById('fade').style.display='none'
+		document.getElementById('shop_title').style.display='none';
+        document.getElementById('shop_close').style.display='none';
+    }
+
+    //搜索条目
+    function searchItemAmazon() {
+        try {
+            var fbm_flag = document.getElementById('fbm_id').className;
+        }
+        catch(e) {
+            var fbm_flag = '';
+        }
+        try {
+            var fba_flag = document.getElementById('fba_id').className;
+        }
+        catch(e) {
+            var fba_flag = '';
+        }
+        var s_item = '';
+
+        // var priceLift = $("#priceLift").val()
+        // var priceRight = $("#priceRight").val()
+        // var quantityLeft = $("#quantityLeft").val()
+        // var quantityRight = $("#quantityRight").val()
+        // var shipType = $("#switchFulfillmentTo option:checked").val();
+        // var brandId = $("#brandId").val()
+        // var manufacturerId = $("#manufacturerId").val()
+        // var s_time = $("#advancedTime option:checked").val();
+        // var timeLift = $("#timeLift").val()
+        // var timeRight = $("#timeRight").val()
+        // updatetime_str = ''
+        // updatetime_end = ''
+        // createtime_str = ''
+        // createtime_end = ''
+        var shopname = $("#q").val();
+        if(shopname === undefined){
+            shopname = '';
+        }
+        // if(parseInt(s_time) == 0){
+        //     updatetime_str = timeLift
+        //     updatetime_end = timeRight
+        // }
+        // if(parseInt(s_time) == 1){
+        //     createtime_str = timeLift
+        //     createtime_end = timeRight
+        // }
+        // var searchType = $(" .myj-active")[0].getElementsByTagName('li')[0].innerText
+        // var searchSite = $(" .myj-active")[1].getElementsByTagName('li')[0].innerText
+        // //alert(searchSite)
+        // var sellingforms = $(" .myj-active")[2].getElementsByTagName('li')[0].innerText
+        // var ShopName = $("#current_shop").val()
+        // var searchitem = $("#searchItem").val()
+        // if(ShopName === undefined){
+        //     ShopName = ''
+        // }
+
+
+        //if(priceLift != ''){s_item += '&priceLift='+ priceLift;}
+        //if(priceRight != ''){s_item += '&priceRight='+ priceRight;}
+        //if(quantityLeft != ''){s_item += '&quantityLeft='+ quantityLeft;}
+        //if(quantityRight != ''){s_item += '&quantityRight='+ quantityRight;}
+        //if(updatetime_str != ''){s_item += '&updatetime_str='+ updatetime_str;}
+        //if(updatetime_end != ''){s_item += '&updatetime_end='+ updatetime_end;}
+        //if(createtime_str != ''){s_item += '&updatetime_str='+ createtime_str;}
+        //if(createtime_end != ''){s_item += '&updatetime_end='+ createtime_end;}
+
+        // if(priceLift != '' && priceRight != ''){
+        //     if(parseInt(priceLift)>parseInt(priceRight)){
+        //         alert('错误：最大价格必需大于等于最小价格！')
+        //         return;
+        //     }else{
+        //         s_item += '&priceLift='+ priceLift + '&priceRight='+ priceRight;
+        //     }
+        // }else if(priceLift != ''&& priceRight == ''){
+        //     s_item += '&priceLift='+priceLift
+        // }else if(priceLift == ''&& priceRight != '') {
+        //     s_item += '&priceRight=' + priceRight
+        // }
+
+        // if(quantityLeft != '' && quantityRight != ''){
+        //     if(parseInt(quantityLeft)>parseInt(quantityRight)){
+        //         alert('错误：最大库存必需大于等于最小库存！')
+        //         return;
+        //     }else{
+        //         s_item += '&quantityLeft='+ quantityLeft + '&quantityRight='+ quantityRight;
+        //     }
+        // }else if(quantityLeft != ''&& quantityRight == ''){
+        //     s_item += '&quantityLeft='+quantityLeft
+        // }else if(quantityLeft == ''&& quantityRight != '') {
+        //     s_item += '&quantityRight=' + quantityRight
+        // }
+
+        // if(shipType != ''){s_item += '&shipType='+ shipType;}
+        // if(brandId != ''){s_item += '&brandId='+ brandId;}
+        // if(manufacturerId != ''){s_item += '&manufacturerId='+ manufacturerId;}
+        // if(updatetime_str != '' && updatetime_end != ''){
+        //      var d1 = new Date(updatetime_str.replace(/\-/g, "\/"));
+        //      var d2 = new Date(updatetime_end.replace(/\-/g, "\/"));
+        //      if(d1 > d2) {
+        //         alert('最大更新时间必需大于等于最小更新时间!')
+        //         return;
+        //      }else{
+        //         s_item += '&updatetime_str='+ updatetime_str+'&updatetime_end='+ updatetime_end;
+        //      }
+        // }else if(updatetime_str != ''&& updatetime_end == ''){
+        //     s_item += '&updatetime_str='+updatetime_str
+        // }else if(updatetime_str == ''&& updatetime_end != '') {
+        //     s_item += '&updatetime_end=' + updatetime_end
+        // }
+
+        // if(createtime_str != '' && createtime_end != ''){
+        //      var d1 = new Date(createtime_str.replace(/\-/g, "\/"));
+        //      var d2 = new Date(createtime_end.replace(/\-/g, "\/"));
+        //      if(d1 > d2) {
+        //         alert('最大创建时间必需大于等于最小创建时间!')
+        //         return;
+        //      }else{
+        //         s_item += '&createtime_str='+ createtime_str+ '&createtime_end='+ createtime_end;
+        //      }
+        // }else if(createtime_str != ''&& createtime_end == ''){
+        //     s_item += '&createtime_str='+createtime_str
+        // }else if(createtime_str == ''&& updatetime_end != '') {
+        //     s_item += '&createtime_end=' + createtime_end
+        // }
+        if(fba_flag == 'active'){s_item += '&_p_is_fba=1';}
+        else if (fbm_flag == 'active'){s_item += '&_p_is_fba=0';}
+        else{s_item += '&_p_is_fba=0';}
+        if(shopname != '' && shopname != undefined && shopname.indexOf('搜索') == -1){s_item += '&shopname='+ shopname;}
+
+        // if(searchType != '' && searchitem.indexOf('搜索') != 0){s_item += '&'+searchType+'='+searchitem.replace(/\+/g,"%2B").replace(/\#/g,"%23");}
+        // if(searchSite != ''){s_item += '&searchSite='+ searchSite;}
+        // if(sellingforms != ''){s_item += '&sellingforms='+ sellingforms;}
+        // if(ShopName != '' && ShopName != undefined){s_item += '&ShopName='+ ShopName;}
+        if(s_item != ''){
+           s_item = '?'+s_item.substring(1,s_item.length);
+        }
+        window.location.href = url_str+s_item;
+    }
+
+    //去除非数字
+    function clearNoNum(price){
+        var pri = $(price).val();
+        var reg = new RegExp("^\\d+(\\.\\d+)?$");
+        if(!reg.test(pri)){
+            var newpri = pri.substring(pri.length-1,0);
+            $(price).val(newpri);
+        }
+    }
+
+    function openDialog_bar(){
+        document.getElementById('bar_light').style.display='block';
+        document.getElementById('bar_fade').style.display='block';
+    }
+    function closeDialog_bar(){
+        //if(confirm('确定关闭？') == true){
+        document.getElementById('bar_light').style.display='none';
+        document.getElementById('bar_fade').style.display='none';
+        clearInterval(is_syn);
+        clearInterval(timertask);
+       // }
+    }
+
+    function openDialog_reverse(){
+        document.getElementById('reverse_light').style.display='block';
+        document.getElementById('reverse_fade').style.display='block';
+    }
+    function closeDialog_reverse() {
+        document.getElementById('reverse_light').style.display='none';
+        document.getElementById('reverse_fade').style.display='none';
+    }
+
+</script>
+
+</html>

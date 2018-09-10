@@ -1,0 +1,46 @@
+<div style="float: left;">
+    <div style="margin-top: 23%">
+        {% if paramDict|length > 0 %}<label>排序方式: </label>{% endif %}
+
+    </div>
+</div>
+<div>
+    <ul class="nav navbar-nav">
+        {% for k, v in paramDict.items %}
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" style="color: #428bca">
+                    {{ v.descri }}
+                    {{ v.flag|safe }}
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a href="{{ v.up }}"><i class="fa fa-caret-up" style="margin-right: 5px;"></i>正序</a></li>
+                    <li><a href="{{ v.down }}"><i class="fa fa-caret-down" style="margin-right: 5px;"></i>倒序</a></li>
+                    <li><a href="{{ v.times }}"><i class="fa fa-times" style="margin-right: 5px;"></i>取消</a></li>
+                </ul>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+
+
+<!--<div>-->
+    <!--<ul class="nav navbar-nav">-->
+        <!--{% for list_k in param_list %}-->
+            <!--{% for k, v in list_k.items %}-->
+
+                <!--{{v}}-->
+                <!--<li class="dropdown">-->
+                <!--<a class="dropdown-toggle" data-toggle="dropdown" style="color: #428bca">-->
+                    <!--{{ v.descri }}-->
+                    <!--{{ v.flag|safe }}-->
+                <!--</a>-->
+                <!--<ul class="dropdown-menu">-->
+                    <!--<li><a href="{{ v.up }}"><i class="fa fa-caret-up" style="margin-right: 5px;"></i>正序</a></li>-->
+                    <!--<li><a href="{{ v.down }}"><i class="fa fa-caret-down" style="margin-right: 5px;"></i>倒序</a></li>-->
+                    <!--<li><a href="{{ v.times }}"><i class="fa fa-times" style="margin-right: 5px;"></i>取消</a></li>-->
+                <!--</ul>-->
+                <!--</li>-->
+            <!--{% endfor %}-->
+        <!--{% endfor %}-->
+    <!--</ul>-->
+<!--</div>-->

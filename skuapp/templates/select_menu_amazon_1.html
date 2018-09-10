@@ -1,0 +1,219 @@
+<style type="text/css">
+        .div_all {
+            /*overflow-x:scroll;*/
+            height:400px;
+            width: 100%;
+            margin-top:50px;
+            border:1px solid #00F
+        }
+        .select_i {
+            float: left; white-space: nowrap; text-overflow: ellipsis;width:80%;
+        }
+        .select_j {
+            float: right;width:5%;
+        }
+        .div_select {
+            float: right;
+            overflow-x:scroll;
+            overflow-y:scroll;
+            height:399px;
+            width:100%;
+            margin-top:1px;
+        }
+        .btn{border:0px;background-color:transparent;background-color: ghostwhite;width: 100%}
+</style>
+<script type="text/javascript">
+    var to_url = '';
+    window.onload = function () {
+        var groupRoot = document.getElementById('groupRoot').value;
+        var itemType = document.getElementById('itemType').value;
+//        var uploadProductType = document.getElementById('uploadProductType').value;
+//        var product_type_select = document.getElementById('product_type_select');
+
+//        for (var i = 0; i < product_type_select.length; i++)
+//        {
+//            if(product_type_select[i].value == uploadProductType)
+//            {
+//                product_type_select[i].selected = true;
+//            }
+//        }
+
+        to_url = document.getElementById('to_url').value;
+    };
+
+//    function  change_groupRoot(obj) {
+//        windowReloadAction('groupRoot', obj);
+//    }
+    function  change_group_all(root_id, group_selected, item_type) {
+        windowReloadAction('root_id','group_selected','itemType',root_id, group_selected, item_type);
+    }
+
+    function windowReloadAction(id,group,type,root_id, group_selected, item_type) {
+        to_url = to_url.split('?')[0] +  '?' + group + '=' + group_selected.replace(/&/g, 'RBNAND') + '&' + id + '=' + root_id + '&' + type + '=' + item_type;
+
+//        var product_type_select_value = document.getElementById('product_type_select').value;
+//        if (product_type_select_value != '')
+//        {
+//            to_url = to_url.split('&uploadProductType')[0] +  '&uploadProductType=' + product_type_select_value;
+//        }
+
+        var searchSite = document.getElementById('searchSite').value;
+        if (searchSite != '')
+        {
+            to_url = to_url.split('&searchSite')[0] +  '&searchSite=' + searchSite;
+        }
+
+        var item_key_word = document.getElementById('search_item_id').value;
+        if (item_key_word != '')
+        {
+            to_url = to_url.split('&item_key_word')[0] +  '&item_key_word=' + item_key_word;
+        }
+
+//        var product_type_select = document.getElementById('product_type_select').value;
+//        if (product_type_select != '')
+//        {
+//            to_url = to_url.split('&product_type_select')[0] +  '&product_type_select=' + product_type_select;
+//        }
+
+//        alert('reloadaction')
+//        alert(to_url)
+        window.location.href=to_url;
+    }
+
+    function search_item_name(obj)
+    {
+        var item_key_word = document.getElementById('search_item_id').value;
+
+//        alert(item_key_word)
+        var searchSite =document.getElementById('searchSite').value;
+//        alert(searchSite)
+//        var product_type_select = document.getElementById('product_type_select').value;
+        if (item_key_word.replace(/^\s+|\s+$/g,"") == '')
+        {
+            alert('类目搜索框必填');
+        }
+        else
+        {
+//            alert('取数据库数据');
+            var to_url = document.getElementById('to_url').value;
+//            to_url += "item_key_word="+ item_key_word + "&searchSite="+ searchSite +  "&uploadProductType=" + product_type_select;
+            to_url += "item_key_word="+ item_key_word + "&searchSite="+ searchSite;
+//            alert(to_url);
+            window.location.href=to_url;
+
+//            parent.document.getElementsByClassName('exform')[0].setAttribute("action","/Project/admin/skuapp/t_templet_amazon_wait_upload/1436/update"+"/select_amazon_menu/?item_key_word="+ item_key_word + "&searchSite=" + searchSite);
+//            parent.document.getElementsByClassName('exform')[0].setAttribute("action","/test_response/");
+//            parent.document.getElementsByClassName('exform')[0].submit();
+//            alert('222');
+        }
+    }
+
+    function select_groupRoot()
+    {
+        //阻止冒泡上层click
+        event.stopPropagation();
+    }
+
+    function select_group_all()
+    {
+        event.stopPropagation();
+    }
+
+    var callbackdata = function ()
+    {
+        var item_type = document.getElementById('itemType').value;
+        var RootID = document.getElementById('RootID').value;
+        var group_selected = document.getElementById('group_selected').value;
+//        var recommended_browse_nodes_str = document.getElementById('recommended_browse_nodes_str').value;
+//        var product_type_select_value = document.getElementById('product_type_select').value;
+        if (product_type_select_value == '')
+        {
+            alert('请选择刊登种类！！！');
+        }
+        else
+        {
+            var data = {
+                RootID: RootID,
+                groupRoot: group_selected.split('>')[0],
+//                product_type_select_value: product_type_select_value,
+                recommended_browse_nodes_str: group_selected.replace(/&/g, 'RBNAND'),
+                item_type:item_type
+            };
+            return data;
+        }
+    }
+</script>
+
+<input id="to_url"  type="hidden" value="{{ url }}">
+<input id="groupRoot"  type="hidden" value="{{ groupRoot }}">
+<input id="itemType" type="hidden" value="{{ itemType }}">
+<input id="searchSite" type="hidden" value="{{ searchSite }}">
+<input id="uploadProductType" type="hidden" value="{{ uploadProductType }}">
+<input type="hidden" id="RootID" value="{{ root_id }}">
+<input type="hidden" id="recommended_browse_nodes_str" value="{{ recommended_browse_nodes_str }}">
+<input type="hidden" id="group_all" value="{{ group_all }}">
+<input type="hidden" id="group_selected" value="{{ group_selected }}">
+
+
+
+<div style="height: 40px;">
+    {% if group_selected != '' %}
+        <span style="color: red;">当前选中类目为：</span>
+        <br/>
+        <span style="color: red;font-weight:bold;">{{ group_selected }}</span>
+    {% endif %}
+
+</div>
+
+<p>---------------------------------------------------------</p>
+<!--<span style="font-size: 18px">刊登种类：</span>-->
+<!--<select id="product_type_select" style="font-size: 18px">-->
+    <!--<option value="" style="font-size: 18px">&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;</option>-->
+    <!--{% for product_type in all_product_type %}-->
+        <!--{% if product_type_select == product_type %}-->
+            <!--<option value="{{ product_type }}" style="font-size: 18px" selected>{{ product_type }}</option>-->
+        <!--{% else %}-->
+            <!--<option value="{{ product_type }}" style="font-size: 18px">{{ product_type }}</option>-->
+        <!--{% endif %}-->
+    <!--{% endfor %}-->
+<!--</select>-->
+
+<!--&nbsp&nbsp-->
+<!--<span style="font-size: 18px">站点：</span>-->
+<!--<select id="product_site_select" style="font-size: 18px">-->
+    <!--<option value="" style="font-size: 18px">&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;&#45;</option>-->
+    <!--{% for product_site in all_product_site %}-->
+      <!--{% if searchSite == product_site.0 %}-->
+        <!--<option value="{{product_site.0}}" style="font-size: 18px" selected>{{ product_site.1 }}</option>-->
+      <!--{% else %}-->
+        <!--<option value="{{product_site.0}}" style="font-size: 18px">{{ product_site.1 }}</option>-->
+      <!--{% endif %}-->
+    <!--{% endfor %}-->
+<!--</select>-->
+
+&nbsp&nbsp
+<!--<span style="font-size: 18px">类目搜索：</span>-->
+<input style="width:90%;height:5%" id="search_item_id" value="{{item_key_word}}">
+<button type="button" id="search_button" value="搜索" style="" onclick="search_item_name()">搜索</button>
+<br />
+<!--<span style="font-size: 18px">类目选择：</span>-->
+
+<div class="div_all">
+    <div style="width: 100%; height:400px">
+        <div class="div_select" id="select_group_all">
+            {% for group in group_all %}
+                <button type="button" class="btn" value="{{ group.1 }}" onclick="select_group_all()">
+                    <span class="glyphicon glyphicon-tags" aria-hidden="true"></span>
+                    <div align="left">
+                        <span class="label label-danger" value="{{ group.1 }}" style="font-size: 15px;"onclick="change_group_all('{{ group.0 }}','{{ group.1 }}','{{ group.2 }}')">
+                            <div class="select_i" >{{ group.1 }}</div>
+                        </span>
+                    </div>
+                </button>
+                <br/>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+

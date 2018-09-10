@@ -1,0 +1,213 @@
+<script type="text/javascript">
+    $(document).ready(function () {
+            var RootID = $('#RootID').val();
+            if (RootID != '') {
+                var recommended_browse_nodes_str = $('#recommended_browse_nodes_str').val();
+                $('#id_recommended_browse_nodes').innerHTML = recommended_browse_nodes_str;
+                $('#id_recommended_browse_nodes').val(recommended_browse_nodes_str);
+                var itemType = $('#itemType').val();
+                $('#id_item_type').innerHTML = itemType;
+                $('#id_item_type').val(itemType);
+            }
+            var uploadProductType = $('#uploadProductType').val();
+            if (uploadProductType != '') {
+                var hide_params = $("input[name='hide_param']").map(function () {
+                    return $(this).val()
+                }).get();
+                for (var i = 0; i < hide_params.length; i++) {
+                    $('#div_id_' + hide_params[i]).hide();
+                }
+                $('#div_id_item_type').hide();
+            }
+            var ShopName = $('#ShopName').val();
+            if(ShopName!=''){
+                $('#id_ShopSets').val(ShopName);
+                $('#id_ShopSets').innerHTML = ShopName;
+                $('#id_ShopSets').readOnly = true;
+            };
+            var shopAlias = $('#shopAlias').val();
+            if(shopAlias!=''){
+                $('#id_brand_name').val(shopAlias);
+                $('#id_brand_name').innerHTML = shopAlias;
+                $('#id_manufacturer').val(shopAlias);
+                $('#id_manufacturer').innerHTML = shopAlias;
+                $('#div_id_brand_name').hide();
+                $('#div_id_manufacturer').hide();
+            };
+//            var sku_length = $('#sku_length').val();
+//            $('#id_productSKU').blur(function () {
+//                var productSKU = $('#id_productSKU').val();
+//                var productSKUs = productSKU.split('and');
+//                if(sku_length == 0){
+//                    if(productSKUs.length > 3){
+//                        alert('组合商品SKU不要超过3个！');
+//                    }
+//                }else {
+//                    var count_length = productSKUs.length - 1;
+//                    for(var i=0; i<productSKUs.length; i++){
+//                        if(productSKUs[i].search('\\*') != -1){
+//                            var each_count = productSKUs[i].split('*')[1];
+//                            count_length += each_count.length + 1;
+//                        }
+//                    }
+//                    var all_length = sku_length * productSKUs.length + count_length;
+//                    if(all_length > 45){
+//                        alert('组合商品SKU过多，申请的店铺SKU长度会超过45！');
+//                    }
+//                }
+//            });
+            var searchSite = $('#searchSite').value;
+            if(searchSite != ''){
+                var shop_options = $('.option').each(function () {
+                    if($(this).value.indexOf(searchSite) == -1){
+                        $(this).removeData;
+                    }
+                });
+            }
+    });
+    function select_amazon_product_type_menu() {
+        console.log('11111111111111111111111111111111111111');
+        var to_url = $('#to_url').val();
+        console.log(to_url);
+        var sourceURL = $('#sourceURL').val();
+        console.log(sourceURL);
+        var postURL = to_url.split('/?')[0] + '/select_amazon_menu/?' + sourceURL;
+        console.log(postURL);
+        layer.open({
+            type: 2,
+            skin: 'layui-layer-lan',
+            title: '选择分类',
+            fix: false,
+            shadeClose: true,
+            maxmin: true,
+            area: ['1000px', '700px'],
+            content: postURL,
+            btn: ['确定'],
+            yes: function (index) {
+                //当点击‘确定’按钮的时候，获取弹出层返回的值
+                var res = window["layui-layer-iframe" + index].callbackdata();
+                //打印返回的值，看是否有我们想返回的值。
+                //最后关闭弹出层
+                layer.close(index);
+                var requestUrl = to_url.split('/?')[0] + '/?recommended_browse_nodes=' + (res.recommended_browse_nodes_str).replace('&', 'RBNAND') +
+                                '&RootID=' + res.RootID + '&groupRoot=' + (res.groupRoot).replace('&', 'RBNAND') +
+                                '&itemType=' + (res.item_type) + '&' + sourceURL;
+                window.location.href = requestUrl;
+            },
+            cancel: function () {
+                //右上角关闭回调
+            }
+        });
+    }
+    function select_upload_product_type(productType) {
+        var sourceURL = $('#sourceURLs').val();
+        if(sourceURL.indexOf('/?') > -1){
+            sourceURL += '&uploadProductType=' + productType;
+        }else {
+            sourceURL += '?uploadProductType=' + productType;
+        }
+        window.location.href = sourceURL;
+    }
+    function select_feed_product_type(feed_product_type) {
+        var sourceURL = $('#sourceURLs').val();
+        if(sourceURL.indexOf('/?') > -1){
+            sourceURL += '&feedPtype=' + feed_product_type;
+        }else {
+            sourceURL += '?feedPtype=' + feed_product_type;
+        }
+        window.location.href = sourceURL;
+    }
+</script>
+
+<input type="hidden" id="searchSite" value="{{ searchSite }}">
+<input type="hidden" id="feedPtype" value="{{ feedPtype }}">
+<input id="RootID" name="RootID" type="hidden" value="{{ RootID }}">
+<input id="groupRoot" name="groupRoot" type="hidden" value="{{ groupRoot }}">
+<input type="hidden" id="recommended_browse_nodes_str" value="{{ recommended_browse_nodes_str }}">
+<input type="hidden" id="to_url" value="{{ to_url }}">
+<input type="hidden" id="sourceURLs" value="{{ sourceURLs }}">
+<input type="hidden" id="sourceURL" value="{{ sourceURL }}">
+<input type="hidden" id="uploadProductType" value="{{ uploadProductType }}">
+<input type="hidden" id="itemType" value="{{ itemType }}">
+<input type="hidden" id="ShopName" value="{{ ShopName }}">
+<input type="hidden" id="shopAlias" value="{{ shopAlias }}">
+<input type="hidden" id="sku_length" value="{{ sku_length }}">
+{% for hide_param in all_hide_params %}
+    <input type="hidden" name="hide_param" value="{{ hide_param }}" />
+{% endfor %}
+<div class="panel panel-default fieldset unsort " id="box-11" >
+    <div class="panel-heading"><i class='icon fa fa-chevron-up chevron'></i><h3 class="panel-title">商品类型</h3></div>
+    <div class="panel-body " >
+        <div  class="form-inline form-group" >
+            <div id="div_id_recommended_browse_nodes" class="form-group col-sm-12">
+                <div class="controls ">
+                    <label for="id_recommended_browse_nodes" class="control-label  requiredField">
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        商品类型&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </label>
+
+                    <input class="text-field admintextinputwidget form-control" id="id_recommended_browse_nodes" maxlength="64" name="recommended_browse_nodes" type="text" />
+                    <span id="select_product_type_span">
+                        <button type="button" id="select_product_type_menu" class="btn btn-primary" onclick="select_amazon_product_type_menu();">选择分类</button>
+                    </span>
+
+                    <label for="id_upload_product_type" class="control-label ">
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        刊登种类&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </label>
+                    <select class="adminselectwidget form-control" id="select_id_upload_product_type" name="upload_product_type" onchange="select_upload_product_type(this.value)">
+                        {% if uploadProductType != '' %}
+                            <option value="0">---</option>
+                        {% else %}
+                            <option selected="selected" value="0">---</option>
+                        {% endif %}
+                        {% for all_uploadProductType in all_uploadProductTypes %}
+                            {% if all_uploadProductType == uploadProductType %}
+                                <option selected="selected" name="option_id_upload_product_type" value="{{ all_uploadProductType }}">{{ all_uploadProductType }}</option>
+                            {% else %}
+                                <option name="option_id_upload_product_type" value="{{ all_uploadProductType }}">{{ all_uploadProductType }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+
+                    <label for="id_feed_product_type" class="control-label ">
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        商品种类&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </label>
+                    <select class="adminselectwidget form-control" id="select_id_feed_product_type" name="feed_product_type" onchange="select_feed_product_type(this.value)">
+                        {% if feedPtype != '' %}
+                            <option value="0">---</option>
+                        {% else %}
+                            <option selected="selected" value="0">---</option>
+                        {% endif %}
+                        {% for all_product_type in all_product_types %}
+                            {% if all_product_type == feedPtype %}
+                                <option selected="selected" name="option_id_feed_product_type" value="{{ all_product_type }}">{{ all_product_type }}</option>
+                            {% else %}
+                                <option name="option_id_feed_product_type" value="{{ all_product_type }}">{{ all_product_type }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+
+                    <label for="id_ShopSets" class="control-label ">
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        待刊登店铺&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    </label>
+                    <select class="adminselectwidget form-control" id="select_id_ShopSets" name="ShopSets">
+                        {% if ShopName != '' %}
+                            <option value="0">---</option>
+                        {% else %}
+                            <option selected="selected" value="0">---</option>
+                        {% endif %}
+                        {% for all_shop_name in all_shop_names %}
+                            {% if all_shop_name == ShopName %}
+                                <option selected="selected" name="option_id_ShopSets" value="{{ all_shop_name }}">{{ all_shop_name }}</option>
+                            {% else %}
+                                <option name="option_id_ShopSets" value="{{ all_shop_name }}">{{ all_shop_name }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
