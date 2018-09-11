@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>按到货日期出单详情</title>
+</head>
+<body>
+    <table align="center" width="95%"  border="1">
+        <tr align="center">
+            <th style="text-align:center">销售员</th>
+            <th style="text-align:center">店铺</th>
+            <th style="text-align:center">站点</th>
+            <th style="text-align:center">商品SKU</th>
+            <th style="text-align:center">店铺SKU</th>
+            <th style="text-align:center">ASIN</th>
+            <th style="text-align:center">到货时间</th>
+            <th style="text-align:center">主SKU</th>
+            <th style="text-align:center">品类</th>
+            <th style="text-align:center">到货后两周订单数</th>
+            <th style="text-align:center">到货时间范围</th>
+            <th style="text-align:center">刷新时间</th>
+        </tr>
+
+        {% for seller in seller_obj %}
+        <tr>
+            <td nowrap>{{seller.seller}}</td>
+            <td nowrap>{{seller.shopname}}</td>
+            <td nowrap>{{seller.site}}</td>
+            <td nowrap>{{seller.sku}}</td>
+            <td nowrap>{{seller.seller_sku}}</td>
+            <td nowrap>{{seller.asin}}</td>
+            <td nowrap>{{seller.received_date}}</td>
+            <td nowrap>{{seller.mainsku}}</td>
+            <td nowrap>{{seller.categorycode}}</td>
+            <td nowrap>{{seller.orders_after_14days}}</td>
+            <td nowrap>{{seller.time_span}}</td>
+            <td nowrap>{{seller.refresh_time}}</td>
+
+        </tr>
+        {% endfor %}
+    </table>
+</body>
+</html>

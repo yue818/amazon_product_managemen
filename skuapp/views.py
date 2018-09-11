@@ -10932,3 +10932,10 @@ def amazon_product_cost_refresh(request):
         messages.error(request, '数据刷新失败')
 
     return HttpResponseRedirect('/Project/admin/skuapp/' + return_url)
+
+
+def show_seller_detail(request):
+    from skuapp.table.t_amazon_orders_by_receive_day_info import t_amazon_orders_by_receive_day_info
+    seller = request.GET.get('seller', '')
+    seller_obj = t_amazon_orders_by_receive_day_info.objects.filter(seller=seller).order_by('-orders_after_14days')
+    return render(request, 'show_seller_detail.html', {'seller_obj': seller_obj})
