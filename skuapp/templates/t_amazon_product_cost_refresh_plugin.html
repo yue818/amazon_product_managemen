@@ -92,7 +92,7 @@
             btn1: function ()
             {
                 var cost_refresh_url = '/amazon_product_cost_refresh/'
-                if (refresh_type in ('remove_cost', 'orders_by_receive_day'))
+                if (refresh_type == 'remove_cost' || refresh_type =='orders_by_receive_day')
                 {
                     var begin_time = $("#begin_time").val()
                     var end_time = $("#end_time").val()
