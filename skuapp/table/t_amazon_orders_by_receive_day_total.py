@@ -18,7 +18,7 @@ class t_amazon_orders_by_receive_day_total(models.Model):
     has_order = models.IntegerField(u'出单', max_length=10, blank=True, null=True)
     no_order = models.IntegerField(u'出单', max_length=10, blank=True, null=True)
     time_span = models.CharField(u'到货时间范围', max_length=32, blank=True, null=True)
-    refresh_time = models.DateTimeField(u'更新时间', blank=True, null=True)
+    refresh_time = models.DateTimeField(u'刷新时间', blank=True, null=True)
 
     class Meta:
         verbose_name = u'AMZ按到货日期出单情况'
