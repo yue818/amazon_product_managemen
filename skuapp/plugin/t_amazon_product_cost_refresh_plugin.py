@@ -25,6 +25,8 @@ class t_amazon_product_cost_refresh_plugin(BaseAdminPlugin):
             refresh_type = 'remove_cost'
         elif 't_amazon_product_order_pend_cost' in self.request.get_full_path():
             refresh_type = 'pend_cost'
+        elif 't_amazon_orders_by_receive_day_total' in self.request.get_full_path():
+            refresh_type = 'orders_by_receive_day'
         else:
             refresh_type = ''
 

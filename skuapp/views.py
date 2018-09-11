@@ -10924,6 +10924,9 @@ def amazon_product_cost_refresh(request):
     elif refresh_type == 'pend_cost':
         cursor.execute("select f_amazon_product_pend_cost()")
         return_url = 't_amazon_product_order_pend_cost'
+    elif refresh_type == 'orders_by_receive_day':
+        cursor.execute("select f_amazon_orders_by_receive_day(%s,%s)",(begin_time, end_time))
+        return_url = 't_amazon_orders_by_receive_day_total'
 
     row = cursor.fetchone()
     if row and row[0] == 0:
@@ -10937,5 +10940,6 @@ def amazon_product_cost_refresh(request):
 def show_seller_detail(request):
     from skuapp.table.t_amazon_orders_by_receive_day_info import t_amazon_orders_by_receive_day_info
     seller = request.GET.get('seller', '')
-    seller_obj = t_amazon_orders_by_receive_day_info.objects.filter(seller=seller).order_by('-orders_after_14days')
+    site = request.GET.get('site', '')
+    seller_obj = t_amazon_orders_by_receive_day_info.objects.filter(seller=seller, site=site).order_by('-orders_after_14days')
     return render(request, 'show_seller_detail.html', {'seller_obj': seller_obj})

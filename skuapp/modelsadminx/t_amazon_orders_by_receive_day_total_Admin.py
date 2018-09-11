@@ -29,31 +29,30 @@ def mkdir_p(path):
 
 class t_amazon_orders_by_receive_day_total_Admin(object):
     amazon_site_left_menu_tree_flag = True
-    search_box_flag = True
     downloadxls = True
     amazon_product_cost_refresh_plugin = True
 
     def show_seller_detail(self, obj):
-        seller_detail = '<p id="seller_detail_%s"><font  color="blue">%s</font><p/>' % (obj.id, obj.product_sku)
+        seller_detail = '<p id="seller_detail_%s"><font  color="blue">%s</font><p/>' % (obj.id, obj.seller)
         seller_detail += '''
                    <script>
-                       a = screen.width*0.8
-                       b = screen.height*0.3
+                       a = screen.width
+                       b = screen.height*0.4
                         $("#seller_detail_%s").on("click", function(){
                          layer.open({
                           type: 2,
                           skin: "layui-layer-lan",
-                          title: "成本详情",
+                          title: "出单详情",
                           fix: false,
                           shadeClose: true,
                           maxmin: true,
                           area: [a+'px', b+'px'],
-                          content: "/show_seller_detail/?seller=%s",
+                          content: "/show_seller_detail/?seller=%s&site=%s",
                           btn: ["关闭页面"],
                           });
                       })
                   </script>
-                  ''' % (obj.id, obj.seller)
+                  ''' % (obj.id, obj.seller, obj.site)
         return mark_safe(seller_detail)
     show_seller_detail.short_description = mark_safe('<p style="color:#428BCA" align="center">销售员</p>')
 

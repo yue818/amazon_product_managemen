@@ -315,6 +315,8 @@ urlpatterns = [
     url(r'show_sku_remove_detail/', show_sku_remove_detail, name='show_sku_remove_detail'),
     url(r'show_sku_pend_detail/', show_sku_pend_detail, name='show_sku_pend_detail'),
 
-    url(r'amazon_product_cost_refresh/', amazon_product_cost_refresh, name='amazon_product_cost_refresh')
+    url(r'amazon_product_cost_refresh/', amazon_product_cost_refresh, name='amazon_product_cost_refresh'),
+    url(r'show_seller_detail/', show_seller_detail, name='show_seller_detail')
+
 ]
 

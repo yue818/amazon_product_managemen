@@ -1145,3 +1145,7 @@ xadmin.site.register_plugin(t_amazon_product_cost_refresh_plugin,BaseAdminView)
 
 from skuapp.plugin.amazon_sort_bar_plugin import amazon_sort_bar_plugin
 xadmin.site.register_plugin(amazon_sort_bar_plugin, BaseAdminView)
+
+from skuapp.table.t_amazon_orders_by_receive_day_total import t_amazon_orders_by_receive_day_total
+from skuapp.modelsadminx.t_amazon_orders_by_receive_day_total_Admin import t_amazon_orders_by_receive_day_total_Admin
+xadmin.site.register(t_amazon_orders_by_receive_day_total, t_amazon_orders_by_receive_day_total_Admin)

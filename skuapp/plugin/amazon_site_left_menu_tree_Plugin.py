@@ -413,6 +413,17 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
                         "flag": 'pend_cost',
                         "child": []
                     },
+
+                    {
+                        "name": u"按到货日期出单情况统计",
+                        "icon": "",
+                        "code": "110306",
+                        "parentCode": "1103",
+                        "selected": "",
+                        "to_url": '/Project/admin/skuapp/t_amazon_orders_by_receive_day_total/',
+                        "flag": 'orders_by_receive_day',
+                        "child": []
+                    },
                 ]
         }
 
@@ -504,6 +515,9 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
 
         if 't_amazon_product_order_pend_cost' in self.request.get_full_path():
             flag = 'pend_cost'
+
+        if 't_amazon_orders_by_receive_day_total' in self.request.get_full_path():
+            flag = 'orders_by_receive_day'
 
         menu_list = [
             {
