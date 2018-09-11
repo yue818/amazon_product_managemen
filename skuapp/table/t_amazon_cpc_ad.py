@@ -7,6 +7,7 @@
  @software: PyCharm
  @file: t_amazon_cpc_ad.py
  @time: 2018-05-15 19:50
+ ##
 """  
 
 from django.db import models
@@ -14,6 +15,7 @@ from .public import *
 
 
 class t_amazon_cpc_ad(models.Model):
+
     shop_name = models.CharField(u'店铺名', max_length=100, blank=True, null=True)
     shop_site = models.CharField(u'站点', max_length=5, blank=True, null=True)
     seller_sku = models.CharField(u'店铺SKU', max_length=64, blank=True, null=True)

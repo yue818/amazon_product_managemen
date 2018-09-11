@@ -7,8 +7,5 @@
     <orderEntry type="jdk" jdkName="Python 2.7" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="amazon_cpc_ad" />
-    <orderEntry type="module" module-name="Spider" />
-    <orderEntry type="module" module-name="quotesbot-master" />
-    <orderEntry type="module" module-name="Project" />
   </component>
 </module>

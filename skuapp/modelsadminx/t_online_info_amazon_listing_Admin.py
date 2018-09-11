@@ -766,6 +766,8 @@ class t_online_info_amazon_listing_Admin(object):
         parent_asin = request.GET.get('parent_asin', '')
         product_sku = request.GET.get('product_sku', '')
         # product_sku = '' if product_sku == '' else product_sku.strip().replace(' ', '+').split(',')
+        product_sku_multi = request.GET.get('product_sku_multi', '')
+        product_sku_multi = '' if product_sku_multi == '' else product_sku_multi.strip().replace(' ', '+').split(',')
         status = request.GET.get('Status', '')
         if status == 'ALL':
             status = ''
@@ -817,6 +819,7 @@ class t_online_info_amazon_listing_Admin(object):
                       'product_status__exact': product_status,
                       'seller__exact': seller,
                       'Parent_asin__exact': parent_asin,
+                      'SKU__in': product_sku_multi,
                       }
         sl = {}
         for k, v in searchList.items():

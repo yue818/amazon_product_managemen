@@ -2,11 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/../../hq/trunk/djangostack-1.9.7/apps/django/django_projects/Project/.idea/Project.iml" filepath="$PROJECT_DIR$/../../hq/trunk/djangostack-1.9.7/apps/django/django_projects/Project/.idea/Project.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../Spider/.idea/Spider.iml" filepath="$PROJECT_DIR$/../Spider/.idea/Spider.iml" />
       <module fileurl="file://$PROJECT_DIR$/../amazon_cpc_ad/.idea/amazon_cpc_ad.iml" filepath="$PROJECT_DIR$/../amazon_cpc_ad/.idea/amazon_cpc_ad.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/amazon_product_managemen.iml" filepath="$PROJECT_DIR$/.idea/amazon_product_managemen.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../quotesbot-master/.idea/quotesbot-master.iml" filepath="$PROJECT_DIR$/../quotesbot-master/.idea/quotesbot-master.iml" />
     </modules>
   </component>
 </project>
