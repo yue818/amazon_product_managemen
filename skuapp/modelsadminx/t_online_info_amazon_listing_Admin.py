@@ -20,10 +20,8 @@ from brick.classredis.classsku import classsku
 from brick.pricelist.calculate_price import calculate_price
 from skuapp.table.t_online_amazon_fba_inventory import t_online_amazon_fba_inventory
 from skuapp.table.t_amazon_cpc_ad import t_amazon_cpc_ad
-# from skuapp.table.t_amazon_operation_log import t_amazon_operation_log
+from skuapp.table.t_amazon_operation_log import t_amazon_operation_log
 from skuapp.table.t_combination_sku_log import t_combination_sku_log
-from skuapp.table.t_templet_amazon_upload_result import t_templet_amazon_upload_result
-from skuapp.table.t_templet_amazon_published_variation import t_templet_amazon_published_variation
 from skuapp.public.check_permission_legality import check_permission_legality
 
 from Project.settings import *
@@ -33,7 +31,15 @@ import errno
 from xlwt import *
 import oss2
 import uuid
+
 from brick.table.t_store_configuration_file import t_store_configuration_file
+from brick.amazon.product_refresh.get_auth_info import GetAuthInfo
+from brick.amazon.product_refresh.generate_feed_xml import GenerateFeedXml
+from brick.amazon.upload_product.message_to_rabbitmq import MessageToRabbitMq
+import json
+from skuapp.table.t_online_info_amazon import t_online_info_amazon
+import urllib
+from django.http import HttpResponseRedirect
 
 redis_conn = get_redis_connection(alias='product')
 py_SynRedis_tables_obj = py_SynRedis_tables()
@@ -52,6 +58,7 @@ def mkdir_p(path):
             pass
         else:
             raise
+
 
 class t_online_info_amazon_listing_Admin(object):
     amazon_listing_plugin = True
@@ -480,29 +487,6 @@ class t_online_info_amazon_listing_Admin(object):
     actions = ['to_excel', 'change_price']
 
     def change_price(self, request, objs):
-        # modify_type = request.POST.get('modify_type', '')
-        # modify_number = request.POST.get('modify_number', '')
-        # modify_base = request.POST.get('modify_base', '')
-        # id_str = ''
-        # for obj in objs:
-        #     id_str = id_str + str(obj.id) + ','
-        # id_str = id_str[:-1]
-        # messages.success(request, modify_type)
-        # messages.success(request, '调整数量为：' + modify_number)
-        # messages.success(request, modify_base)
-        # messages.success(request, len(objs))
-        # messages.success(request, id_str)
-        # HttpResponseRedirect('/amazon_product_price_modify/?id=' + id_str + '&modify_type=' + modify_type + '&modify_number=' + modify_number + '&modify_base=' + modify_base)
-        from django.db import connection
-        from brick.amazon.product_refresh.get_auth_info import GetAuthInfo
-        from brick.amazon.product_refresh.generate_feed_xml import GenerateFeedXml
-        from brick.amazon.upload_product.message_to_rabbitmq import MessageToRabbitMq
-        import json
-        from skuapp.table.t_online_info_amazon import t_online_info_amazon
-        import datetime
-        import urllib
-        from django.http import HttpResponseRedirect
-
         modify_type = request.POST.get('modify_type', '')
         modify_base = request.POST.get('modify_base', '')
         modify_number = request.POST.get('modify_number', '')
@@ -512,9 +496,9 @@ class t_online_info_amazon_listing_Admin(object):
         sku_str = ''
         refresh_type = 'product_price_modify_multi'
         batch_id = uuid.uuid4()
-        log_dic = dict()
 
         for record in objs:
+            log_dic = dict()
             t_online_info_amazon_ins = t_online_info_amazon.objects.filter(id=record.id)
             for obj in t_online_info_amazon_ins:
                 seller_sku = obj.seller_sku
@@ -524,8 +508,12 @@ class t_online_info_amazon_listing_Admin(object):
                 log_dic['batch_id'] = batch_id
                 log_dic['shop_name'] = shop_name
                 log_dic['seller_sku'] = seller_sku
-                log_dic['action'] = refresh_type
+                log_dic['deal_user'] = request.user.username
+                log_dic['deal_action'] = refresh_type
                 log_dic['price_before'] = obj.price
+                log_dic['begin_time'] = datetime.datetime.now()
+                log_dic['deal_result'] = 0
+                log_dic['remark'] = 'modify_type: %s, modify_base: %s, modify_number: %s' % (modify_type, modify_base, modify_number)
 
                 # 获取基准价格
                 if modify_base == 'price':
@@ -544,13 +532,15 @@ class t_online_info_amazon_listing_Admin(object):
                     elif modify_type == 'reset':
                         price_after = float('%.2f' % float(modify_number))
                     else:
-                        continue
+                        price_after = None
                     log_dic['price_after'] = price_after
                 except Exception as e:
-                    log_dic['deal_result'] = 0
+                    log_dic['end_time'] = datetime.datetime.now()
+                    log_dic['deal_result'] = -1
                     log_dic['deal_result_info'] = 'Calculating adjusted price failure'
                     log_dic['remark'] = e
                     fail_record.append(obj.seller_sku)
+                    t_amazon_operation_log.objects.create(**log_dic)
                     continue
 
                 try:
@@ -563,10 +553,14 @@ class t_online_info_amazon_listing_Admin(object):
 
                 if price_after <= lowest_price:
                     log_dic['price_after'] = price_after
-                    log_dic['deal_result'] = 0
-                    log_dic['deal_result_info'] = 'price_after error'
+                    log_dic['end_time'] = datetime.datetime.now()
+                    log_dic['deal_result'] = -1
+                    log_dic['deal_result_info'] = 'price_after error, less than lowest_price: %s' % lowest_price
                     fail_record.append(obj.seller_sku)
+                    t_amazon_operation_log.objects.create(**log_dic)
                     continue
+
+                t_amazon_operation_log.objects.create(**log_dic)
 
                 # 按店铺合成店铺下的商品sku价格调整字典: {店铺名1:[{sku1:price1, sku2:price2}], 店铺名2:[{sku3:price3, sku4:price4}]}，样例如下
                 # {u'AMZ-0086-Jiquan-US/PJ': [{u'3_(}}445': 8.0}, {u'3_(}}444': 9.0}],  u'AMZ-0029-Taihexin-US/PJ': [{u'5591$43496': 12.0}, {u'5591$43495': 12.0}]}
@@ -587,6 +581,7 @@ class t_online_info_amazon_listing_Admin(object):
         for key, value in shop_sku.items():
             get_auth_info_ins = GetAuthInfo(connection)
             auth_info = get_auth_info_ins.get_auth_info_by_shop_name(str(key))
+            auth_info['batch_id'] = str(batch_id)
             auth_info['IP'] = auth_info['ShopIP']
             auth_info['table_name'] = 't_online_info_amazon'
             auth_info['update_type'] = refresh_type
@@ -624,7 +619,8 @@ class t_online_info_amazon_listing_Admin(object):
 
         # 不是所有调价都异常给调价中提示
         if len(objs) != len(fail_record):
-            messages.success(request, '商品价格调整中')
+            messages.success(request, '商品价格调整中, 调整批次号为：' + '<a href = "/Project/admin/skuapp/t_amazon_operation_log/?batch_id=%s" target = "_blank" > %s </a>' % (str(batch_id),str(batch_id)))
+
 
         if sku_str == '':
             sku_str = ' '
@@ -765,7 +761,6 @@ class t_online_info_amazon_listing_Admin(object):
         ASIN = '' if ASIN == '' else ASIN.split(',')
         parent_asin = request.GET.get('parent_asin', '')
         product_sku = request.GET.get('product_sku', '')
-        # product_sku = '' if product_sku == '' else product_sku.strip().replace(' ', '+').split(',')
         product_sku_multi = request.GET.get('product_sku_multi', '')
         product_sku_multi = '' if product_sku_multi == '' else product_sku_multi.strip().replace(' ', '+').split(',')
         status = request.GET.get('Status', '')
@@ -796,8 +791,8 @@ class t_online_info_amazon_listing_Admin(object):
         seller = request.GET.get('seller', '')
         product_status = request.GET.get('product_status', '')
 
-        searchList = {'ShopName__contains': ShopName,
-                      'item_name__contains': item_name,
+        searchList = {'ShopName__icontains': ShopName,
+                      'item_name__icontains': item_name,
                       'asin1__in': ASIN,
                       'seller_sku__in': SKU,
                       'afn_warehouse_quantity__gte': afn_warehouse_quantity_start,
@@ -830,11 +825,9 @@ class t_online_info_amazon_listing_Admin(object):
                 if v is not None and v.strip() != '':
                     sl[k] = v
         if sl is not None:
-            # messages.error(request, sl)
             try:
                 qs = qs.filter(**sl)
             except Exception, ex:
-                # messages.error(request, ex)
                 messages.error(request, u'Please enter the correct content!')
         return qs
 

@@ -424,6 +424,17 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
                         "flag": 'orders_by_receive_day',
                         "child": []
                     },
+
+                    {
+                        "name": u"价格调整记录",
+                        "icon": "",
+                        "code": "110307",
+                        "parentCode": "1103",
+                        "selected": "",
+                        "to_url": '/Project/admin/skuapp/t_amazon_operation_log/',
+                        "flag": 'operation_log',
+                        "child": []
+                    },
                 ]
         }
 
@@ -518,6 +529,9 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
 
         if 't_amazon_orders_by_receive_day_total' in self.request.get_full_path():
             flag = 'orders_by_receive_day'
+
+        if 't_amazon_operation_log' in self.request.get_full_path():
+            flag = 'operation_log'
 
         menu_list = [
             {

@@ -4,6 +4,7 @@ from django.http import HttpResponseRedirect
 from skuapp.table.t_templet_amazon_published_variation import *
 from skuapp.table.t_templet_amazon_collection_box import t_templet_amazon_collection_box
 import time,datetime
+from django.contrib import messages
 
 
 """  
@@ -19,6 +20,7 @@ class t_templet_amazon_upload_result_Admin(object):
     # site_left_menu_flag = True
     amazon_site_left_menu_tree_flag = True
     search_box_flag = True
+    amazon_result_copy_select_site_flag = True
     
     def show_image(self, obj):
         if obj.main_image_url:
@@ -35,6 +37,7 @@ class t_templet_amazon_upload_result_Admin(object):
     show_image.short_description = u'主图'
 
     def show_product_sku(self, obj):
+        project_url = self.request.get_full_path()
         count = 0
         sku_show = ''
         if obj.productSKU:
@@ -43,6 +46,20 @@ class t_templet_amazon_upload_result_Admin(object):
                 sku_show += i
                 if count % 10 == 0:
                     sku_show += '<br>'
+        if '_p_status=UPLOAD' in project_url:
+            flag = 0
+            if 'and' in obj.productSKU:
+                flag = 1
+            else:
+                t_templet_amazon_published_variation_objs = t_templet_amazon_published_variation.objects.filter(prodcut_variation_id=obj.prodcut_variation_id)
+                if t_templet_amazon_published_variation_objs:
+                    for t_templet_amazon_published_variation_obj in t_templet_amazon_published_variation_objs:
+                        if 'and' in t_templet_amazon_published_variation_obj.productSKU:
+                            flag = 1
+            if flag == 1:
+                sku_show += u'<br><span style="color: red;">请及时填写商品组合名称</span><br>' \
+                            u'<a href="/Project/admin/skuapp/t_combination_sku_log/?_p_CreateStaffID=%s" target="_blank">点击跳转</a><br>' \
+                            u'(跳转后未找到<br>对应变换后的商品SKU合集，<br>表明已经绑定过)'%obj.createUser
         return mark_safe(sku_show)
     show_product_sku.short_description = '商品SKU'
 
@@ -147,40 +164,44 @@ class t_templet_amazon_upload_result_Admin(object):
     actions = ['copy_product_info']
 
     def copy_product_info(self, request, queryset):
-        for obj in queryset:
-            variation_obj = t_templet_amazon_published_variation.objects.filter(parent_item_sku=obj.productSKU, prodcut_variation_id=obj.prodcut_variation_id)
-            prodcut_variation_id = int(time.time() * 1000)
-            time_now = datetime.datetime.now()
-            collection_box_new_obj = t_templet_amazon_collection_box()
-            collection_box_new_obj.__dict__ = obj.__dict__
-            collection_box_new_obj.prodcut_variation_id = prodcut_variation_id
-            collection_box_new_obj.item_sku = None
-            collection_box_new_obj.external_product_id = None
-            collection_box_new_obj.ShopSets = None
-            collection_box_new_obj.createUser = request.user.username
-            collection_box_new_obj.createTime = time_now
-            collection_box_new_obj.updateUser = request.user.username
-            collection_box_new_obj.updateTime = time_now
-            collection_box_new_obj.status = '1'
-            collection_box_new_obj.can_upload = '-1'
-            collection_box_new_obj.item_name = collection_box_new_obj.item_name.replace(obj.manufacturer, '', 1)
-            collection_box_new_obj.id = None
-            collection_box_new_obj.save()
-            if variation_obj:
-                for variation in variation_obj:
-                    variation_new_obj = t_templet_amazon_published_variation()
-                    variation_new_obj.__dict__ = variation.__dict__
-                    variation_new_obj.prodcut_variation_id = prodcut_variation_id
-                    variation_new_obj.parent_sku = None
-                    variation_new_obj.child_sku = None
-                    variation_new_obj.createUser = request.user.username
-                    variation_new_obj.createTime = time_now
-                    variation_new_obj.updateUser = request.user.username
-                    variation_new_obj.updateTime = time_now
-                    variation_new_obj.external_product_id = None
-                    variation_new_obj.id = None
-                    variation_new_obj.save()
-        return HttpResponseRedirect('/Project/admin/skuapp/t_templet_amazon_collection_box/')
+        copy_site = request.POST.get('copy_site', '')
+        if copy_site:
+            for obj in queryset:
+                variation_obj = t_templet_amazon_published_variation.objects.filter(parent_item_sku=obj.productSKU, prodcut_variation_id=obj.prodcut_variation_id)
+                prodcut_variation_id = int(time.time() * 1000)
+                time_now = datetime.datetime.now()
+                collection_box_new_obj = t_templet_amazon_collection_box()
+                collection_box_new_obj.__dict__ = obj.__dict__
+                collection_box_new_obj.prodcut_variation_id = prodcut_variation_id
+                collection_box_new_obj.item_sku = None
+                collection_box_new_obj.external_product_id = None
+                collection_box_new_obj.ShopSets = copy_site
+                collection_box_new_obj.createUser = request.user.username
+                collection_box_new_obj.createTime = time_now
+                collection_box_new_obj.updateUser = request.user.username
+                collection_box_new_obj.updateTime = time_now
+                collection_box_new_obj.status = '1'
+                collection_box_new_obj.can_upload = '-1'
+                collection_box_new_obj.item_name = collection_box_new_obj.item_name.replace(obj.manufacturer, '', 1)
+                collection_box_new_obj.id = None
+                collection_box_new_obj.save()
+                if variation_obj:
+                    for variation in variation_obj:
+                        variation_new_obj = t_templet_amazon_published_variation()
+                        variation_new_obj.__dict__ = variation.__dict__
+                        variation_new_obj.prodcut_variation_id = prodcut_variation_id
+                        variation_new_obj.parent_sku = None
+                        variation_new_obj.child_sku = None
+                        variation_new_obj.createUser = request.user.username
+                        variation_new_obj.createTime = time_now
+                        variation_new_obj.updateUser = request.user.username
+                        variation_new_obj.updateTime = time_now
+                        variation_new_obj.external_product_id = None
+                        variation_new_obj.id = None
+                        variation_new_obj.save()
+            return HttpResponseRedirect('/Project/admin/skuapp/t_templet_amazon_collection_box/')
+        else:
+            messages.error(request, u'请先选择复制到的站点')
     copy_product_info.short_description = u'复制到草稿箱'
 
     def get_list_queryset(self,):
