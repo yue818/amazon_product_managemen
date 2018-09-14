@@ -10913,6 +10913,7 @@ def amazon_product_cost_refresh(request):
     refresh_type = request.GET.get('refresh_type', '')
     begin_time = request.GET.get('begin_time', '')
     end_time = request.GET.get('end_time', '')
+    # end_time = (datetime.datetime.strptime(end_time, '%Y-%m-%d') + datetime.timedelta(days=1)).strftime('%Y-%m-%d')
     cursor = connection.cursor()
     return_url = 't_online_info_amazon_listing'
     if refresh_type == 'inventory_cost':

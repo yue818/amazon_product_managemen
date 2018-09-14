@@ -3,6 +3,7 @@ import xml.dom.minidom
 import time,json,datetime
 from brick.public import local2utcTime
 from skuapp.table.t_config_apiurl_amazon import *
+import re
 """  
  @desc:  
  @author: yewangping叶王平
@@ -99,6 +100,16 @@ class stitch_MQ_body():
             if params['parent_child'] == 'child' and goods_upload_variation_obj['size_name']:
                 Toys.appendChild(Size)
                 Toys.appendChild(SizeMap)
+
+        if goods_upload_obj['recommended_browse_nodes'] and re.search(r'\bmasks\b|\bmask\b', goods_upload_obj['recommended_browse_nodes'].split('>')[-1], re.I):
+            if params['parent_child'] != 'child' or (params['parent_child'] == 'child' and not goods_upload_variation_obj['size_name']):
+                Size_text = doc.createTextNode('Normal')
+                SizeMap_text = doc.createTextNode('Medium')
+                Size.appendChild(Size_text)
+                SizeMap.appendChild(SizeMap_text)
+                Toys.appendChild(Size)
+                Toys.appendChild(SizeMap)
+
         return Toys
 
     def is_Home(self, params, doc, goods_upload_obj, goods_upload_variation_obj):
@@ -111,7 +122,11 @@ class stitch_MQ_body():
         ColorMap = doc.createElement('ColorMap')
         Size = doc.createElement('Size')
         SizeMap = doc.createElement('SizeMap')
+        IncludedComponents1 = doc.createElement('IncludedComponents')
+        ThreadCount = doc.createElement('ThreadCount')
         Material = doc.createElement('Material')
+        Battery = doc.createElement('Battery')
+        AreBatteriesIncluded = doc.createElement('AreBatteriesIncluded')
         ProductType_child = doc.createElement(goods_upload_obj['feed_product_type'])
         site = goods_upload_obj['ShopSets'].split('-')[-1].split('/')[0]
         if goods_upload_obj['homes_color'] and site == 'IN':
@@ -153,6 +168,11 @@ class stitch_MQ_body():
             SizeMap_text = doc.createTextNode(goods_upload_variation_obj['size_map'])
             Size.appendChild(Size_text)
             SizeMap.appendChild(SizeMap_text)
+        if site == 'IN':
+            AreBatteriesIncluded_text = doc.createTextNode(goods_upload_obj['are_batteries_included'])
+            AreBatteriesIncluded.appendChild(AreBatteriesIncluded_text)
+            Battery.appendChild(AreBatteriesIncluded)
+            ProductType_child.appendChild(Battery)
         if params['variation'] == 1:
             VariationTheme.appendChild(VariationTheme_text)
             Parentage.appendChild(Parentage_text)
@@ -187,6 +207,13 @@ class stitch_MQ_body():
         else:
             if goods_upload_obj['homes_color'] and site == 'IN':
                 Home.appendChild(VariationData)
+        if site == 'IN':
+            IncludedComponents1_text = goods_upload_obj['included_components']
+            IncludedComponents11_text = doc.createTextNode(IncludedComponents1_text)
+            IncludedComponents1.appendChild(IncludedComponents11_text)
+            Home.appendChild(IncludedComponents1)
+            ThreadCount.appendChild(doc.createTextNode('250'))
+            Home.appendChild(ThreadCount)
         if params['parent_child'] == 'child':
             if goods_upload_variation_obj['size_name']:
                 Home.appendChild(SizeMap)
@@ -440,6 +467,11 @@ class stitch_MQ_body():
             SizeMap.appendChild(SizeMap_text)
             Jewelry.appendChild(Size)
             Jewelry.appendChild(SizeMap)
+        if goods_upload_obj['feed_product_type'] != 'Watch' and goods_upload_obj['recommended_browse_nodes'] and re.search(r'\brings\b|\bring\b', goods_upload_obj['recommended_browse_nodes'].split('>')[-1], re.I):
+            RingSize = doc.createElement('RingSize')
+            RingSize_text = doc.createTextNode('Adjustable')
+            RingSize.appendChild(RingSize_text)
+            ProductType_child.appendChild(RingSize)
         return Jewelry
 
     def is_ProductClothing(self, params, doc, goods_upload_obj, goods_upload_variation_obj):
@@ -1582,7 +1614,7 @@ class stitch_MQ_body():
                 keyword_temp = key_word2.split(' ')[0]
                 if keyword_temp:
                     key_word1 += keyword_temp
-                    key_word2 = key_word2.replace(keyword_temp + ' ', '')
+                    key_word2 = key_word2[len(keyword_temp) + 1:]
                 else:
                     key_word2 = key_word2[1:]
         else:
