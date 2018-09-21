@@ -360,7 +360,7 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
             "child":
                 [
                     {
-                        "name": u"商品SKU成本",
+                        "name": u"商品SKU成本统计",
                         "icon": "",
                         "code": "110301",
                         "parentCode": "1103",

@@ -18,6 +18,8 @@ class t_amazon_product_price_info(models.Model):
     seller_sku_each = models.CharField(u'店铺SKU拆分', max_length=128, blank=True, null=True)
     product_sku = models.CharField(u'商品SKU', max_length=128, blank=True, null=True)
     quantity_multiply = models.IntegerField(u'商品SKU组合量', max_length=10, blank=True, null=True)
+    product_sku_zh = models.CharField(u'组合商品SKU', max_length=128, blank=True, null=True)
+    product_sku_zh_multiply = models.IntegerField(u'组合商品组合量', max_length=10, blank=True, null=True)
     quantity_inventory = models.IntegerField(u'商品SKU库存量', max_length=10, blank=True, null=True)
     sku_unit_price = models.FloatField(u'商品单价', max_length=10, blank=True, null=True)
     total_price = models.FloatField(u'成本价', max_length=10, blank=True, null=True)

@@ -44,6 +44,8 @@ class t_online_info_amazon(models.Model):
     orders_15days = models.IntegerField(u'15天订单量', max_length=10, blank=True, null=True)
     orders_30days = models.IntegerField(u'30天订单量', max_length=10, blank=True, null=True)
     orders_total = models.IntegerField(u'总订单量', max_length=10, blank=True, null=True)
+    orders_refund_total = models.IntegerField(u'退款订单数', max_length=10, blank=True, null=True)
+    refund_rate = models.FloatField(u'退款率', max_length=5, blank=True, null=True)
     afn_listing_exists = models.CharField(u'FBA链接', max_length=32, blank=True, null=True)
     afn_warehouse_quantity = models.IntegerField(u'FBA库存', max_length=32, blank=True, null=True)
 

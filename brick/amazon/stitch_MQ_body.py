@@ -101,14 +101,14 @@ class stitch_MQ_body():
                 Toys.appendChild(Size)
                 Toys.appendChild(SizeMap)
 
-        if goods_upload_obj['recommended_browse_nodes'] and re.search(r'\bmasks\b|\bmask\b', goods_upload_obj['recommended_browse_nodes'].split('>')[-1], re.I):
-            if params['parent_child'] != 'child' or (params['parent_child'] == 'child' and not goods_upload_variation_obj['size_name']):
-                Size_text = doc.createTextNode('Normal')
-                SizeMap_text = doc.createTextNode('Medium')
-                Size.appendChild(Size_text)
-                SizeMap.appendChild(SizeMap_text)
-                Toys.appendChild(Size)
-                Toys.appendChild(SizeMap)
+        # if goods_upload_obj['recommended_browse_nodes'] and re.search(r'\bmasks\b|\bmask\b', goods_upload_obj['recommended_browse_nodes'].split('>')[-1], re.I):
+        if params['parent_child'] != 'child' or (params['parent_child'] == 'child' and not goods_upload_variation_obj['size_name']):
+            Size_text = doc.createTextNode('Normal')
+            SizeMap_text = doc.createTextNode('Medium')
+            Size.appendChild(Size_text)
+            SizeMap.appendChild(SizeMap_text)
+            Toys.appendChild(Size)
+            Toys.appendChild(SizeMap)
 
         return Toys
 

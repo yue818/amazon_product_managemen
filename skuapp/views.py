@@ -10889,7 +10889,8 @@ def amazon_product_price_modify(request):
 def show_sku_price_detail(request):
     from skuapp.table.t_amazon_product_price_info import t_amazon_product_price_info
     product_sku = request.GET.get('product_sku', '')
-    sku_price_obj = t_amazon_product_price_info.objects.filter(product_sku=product_sku).order_by('-total_price')
+    is_fba = request.GET.get('is_fba', '')
+    sku_price_obj = t_amazon_product_price_info.objects.filter(Q(is_fba=is_fba)&Q(product_sku=product_sku)|Q(product_sku_zh=product_sku)).order_by('-total_price')
     return render(request, 'show_sku_price_detail.html', {'sku_price_obj': sku_price_obj})
 
 

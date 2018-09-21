@@ -122,16 +122,6 @@ class t_online_info_amazon_listing_Admin(object):
                 shopskuShipping = obj.shipping_price
                 shopskuStatus = obj.Status
                 goodsstatus = sinfor['SKUKEY'][1]
-                # if sinfor['SKUKEY'][1] == '1':
-                #     goodsstatus = u'正常'
-                # elif sinfor['SKUKEY'][1] == '2':
-                #     goodsstatus = u'售完下架'
-                # elif sinfor['SKUKEY'][1] == '3':
-                #     goodsstatus = u'临时下架'
-                # elif sinfor['SKUKEY'][1] == '4':
-                #     goodsstatus = u'停售'
-                # else:
-                #     goodsstatus = ''
 
                 if obj.product_status == '1':
                     goodsstatus = u'正常'
@@ -242,42 +232,6 @@ class t_online_info_amazon_listing_Admin(object):
                 else:
                     inventory_cost = ''
 
-                # try:
-                #     total_price = 0
-                #
-                #     for product_sku in sinfor['SKU'].split('+'):
-                #         sku_count = product_sku.split('*')
-                #         if len(sku_count) == 1:
-                #             sku_this = sku_count[0]
-                #             count_this = 1
-                #         else:
-                #             sku_this = sku_count[0]
-                #             count_this = sku_count[1]
-
-                #         total_zh_price = 0
-                #         inventory_cost_this = 0
-                #         if sku_this and len(sku_this) == 6 and sku_this[0:2] == 'ZH':
-                #             sku_zh_obj = t_combination_sku_log.objects.filter(Com_SKU=sku_this)
-                #             if sku_zh_obj:
-                #                 for sku_zh in sku_zh_obj[0].Pro_SKU.split('+'):
-                #                     sku_zh_count = sku_zh.split('*')
-                #                     if len(sku_zh_count) == 1:
-                #                         sku_zh_this = sku_zh_count[0]
-                #                         count_zh_this = 1
-                #                     else:
-                #                         sku_zh_this = sku_zh_count[0]
-                #                         count_zh_this = sku_zh_count[1]
-                #                     price_zh_this = classsku_obj.get_price_by_sku(sku_zh_this.strip())
-                #                     inventory_cost_zh_this = float(price_zh_this) * float(count_zh_this)
-                #                     total_zh_price += inventory_cost_zh_this
-                #         else:
-                #             price_this = classsku_obj.get_price_by_sku(sku_this.strip())
-                #             inventory_cost_this = float(price_this)*float(count_this)
-                #         total_price = total_price + inventory_cost_this + total_zh_price*float(count_this)
-                #     inventory_cost = float(total_price) * float(shopskuQuantity)
-                # except Exception as e:
-                #     inventory_cost = e
-
                 product_sku_html = sinfor['SKU']
                 if sinfor['SKU'] is not None and sinfor['SKU'] != '' and sinfor['SKU'][0:2] == 'ZH':
                     zh_sku_obj = t_combination_sku_log.objects.filter(Com_SKU=sinfor['SKU'])
@@ -289,7 +243,7 @@ class t_online_info_amazon_listing_Admin(object):
                      <td style="word-break:break-all;">%s</td>
                      <td>%s</td>
                      <td>%s</td>
-                     <td style="BORDER-LEFT: #DDDDDD 1px solid;">%s</td>
+                     <td style="word-break:break-all;">%s</td>
                      %s
                      <td>%s</td>
                      %s
@@ -373,10 +327,18 @@ class t_online_info_amazon_listing_Admin(object):
     show_item_name_and_product_id.short_description = u'<span style="color:#428BCA; width:50px">标题/产品ID</span>'
 
     def show_order(self, obj):
-        order_html = u'<table class="table table-condensed"><tr><td>七天</td><td>%s</td></tr><tr>' \
-             u'<td>15天</td><td>%s</td></tr><tr><td>30天</td><td>%s</td></tr>' \
-             u'<tr><td>总</td><td>%s</td></tr>' \
-             u'</table>' % (obj.orders_7days, obj.orders_15days, obj.orders_30days, obj.orders_total)
+        if obj.is_fba == 1 and obj.refund_rate > 5:
+            style = 'style="color:#FF0000;font-weight:bold;"'
+        else:
+            style = ''
+        order_html = u'''<table class="table table-condensed">
+                                     <tr><td>7天</td> <td>%s</td></tr>
+                                     <tr><td>15天</td> <td>%s</td></tr>
+                                     <tr><td>30天</td> <td>%s</td></tr>  
+                                     <tr><td>总</td> <td>%s</td></tr> 
+                                     <tr ><td %s>退款率</td> <td %s>%s <br> (%s)</td></tr> 
+                                   </table>
+                                 ''' % (obj.orders_7days, obj.orders_15days, obj.orders_30days, obj.orders_total, style, style, str(obj.refund_rate)+'%', obj.orders_refund_total)
         return mark_safe(order_html)
     show_order.short_description = u'<span style="color:#428BCA; width:200px">订单量</span>'
 
@@ -791,6 +753,11 @@ class t_online_info_amazon_listing_Admin(object):
         seller = request.GET.get('seller', '')
         product_status = request.GET.get('product_status', '')
 
+        orders_refund_total_start = request.GET.get('orders_refund_total_start', '')
+        orders_refund_total_end = request.GET.get('orders_refund_total_end', '')
+        refund_rate_start = request.GET.get('refund_rate_start', '')
+        refund_rate_end = request.GET.get('refund_rate_end', '')
+
         searchList = {'ShopName__icontains': ShopName,
                       'item_name__icontains': item_name,
                       'asin1__in': ASIN,
@@ -815,6 +782,10 @@ class t_online_info_amazon_listing_Admin(object):
                       'seller__exact': seller,
                       'Parent_asin__exact': parent_asin,
                       'SKU__in': product_sku_multi,
+                      'orders_refund_total__gte': orders_refund_total_start,
+                      'orders_refund_total__end': orders_refund_total_end,
+                      'refund_rate__gte': refund_rate_start,
+                      'refund_rate__end': refund_rate_end,
                       }
         sl = {}
         for k, v in searchList.items():

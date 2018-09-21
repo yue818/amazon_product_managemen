@@ -72,11 +72,11 @@ class FinancesPublic:
             cursor.execute('commit;')
             cursor.close()
             logging.debug('sql execute success')
-        except Exception as e:
+        except Exception as ex:
             cursor.close()
-            # logging.error('sql execute failed!')
-            # logging.error('traceback.format_exc():\n%s' % traceback.format_exc())
-            print e
+            logging.error('sql execute failed!')
+            logging.error('traceback.format_exc():\n%s' % traceback.format_exc())
+            print ex
 
     def insert_finance_record(self, finance_data):
         sql_delete = '''delete from t_amazon_finance_record where shop_name ="%s" and amazon_order_id ="%s" and seller_sku ="%s" and order_adjustment_item_id="%s" and fee_type="%s" and posted_date ="%s" ''' \
@@ -97,21 +97,25 @@ class FinancesPublic:
         quantity_shipped = shipment_item.get('QuantityShipped').get('value')
         order_adjustment_item_id = shipment_item.get('OrderAdjustmentItemId').get('value')
 
-        fee_component = shipment_item.get('ItemFeeAdjustmentList').get('FeeComponent')
-        for ind, val in enumerate(fee_component):
-            feed_type = val.get('FeeType').get('value')
-            feed_currency_code = val.get('FeeAmount').get('CurrencyCode').get('value')
-            feed_currency_amount = val.get('FeeAmount').get('CurrencyAmount').get('value')
-            data_list_feed = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, feed_currency_code, feed_currency_amount]
-            self.insert_finance_record(data_list_feed)
+        fee_component_dict = shipment_item.get('ItemFeeAdjustmentList')
+        if fee_component_dict:
+            fee_component = fee_component_dict.get('FeeComponent')
+            for ind, val in enumerate(fee_component):
+                feed_type = val.get('FeeType').get('value')
+                feed_currency_code = val.get('FeeAmount').get('CurrencyCode').get('value')
+                feed_currency_amount = val.get('FeeAmount').get('CurrencyAmount').get('value')
+                data_list_feed = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, feed_currency_code, feed_currency_amount]
+                self.insert_finance_record(data_list_feed)
 
-        charge_component = shipment_item.get('ItemChargeAdjustmentList').get('ChargeComponent')
-        for ind, val in enumerate(charge_component):
-            feed_type = val.get('ChargeType').get('value')
-            charge_currency_code = val.get('ChargeAmount').get('CurrencyCode').get('value')
-            charge_currency_amount = val.get('ChargeAmount').get('CurrencyAmount').get('value')
-            data_list_charge = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, charge_currency_code, charge_currency_amount]
-            self.insert_finance_record(data_list_charge)
+        charge_component_dict = shipment_item.get('ItemChargeAdjustmentList')
+        if charge_component_dict:
+            charge_component = charge_component_dict.get('ChargeComponent')
+            for ind, val in enumerate(charge_component):
+                feed_type = val.get('ChargeType').get('value')
+                charge_currency_code = val.get('ChargeAmount').get('CurrencyCode').get('value')
+                charge_currency_amount = val.get('ChargeAmount').get('CurrencyAmount').get('value')
+                data_list_charge = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, charge_currency_code, charge_currency_amount]
+                self.insert_finance_record(data_list_charge)
 
     def parse_report(self, refund_report_each):
         if not refund_report_each:
@@ -171,7 +175,7 @@ DATABASE = {
     'USER': 'by15161458383',
     'PASSWORD': 'K120Esc1'
 }
-auth_info = {'AWSAccessKeyId': 'AKIAILLYMCMV6BGJN3HQ', 'ShopName': 'AMZ-0059-Skedee-US/PJ', 'SecretKey': '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', 'table_name': 't_online_info_amazon', 'ShopSite': 'US', 'ShopIP': u'115.28.224.127', 'SellerId': 'A1UMEQ3R6YCSPC', 'MarketplaceId': 'ATVPDKIKX0DER', 'update_type': 'refresh_ad_data'}
+auth_info = {'AWSAccessKeyId': 'AKIAIP5T3XYETWAWHHDA', 'ShopName': 'AMZ-0052-Bohonan-US/PJ', 'SecretKey': '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', 'table_name': 't_online_info_amazon', 'ShopSite': 'US', 'ShopIP': u'118.89.143.150', 'SellerId': 'ARBNA8Y4OL6TV', 'MarketplaceId': 'ATVPDKIKX0DER', 'update_type': 'refresh_ad_data'}
 finace_obj = FinancesPublic(auth_info,DATABASE)
 max_refund_time = finace_obj.get_last_refund_time()
-finace_obj.finance_flow(max_refund_time)
+finace_obj.finance_flow('2018-07-01')

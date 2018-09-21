@@ -8,6 +8,7 @@
  @file: t_amazon_removal_order_detail_Admin.py
  @time: 2018/8/23 11:00
 """
+from django.utils.safestring import mark_safe
 from django.contrib import messages
 from Project.settings import *
 from xlwt import *
@@ -31,7 +32,13 @@ class t_amazon_removal_order_detail_Admin(object):
     amazon_site_left_menu_tree_flag = True
     search_box_flag = True
     downloadxls = True
-    list_display = ('shop_name', 'sku', 'request_date', 'order_id','order_type','order_status', 'requested_quantity', 'disposed_quantity','cancelled_quantity','in_process_quantity','refresh_time')
+
+    def show_disposed_quantity(self, obj):
+        disposed_cnt = obj.disposed_quantity + obj.shipped_quantity
+        return mark_safe(disposed_cnt)
+    show_disposed_quantity.short_description = u'<span style="color:#428BCA">已完成</span>'
+
+    list_display = ('shop_name', 'sku', 'request_date', 'order_id','order_type','order_status', 'requested_quantity', 'show_disposed_quantity','cancelled_quantity','in_process_quantity','refresh_time')
 
     actions = ['to_excel']
 
@@ -62,7 +69,8 @@ class t_amazon_removal_order_detail_Admin(object):
             row = row + 1
             request_date = qs.request_date.strftime('%Y-%m-%d %H:%M')
             refresh_time = qs.refresh_time.strftime('%Y-%m-%d %H:%M')
-            excel_content_list = [qs.shop_name, qs.sku, request_date, qs.order_id, qs.order_type, qs.order_status, qs.requested_quantity, qs.disposed_quantity, qs.cancelled_quantity, qs.in_process_quantity, refresh_time]
+            disposed_quantity = qs.disposed_quantity + qs.shipped_quantity
+            excel_content_list = [qs.shop_name, qs.sku, request_date, qs.order_id, qs.order_type, qs.order_status, qs.requested_quantity, disposed_quantity, qs.cancelled_quantity, qs.in_process_quantity, refresh_time]
             column = 0
             for content in excel_content_list:
                 sheet.write(row, column, content)

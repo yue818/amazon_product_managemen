@@ -31,7 +31,7 @@ class t_amazon_product_inventory_cost_Admin(object):
     amazon_site_left_menu_tree_flag = True
     search_box_flag = True
     downloadxls = True
-    amazon_product_cost_refresh_plugin = True
+    # amazon_product_cost_refresh_plugin = True
 
     def show_is_fba(self, obj):
         if obj.is_fba == 1:
@@ -56,12 +56,12 @@ class t_amazon_product_inventory_cost_Admin(object):
                           shadeClose: true,
                           maxmin: true,
                           area: [a+'px', b+'px'],
-                          content: "/show_sku_price_detail/?product_sku=%s",
+                          content: "/show_sku_price_detail/?product_sku=%s&is_fba=%s",
                           btn: ["关闭页面"],
                           });
                       })
                   </script>
-                  ''' % (obj.id, obj.product_sku)
+                  ''' % (obj.id, obj.product_sku, obj.is_fba)
         return mark_safe(sku_price_detail)
     show_sku_detail.short_description = mark_safe('<p style="color:#428BCA" align="center">商品SKU</p>')
 

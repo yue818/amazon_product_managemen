@@ -8,5 +8,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="amazon_cpc_ad" />
     <orderEntry type="module" module-name="python_project" />
+    <orderEntry type="module" module-name="tool_project" />
   </component>
 </module>

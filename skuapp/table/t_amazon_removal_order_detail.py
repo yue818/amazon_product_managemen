@@ -20,6 +20,7 @@ class t_amazon_removal_order_detail(models.Model):
     order_status = models.CharField(u'订单状态', max_length=32, blank=True, null=True)
     requested_quantity = models.IntegerField(u'请求移除', max_length=10, blank=True, null=True)
     disposed_quantity = models.IntegerField(u'已完成', max_length=10, blank=True, null=True)
+    shipped_quantity = models.IntegerField(u'已运输', max_length=10, blank=True, null=True)
     cancelled_quantity = models.IntegerField(u'取消移除', max_length=10, blank=True, null=True)
     in_process_quantity = models.IntegerField(u'处理中', max_length=10, blank=True, null=True)
     refresh_time = models.DateTimeField(u'更新时间', blank=True, null=True)
