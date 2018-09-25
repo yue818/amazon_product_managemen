@@ -85,6 +85,8 @@ class t_online_info_amazon(models.Model):
     seller = models.CharField(u'店长/销售员', max_length=64, blank=True, null=True)
     product_status = models.CharField(u'商品状态', max_length=32, blank=True, null=True)
 
+    com_pro_sku = models.CharField(u'商品sku合集', max_length=2000, blank=True, null=True)
+
     class Meta:
         verbose_name = u'AMA商品信息'
         verbose_name_plural = verbose_name

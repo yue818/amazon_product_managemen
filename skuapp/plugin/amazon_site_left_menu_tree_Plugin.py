@@ -323,6 +323,17 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
                         "flag": 'remove',
                         "child": []
                     },
+
+                    {
+                        "name": u"店铺刷新状态",
+                        "icon": "",
+                        "code": "110104",
+                        "parentCode": "1101",
+                        "selected": "",
+                        "to_url": '/Project/admin/skuapp/t_perf_amazon_refresh_status',
+                        "flag": 'refresh_status',
+                        "child": []
+                    },
                 ]
         }
 
@@ -532,6 +543,9 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
 
         if 't_amazon_operation_log' in self.request.get_full_path():
             flag = 'operation_log'
+
+        if 't_perf_amazon_refresh_status' in self.request.get_full_path():
+            flag = 'refresh_status'
 
         menu_list = [
             {

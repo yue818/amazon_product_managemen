@@ -1161,3 +1161,7 @@ xadmin.site.register(t_amazon_orders_by_receive_day_total, t_amazon_orders_by_re
 from skuapp.table.t_amazon_operation_log import t_amazon_operation_log
 from skuapp.modelsadminx.t_amazon_operation_log_Admin import t_amazon_operation_log_Admin
 xadmin.site.register(t_amazon_operation_log, t_amazon_operation_log_Admin)
+
+from skuapp.table.t_perf_amazon_refresh_status import t_perf_amazon_refresh_status
+from skuapp.modelsadminx.t_perf_amazon_refresh_status_Admin import t_perf_amazon_refresh_status_Admin
+xadmin.site.register(t_perf_amazon_refresh_status, t_perf_amazon_refresh_status_Admin)

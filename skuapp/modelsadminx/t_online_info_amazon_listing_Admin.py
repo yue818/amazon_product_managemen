@@ -40,6 +40,7 @@ import json
 from skuapp.table.t_online_info_amazon import t_online_info_amazon
 import urllib
 from django.http import HttpResponseRedirect
+from django.db.models import Q
 
 redis_conn = get_redis_connection(alias='product')
 py_SynRedis_tables_obj = py_SynRedis_tables()
@@ -80,7 +81,7 @@ class t_online_info_amazon_listing_Admin(object):
                 <table class="table table-condensed" style="text-align:center;">
                  <thead>
                  <tr bgcolor="#C00">
-                 <th style="text-align:center;">子SKU</th>
+                 <th style="text-align:center;">商品SKU</th>
                  <th style="text-align:center;">商品状态</th>
                  <th style="text-align:center;">可卖天数</th>
                  <th style="text-align:center;">店铺SKU</th>
@@ -758,6 +759,9 @@ class t_online_info_amazon_listing_Admin(object):
         refund_rate_start = request.GET.get('refund_rate_start', '')
         refund_rate_end = request.GET.get('refund_rate_end', '')
 
+        if product_sku:
+            qs = qs.filter(Q(SKU__icontains=product_sku) | Q(com_pro_sku__icontains=product_sku))
+
         searchList = {'ShopName__icontains': ShopName,
                       'item_name__icontains': item_name,
                       'asin1__in': ASIN,
@@ -773,7 +777,6 @@ class t_online_info_amazon_listing_Admin(object):
                       'orders_7days__gte': orders_start,
                       'orders_7days__lte': orders_end,
                       'Status__exact': status,
-                      'SKU__icontains': product_sku,
                       'UpdateTime__gte': date_refresh_start,
                       'UpdateTime__lte': date_refresh_end,
                       'inventory_received_date__gte': date_receive_start,
@@ -785,7 +788,7 @@ class t_online_info_amazon_listing_Admin(object):
                       'orders_refund_total__gte': orders_refund_total_start,
                       'orders_refund_total__end': orders_refund_total_end,
                       'refund_rate__gte': refund_rate_start,
-                      'refund_rate__end': refund_rate_end,
+                      'refund_rate__lte': refund_rate_end,
                       }
         sl = {}
         for k, v in searchList.items():
