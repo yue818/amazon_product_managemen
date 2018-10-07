@@ -5,8 +5,8 @@
  @author: wuchongxiang 
  @site: 
  @software: PyCharm
- @file: fba_refresh-20180925.py
- @time: 2018/9/25 16:12
+ @file: fba_refresh-20180929.py
+ @time: 2018/9/29 9:38
 """
 import logging.handlers
 from mws import Reports, Products,Finances
@@ -488,10 +488,22 @@ class ReportPublic:
         logging.debug('submit report, report type is:%s' % report_type)
         logging.debug('-------------------------------------------------------')
         market_place_ids = [self.auth_info['MarketplaceId']]
-        report_response = self.report_public.request_report(report_type,
-                                                            start_date=start_date,
-                                                            end_date=end_date,
-                                                            marketplaceids=market_place_ids)
+        try:
+            report_response = self.report_public.request_report(report_type,
+                                                                start_date=start_date,
+                                                                end_date=end_date,
+                                                                marketplaceids=market_place_ids)
+        except Exception as ex:
+            print ex
+            logging.error('request_report error')
+            logging.error('traceback.format_exc():\n%s' % traceback.format_exc())
+            logging.debug('wait for 5 minutes ……')
+            time.sleep(60*5)
+            report_response = self.report_public.request_report(report_type,
+                                                                start_date=start_date,
+                                                                end_date=end_date,
+                                                                marketplaceids=market_place_ids)
+
         request_response_dic = report_response.parsed
         report_request_id = request_response_dic['ReportRequestInfo']['ReportRequestId']['value']
         logging.debug('get submit request id is: %s' % report_request_id)
@@ -499,7 +511,17 @@ class ReportPublic:
 
     def get_report_status(self, report_request_id):
         logging.debug('get report status, report_request_id is: %s' % report_request_id)
-        report_status = self.report_public.get_report_request_list(requestids=[report_request_id])
+
+        try:
+            report_status = self.report_public.get_report_request_list(requestids=[report_request_id])
+        except Exception as ex:
+            print ex
+            logging.error('get report_status error')
+            logging.error('traceback.format_exc():\n%s' % traceback.format_exc())
+            logging.debug('wait for 5 minutes ……')
+            time.sleep(60 * 5)
+            report_status = self.report_public.get_report_request_list(requestids=[report_request_id])
+
         report_status_dic = report_status.parsed
         report_processing_status = report_status_dic['ReportRequestInfo']['ReportProcessingStatus']['value']
         if report_processing_status == '_DONE_':
@@ -511,7 +533,16 @@ class ReportPublic:
 
     def get_report_result(self, generated_report_id):
         logging.debug('begin get result data')
-        report_result = self.report_public.get_report(generated_report_id)
+
+        try:
+            report_result = self.report_public.get_report(generated_report_id)
+        except Exception as ex:
+            print ex
+            logging.error('get report_result error')
+            logging.error('traceback.format_exc():\n%s' % traceback.format_exc())
+            logging.debug('wait for 5 minutes ……')
+            time.sleep(60 * 5)
+            report_result = self.report_public.get_report(generated_report_id)
 
         if self.auth_info['ShopSite'] == 'JP':
             encode_type = chardet.detect(report_result.original)['encoding']
@@ -522,8 +553,15 @@ class ReportPublic:
         logging.debug('end get result data')
         return report_result_data
 
-    def report_flow(self, report_type, start_date=None, end_date=None):
+    def report_flow(self, report_type, is_single_refresh=0, single_refresh_type=None, start_date=None, end_date=None):
         try:
+            logging.debug('******************************************************')
+
+            if is_single_refresh == 1 and single_refresh_type != report_type:
+                logging.debug('report_type need not refresh, single_refresh_type is:%s' % single_refresh_type)
+                return
+
+            logging.debug('begin report flow, report_type  is: %s. start_date: %s, end_date:%s' % (report_type, start_date,end_date))
             begin_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             report_request_id = self.submit_report_request(report_type, start_date, end_date)
             time_sleep = 20
@@ -801,7 +839,8 @@ class ReportPublic:
             estimated_variable_closing_fee = report_data[20]
             estimated_order_handling_fee_per_order = report_data[21]
             estimated_pick_pack_fee_per_unit = report_data[22]
-            if self.auth_info['ShopSite'] not in ('IN', 'AU'):
+
+            if self.auth_info['ShopSite'] not in ('IN', 'AU', 'JP'):
                 estimated_weight_handling_fee_per_unit = report_data[23]
                 expected_fulfillment_fee_per_unit = report_data[24]
 
@@ -837,6 +876,17 @@ class ReportPublic:
                 estimated_fee = report_data[19]
                 estimated_referral_fee_per_unit = report_data[20]
                 estimated_variable_closing_fee = report_data[21]
+
+            if self.auth_info['ShopSite'] == 'JP':
+                product_size_tier = ''
+                currency = report_data[16]
+                estimated_fee = report_data[17]
+                estimated_referral_fee_per_unit = report_data[18]
+                estimated_variable_closing_fee = report_data[19]
+                estimated_order_handling_fee_per_order = ''
+                estimated_pick_pack_fee_per_unit = report_data[20]
+                estimated_weight_handling_fee_per_unit = report_data[21]
+                expected_fulfillment_fee_per_unit = report_data[22]
 
             shop_name = self.auth_info['ShopName']
 
@@ -1297,9 +1347,10 @@ class GetProductInfoBySellerSku:
         try:
             product_info_response = self.product_public.get_matching_product_for_id(self.auth_info['MarketplaceId'], 'SellerSKU', [seller_sku])
             product_info_response_dic = product_info_response._response_dict
-        except Exception as e:
-            print e
-            time.sleep(10)  # 防止超请求限制，重新提交
+        except Exception as ex:
+            logging.error(ex)
+            logging.debug('wait for 60 seconds……')
+            time.sleep(60)  # 防止超请求限制，重新提交
             product_info_response = self.product_public.get_matching_product_for_id(self.auth_info['MarketplaceId'], 'SellerSKU', [seller_sku])
             product_info_response_dic = product_info_response._response_dict
         return product_info_response_dic
@@ -1411,7 +1462,8 @@ class GetProductInfoByAsin:
             product_info_response_dic = product_info_response._response_dict
         except Exception as e:
             logging.error(e)
-            time.sleep(30)  # 防止超请求限制，重新提交
+            logging.debug('wait for 60 seconds……')
+            time.sleep(60)  # 防止超请求限制，重新提交
             product_info_response = self.product_public.get_matching_product(self.auth_info['MarketplaceId'], asin_list)
             product_info_response_dic = product_info_response._response_dict
         return product_info_response_dic
@@ -1800,7 +1852,8 @@ class FinancesPublic:
                 if time_30_days_later < datetime.datetime.now():
                     last_refund_time.append(time_30_days_later.strftime('%Y-%m-%d'))
                 else:
-                    last_refund_time.append((datetime.datetime.utcnow() + datetime.timedelta(hours=-1)).strftime('%Y-%m-%dT%H:%M:%S'))
+                    if time_30_days_later < datetime.datetime.utcnow() + datetime.timedelta(hours=-1):
+                        last_refund_time.append((datetime.datetime.utcnow() + datetime.timedelta(hours=-1)).strftime('%Y-%m-%dT%H:%M:%S'))
                     break
         else:
             last_refund_time.append((max_update_time + datetime.timedelta(days=-1)).strftime('%Y-%m-%d'))
@@ -1895,10 +1948,8 @@ class FinancesPublic:
     def finance_flow(self, begin_time, end_time):
         try:
             begin_time_status = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            print 'begin flow'
-            logging.debug('begin flow')
+            logging.debug('begin flow, begin_time: %s, end_time:%s' % (begin_time, end_time))
             refund_report_raw = self.get_finance_report(begin_time=begin_time, end_time=end_time)
-            print 'get data'
             logging.debug('get data')
 
             next_token = None
@@ -2010,98 +2061,161 @@ class GetLocalIPAndAuthInfo:
         return auth_info_all
 
 
-auto_upgrade()
+if __name__ == 'main':
+    # 启动时先检查更新，删除历史日志文件
+    auto_upgrade()
 
-try:
-    delete_history_log('.log', 7)
-except Exception as e:
-    logging.error('delete history log file failed')
-    logging.error('traceback.format_exc():\n%s' % traceback.format_exc())
-
-get_info_obj = GetLocalIPAndAuthInfo()
-while True:
     try:
-        local_ip = get_info_obj.get_out_ip(get_info_obj.get_real_url())
-        if local_ip is not None:
-            if local_ip == '47.254.83.145':
-                local_ip = '210.16.103.56'  # 160
-            elif local_ip == '47.251.3.95':
-                local_ip = '103.95.13.105'  # 201
-            else:
-                pass
-            print 'local ip is: %s' % local_ip
-            logging.debug('local ip is: %s' % local_ip)
-            break
+        delete_history_log('.log', 7)
     except Exception as e:
         print e
-        local_ip = None
-
-
-auth_info_all = get_info_obj.get_auth_info_by_ip(local_ip)
-get_info_obj.close_db_conn()
-print 'auth_info_all is: %s' % str(auth_info_all)
-logging.debug('auth_info_all is: %s' % str(auth_info_all))
-for key, val in auth_info_all.items():
-    auth_info = val
-    print 'auth_info now is: %s ' % str(auth_info)
-    logging.debug('auth_info now is: %s ' % str(auth_info))
-    try:
-        print '----------------------------------site begin-----------------------------------------------'
-        logging.debug('----------------------------------site begin-----------------------------------------------')
-        auth_info['table_name_really'] = auth_info['table_name']
-        auth_info['table_name'] = auth_info['table_name'] + '_for_update'
-        get_data_public_obj = ReportPublic(auth_info)
-
-        get_data_public_obj.report_flow('_GET_FBA_MYI_ALL_INVENTORY_DATA_')
-
-        submit_time_list = get_data_public_obj.get_last_order_time()
-        for i in range(len(submit_time_list) - 1):
-            start_date_order = submit_time_list[i]
-            end_date_order = submit_time_list[i + 1]
-            get_data_public_obj.report_flow('_GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_', start_date_order, end_date_order)
-            logging.debug('now wait 60 seconds')
-            time.sleep(60)
-
-        start_date_receive = get_data_public_obj.get_last_receive_time()
-        end_date_receive = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
-        get_data_public_obj.report_flow('_GET_FBA_FULFILLMENT_INVENTORY_RECEIPTS_DATA_', start_date_receive, end_date_receive)
-
-        get_data_public_obj.report_flow('_GET_FBA_ESTIMATED_FBA_FEES_TXT_DATA_')
-
-        start_date_remove = get_data_public_obj.get_last_remove_time()
-        end_date_remove = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
-        get_data_public_obj.report_flow('_GET_FBA_FULFILLMENT_REMOVAL_ORDER_DETAIL_DATA_', start_date_remove, end_date_remove)
-
-        finace_obj = FinancesPublic(auth_info, DATABASE)
-        max_refund_time_list = finace_obj.get_last_refund_time()
-        for i in range(len(max_refund_time_list) - 1):
-            start_date = max_refund_time_list[i]
-            end_date = max_refund_time_list[i + 1]
-            finace_obj.finance_flow(begin_time=start_date, end_time=end_date)
-            logging.debug('now wait 60 seconds')
-            time.sleep(60)
-        finace_obj.close_db_conn()
-
-        get_data_public_obj.delete_mid_table()
-        get_data_public_obj.report_flow('_GET_MERCHANT_LISTINGS_ALL_DATA_')
-        auth_info['table_name'] = auth_info['table_name_really']
-
-        refresh_db_tables(auth_info, get_data_public_obj)
-
-        get_data_public_obj.close_db_conn()
-
-        ship_price_obj = GetShippingPrice(auth_info, DATABASE)
-        ship_price_obj.get_seller_sku_list()
-        ship_price_obj.close_db_conn()
-
-        get_product_info_obj = GetProductInfoByAsin(auth_info)
-        get_product_info_obj.get_parent_asin_and_image()
-        get_product_info_obj.close_db_conn()
-
-        print '----------------------------------site end-----------------------------------------------'
-        logging.debug('----------------------------------site end-----------------------------------------------')
-    except Exception as e:
-        logging.debug('----------------------------------site fail-----------------------------------------------')
+        logging.error('delete history log file failed')
         logging.error('traceback.format_exc():\n%s' % traceback.format_exc())
+
+    # 获取参数，若为单个刷新必须提供店铺和报告类别信息
+    if len(sys.argv) == 2:
+        is_single_refresh = 1
+        shop_name = sys.argv[1]
+        report_type_refresh = sys.argv[2]
+    else:
+        is_single_refresh = 0
+        shop_name = None
+        report_type_refresh = None
+
+    # 获取IP地址
+    get_info_obj = GetLocalIPAndAuthInfo()
+    while True:
+        try:
+            local_ip = get_info_obj.get_out_ip(get_info_obj.get_real_url())
+            if local_ip is not None:
+                if local_ip == '47.254.83.145':
+                    local_ip = '210.16.103.56'  # 160
+                elif local_ip == '47.251.3.95':
+                    local_ip = '103.95.13.105'  # 201
+                else:
+                    pass
+                print 'local ip is: %s' % local_ip
+                logging.debug('local ip is: %s' % local_ip)
+                break
+        except Exception as e:
+            print e
+            local_ip = None
+
+    # token信息
+    auth_info_all = get_info_obj.get_auth_info_by_ip(local_ip)
+    get_info_obj.close_db_conn()
+    logging.debug('auth_info_all is: %s' % str(auth_info_all))
+    for key, val in auth_info_all.items():
+        if is_single_refresh == 1:
+            logging.debug('single_refresh, shop_name:%s, report_type: %s ' % (shop_name, report_type_refresh))
+            if key == shop_name:
+                auth_info = val
+            else:
+                continue
+        else:
+            auth_info = val
+
+        logging.debug('auth_info now is: %s ' % str(auth_info))
+        try:
+            print '----------------------------------site begin-----------------------------------------------'
+            logging.debug('----------------------------------site begin-----------------------------------------------')
+            auth_info['table_name_really'] = auth_info['table_name']
+            auth_info['table_name'] = auth_info['table_name'] + '_for_update'
+            get_data_public_obj = ReportPublic(auth_info)
+
+            # FBA库存
+            get_data_public_obj.report_flow('_GET_FBA_MYI_ALL_INVENTORY_DATA_', is_single_refresh, report_type_refresh)
+
+            # 订单
+            if is_single_refresh == 1:
+                if report_type_refresh == '_GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_':
+                    submit_time_list = get_data_public_obj.get_last_order_time()
+                    for i in range(len(submit_time_list) - 1):
+                        start_date_order = submit_time_list[i]
+                        end_date_order = submit_time_list[i + 1]
+                        get_data_public_obj.report_flow('_GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_', is_single_refresh, report_type_refresh, start_date_order, end_date_order)
+                        logging.debug('now wait for 60 seconds')
+                        time.sleep(60)
+            else:
+                submit_time_list = get_data_public_obj.get_last_order_time()
+                for i in range(len(submit_time_list) - 1):
+                    start_date_order = submit_time_list[i]
+                    end_date_order = submit_time_list[i + 1]
+                    get_data_public_obj.report_flow('_GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_', is_single_refresh, report_type_refresh, start_date_order, end_date_order)
+                    logging.debug('now wait for 60 seconds')
+                    time.sleep(60)
+
+            # 到货日期
+            start_date_receive = get_data_public_obj.get_last_receive_time()
+            end_date_receive = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
+            get_data_public_obj.report_flow('_GET_FBA_FULFILLMENT_INVENTORY_RECEIPTS_DATA_', is_single_refresh, report_type_refresh, start_date_receive, end_date_receive)
+
+            # 预览费用
+            get_data_public_obj.report_flow('_GET_FBA_ESTIMATED_FBA_FEES_TXT_DATA_', is_single_refresh, report_type_refresh)
+
+            # 移除订单
+            start_date_remove = get_data_public_obj.get_last_remove_time()
+            end_date_remove = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
+            get_data_public_obj.report_flow('_GET_FBA_FULFILLMENT_REMOVAL_ORDER_DETAIL_DATA_', is_single_refresh, report_type_refresh, start_date_remove, end_date_remove)
+
+            # 退款订单
+            if is_single_refresh == 1:
+                if report_type_refresh == 'refund_financial_events':
+                    finace_obj = FinancesPublic(auth_info, DATABASE)
+                    max_refund_time_list = finace_obj.get_last_refund_time()
+                    for i in range(len(max_refund_time_list) - 1):
+                        start_date = max_refund_time_list[i]
+                        end_date = max_refund_time_list[i + 1]
+                        finace_obj.finance_flow(begin_time=start_date, end_time=end_date)
+                        logging.debug('now wait 60 seconds')
+                        time.sleep(60)
+                    finace_obj.close_db_conn()
+            else:
+                finace_obj = FinancesPublic(auth_info, DATABASE)
+                max_refund_time_list = finace_obj.get_last_refund_time()
+                for i in range(len(max_refund_time_list) - 1):
+                    start_date = max_refund_time_list[i]
+                    end_date = max_refund_time_list[i + 1]
+                    finace_obj.finance_flow(begin_time=start_date, end_time=end_date)
+                    logging.debug('now wait 60 seconds')
+                    time.sleep(60)
+                finace_obj.close_db_conn()
+
+            # 商品Listing
+            get_data_public_obj.delete_mid_table()
+            get_data_public_obj.report_flow('_GET_MERCHANT_LISTINGS_ALL_DATA_', is_single_refresh, report_type_refresh)
+            auth_info['table_name'] = auth_info['table_name_really']
+
+            # 数据刷新
+            refresh_db_tables(auth_info, get_data_public_obj)
+
+            # 数据库连接关闭
+            get_data_public_obj.close_db_conn()
+
+            # 运费、图片、子变体关系
+            if is_single_refresh == 1:
+                if report_type_refresh == '_GET_MERCHANT_LISTINGS_ALL_DATA_':
+                    ship_price_obj = GetShippingPrice(auth_info, DATABASE)
+                    ship_price_obj.get_seller_sku_list()
+                    ship_price_obj.close_db_conn()
+
+                    get_product_info_obj = GetProductInfoByAsin(auth_info)
+                    get_product_info_obj.get_parent_asin_and_image()
+                    get_product_info_obj.close_db_conn()
+            else:
+                ship_price_obj = GetShippingPrice(auth_info, DATABASE)
+                ship_price_obj.get_seller_sku_list()
+                ship_price_obj.close_db_conn()
+
+                get_product_info_obj = GetProductInfoByAsin(auth_info)
+                get_product_info_obj.get_parent_asin_and_image()
+                get_product_info_obj.close_db_conn()
+
+            print '----------------------------------site end-----------------------------------------------'
+            logging.debug('----------------------------------site end-----------------------------------------------')
+        except Exception as e:
+            print e
+            logging.debug('----------------------------------site fail-----------------------------------------------')
+            logging.error('traceback.format_exc():\n%s' % traceback.format_exc())
 
 

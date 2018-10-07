@@ -5,8 +5,8 @@
  @author: wuchongxiang 
  @site: 
  @software: PyCharm
- @file: fba_refresh-20180925.py
- @time: 2018/9/25 16:12
+ @file: fba_refresh-20180929a.py
+ @time: 2018/9/29 13:16
 """
 import logging.handlers
 from mws import Reports, Products,Finances
@@ -488,10 +488,22 @@ class ReportPublic:
         logging.debug('submit report, report type is:%s' % report_type)
         logging.debug('-------------------------------------------------------')
         market_place_ids = [self.auth_info['MarketplaceId']]
-        report_response = self.report_public.request_report(report_type,
-                                                            start_date=start_date,
-                                                            end_date=end_date,
-                                                            marketplaceids=market_place_ids)
+        try:
+            report_response = self.report_public.request_report(report_type,
+                                                                start_date=start_date,
+                                                                end_date=end_date,
+                                                                marketplaceids=market_place_ids)
+        except Exception as ex:
+            print ex
+            logging.error('request_report error')
+            logging.error('traceback.format_exc():\n%s' % traceback.format_exc())
+            logging.debug('wait for 5 minutes ……')
+            time.sleep(60*5)
+            report_response = self.report_public.request_report(report_type,
+                                                                start_date=start_date,
+                                                                end_date=end_date,
+                                                                marketplaceids=market_place_ids)
+
         request_response_dic = report_response.parsed
         report_request_id = request_response_dic['ReportRequestInfo']['ReportRequestId']['value']
         logging.debug('get submit request id is: %s' % report_request_id)
@@ -499,7 +511,17 @@ class ReportPublic:
 
     def get_report_status(self, report_request_id):
         logging.debug('get report status, report_request_id is: %s' % report_request_id)
-        report_status = self.report_public.get_report_request_list(requestids=[report_request_id])
+
+        try:
+            report_status = self.report_public.get_report_request_list(requestids=[report_request_id])
+        except Exception as ex:
+            print ex
+            logging.error('get report_status error')
+            logging.error('traceback.format_exc():\n%s' % traceback.format_exc())
+            logging.debug('wait for 5 minutes ……')
+            time.sleep(60 * 5)
+            report_status = self.report_public.get_report_request_list(requestids=[report_request_id])
+
         report_status_dic = report_status.parsed
         report_processing_status = report_status_dic['ReportRequestInfo']['ReportProcessingStatus']['value']
         if report_processing_status == '_DONE_':
@@ -511,7 +533,16 @@ class ReportPublic:
 
     def get_report_result(self, generated_report_id):
         logging.debug('begin get result data')
-        report_result = self.report_public.get_report(generated_report_id)
+
+        try:
+            report_result = self.report_public.get_report(generated_report_id)
+        except Exception as ex:
+            print ex
+            logging.error('get report_result error')
+            logging.error('traceback.format_exc():\n%s' % traceback.format_exc())
+            logging.debug('wait for 5 minutes ……')
+            time.sleep(60 * 5)
+            report_result = self.report_public.get_report(generated_report_id)
 
         if self.auth_info['ShopSite'] == 'JP':
             encode_type = chardet.detect(report_result.original)['encoding']
@@ -524,6 +555,8 @@ class ReportPublic:
 
     def report_flow(self, report_type, start_date=None, end_date=None):
         try:
+            logging.debug('******************************************************')
+            logging.debug('begin report flow, report_type  is: %s. start_date: %s, end_date:%s' % (report_type, start_date,end_date))
             begin_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             report_request_id = self.submit_report_request(report_type, start_date, end_date)
             time_sleep = 20
@@ -801,7 +834,8 @@ class ReportPublic:
             estimated_variable_closing_fee = report_data[20]
             estimated_order_handling_fee_per_order = report_data[21]
             estimated_pick_pack_fee_per_unit = report_data[22]
-            if self.auth_info['ShopSite'] not in ('IN', 'AU'):
+
+            if self.auth_info['ShopSite'] not in ('IN', 'AU', 'JP'):
                 estimated_weight_handling_fee_per_unit = report_data[23]
                 expected_fulfillment_fee_per_unit = report_data[24]
 
@@ -837,6 +871,17 @@ class ReportPublic:
                 estimated_fee = report_data[19]
                 estimated_referral_fee_per_unit = report_data[20]
                 estimated_variable_closing_fee = report_data[21]
+
+            if self.auth_info['ShopSite'] == 'JP':
+                product_size_tier = ''
+                currency = report_data[16]
+                estimated_fee = report_data[17]
+                estimated_referral_fee_per_unit = report_data[18]
+                estimated_variable_closing_fee = report_data[19]
+                estimated_order_handling_fee_per_order = ''
+                estimated_pick_pack_fee_per_unit = report_data[20]
+                estimated_weight_handling_fee_per_unit = report_data[21]
+                expected_fulfillment_fee_per_unit = report_data[22]
 
             shop_name = self.auth_info['ShopName']
 
@@ -1297,18 +1342,19 @@ class GetProductInfoBySellerSku:
         try:
             product_info_response = self.product_public.get_matching_product_for_id(self.auth_info['MarketplaceId'], 'SellerSKU', [seller_sku])
             product_info_response_dic = product_info_response._response_dict
-        except Exception as e:
-            print e
-            time.sleep(10)  # 防止超请求限制，重新提交
+        except Exception as ex:
+            logging.error(ex)
+            logging.debug('wait for 60 seconds……')
+            time.sleep(60)  # 防止超请求限制，重新提交
             product_info_response = self.product_public.get_matching_product_for_id(self.auth_info['MarketplaceId'], 'SellerSKU', [seller_sku])
             product_info_response_dic = product_info_response._response_dict
         return product_info_response_dic
 
-    def update_asin(self, this_asin, image_url, seller_sku):
+    def update_asin(self, this_asin, image_url, seller_sku, width, length, height, weight):
         cursor = self.db_conn.cursor()
         try:
-            sql = "update %s set asin1 = '%s' , image_url = '%s' where seller_sku ='%s' and shopname = '%s'" \
-                  % (self.auth_info['table_name'], this_asin, image_url, seller_sku, self.auth_info['ShopName'])
+            sql = "update %s set asin1 = '%s' , image_url = '%s',package_length='%s', package_height='%s',package_width='%s', package_weight='%s' where seller_sku ='%s' and shopname = '%s'" \
+                  % (self.auth_info['table_name'], this_asin, image_url, length, height, width, weight, seller_sku, self.auth_info['ShopName'])
             print 'update_parent_asin sql is: %s' % sql
             logging.debug('update_parent_asin sql is: %s' % sql)
             cursor.execute(sql)
@@ -1332,7 +1378,32 @@ class GetProductInfoBySellerSku:
     def update_db_by_product_info(self, product_info, seller_sku):
         main_asin = product_info['GetMatchingProductForIdResult']['Products']['Product']['Identifiers']['MarketplaceASIN']['ASIN']['value']
         image_url = product_info['GetMatchingProductForIdResult']['Products']['Product']['AttributeSets']['ItemAttributes']['SmallImage']['URL']['value']
-        self.update_asin(main_asin, image_url, seller_sku)
+
+        package_dimesions = product_info['GetMatchingProductForIdResult']['Products']['Product']['AttributeSets'].get('ItemAttributes').get('PackageDimensions')
+        if package_dimesions:
+            if package_dimesions.get('Width'):
+                width = package_dimesions.get('Width').get('value') + '(' + package_dimesions.get('Width').get('Units').get('value') + ')'
+            else:
+                width = ''
+            if package_dimesions.get('Length'):
+                length = package_dimesions.get('Length').get('value') + '(' + package_dimesions.get('Length').get('Units').get('value') + ')'
+            else:
+                length = ''
+            if package_dimesions.get('Height'):
+                height = package_dimesions.get('Height').get('value') + '(' + package_dimesions.get('Height').get('Units').get('value') + ')'
+            else:
+                height = ''
+            if package_dimesions.get('Weight'):
+                weight = package_dimesions.get('Weight').get('value') + '(' + package_dimesions.get('Weight').get('Units').get('value') + ')'
+            else:
+                weight = ''
+        else:
+            width = ''
+            length = ''
+            height = ''
+            weight = ''
+
+        self.update_asin(main_asin, image_url, seller_sku, width, length, height, weight)
 
         if product_info['GetMatchingProductForIdResult']['Products']['Product']['Relationships'].has_key('VariationChild'):
             child_list = product_info['GetMatchingProductForIdResult']['Products']['Product']['Relationships']['VariationChild']
@@ -1411,7 +1482,8 @@ class GetProductInfoByAsin:
             product_info_response_dic = product_info_response._response_dict
         except Exception as e:
             logging.error(e)
-            time.sleep(30)  # 防止超请求限制，重新提交
+            logging.debug('wait for 60 seconds……')
+            time.sleep(60)  # 防止超请求限制，重新提交
             product_info_response = self.product_public.get_matching_product(self.auth_info['MarketplaceId'], asin_list)
             product_info_response_dic = product_info_response._response_dict
         return product_info_response_dic
@@ -1426,10 +1498,10 @@ class GetProductInfoByAsin:
         cursor.execute('commit;')
         cursor.close()
 
-    def connect_image(self, asin, image_url):
+    def connect_image(self, asin, image_url, width, length, height, weight):
         cursor = self.db_conn.cursor()
-        sql = "update %s set image_url = '%s' where asin1 = '%s' and shopname = '%s'" \
-              % (self.auth_info['table_name'], image_url, asin, self.auth_info['ShopName'])
+        sql = "update %s set image_url = '%s', package_length='%s', package_height='%s',package_width='%s', package_weight='%s' where asin1 = '%s' and shopname = '%s'" \
+              % (self.auth_info['table_name'], image_url, length, height, width, weight, asin, self.auth_info['ShopName'])
         print 'connect_image sql is: %s' % sql
         logging.debug('connect_image sql is: %s' % sql)
         cursor.execute(sql)
@@ -1447,6 +1519,30 @@ class GetProductInfoByAsin:
             image_url = product['Product']['AttributeSets']['ItemAttributes']['SmallImage']['URL']['value']
         print 'image_url is: %s' % image_url
         logging.debug('image_url is: %s' % image_url)
+
+        package_dimesions = product['Product']['AttributeSets'].get('ItemAttributes').get('PackageDimensions')
+        if package_dimesions:
+            if package_dimesions.get('Width'):
+                width = package_dimesions.get('Width').get('value') + '(' + package_dimesions.get('Width').get('Units').get('value') + ')'
+            else:
+                width = ''
+            if package_dimesions.get('Length'):
+                length = package_dimesions.get('Length').get('value') + '(' + package_dimesions.get('Length').get('Units').get('value') + ')'
+            else:
+                length = ''
+            if package_dimesions.get('Height'):
+                height = package_dimesions.get('Height').get('value') + '(' + package_dimesions.get('Height').get('Units').get('value') + ')'
+            else:
+                height = ''
+            if package_dimesions.get('Weight'):
+                weight = package_dimesions.get('Weight').get('value') + '(' + package_dimesions.get('Weight').get('Units').get('value') + ')'
+            else:
+                weight = ''
+        else:
+            width = ''
+            length = ''
+            height = ''
+            weight = ''
 
         # parent -> child
         if product['Product']['Relationships'].has_key('VariationChild'):
@@ -1472,7 +1568,7 @@ class GetProductInfoByAsin:
             logging.debug('parent_asin is: %s' % parent_asin)
             self.update_parent_asin(parent_asin, main_asin)
 
-        self.connect_image(main_asin, image_url)
+        self.connect_image(main_asin, image_url, width, length, height, weight)
 
     def update_db_by_product_info(self, product_info):
         product_list = product_info['GetMatchingProductResult']  # 提交多个asin时为列表，单个时为字典
@@ -1800,7 +1896,8 @@ class FinancesPublic:
                 if time_30_days_later < datetime.datetime.now():
                     last_refund_time.append(time_30_days_later.strftime('%Y-%m-%d'))
                 else:
-                    last_refund_time.append((datetime.datetime.utcnow() + datetime.timedelta(hours=-1)).strftime('%Y-%m-%dT%H:%M:%S'))
+                    if time_30_days_later < datetime.datetime.utcnow() + datetime.timedelta(hours=-1):
+                        last_refund_time.append((datetime.datetime.utcnow() + datetime.timedelta(hours=-1)).strftime('%Y-%m-%dT%H:%M:%S'))
                     break
         else:
             last_refund_time.append((max_update_time + datetime.timedelta(days=-1)).strftime('%Y-%m-%d'))
@@ -1895,10 +1992,8 @@ class FinancesPublic:
     def finance_flow(self, begin_time, end_time):
         try:
             begin_time_status = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            print 'begin flow'
-            logging.debug('begin flow')
+            logging.debug('begin flow, begin_time: %s, end_time:%s' % (begin_time, end_time))
             refund_report_raw = self.get_finance_report(begin_time=begin_time, end_time=end_time)
-            print 'get data'
             logging.debug('get data')
 
             next_token = None
@@ -2059,7 +2154,7 @@ for key, val in auth_info_all.items():
             start_date_order = submit_time_list[i]
             end_date_order = submit_time_list[i + 1]
             get_data_public_obj.report_flow('_GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_', start_date_order, end_date_order)
-            logging.debug('now wait 60 seconds')
+            logging.debug('now wait for 60 seconds')
             time.sleep(60)
 
         start_date_receive = get_data_public_obj.get_last_receive_time()

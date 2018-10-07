@@ -42,6 +42,7 @@ import urllib
 from django.http import HttpResponseRedirect
 from django.db.models import Q
 
+
 redis_conn = get_redis_connection(alias='product')
 py_SynRedis_tables_obj = py_SynRedis_tables()
 classsku_obj = classsku()
@@ -233,11 +234,11 @@ class t_online_info_amazon_listing_Admin(object):
                 else:
                     inventory_cost = ''
 
-                product_sku_html = sinfor['SKU']
-                if sinfor['SKU'] is not None and sinfor['SKU'] != '' and sinfor['SKU'][0:2] == 'ZH':
+                product_sku_html = obj.SKU
+                if obj.SKU is not None and obj.SKU != '' and obj.SKU[0:2] == 'ZH':
                     zh_sku_obj = t_combination_sku_log.objects.filter(Com_SKU=sinfor['SKU'])
                     if zh_sku_obj:
-                        product_sku_html = str(sinfor['SKU']) + '<br/>↓<br/>' + str(zh_sku_obj[0].Pro_SKU)
+                        product_sku_html = str(obj.SKU) + '<br/>↓<br/>' + str(zh_sku_obj[0].Pro_SKU)
 
                 rt = '''
                     %s <tr %s>
@@ -309,6 +310,7 @@ class t_online_info_amazon_listing_Admin(object):
     show_image_url.short_description = u'<span style="color:#428BCA">图片</span>'
 
     def show_item_name_and_product_id(self, obj):
+        from skuapp.table.t_cloth_factory_dispatch_needpurchase import t_cloth_factory_dispatch_needpurchase
         site_url_dict = {'US': 'https://www.amazon.com/',
                          'UK': 'https://www.amazon.co.uk/',
                          'JP': 'https://www.amazon.co.jp/',
@@ -320,10 +322,51 @@ class t_online_info_amazon_listing_Admin(object):
             site_url = site_url_dict[obj.ShopSite]
         else:
             site_url = 'https://www.amazon.com/'
+        rt = u'<p style="word-break:break-all;">%s</p><br>店铺:%s<br>店长/销售员:%s<br><a href="%sdp/%s" target="_blank">%s</a><br><br>' % (obj.item_name, obj.ShopName, obj.seller, site_url, obj.asin1, obj.asin1)
 
-        # department, seller, published = t_store_configuration_file_obj.getinfobyshopcode(obj.ShopName)
+        if obj.is_fba == 1 or obj.is_fba == 0:
+            t_cloth_factory_dispatch_needpurchase_objs = t_cloth_factory_dispatch_needpurchase.objects.filter(SKU=obj.SKU).\
+                filter(Q(currentState=8) | Q(currentState=16) | Q(currentState=18) | Q(currentState=20) | Q(currentState=22) | Q(currentState=24)).\
+                order_by('-createDate').values_list('SKU','productNumbers', 'currentState', 'createDate', 'closeDate', 'completeNumbers')
 
-        rt = u'<p style="word-break:break-all;">%s</p><br>店铺:%s<br>店长/销售员:%s<br><a href="%sdp/%s" target="_blank">%s</a>' % (obj.item_name, obj.ShopName, obj.seller, site_url, obj.asin1, obj.asin1)
+            if t_cloth_factory_dispatch_needpurchase_objs:
+                rt += '''<table class="table table-condensed" style="text-align:center;">
+                             <thead>
+                             <tr bgcolor="#C00">
+                             <th style="text-align:center;">商品SKU</th>
+                             <th style="text-align:center;">需采购数量</th>
+                             <th style="text-align:center;">当前状态</th>
+                             <th style="text-align:center;">创建时间</th>
+                             <th style="text-align:center;">关闭时间</th>
+                             <th style="text-align:center;">完成件数</th>
+                        '''
+                for rowObj in t_cloth_factory_dispatch_needpurchase_objs:
+                    if rowObj[2] == '8':
+                        current_state = '采购计划审核'
+                    elif rowObj[2] in ('16', '18'):
+                        current_state = '服装工厂排单'
+                    elif rowObj[2] in ('20', '22'):
+                        current_state = '检验交付数量和单价'
+                    elif rowObj[2] == '24':
+                        current_state = '生产完成可建普源采购单'
+                    else:
+                        current_state = rowObj[2]
+
+                    rt += '''<tr>
+                             <td style="word-break:break-all;">%s</td>
+                             <td>%s</td>
+                             <td style="word-break:break-all;">%s</td>
+                             <td style="word-break:break-all;">%s</td>
+                             <td style="word-break:break-all;">%s</td>
+                             <td>%s</td>
+                             </tr>
+                          ''' % (rowObj[0], rowObj[1], current_state, rowObj[3], rowObj[4], rowObj[5])
+                rt += u"</tbody></table>"
+            else:
+                if obj.is_fba == 1 and (obj.orders_7days/7 + obj.orders_15days/15 + obj.orders_30days/30) > 0 and obj.afn_warehouse_quantity*3/(obj.orders_7days/7 + obj.orders_15days/15 + obj.orders_30days/30) < 20:
+                    rt += '<a href = "/Project/admin/skuapp/t_cloth_factory_dispatch_plan" target = "_blank" > <p style="color:red;"><b>请及时制定采购计划</b></p> </a>'
+
+
         return mark_safe(rt)
     show_item_name_and_product_id.short_description = u'<span style="color:#428BCA; width:50px">标题/产品ID</span>'
 

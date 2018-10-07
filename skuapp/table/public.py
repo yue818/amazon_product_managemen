@@ -125,12 +125,43 @@ ChoiceQualityFeedbackPlateform = 6673
 ChoiceQualityFeedbackState = 6674
 ChoiceClothDispatchState = 20185
 ChoiceRefundReason = 8875
-
-
+ChoiceSystemConfirm = 10011
+ChoiceShopStatus = 20192
 ChoiceNewOld = 20189
 Condition_t_weekly_collar_and_publication_statistics_table = 20187
+ChoiceRawUnit = 20188
 ProductSubtype = 20190
+ChoiceSelectCategory = 20191
+ChoiceTortLevel = 20193
+ChoiceForbiddenSite = 20194
+CpcProductState = 20195
+ChoiceAutoRenew = 20196
+wish_pb_max_budget = 20197
+ChoiceCampaignState = 20198
+ChioceWishExpressType = 30000
+ChoiceNoNeedPurchaseRemark = 30001
+ChoiceCgRemark = 12345
+ChoiceCgSuggestRemark = 12346
 item_weight_unit = 30002
+ChoiceWarningFlag = 12347
+ChoiceSkuSales = 10101
+
+ChoiceAI = 40000  # 精准调研标记选择  0 默认；1 精准
+
+Choice_examine_status = 40001  # 克重审核 审核状态 0：未审核；1 已审核
+ChoiceCheckStatus = 40002 #质检状态 notcheck:未质检  partcheck:抽样质检 allcheck:全部质检
+
+ChoiceIP_FLAG = 40003  # IP产品标记 '0'：非IP产品；'1' 是IP产品
+ChoiceAmazonFactory = 40004 #亚马逊服装 yes是 no 不是
+ChoiceFBAPlanStatus = 40005  # FBA备货流程状态
+ChoiceFBWPlanFBWUS = 40006  # 有 无
+ChoiceFBWPlanStatus = 40007  # '未生成清单':'notyet','已生成清单':'genbatch','已生成备货需求':'gendemand','已发货':'deliver','不需备货':'nodemand'
+ChoiceRejectFBAStatus = 40008 #转退状态 转仓turn  退货return
+ChoicePurchaseType = 40009 #排单类型  首单:firstorder  定做:customermade 其他:other
+ChoiceFBWPlanDELIVER = 40010  # 发货方式 '随机':'random','正常':'normal'
+ChoiceFBWPlanNEWOLD = 40011  # 新品老品 '新品':'new','老品':'old'
+
+
 
 
 

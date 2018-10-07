@@ -5,8 +5,8 @@
  @author: wuchongxiang 
  @site: 
  @software: PyCharm
- @file: fba_refresh-20180925.py
- @time: 2018/9/25 16:12
+ @file: fba_refresh-20180927.py
+ @time: 2018/9/27 08:32
 """
 import logging.handlers
 from mws import Reports, Products,Finances
@@ -488,10 +488,22 @@ class ReportPublic:
         logging.debug('submit report, report type is:%s' % report_type)
         logging.debug('-------------------------------------------------------')
         market_place_ids = [self.auth_info['MarketplaceId']]
-        report_response = self.report_public.request_report(report_type,
-                                                            start_date=start_date,
-                                                            end_date=end_date,
-                                                            marketplaceids=market_place_ids)
+        try:
+            report_response = self.report_public.request_report(report_type,
+                                                                start_date=start_date,
+                                                                end_date=end_date,
+                                                                marketplaceids=market_place_ids)
+        except Exception as ex:
+            print ex
+            logging.error('request_report error')
+            logging.error('traceback.format_exc():\n%s' % traceback.format_exc())
+            logging.debug('wait for 5 minutes ……')
+            time.sleep(60*5)
+            report_response = self.report_public.request_report(report_type,
+                                                                start_date=start_date,
+                                                                end_date=end_date,
+                                                                marketplaceids=market_place_ids)
+
         request_response_dic = report_response.parsed
         report_request_id = request_response_dic['ReportRequestInfo']['ReportRequestId']['value']
         logging.debug('get submit request id is: %s' % report_request_id)
@@ -499,7 +511,17 @@ class ReportPublic:
 
     def get_report_status(self, report_request_id):
         logging.debug('get report status, report_request_id is: %s' % report_request_id)
-        report_status = self.report_public.get_report_request_list(requestids=[report_request_id])
+
+        try:
+            report_status = self.report_public.get_report_request_list(requestids=[report_request_id])
+        except Exception as ex:
+            print ex
+            logging.error('get report_status error')
+            logging.error('traceback.format_exc():\n%s' % traceback.format_exc())
+            logging.debug('wait for 5 minutes ……')
+            time.sleep(60 * 5)
+            report_status = self.report_public.get_report_request_list(requestids=[report_request_id])
+
         report_status_dic = report_status.parsed
         report_processing_status = report_status_dic['ReportRequestInfo']['ReportProcessingStatus']['value']
         if report_processing_status == '_DONE_':
@@ -511,7 +533,16 @@ class ReportPublic:
 
     def get_report_result(self, generated_report_id):
         logging.debug('begin get result data')
-        report_result = self.report_public.get_report(generated_report_id)
+
+        try:
+            report_result = self.report_public.get_report(generated_report_id)
+        except Exception as ex:
+            print ex
+            logging.error('get report_result error')
+            logging.error('traceback.format_exc():\n%s' % traceback.format_exc())
+            logging.debug('wait for 5 minutes ……')
+            time.sleep(60 * 5)
+            report_result = self.report_public.get_report(generated_report_id)
 
         if self.auth_info['ShopSite'] == 'JP':
             encode_type = chardet.detect(report_result.original)['encoding']
@@ -801,7 +832,8 @@ class ReportPublic:
             estimated_variable_closing_fee = report_data[20]
             estimated_order_handling_fee_per_order = report_data[21]
             estimated_pick_pack_fee_per_unit = report_data[22]
-            if self.auth_info['ShopSite'] not in ('IN', 'AU'):
+
+            if self.auth_info['ShopSite'] not in ('IN', 'AU', 'JP'):
                 estimated_weight_handling_fee_per_unit = report_data[23]
                 expected_fulfillment_fee_per_unit = report_data[24]
 
@@ -837,6 +869,17 @@ class ReportPublic:
                 estimated_fee = report_data[19]
                 estimated_referral_fee_per_unit = report_data[20]
                 estimated_variable_closing_fee = report_data[21]
+
+            if self.auth_info['ShopSite'] == 'JP':
+                product_size_tier = ''
+                currency = report_data[16]
+                estimated_fee = report_data[17]
+                estimated_referral_fee_per_unit = report_data[18]
+                estimated_variable_closing_fee = report_data[19]
+                estimated_order_handling_fee_per_order = ''
+                estimated_pick_pack_fee_per_unit = report_data[20]
+                estimated_weight_handling_fee_per_unit = report_data[21]
+                expected_fulfillment_fee_per_unit = report_data[22]
 
             shop_name = self.auth_info['ShopName']
 
@@ -1297,9 +1340,10 @@ class GetProductInfoBySellerSku:
         try:
             product_info_response = self.product_public.get_matching_product_for_id(self.auth_info['MarketplaceId'], 'SellerSKU', [seller_sku])
             product_info_response_dic = product_info_response._response_dict
-        except Exception as e:
-            print e
-            time.sleep(10)  # 防止超请求限制，重新提交
+        except Exception as ex:
+            logging.error(ex)
+            logging.debug('wait for 60 seconds……')
+            time.sleep(60)  # 防止超请求限制，重新提交
             product_info_response = self.product_public.get_matching_product_for_id(self.auth_info['MarketplaceId'], 'SellerSKU', [seller_sku])
             product_info_response_dic = product_info_response._response_dict
         return product_info_response_dic
@@ -1411,7 +1455,8 @@ class GetProductInfoByAsin:
             product_info_response_dic = product_info_response._response_dict
         except Exception as e:
             logging.error(e)
-            time.sleep(30)  # 防止超请求限制，重新提交
+            logging.debug('wait for 60 seconds……')
+            time.sleep(60)  # 防止超请求限制，重新提交
             product_info_response = self.product_public.get_matching_product(self.auth_info['MarketplaceId'], asin_list)
             product_info_response_dic = product_info_response._response_dict
         return product_info_response_dic
@@ -2059,7 +2104,7 @@ for key, val in auth_info_all.items():
             start_date_order = submit_time_list[i]
             end_date_order = submit_time_list[i + 1]
             get_data_public_obj.report_flow('_GET_FLAT_FILE_ALL_ORDERS_DATA_BY_ORDER_DATE_', start_date_order, end_date_order)
-            logging.debug('now wait 60 seconds')
+            logging.debug('now wait for 60 seconds')
             time.sleep(60)
 
         start_date_receive = get_data_public_obj.get_last_receive_time()

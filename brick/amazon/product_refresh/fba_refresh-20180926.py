@@ -5,8 +5,8 @@
  @author: wuchongxiang 
  @site: 
  @software: PyCharm
- @file: fba_refresh-20180925.py
- @time: 2018/9/25 16:12
+ @file: fba_refresh-20180926.py
+ @time: 2018/9/26 9:33
 """
 import logging.handlers
 from mws import Reports, Products,Finances
@@ -801,7 +801,8 @@ class ReportPublic:
             estimated_variable_closing_fee = report_data[20]
             estimated_order_handling_fee_per_order = report_data[21]
             estimated_pick_pack_fee_per_unit = report_data[22]
-            if self.auth_info['ShopSite'] not in ('IN', 'AU'):
+
+            if self.auth_info['ShopSite'] not in ('IN', 'AU', 'JP'):
                 estimated_weight_handling_fee_per_unit = report_data[23]
                 expected_fulfillment_fee_per_unit = report_data[24]
 
@@ -837,6 +838,17 @@ class ReportPublic:
                 estimated_fee = report_data[19]
                 estimated_referral_fee_per_unit = report_data[20]
                 estimated_variable_closing_fee = report_data[21]
+
+            if self.auth_info['ShopSite'] == 'JP':
+                product_size_tier = ''
+                currency = report_data[16]
+                estimated_fee = report_data[17]
+                estimated_referral_fee_per_unit = report_data[18]
+                estimated_variable_closing_fee = report_data[19]
+                estimated_order_handling_fee_per_order = ''
+                estimated_pick_pack_fee_per_unit = report_data[20]
+                estimated_weight_handling_fee_per_unit = report_data[21]
+                expected_fulfillment_fee_per_unit = report_data[22]
 
             shop_name = self.auth_info['ShopName']
 
