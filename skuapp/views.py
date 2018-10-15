@@ -8480,11 +8480,13 @@ def show_orders_detail(request):
     shop_name = request.GET.get('shopname', '')
     asin = request.GET.get('asin', '')
     # orders_objs = t_report_trades_daily.objects.filter(ShopSKU=seller_sku, ShopName=shop_name).order_by('OrderDay')
-    orders_objs = t_amazon_all_orders_data.objects.filter(sku=seller_sku, shop_name=shop_name).order_by('purchase_date')
+    orders_objs = t_amazon_all_orders_data.objects.filter(sku=seller_sku, shop_name=shop_name).exclude(order_status='Cancelled').order_by('purchase_date')
     order_dic = dict()
     if orders_objs:
         for orders_obj in orders_objs:
             order_day = orders_obj.purchase_date.strftime("%Y-%m-%d")
+            if orders_obj.purchase_date.hour >= 16:
+                order_day = (orders_obj.purchase_date + datetime.timedelta(days=1)).strftime("%Y-%m-%d")
             if order_day in order_dic:
                 order_dic[order_day] += 1
             else:
@@ -10943,5 +10945,18 @@ def show_seller_detail(request):
     from skuapp.table.t_amazon_orders_by_receive_day_info import t_amazon_orders_by_receive_day_info
     seller = request.GET.get('seller', '')
     site = request.GET.get('site', '')
-    seller_obj = t_amazon_orders_by_receive_day_info.objects.filter(seller=seller, site=site).order_by('-orders_after_14days')
+    order_type = request.GET.get('order_type', '')
+    seller_obj = t_amazon_orders_by_receive_day_info.objects.filter(seller=seller, site=site, order_type=order_type).order_by('-orders_after_14days')
     return render(request, 'show_seller_detail.html', {'seller_obj': seller_obj})
+
+
+def show_estimated_detail(request):
+    from skuapp.table.t_amazon_estimated_fba_fees import t_amazon_estimated_fba_fees
+    seller_sku = request.GET.get('seller_sku', '')
+    shopname = request.GET.get('shopname', '')
+    estimated_objs = t_amazon_estimated_fba_fees.objects.filter(sku=seller_sku, shop_name=shopname)
+    if estimated_objs:
+        estimated_obj = estimated_objs[0]
+    else:
+        estimated_obj = None
+    return render(request, 'show_estimated_detail.html', {'estimated_obj': estimated_obj})

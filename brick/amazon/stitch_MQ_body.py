@@ -1802,7 +1802,7 @@ class stitch_MQ_body():
         OperationType.appendChild(OperationType_text)
         Message.appendChild(OperationType)
         # Price
-        sale_sites = {'US': 'USD', 'DE': 'EUR', 'FR': 'EUR', 'UK': 'GBP', 'AU': 'AUD', 'IN': 'INR'}
+        sale_sites = {'US': 'USD', 'DE': 'EUR', 'FR': 'EUR', 'UK': 'GBP', 'AU': 'AUD', 'IN': 'INR', 'IT': 'EUR', 'ES': 'EUR'}
         site = goods_upload_obj['ShopSets'].split('-')[-1].split('/')[0]
         Price = doc.createElement('Price')
         SKU = doc.createElement('SKU')
@@ -1854,11 +1854,13 @@ class stitch_MQ_body():
 
         Price.appendChild(SKU)
         Price.appendChild(StandardPrice)
-        if goods_upload_obj['mrp']:
-            Price.appendChild(MaximumRetailPrice)
+
         if params['variation'] == 0:
             if goods_upload_obj['sale_from_date'] and goods_upload_obj['sale_end_date']:
                 Price.appendChild(Sale)
+
+        if goods_upload_obj['mrp']:
+            Price.appendChild(MaximumRetailPrice)
 
         Message.appendChild(Price)
 

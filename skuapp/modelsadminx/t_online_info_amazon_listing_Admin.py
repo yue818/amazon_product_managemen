@@ -42,6 +42,7 @@ import urllib
 from django.http import HttpResponseRedirect
 from django.db.models import Q
 
+import traceback
 
 redis_conn = get_redis_connection(alias='product')
 py_SynRedis_tables_obj = py_SynRedis_tables()
@@ -201,7 +202,14 @@ class t_online_info_amazon_listing_Admin(object):
                     else:
                         receive_day = ''
                     receive_date_html = u'<td>%s</td>' % receive_day
-                    estimated_fee_html = u'<td>%s</td>' % obj.estimated_fee
+                    # estimated_fee_html = u'<td>%s</td>' % obj.estimated_fee
+                    if obj.product_size_tier and 'Oversize' in obj.product_size_tier:
+                        fee_color_style = 'style = "color:red; font-weight: bold;"'
+                    elif obj.product_size_tier and 'Sm-Std-Non-Media' in obj.product_size_tier:
+                        fee_color_style = 'style = "color:green"'
+                    else:
+                        fee_color_style = ''
+                    estimated_fee_html = u'<td><a><span id="estimated_%s" %s>%s</span></a></td>' % (obj.id, fee_color_style, obj.estimated_fee)
                 else:
                     inventory_html = u'<td>%s</td>' % shopskuQuantity
                     receive_date_html = ''
@@ -294,9 +302,30 @@ class t_online_info_amazon_listing_Admin(object):
                                    })
                                </script>
                                ''' % (obj.id, seller_sku, obj.ShopName)
+
+                    rt += '''
+                            <script>
+                                    a = screen.width*0.8
+                                    b = screen.height*0.3
+                                     $("#estimated_%s").on("click", function(){
+                                      layer.open({
+                                       type: 2,
+                                       skin: "layui-layer-lan",
+                                       title: "包装尺寸情况",
+                                       fix: false,
+                                       shadeClose: true,
+                                       maxmin: true,
+                                       area: [a+'px', b+'px'],
+                                       content: "/show_estimated_detail/?seller_sku=%s&shopname=%s",
+                                       btn: ["关闭页面"],
+                                       });
+                                   })
+                               </script>
+                    ''' % (obj.id, seller_sku, obj.ShopName)
+
             rt += u"</tbody></table>"
         except Exception as e:
-            rt = ''
+            rt = traceback.format_exc()
         return mark_safe(rt)
     show_sku_list.short_description = mark_safe('<p align="center"style="color:#428bca;">子SKU</p>')
 
@@ -322,7 +351,7 @@ class t_online_info_amazon_listing_Admin(object):
             site_url = site_url_dict[obj.ShopSite]
         else:
             site_url = 'https://www.amazon.com/'
-        rt = u'<p style="word-break:break-all;">%s</p><br>店铺:%s<br>店长/销售员:%s<br><a href="%sdp/%s" target="_blank">%s</a><br><br>' % (obj.item_name, obj.ShopName, obj.seller, site_url, obj.asin1, obj.asin1)
+        rt = u'<p style="word-break:break-all;">%s</p><br>店铺:%s<br>店长/销售员:%s<br>销售排名：%s<br><a href="%sdp/%s" target="_blank">%s</a><br><br>' % (obj.item_name, obj.ShopName, obj.seller, obj.sale_rank, site_url, obj.asin1, obj.asin1)
 
         if obj.is_fba == 1 or obj.is_fba == 0:
             t_cloth_factory_dispatch_needpurchase_objs = t_cloth_factory_dispatch_needpurchase.objects.filter(SKU=obj.SKU).\
@@ -364,9 +393,8 @@ class t_online_info_amazon_listing_Admin(object):
                 rt += u"</tbody></table>"
             else:
                 if obj.is_fba == 1 and (obj.orders_7days/7 + obj.orders_15days/15 + obj.orders_30days/30) > 0 and obj.afn_warehouse_quantity*3/(obj.orders_7days/7 + obj.orders_15days/15 + obj.orders_30days/30) < 20:
-                    rt += '<a href = "/Project/admin/skuapp/t_cloth_factory_dispatch_plan" target = "_blank" > <p style="color:red;"><b>请及时制定采购计划</b></p> </a>'
-
-
+                    # rt += '<a href = "/Project/admin/skuapp/t_cloth_factory_dispatch_plan" target = "_blank" > <p style="color:red;"><b>请及时制定采购计划</b></p> </a>'
+                    rt += '<p style="color:red;"><b>请及时制定采购计划</b></p> '
         return mark_safe(rt)
     show_item_name_and_product_id.short_description = u'<span style="color:#428BCA; width:50px">标题/产品ID</span>'
 
@@ -490,7 +518,7 @@ class t_online_info_amazon_listing_Admin(object):
         return mark_safe(rt)
     show_deal_result.short_description = u'<span style="color:#428BCA">处理状态</span>'
 
-    actions = ['to_excel', 'change_price']
+    actions = ['to_excel', 'change_price', 'load_amazon_products']
 
     def change_price(self, request, objs):
         modify_type = request.POST.get('modify_type', '')
@@ -636,6 +664,93 @@ class t_online_info_amazon_listing_Admin(object):
         if len(objs) <= self.list_per_page:
             return HttpResponseRedirect('/Project/admin/skuapp/t_online_info_amazon_listing/?SKU=%s' % sku_str)
     change_price.short_description = u' '
+
+    def load_amazon_products(self, request, objs):
+        from django.db import connection
+        from brick.amazon.product_refresh.get_auth_info import GetAuthInfo
+        from brick.amazon.product_refresh.generate_feed_xml import GenerateFeedXml
+        from brick.amazon.upload_product.message_to_rabbitmq import MessageToRabbitMq
+        import json
+        from skuapp.table.t_online_info_amazon import t_online_info_amazon
+        import datetime
+        import urllib
+        from django.http import HttpResponseRedirect
+
+        syn_type = request.POST.get('syn_type', '')
+        shop_sku = {}
+        sku_str = ''
+        if syn_type == 'load':  # 产品上架
+            refresh_type = 'load_product'
+            for record in objs:
+                t_online_info_amazon_ins = t_online_info_amazon.objects.filter(id=record.id)
+                for obj in t_online_info_amazon_ins:
+                    seller_sku = obj.seller_sku
+                    sku_str = sku_str + seller_sku + ','
+                    shop_name = obj.ShopName
+                    if shop_name not in shop_sku:
+                        shop_sku[shop_name] = [seller_sku]
+                    else:
+                        shop_sku[shop_name].append(seller_sku)
+                    t_online_info_amazon_ins.update(deal_action='load_product',
+                                                    deal_result=None,
+                                                    deal_result_info=None,
+                                                    UpdateTime=datetime.datetime.now())
+        elif syn_type == 'unload':  # 产品下架
+            refresh_type = 'unload_product'
+            for record in objs:
+                t_online_info_amazon_ins = t_online_info_amazon.objects.filter(id=record.id)
+                for obj in t_online_info_amazon_ins:
+                    seller_sku = obj.seller_sku
+                    sku_str = sku_str + seller_sku + ','
+                    shop_name = obj.ShopName
+                    if shop_name not in shop_sku:
+                        shop_sku[shop_name] = [seller_sku]
+                    else:
+                        shop_sku[shop_name].append(seller_sku)
+                    t_online_info_amazon_ins.update(deal_action='unload_product',
+                                                    deal_result=None,
+                                                    deal_result_info=None,
+                                                    UpdateTime=datetime.datetime.now())
+
+        for key, value in shop_sku.items():
+            get_auth_info_ins = GetAuthInfo(connection)
+            auth_info = get_auth_info_ins.get_auth_info_by_shop_name(str(key))
+            auth_info['IP'] = auth_info['ShopIP']
+            auth_info['table_name'] = 't_online_info_amazon'
+            auth_info['update_type'] = refresh_type
+            auth_info['product_list'] = value
+
+            if refresh_type == 'load_product':
+                feed_xml_ins = GenerateFeedXml(auth_info)
+                feed_xml = feed_xml_ins.get_inventory_xml(value, 999)
+            elif refresh_type == 'unload_product':
+                feed_xml_ins = GenerateFeedXml(auth_info)
+                feed_xml = feed_xml_ins.get_inventory_xml(value, 0)
+            else:
+                feed_xml = None
+
+            auth_info['feed_xml'] = feed_xml
+
+            message_to_rabbit_obj = MessageToRabbitMq(auth_info, connection)
+            auth_info = json.dumps(auth_info)
+            message_to_rabbit_obj.put_message(auth_info)
+
+        if refresh_type == 'load_product':
+            messages.success(request, '商品上架中')
+        elif refresh_type == 'unload_product':
+            messages.success(request, '商品下架中')
+        else:
+            pass
+
+        if sku_str == '':
+            sku_str = ' '
+        else:
+            sku_str = sku_str[:-1]
+        sku_str = urllib.quote(sku_str.decode('gbk', 'replace').encode('utf-8', 'replace'))
+        if len(objs) <= self.list_per_page:
+            return HttpResponseRedirect('/Project/admin/skuapp/t_online_info_amazon_listing/?SKU=%s' % sku_str)
+
+    load_amazon_products.short_description = u' '
 
     def to_excel(self, request, queryset):
         path = MEDIA_ROOT + 'download_xls/' + request.user.username
@@ -802,6 +917,9 @@ class t_online_info_amazon_listing_Admin(object):
         refund_rate_start = request.GET.get('refund_rate_start', '')
         refund_rate_end = request.GET.get('refund_rate_end', '')
 
+        product_size_tier = request.GET.get('product_size_tier', '')
+        shop_site = request.GET.get('shop_site', '')
+
         if product_sku:
             qs = qs.filter(Q(SKU__icontains=product_sku) | Q(com_pro_sku__icontains=product_sku))
 
@@ -832,6 +950,8 @@ class t_online_info_amazon_listing_Admin(object):
                       'orders_refund_total__end': orders_refund_total_end,
                       'refund_rate__gte': refund_rate_start,
                       'refund_rate__lte': refund_rate_end,
+                      'product_size_tier__icontains': product_size_tier,
+                      'ShopSite__exact': shop_site,
                       }
         sl = {}
         for k, v in searchList.items():

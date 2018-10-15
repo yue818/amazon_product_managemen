@@ -15,6 +15,8 @@ from xlwt import *
 import errno
 import datetime
 import oss2
+from skuapp.table.t_amazon_product_remove_info import t_amazon_product_remove_info
+from django.db.models import Q
 
 
 def mkdir_p(path):
@@ -77,8 +79,28 @@ class t_amazon_product_remove_cost_Admin(object):
         sheet.write(0, 4, u'时间跨度')
         sheet.write(0, 5, u'更新时间')
 
+        sheet_detail = w.add_sheet('remove_detail')
+        sheet_detail.write(0, 0, u'店铺')
+        sheet_detail.write(0, 1, u'ASIN')
+        sheet_detail.write(0, 2, u'店铺SKU')
+        sheet_detail.write(0, 3, u'订单编号')
+        sheet_detail.write(0, 4, u'商品SKU')
+        sheet_detail.write(0, 5, u'SKU组合数(*后的数值)')
+        sheet_detail.write(0, 6, u'移除增量')
+        sheet_detail.write(0, 7, u'组合sku')
+        sheet_detail.write(0, 8, u'组合SKU组合量')
+        sheet_detail.write(0, 9, u'时间跨度')
+        sheet_detail.write(0, 10, u'起始时间')
+        sheet_detail.write(0, 11, u'起始处理量')
+        sheet_detail.write(0, 12, u'截止时间')
+        sheet_detail.write(0, 13, u'截止处理量')
+        sheet_detail.write(0, 14, u'商品SKU汇总')
+        sheet_detail.write(0, 15, u'成本价')
+        sheet_detail.write(0, 16, u'总价')
+
         # 写数据
         row = 0
+        row_detail = 0
         for qs in queryset:
             row = row + 1
             refresh_time = qs.refresh_time.strftime('%Y-%m-%d %H:%M')
@@ -87,6 +109,35 @@ class t_amazon_product_remove_cost_Admin(object):
             for content in excel_content_list:
                 sheet.write(row, column, content)
                 column += 1
+            if qs.product_sku:
+                sku_remove_detail = t_amazon_product_remove_info.objects.filter(is_valid=1).filter(Q(product_sku=qs.product_sku)|Q(product_sku_zh=qs.product_sku)).order_by('-total_price')
+            else:
+                sku_remove_detail = t_amazon_product_remove_info.objects.filter(is_valid=1).filter(product_sku=qs.product_sku)
+            for detail in sku_remove_detail:
+                row_detail += 1
+                sheet_detail.write(row_detail, 0, detail.shop_name)
+                sheet_detail.write(row_detail, 1, detail.asin)
+                sheet_detail.write(row_detail, 2, detail.seller_sku)
+                sheet_detail.write(row_detail, 3, detail.order_id)
+                sheet_detail.write(row_detail, 4, detail.product_sku)
+                sheet_detail.write(row_detail, 5, detail.quantity_multiply)
+                sheet_detail.write(row_detail, 6, detail.quantity_inventory)
+                sheet_detail.write(row_detail, 7, detail.product_sku_zh)
+                sheet_detail.write(row_detail, 8, detail.product_sku_zh_multiply)
+                sheet_detail.write(row_detail, 9, detail.time_span)
+                sheet_detail.write(row_detail, 10, detail.begin_time.strftime('%Y-%m-%d %H:%M'))
+                sheet_detail.write(row_detail, 11, detail.first_disposed_quantity)
+                sheet_detail.write(row_detail, 12, detail.end_time.strftime('%Y-%m-%d %H:%M'))
+                sheet_detail.write(row_detail, 13, detail.last_disposed_quantity)
+                if detail.product_sku_zh == qs.product_sku:
+                    product_sku_detail = detail.product_sku_zh
+                else:
+                    product_sku_detail = detail.product_sku
+
+                sheet_detail.write(row_detail, 14, product_sku_detail)
+                sheet_detail.write(row_detail, 15, detail.sku_unit_price)
+                sheet_detail.write(row_detail, 16, detail.total_price)
+
         filename = request.user.username + '_' + datetime.datetime.now().strftime('%Y%m%d%H%M%S') + '.xls'
         w.save(path + '/' + filename)
         os.popen(r'chmod 777 %s' % (path + '/' + filename))

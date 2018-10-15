@@ -5,8 +5,8 @@
  @author: wuchongxiang 
  @site: 
  @software: PyCharm
- @file: fba_refresh-20180928.py
- @time: 2018/9/28 8:49
+ @file: fba_refresh-20181011.py
+ @time: 2018/10/11 13:51
 """
 import logging.handlers
 from mws import Reports, Products,Finances
@@ -111,7 +111,7 @@ def refresh_db_tables(auth_info, sql_execute_obj):
     sql_ad_delete = "delete from t_amazon_cpc_ad where shop_name = '%s' and shop_site = '%s'" % (auth_info['ShopName'], auth_info['ShopSite'])
     print 'sql_ad_delete is: %s' % sql_ad_delete
     logging.debug('sql_ad_delete is: %s' % sql_ad_delete)
-    sql_ad_insert = "insert into t_amazon_cpc_ad(shop_name,shop_site,seller_sku,title,asin,image_url,price,quantity,create_date,STATUS,Parent_asin,product_id_type) select ShopName,shopsite,seller_sku,item_name,asin1,image_url,price,quantity,open_date,STATUS,Parent_asin,product_id_type from t_online_info_amazon where ShopName = '%s' and ShopSite = '%s';" % (
+    sql_ad_insert = "insert into t_amazon_cpc_ad(shop_name,shop_site,seller_sku,title,asin,image_url,price,quantity,create_date,STATUS,Parent_asin,product_id_type) select ShopName,shopsite,seller_sku,item_name,asin1,image_url,price,quantity,open_date,STATUS,Parent_asin,product_id_type from t_online_info_amazon where ShopName = '%s' and ShopSite = '%s' and refresh_status = 0;" % (
         auth_info['ShopName'], auth_info['ShopSite'])
     print 'sql_ad_insert is: %s' % sql_ad_insert
     logging.debug('sql_ad_insert is: %s' % sql_ad_insert)
@@ -303,7 +303,8 @@ def refresh_db_tables(auth_info, sql_execute_obj):
             ''' % auth_info['ShopName']
 
     sql_estimated_fba_fees = '''UPDATE t_online_info_amazon a, t_amazon_estimated_fba_fees b
-                   SET a.estimated_fee = b.estimated_fee
+                   SET a.estimated_fee = b.estimated_fee,
+                          a.product_size_tier = b.product_size_tier
                  WHERE a.shopname = b.shop_name
                    AND a.seller_sku = b.sku
                    and a.shopname = '%s'
@@ -1024,14 +1025,13 @@ class ReportPublic:
         #                "where a.seller_sku=b.seller_sku and  a.ShopName = b.ShopName and a.ShopName = '%s'" \
         #                % (self.auth_info['table_name'], self.auth_info['table_name_really'], self.auth_info['ShopName'])
         sql_relation = '''update %s a, %s b
-           set a.parent_asin             = b.parent_asin,
-               a.product_type            = b.product_type,
-               a.image_url               = b.image_url,
+           set a.image_url               = b.image_url,
                a.inventory_received_date = b.inventory_received_date,
                a.shipping_price          = b.shipping_price,
                a.estimated_fee           = b.estimated_fee,
                a.action_remark           = b.action_remark,
-               a.sku = b.sku
+               a.sku = b.sku,
+               a.sale_rank = b.sale_rank
          where a.seller_sku = b.seller_sku
            and a.ShopName = b.ShopName
            and a.ShopName = '%s'
@@ -1715,10 +1715,19 @@ class GetShippingPrice:
                     print price_sql
                     logging.debug('price_sql is: %s' % price_sql)
                     self.execute_db(price_sql)
-                    # rank_list = resp_each.get('Product').get('SalesRankings').get('SalesRank')
-                    # if isinstance(rank_list, list):
-                    #     for rank in rank_list:
-                    #         print rank.get('Rank').get('value')
+                    rank_list = resp_each.get('Product').get('SalesRankings').get('SalesRank')
+                    sale_rank = ''
+                    if isinstance(rank_list, list):
+                        sale_rank = rank_list[0].get('Rank').get('value')
+                        # for rank in rank_list:
+                        #     if rank.get('ProductCategoryId').get('value') == 'kitchen_display_on_website':
+                        #         sale_rank = rank.get('Rank').get('value')
+                        #         break
+                    elif isinstance(rank_list, dict):
+                        sale_rank = rank_list.get('Rank').get('value')
+                    sale_rank_sql = "update %s set sale_rank = '%s'  where shopname = '%s' and seller_sku = '%s'" % (self.auth_info['table_name'], sale_rank, self.auth_info['ShopName'], sku)
+                    logging.debug('sale_rank_sql is: %s' % sale_rank_sql)
+                    self.execute_db(sale_rank_sql)
         elif isinstance(resp_obj, dict):
             resp_dict = resp_obj
             logging.debug('get_price_status is: %s' % resp_dict.get('status').get('value'))
@@ -1732,10 +1741,19 @@ class GetShippingPrice:
                 print price_sql
                 logging.debug('price_sql is: %s' % price_sql)
                 self.execute_db(price_sql)
-                # rank_list = resp_dict.get('Product').get('SalesRankings').get('SalesRank')
-                # if isinstance(rank_list, list):
-                #     for rank in rank_list:
-                #         print rank.get('Rank').get('value')
+                rank_list = resp_dict.get('Product').get('SalesRankings').get('SalesRank')
+                sale_rank = ''
+                if isinstance(rank_list, list):
+                    sale_rank = rank_list[0].get('Rank').get('value')
+                    # for rank in rank_list:
+                    #     if rank.get('ProductCategoryId').get('value') == 'kitchen_display_on_website':
+                    #         sale_rank = rank.get('Rank').get('value')
+                    #         break
+                elif isinstance(rank_list, dict):
+                    sale_rank = rank_list.get('Rank').get('value')
+                sale_rank_sql = "update %s set sale_rank = '%s'  where shopname = '%s' and seller_sku = '%s'" % (self.auth_info['table_name'], sale_rank, self.auth_info['ShopName'], sku)
+                logging.debug('sale_rank_sql is: %s' % sale_rank_sql)
+                self.execute_db(sale_rank_sql)
 
     def execute_db(self, sql):
         cursor = self.db_conn.cursor()
@@ -2067,7 +2085,14 @@ except Exception as e:
 get_info_obj = GetLocalIPAndAuthInfo()
 while True:
     try:
-        local_ip = get_info_obj.get_out_ip(get_info_obj.get_real_url())
+        try:
+            local_ip = get_info_obj.get_out_ip(get_info_obj.get_real_url())
+        except Exception as ex:
+            print ex
+            from json import load
+            from urllib2 import urlopen
+            local_ip = load(urlopen('https://api.ipify.org/?format=json'))['ip']
+
         if local_ip is not None:
             if local_ip == '47.254.83.145':
                 local_ip = '210.16.103.56'  # 160
@@ -2087,6 +2112,7 @@ auth_info_all = get_info_obj.get_auth_info_by_ip(local_ip)
 get_info_obj.close_db_conn()
 print 'auth_info_all is: %s' % str(auth_info_all)
 logging.debug('auth_info_all is: %s' % str(auth_info_all))
+this_hour = datetime.datetime.now().hour
 for key, val in auth_info_all.items():
     auth_info = val
     print 'auth_info now is: %s ' % str(auth_info)
@@ -2128,21 +2154,23 @@ for key, val in auth_info_all.items():
             time.sleep(60)
         finace_obj.close_db_conn()
 
-        get_data_public_obj.delete_mid_table()
-        get_data_public_obj.report_flow('_GET_MERCHANT_LISTINGS_ALL_DATA_')
-        auth_info['table_name'] = auth_info['table_name_really']
+        if not 12 <= this_hour < 18:  # 中午时间不做全量刷新
+            get_data_public_obj.delete_mid_table()
+            get_data_public_obj.report_flow('_GET_MERCHANT_LISTINGS_ALL_DATA_')
+            auth_info['table_name'] = auth_info['table_name_really']
 
         refresh_db_tables(auth_info, get_data_public_obj)
 
         get_data_public_obj.close_db_conn()
 
-        ship_price_obj = GetShippingPrice(auth_info, DATABASE)
-        ship_price_obj.get_seller_sku_list()
-        ship_price_obj.close_db_conn()
+        if not 12 <= this_hour < 18:  # 中午时间不做全量刷新
+            ship_price_obj = GetShippingPrice(auth_info, DATABASE)
+            ship_price_obj.get_seller_sku_list()
+            ship_price_obj.close_db_conn()
 
-        get_product_info_obj = GetProductInfoByAsin(auth_info)
-        get_product_info_obj.get_parent_asin_and_image()
-        get_product_info_obj.close_db_conn()
+            get_product_info_obj = GetProductInfoByAsin(auth_info)
+            get_product_info_obj.get_parent_asin_and_image()
+            get_product_info_obj.close_db_conn()
 
         print '----------------------------------site end-----------------------------------------------'
         logging.debug('----------------------------------site end-----------------------------------------------')

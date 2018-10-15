@@ -23,6 +23,7 @@ class t_amazon_orders_by_receive_day_info(models.Model):
     categorycode = models.CharField(u'品类', max_length=64, blank=True, null=True)
     orders_after_14days = models.IntegerField(u'到货后两周订单数', max_length=10, blank=True, null=True)
     time_span = models.CharField(u'到货时间范围', max_length=32, blank=True, null=True)
+    order_type = models.CharField(u'订单类型', max_length=32, blank=True, null=True)
     refresh_time = models.DateTimeField(u'刷新时间', blank=True, null=True)
 
     class Meta:

@@ -86,6 +86,8 @@ class t_online_info_amazon(models.Model):
     product_status = models.CharField(u'商品状态', max_length=32, blank=True, null=True)
 
     com_pro_sku = models.CharField(u'商品sku合集', max_length=2000, blank=True, null=True)
+    product_size_tier = models.CharField(u'商品尺寸分段', max_length=32, blank=True, null=True)
+    sale_rank = models.CharField(u'销售排名', max_length=32, blank=True, null=True)
 
     class Meta:
         verbose_name = u'AMA商品信息'

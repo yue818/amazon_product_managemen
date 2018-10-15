@@ -421,8 +421,9 @@
          }
          else if (check_val.length !=  0)
          {
-             var pdURL = $('#pdURL')[0].innerText
-             window.location.href = pdURL + '?id='+check_val.toString()+'&synType='+data.value.toString()
+             // var pdURL = $('#pdURL')[0].innerText
+             // window.location.href = pdURL + '?id='+check_val.toString()+'&synType='+data.value.toString()
+             load_submit(data.value.toString());
          }
     }
 
@@ -566,6 +567,14 @@
         myform.submit();
     }
 
+    function load_submit(syn_type){
+        $('#action').val('load_amazon_products');
+        var myform=$('#changelist-form');
+        var param_input =$("<input type='text' name='syn_type'/>");
+        param_input.attr("value", syn_type);
+        myform.append(param_input);
+        myform.submit();
+    }
 
     //获取被选中条目
     function getSelectItems(){

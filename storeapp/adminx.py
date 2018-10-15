@@ -31,6 +31,7 @@ from skuapp.table.t_product_depart_get import t_product_depart_get
 from skuapp.table.t_product_enter_ed import t_product_enter_ed
 from storeapp.StoreXadmin.t_add_variant_information_admin import t_add_variant_information_admin
 from brick.classredis.classsku import classsku
+from storeapp.table.t_online_info_wish_fbw import t_online_info_wish_fbw as django_fbw
 
 from storeapp.plugin.t_online_info_wish_store_plugin import t_online_info_wish_store_plugin
 from storeapp.plugin.t_online_info_wish_store_secondplugin import t_online_info_wish_store_secondplugin
@@ -47,6 +48,8 @@ from brick.classredis.classprocess_wish import classprocess_wish
 from brick.pricelist.calculate_price import calculate_price
 
 from brick.table.t_wish_store_oplogs import t_wish_store_oplogs
+from brick.table.t_online_info_wish_fbw import t_online_info_wish_fbw
+
 from storeapp.plugin.wish_listing_readonly import wish_listing_readonly_P
 from skuapp.table.t_wish_pb_campaignproductstats import t_wish_pb_campaignproductstats
 # from chart_app.table.t_chart_wish_listing_refund_statistics import t_chart_wish_listing_refund_statistics as wish_score
@@ -64,6 +67,15 @@ listingobjs = classlisting(connection, redis_conn)
 classprocess_wish_obj = classprocess_wish(redis_conn)
 
 t_wish_store_oplogs_obj = t_wish_store_oplogs(connection)
+
+t_online_info_wish_fbw_obj = t_online_info_wish_fbw(connection=connection)
+
+warehousecode = [
+    {'code': 'FBW-LAX', 'name': u'FBW-US-LAX (美国)'},
+    {'code': 'FBW-SF', 'name': u'SF Express (爱沙尼亚)'},
+    {'code': 'FBW-CVG', 'name': u'FBW-US-CVG (美国)'},
+]
+
 class t_online_info_wish_store_Admin(object):
     #syn_data = True
     search_box_flag = True
@@ -196,10 +208,9 @@ class t_online_info_wish_store_Admin(object):
 
     show_time.short_description = mark_safe(u'<p align="center" style="width:150px;color:#428bca;">时间</p>')
 
-    def show_SKU_list(self, obj):  # <label><input type="checkbox" name="shopskucheck_%s_%s"></label>
+    def not_fbw_shopsku_attrinfor(self,activeflag,obj):
         try:
             classshopskuobjs = classshopsku(db_conn=connection, redis_conn=redis_conn, shopname=obj.ShopName)
-            activeflag = self.request.GET.get('EXPRESS', 'STANDARD')
             rt = u'<table class="table table-condensed">' \
                  u'<thead><tr><th></th>' \
                  u'<th>商品SKU</th><th>商品状态</th><th>可卖天数</th>' \
@@ -239,6 +250,15 @@ class t_online_info_wish_store_Admin(object):
             sInfors = py_SynRedis_tables_obj.readData_Redis_table(infor)
             num = 0
             for a,sinfor in enumerate(sInfors):
+                fbw_flag = ''
+                if obj.FBW_Flag == 'True':
+                    f_list = []
+                    for warecode in warehousecode:
+                        iResult = t_online_info_wish_fbw_obj.select_some_infor(obj.ProductID, sinfor['ShopSKU'], warecode['code'])
+                        if iResult['errorcode'] == 1:
+                            f_list.append(warecode['name'])
+                    if f_list:
+                        fbw_flag = u'<span class="glyphicon glyphicon-asterisk" title="{}"></span>'.format(','.join(f_list))
                 try:
                     if activeflag == 'STANDARD':
                         yf = sinfor['ShopSKUKEY'][1]
@@ -289,10 +309,10 @@ class t_online_info_wish_store_Admin(object):
 
                 rt = u'%s <tr name="detail_infors" %s><td><label><input type="checkbox" name="shopskucheck" id="%s_%s_%s"></label></td>' \
                      u'<td>%s</td><td>%s</td><td>%s</td><td>%s</td>' \
-                     u'<td>%s</td><td>%s</td><td>%s</td><td><a><span id="%s">%s</span></a></td><td>%s</td>' % \
+                     u'<td>%s</td><td>%s</td><td>%s</td><td><a><span id="%s">%s</span></a></td><td>%s</td><td>%s</td>' % \
                      (rt,style,obj.id,a,obj.ShopName, sinfor['SKU'], goodsstatus,
                       sinfor['SKUKEY'][1],sinfor['ShopSKU'].replace('<','&lt;').replace('>','&gt;'),sinfor['ShopSKUKEY'][0],
-                      sinfor['ShopSKUKEY'][1], sinfor['ShopSKUKEY'][2], profit_id,profitrate,sinfor['ShopSKUKEY'][-1],)
+                      sinfor['ShopSKUKEY'][1], sinfor['ShopSKUKEY'][2], profit_id,profitrate,sinfor['ShopSKUKEY'][-1],fbw_flag)
                 rt = u"%s<script>$('#%s').on('click',function()" \
                      u"{to_lock(1);layer.open({type:2,skin:'layui-layer-lan',title:'算价表'," \
                      u"fix:false,shadeClose: true,maxmin:true,area:['1300px','900px']," \
@@ -318,9 +338,56 @@ class t_online_info_wish_store_Admin(object):
                       u"'&shopname=%s&flag=0')},end:function(){to_lock(0);}});}</script>" % (obj.id, obj.ShopName)
         except Exception as error:
             rt = u'{}'.format(error)
+
+        return rt
+
+    def fbw_shopsku_attrinfor(self, obj):
+        rt = u'<table class="table table-bordered table-striped table-hover">' \
+             u'<thead>' \
+             u'<tr>' \
+             u'<th rowspan="2">店铺SKU</th>' \
+             u'<th rowspan="2">价格</th>' \
+             u'<th colspan="5">FBW-US-LAX (美国)</th>' \
+             u'<th colspan="5">SF Express (爱沙尼亚)</th>' \
+             u'<th colspan="5">FBW-US-CVG (美国)</th>' \
+             u'</tr>' \
+             u'<tr>' \
+             u'<th>在线库存</th><th>备货数</th><th>已发货</th><th>销售数量</th><th>运费</th>' \
+             u'<th>在线库存</th><th>备货数</th><th>已发货</th><th>销售数量</th><th>运费</th>' \
+             u'<th>在线库存</th><th>备货数</th><th>已发货</th><th>销售数量</th><th>运费</th>' \
+             u'</tr>' \
+             u'</thead><tbody>'
+
+        if obj.FBW_Flag == 'True':
+            shopskulist = listingobjs.getShopSKUList(obj.ProductID)
+            classshopskuobjs = classshopsku(db_conn=connection, redis_conn=redis_conn, shopname=obj.ShopName)
+            for shopsku in shopskulist:
+                rt = rt + u'<tr><td>{}</td><td>{}</td>'.format(shopsku.replace('<','&lt;').replace('>','&gt;'),classshopskuobjs.getPrice(shopsku))
+                for warecode in warehousecode:
+                    iResult = t_online_info_wish_fbw_obj.select_some_infor(obj.ProductID,shopsku,warecode['code'])
+                    if iResult['errorcode'] != -1:
+                        rt = rt + u'<td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td>'\
+                            .format(iResult['datadict'].get('online_stock', 0),
+                                    iResult['datadict'].get('demand_stock', 0),
+                                    iResult['datadict'].get('deliver_stock', 0),
+                                    iResult['datadict'].get('of_sales', 0),
+                                    iResult['datadict'].get('goodsshipping') if iResult['datadict'].get('goodsshipping') else '--'
+                                    )
+                rt = rt + u'</tr>'
+        rt = rt + u'</tbody></table>'
+        return rt
+
+
+
+    def show_SKU_list(self, obj):
+        activeflag = self.request.GET.get('EXPRESS', 'STANDARD')
+        if activeflag != 'FBW':
+            rt = self.not_fbw_shopsku_attrinfor(activeflag=activeflag,obj=obj)
+        else:
+            rt = self.fbw_shopsku_attrinfor(obj)
         return mark_safe(rt)
 
-    show_SKU_list.short_description = mark_safe(u'<p align="center"style="color:#428bca;">变体详细信息</p>')
+    show_SKU_list.short_description = mark_safe(u'<p align="center"style="color:#428bca;">变体详细信息<br>(FBW显示库存相关信息)</p>')
 
     def pb_text(self, obj):
         pb_show = ''
@@ -379,6 +446,20 @@ class t_online_info_wish_store_Admin(object):
                  u"</script>" % (obj.id, obj.id, urlencode(dict_param))
         return update
 
+    def edit_shipping_other_country(self,obj):
+        warehouse = self.request.GET.get('EXPRESS', 'STANDARD')
+        if check_permission_legality(self):
+            dict_param = {'product_id': obj.ProductID, 'shopname': obj.ShopName, 'warehouse': warehouse}
+        else:
+            dict_param = {'product_id': obj.ProductID, 'shopname': obj.ShopName, 'readonly': 'readonly', 'warehouse': warehouse}
+
+        update_shipping = u"<br><a id='edit_shipping_%s' title='编辑该listing的国家运费'>运费</a>" \
+                 u"<script>$('#edit_shipping_%s').on('click',function()" \
+                 u"{to_lock(1);layer.open({type:2,skin:'layui-layer-lan',title:'运费编辑'," \
+                 u"fixed :false,shadeClose: true,maxmin:true,area:['1000px','80%%'],btn: ['关闭页面']," \
+                 u"content:'/wish_store/edit_shipping_other_country/?%s',end:function(){to_lock(0);}});});" \
+                 u"</script>" % (obj.id, obj.id, urlencode(dict_param))
+        return update_shipping
 
     def show_orders7days(self, obj):
         rt = u"<a id='show_orderlist_%s' title='查看日销量趋势图'>销量</a>" \
@@ -391,7 +472,7 @@ class t_online_info_wish_store_Admin(object):
         More= u'<br><a style="cursor:hand" onclick="isHidden(\'More_%s\')" title="展开更多" >更多<b class="caret"></b></a>'%obj.id
 
         HiddenDiv1 = u'<br><div id="More_%s" style="display:none">'%obj.id
-        hidden_text = self.sync_skudata(obj) + self.enable_id(obj) + self.disable_id(obj)
+        hidden_text = self.sync_skudata(obj) + self.enable_id(obj) + self.disable_id(obj) + self.edit_shipping_other_country(obj)
         HiddenDiv2 = '</div>'
 
         next = More + HiddenDiv1 + hidden_text + HiddenDiv2 if hidden_text else ''
@@ -411,6 +492,8 @@ class t_online_info_wish_store_Admin(object):
             return obj.Order7daysGB
         elif activeflag == 'US':
             return obj.Order7daysUS
+        elif activeflag == 'FBW':
+            return obj.Order7daysFBW
         else:
             return 0
 
@@ -426,6 +509,8 @@ class t_online_info_wish_store_Admin(object):
             return obj.OfsalesGB
         elif activeflag == 'US':
             return obj.OfsalesUS
+        elif activeflag == 'FBW':
+            return obj.OfsalesFBW
         else:
             return 0
     show_different_OfSales.short_description = mark_safe(u'<p style="color:#428bca;" align="center">总销量<br>(海外仓总订单量,偏小)</p>')
@@ -459,7 +544,7 @@ class t_online_info_wish_store_Admin(object):
             iResult = t_wish_store_oplogs_obj.createLog(param)
             assert iResult['errorcode'] == 0, "insert log error."
             for obj in objs:
-                syndata_by_wish_api([obj.ShopName, obj.ProductID, obj.ParentSKU], 'syn', opnum)
+                syndata_by_wish_api.delay([obj.ShopName, obj.ProductID, obj.ParentSKU], 'syn', opnum)
             sResult['rcode'] = 1
             sResult['KEY'] = opnum
         except Exception, ex:
@@ -511,7 +596,7 @@ class t_online_info_wish_store_Admin(object):
             iResult = t_wish_store_oplogs_obj.createLog(param)
             assert iResult['errorcode'] == 0, "insert log error."
             for obj in objs:
-                syndata_by_wish_api([obj.ShopName, obj.ProductID, obj.ParentSKU], 'enable', opnum)
+                syndata_by_wish_api.delay([obj.ShopName, obj.ProductID, obj.ParentSKU], 'enable', opnum)
             sResult['rcode'] = 1
             sResult['KEY'] = opnum
         except Exception, ex:
@@ -563,7 +648,7 @@ class t_online_info_wish_store_Admin(object):
             iResult = t_wish_store_oplogs_obj.createLog(param)
             assert iResult['errorcode'] == 0, "insert log error."
             for obj in objs:
-                syndata_by_wish_api([obj.ShopName, obj.ProductID, obj.ParentSKU], 'disable', opnum)
+                syndata_by_wish_api.delay([obj.ShopName, obj.ProductID, obj.ParentSKU], 'disable', opnum)
             sResult['rcode'] = 1
             sResult['KEY'] = opnum
         except Exception, ex:
@@ -602,7 +687,7 @@ class t_online_info_wish_store_Admin(object):
             plist = []
             for obj in objs:
                 plist.append([obj.ShopName, obj.ProductID, obj.ParentSKU])
-            syndata_by_wish_api(plist, 'download', opnum, warehouse)
+            syndata_by_wish_api.delay(plist, 'download', opnum, warehouse)
             sResult['rcode'] = 1
             sResult['KEY'] = opnum
         except Exception, ex:
@@ -646,7 +731,7 @@ class t_online_info_wish_store_Admin(object):
             iResult = t_wish_store_oplogs_obj.createLog(param)
             assert iResult['errorcode'] == 0, "insert log error."
             for obj in objs:
-                syndata_by_wish_api([obj.ShopName, obj.ProductID, obj.ParentSKU], 'topub', opnum, opPerson=request.user.first_name)
+                syndata_by_wish_api.delay([obj.ShopName, obj.ProductID, obj.ParentSKU], 'topub', opnum, opPerson=request.user.first_name)
             sResult['rcode'] = 1
             sResult['KEY'] = opnum
         except Exception, ex:
@@ -811,6 +896,10 @@ class t_online_info_wish_store_Admin(object):
                 seachfilter['MainSKU__contains'] = MHmainSKU
                 # qs = qs.filter(MainSKU__contains=MHmainSKU)
 
+            MHremark = request.GET.get('MHremark')  # 备注模糊搜索
+            if MHremark:
+                seachfilter['Remarks__icontains'] = MHremark
+
             Band = request.GET.get('Band')  # 绑定状态
             if Band:
                 seachfilter['BindingFlag__exact'] = Band
@@ -842,6 +931,9 @@ class t_online_info_wish_store_Admin(object):
             ratingEnd = request.GET.get('ratingEnd')
             if ratingEnd:
                 seachfilter['Rating__lt'] = ratingEnd
+
+            if express == 'FBW':  # fbw
+                seachfilter['FBW_Flag__exact'] = 'True'
 
             # 商品状态查询
             skustatus = request.GET.get('skustatus')  # 商品SKU状态
@@ -913,9 +1005,14 @@ class t_online_info_wish_store_Admin(object):
             kcStart = request.GET.get("kcStart")
             ShippingStart = request.GET.get('ShippingStart')
             onlinedict = {}
-            if kcStart and express != 'STANDARD':
-                onlinedict['%sExpressInventory__gte' % express] = kcStart
-            if ShippingStart and express != 'STANDARD':
+            fbw_filter = {}
+            if kcStart :
+                if express != 'STANDARD' and express != 'FBW':
+                    onlinedict['%sExpressInventory__gte' % express] = kcStart
+                elif express == 'FBW':
+                    fbw_filter['online_stock__gte'] = kcStart
+
+            if ShippingStart and express != 'STANDARD' and express != 'FBW':
                 onlinedict['%sExpressShipping__gte' % express] = ShippingStart
             if orders7DaysStart:
                 if express == 'STANDARD':
@@ -926,9 +1023,13 @@ class t_online_info_wish_store_Admin(object):
             orders7DaysEnd = request.GET.get('orders7DaysEnd')
             kcEnd = request.GET.get("kcEnd")
             ShippingEnd = request.GET.get('ShippingEnd')
-            if kcEnd and express != 'STANDARD':
-                onlinedict['%sExpressInventory__lt' % express] = kcEnd
-            if ShippingEnd and express != 'STANDARD':
+            if kcEnd :
+                if express != 'STANDARD' and express != 'FBW':
+                    onlinedict['%sExpressInventory__lt' % express] = kcEnd
+                elif express == 'FBW':
+                    fbw_filter['online_stock__lt'] = kcEnd
+
+            if ShippingEnd and express != 'STANDARD' and express != 'FBW':
                 onlinedict['%sExpressShipping__lt' % express] = ShippingEnd
             if orders7DaysEnd:
                 if express == 'STANDARD':
@@ -953,6 +1054,9 @@ class t_online_info_wish_store_Admin(object):
             if MainSKUClaim:
                 mflag = 1
                 online_objs = online_objs.filter(MainSKU__in=MainSKULISTClaim)
+            # if express == 'FBW':  # fbw
+            #     mflag = 1
+            #     online_objs = online_objs.filter(FBW_Flag__exact='True')
             if onlinedict:
                 mflag = 1
                 online_objs = online_objs.filter(**onlinedict)
@@ -967,6 +1071,9 @@ class t_online_info_wish_store_Admin(object):
                 qs = qs.filter(ProductID__in=productidlist)
             if mflag == 2:
                 qs = qs.filter(ProductID__in=productlist)
+            if fbw_filter:
+                fbw_porduct_list = django_fbw.objects.filter(**fbw_filter).values_list('product_id', flat=True)
+                qs = qs.filter(ProductID__in=fbw_porduct_list)
 
             if seachfilter:
                 qs = qs.filter(**seachfilter)
@@ -1002,3 +1109,21 @@ xadmin.site.register_plugin(wish_listing_readonly_P,ListAdminView)
 xadmin.site.register_plugin(store_config_plugin,ListAdminView)
 xadmin.site.register_plugin(wish_store_sort_bar_plugin,ListAdminView)
 xadmin.site.register_plugin(help_select_plugin,ListAdminView)
+
+# Wish日总销售额统计
+from storeapp.StoreXadmin.t_wish_daily_sales_statistics_Admin import t_wish_daily_sales_statistics_Admin
+from storeapp.table.t_wish_daily_sales_statistics import t_wish_daily_sales_statistics
+xadmin.site.register(t_wish_daily_sales_statistics, t_wish_daily_sales_statistics_Admin)
+
+
+# Wish日总销售额统计图表插件
+from storeapp.plugin.wish_daily_sales_statistics_chart_plugin import wish_daily_sales_statistics_chart_plugin
+xadmin.site.register_plugin(wish_daily_sales_statistics_chart_plugin, ListAdminView)
+
+
+# Wish 低库存数据展示
+from storeapp.table.t_online_info_wish_low_inventory import t_online_info_wish_low_inventory
+from storeapp.StoreXadmin.t_online_info_wish_low_inventory_admin import t_online_info_wish_low_inventory_admin
+xadmin.site.register(t_online_info_wish_low_inventory, t_online_info_wish_low_inventory_admin)
+
+

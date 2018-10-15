@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>包装尺寸情况</title>
+</head>
+<body>
+    <table align="center" width="95%"  border="1">
+        <tr align="center">
+            <th style="text-align:center">店铺SKU</th>
+            <th style="text-align:center">ASIN</th>
+            <th style="text-align:center">长边<br>({{estimated_obj.unit_of_dimension}})</th>
+            <th style="text-align:center">中边<br>({{estimated_obj.unit_of_dimension}})</th>
+            <th style="text-align:center">短边<br>({{estimated_obj.unit_of_dimension}})</th>
+            <!--<th style="text-align:center">边长单位</th>-->
+            <th style="text-align:center">重量<br>({{estimated_obj.unit_of_weight}})</th>
+            <!--<th style="text-align:center">重量单位</th>-->
+            <th style="text-align:center">尺寸分段</th>
+            <th style="text-align:center">运费<br>({{estimated_obj.currency}})</th>
+            <!--<th style="text-align:center">货币单位</th>-->
+            <th style="text-align:center">刷新时间</th>
+        </tr>
+
+
+        <tr>
+            <td nowrap>{{estimated_obj.sku}}</td>
+            <td nowrap>{{estimated_obj.asin}}</td>
+            <td nowrap>{{estimated_obj.longest_side}}</td>
+            <td nowrap>{{estimated_obj.median_side}}</td>
+            <td nowrap>{{estimated_obj.shortest_side}}</td>
+            <!--<td nowrap>{{estimated_obj.unit_of_dimension}}</td>-->
+            <td nowrap>{{estimated_obj.item_package_weight}}</td>
+            <!--<td nowrap>{{estimated_obj.unit_of_weight}}</td>-->
+            <td nowrap>{{estimated_obj.product_size_tier}}</td>
+            <td nowrap>{{estimated_obj.expected_fulfillment_fee_per_unit}}</td>
+            <!--<td nowrap>{{estimated_obj.currency}}</td>-->
+            <td nowrap>{{estimated_obj.refresh_time}}</td>
+
+        </tr>
+
+    </table>
+</body>
+</html>

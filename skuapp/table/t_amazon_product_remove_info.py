@@ -30,6 +30,7 @@ class t_amazon_product_remove_info(models.Model):
     last_disposed_quantity = models.IntegerField(u'终止处理量', max_length=10, blank=True, null=True)
     time_span = models.CharField(u'状态', max_length=64, blank=True, null=True)
     refresh_time = models.DateTimeField(u'更新时间', blank=True, null=True)
+    is_valid = models.CharField(u'记录是否有效', max_length=1, blank=True, null=True)
 
     class Meta:
         verbose_name = u'AMZ移除订单详情'

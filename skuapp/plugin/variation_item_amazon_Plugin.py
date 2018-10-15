@@ -10,11 +10,14 @@ from django.template import RequestContext
 from skuapp.table.t_config_apiurl_amazon import *
 from skuapp.table.t_templet_config_amazon_published import *
 from skuapp.table.t_sys_param import *
-import urllib
+import urllib, json
 from skuapp.table.t_template_product_config_amazon import *
 from skuapp.table.t_config_online_amazon import *
+from skuapp.table.t_templet_config_amazon_item_type_name import t_templet_config_amazon_item_type_name
+from skuapp.table.t_templet_amazon_published_variation import t_templet_amazon_published_variation
 
 from django.contrib import messages
+from skuapp.table.t_config_amazon_template import *
 """  
  @desc:  
  @author: yewangping  
@@ -43,13 +46,13 @@ class variation_item_amazon_Plugin(BaseAdminPlugin):
                            'warranty_description', 'variation_theme', 'model', 'mfg_minimum',
                            'mfg_minimum_unit_of_measure', 'swatch_image_url', 'department_name',
                            'fit_type', 'unit_count', 'unit_count_type', 'fulfillment_latency',
-                           'display_dimensions_unit_of_measure', 'generic_keywords1', 'generic_keywords2',
-                           'generic_keywords3', 'generic_keywords4', 'generic_keywords5', 'department_name1',
+                           'display_dimensions_unit_of_measure', 'generic_keywords1', 'department_name1',
                            'department_name2', 'department_name3', 'department_name4', 'department_name5',
                            'material_type', 'metal_type', 'setting_type', 'ring_size', 'gem_type', 'item_shape',
                            'target_audience_keywords1', 'target_audience_keywords2', 'toy_color', 'jewerly_color',
                            'target_audience_keywords3', 'productSKU','clothing_size', 'clothing_color','number_of_pieces',
-                           'item_weight','item_weight_unit','color_name_public']
+                           'item_weight','item_weight_unit','color_name_public','mrp','sleeve_type','item_type_name', 'season',
+                           'material_composition', 'included_components', 'are_batteries_included',]
         sourceURL = str(context['request']).split("'")[1]
         all_params_in_url = sourceURL.split('/')
         obj_id = ''
@@ -70,6 +73,8 @@ class variation_item_amazon_Plugin(BaseAdminPlugin):
         ShopName = ''
         searchSite = ''
         shopAlias = ''
+        item_type_name = ''
+        template_ama = ''
         if obj_id:
             if all_params_in_url[len(all_params_in_url) - 4] == 't_templet_amazon_wait_upload':
                 new_obj = t_templet_amazon_wait_upload.objects.filter(id=int(obj_id))[0]
@@ -81,6 +86,8 @@ class variation_item_amazon_Plugin(BaseAdminPlugin):
             uploadProductType = new_obj.upload_product_type
             feedPtype = new_obj.feed_product_type
             ShopName = new_obj.ShopSets
+            item_type_name = new_obj.item_type_name
+            template_ama = new_obj.merchant_shipping_group_name
             if recommended_browse_nodes_str:
                 groupRoot = recommended_browse_nodes_str.split('>')[0]
         if len(url_params) > 1:
@@ -121,8 +128,15 @@ class variation_item_amazon_Plugin(BaseAdminPlugin):
         else:
             all_hide_params = []
         sku_length = 0
+        shipping_group_sites = {'US': 'Migrated Template', 'DE': 'Standardvorlage Amazon',
+                                'FR': 'Modèle par défaut Amazon', 'UK': 'Migrated Template',
+                                'AU': 'Migrated Template', 'IN': 'Migrated Template', 'IT': 'Modello Amazon predefinito', 'ES': 'Plantilla de Amazon', 'CA': '',}
+        templates = []
         all_shop_names = []
         if searchSite:
+            templates = [shipping_group_sites[searchSite]]
+            if template_ama is None or template_ama.strip() == '':
+                template_ama = shipping_group_sites[searchSite]
             all_shop_name = t_config_shop_alias.objects.filter(ShopName__contains=searchSite).values('ShopName')
             for each_shop_name in all_shop_name:
                 all_shop_names.append(each_shop_name['ShopName'])
@@ -134,6 +148,11 @@ class variation_item_amazon_Plugin(BaseAdminPlugin):
         if ShopName and ShopName[0:3] != '---':
             ShopName = t_config_online_amazon.objects.filter(shop_name=ShopName,site=searchSite)[0].Name
             shopAlias = t_config_shop_alias.objects.filter(ShopName=ShopName)[0].ShopAlias
+            templates_amazon = t_config_amazon_template.objects.filter(shopName__exact=ShopName).values('template_name')
+            if templates_amazon.exists():
+                for template_amazon in templates_amazon:
+                    templates.append(template_amazon['template_name'].replace("u'", "'"))
+                templates = list(set(templates))
             t_all_plateform_code_shopname_objs = t_all_plateform_code_shopname.objects.filter(ShopName=ShopName).values('Length', 'CurrentNum')
             if t_all_plateform_code_shopname_objs.exists():
                 sku_length += int(t_all_plateform_code_shopname_objs[0]['Length']) + len(str(t_all_plateform_code_shopname_objs[0]['CurrentNum']))
@@ -143,13 +162,23 @@ class variation_item_amazon_Plugin(BaseAdminPlugin):
                                                              , group7=searchParams['group7'],group8=searchParams['group8'])
             if itemType:
                 itemType = itemType.values('item_type')[0]['item_type']
+        if templates:
+            templates = json.dumps(templates)
         product_types = {}
         all_product_types = []
         all_uploadProductTypes = []
+        all_item_type_names = []
         t_template_product_config_amazon_objs = t_template_product_config_amazon.objects.filter(site='US')
         all_uploadProductType = t_template_product_config_amazon_objs.values('product_type')
         for each_uploadProductType in all_uploadProductType:
             all_uploadProductTypes.append(each_uploadProductType['product_type'])
+        if uploadProductType and feedPtype:
+            item_type_name_info = t_templet_config_amazon_item_type_name.objects.filter(product_type=uploadProductType, feed_product_type=feedPtype).values('item_type_name')
+            if item_type_name_info:
+                item_type_name_info = item_type_name_info[0]['item_type_name']
+                if item_type_name_info:
+                    all_item_type_names = eval(item_type_name_info)
+
         if uploadProductType:
             t_template_product_config_amazon_obj = t_template_product_config_amazon_objs.filter(product_type=uploadProductType)[0]
             if t_template_product_config_amazon_obj:
@@ -173,7 +202,8 @@ class variation_item_amazon_Plugin(BaseAdminPlugin):
                                               'groupRoot': groupRoot, 'recommended_browse_nodes_str': recommended_browse_nodes_str,'sourceURLs': sourceURL,
                                               'all_product_types': all_product_types, 'uploadProductType': uploadProductType, 'sourceURL': searchStr[:-1],
                                               'feedPtype': feedPtype, 'itemType': itemType, 'ShopName': ShopName, 'shopAlias': shopAlias, 'sku_length': sku_length,
-                                              'all_uploadProductTypes': all_uploadProductTypes,'searchSite':searchSite, 'all_shop_names': all_shop_names}))
+                                              'all_uploadProductTypes': all_uploadProductTypes,'searchSite':searchSite, 'all_shop_names': all_shop_names,
+                                              'item_type_name': item_type_name, 'all_item_type_names': all_item_type_names, 'templates': templates, 'template_ama': template_ama,}))
 
     def block_after_fieldsets(self, context, nodes):
         sourceURL = str(context['request']).split("'")[1]
@@ -182,8 +212,34 @@ class variation_item_amazon_Plugin(BaseAdminPlugin):
         all_params_in_url = sourceURL.split('/')
         update_flag = '0'
         uploadProductType = ''
+        variantion_theme_selected = ''
+        product_variations_tmp = []
         if all_params_in_url[len(all_params_in_url) - 2] == 'update':
             update_flag = '1'
+            product_id = all_params_in_url[len(all_params_in_url) - 3]
+            prodcut_variation_id = t_templet_amazon_collection_box.objects.filter(id=product_id)[0].prodcut_variation_id
+            product_variations = t_templet_amazon_published_variation.objects.filter(prodcut_variation_id=prodcut_variation_id)
+
+            for product_variation in product_variations:
+                product_variation_dict = {}
+                product_variation_dict['price'] = str(product_variation.price)
+                product_variation_dict['main_image_url'] = str(product_variation.main_image_url)
+                product_variation_dict['other_image_url1'] = str(product_variation.other_image_url1)
+                product_variation_dict['other_image_url2'] = str(product_variation.other_image_url2)
+                product_variation_dict['other_image_url3'] = str(product_variation.other_image_url3)
+                product_variation_dict['other_image_url4'] = str(product_variation.other_image_url4)
+                product_variation_dict['other_image_url5'] = str(product_variation.other_image_url5)
+                product_variation_dict['other_image_url6'] = str(product_variation.other_image_url6)
+                product_variation_dict['other_image_url7'] = str(product_variation.other_image_url7)
+                product_variation_dict['other_image_url8'] = str(product_variation.other_image_url8)
+                product_variation_dict['productSKU'] = str(product_variation.productSKU)
+                product_variation_dict['color_name'] = str(product_variation.color_name)
+                product_variation_dict['MetalType'] = str(product_variation.MetalType)
+                product_variation_dict['size_name'] = str(product_variation.size_name)
+                product_variation_dict['item_quantity'] = str(product_variation.item_quantity)
+                product_variations_tmp.append(product_variation_dict)
+            if product_variations.exists():
+                variantion_theme_selected = product_variations[0].variation_theme
         if len(url_params) > 1:
             for up in url_params[1].split('&'):
                 gR = up.split('=')[0]
@@ -235,4 +291,5 @@ class variation_item_amazon_Plugin(BaseAdminPlugin):
 
         nodes.append(loader.render_to_string('variation_item_amazon_Plugin.html',
                                              {'variationItems': variationItems,'select_type': select_type,'update_flag': update_flag,
-                                              'sourceURL': searchStr[:-1],'sourceURLs': sourceURL}))
+                                              'sourceURL': searchStr[:-1],'sourceURLs': sourceURL, 'variantion_theme_selected': variantion_theme_selected,
+                                              'product_variations': product_variations_tmp}))

@@ -161,8 +161,8 @@ ChoicePurchaseType = 40009 #排单类型  首单:firstorder  定做:customermade
 ChoiceFBWPlanDELIVER = 40010  # 发货方式 '随机':'random','正常':'normal'
 ChoiceFBWPlanNEWOLD = 40011  # 新品老品 '新品':'new','老品':'old'
 
-
-
+ChoiceAmazonShopType = 40012  # 亚马逊店铺类型：自刊登，跟卖
+ChoiceAmazonShopStatus = 40013  # 亚马逊店铺状态
 
 
 def getChoices(typeid):

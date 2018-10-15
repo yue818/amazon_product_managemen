@@ -420,9 +420,9 @@ class t_templet_amazon_collection_box_Admin(object):
         obj.ShopSets = ShopSets
         obj.brand_name = shopAlias
         obj.manufacturer = shopAlias
-        update_sites = {'US': 'Update', 'DE': 'Aktualisierung', 'FR': 'Actualisation', 'UK': 'Update', 'AU': 'Update', 'IN': 'Update'}
+        update_sites = {'US': 'Update', 'DE': 'Aktualisierung', 'FR': 'Actualisation', 'UK': 'Update', 'AU': 'Update', 'IN': 'Update', 'IT': 'Update', 'ES': 'Update',}
         shipping_group_sites = {'US': 'Migrated Template', 'DE': 'Standardvorlage Amazon', 'FR': 'Modèle par défaut Amazon', 'UK': 'Migrated Template',
-                                'AU': 'Migrated Template', 'IN': 'Migrated Template'}
+                                'AU': 'Migrated Template', 'IN': 'Migrated Template', 'IT': 'Modello Amazon predefinito', 'ES': 'Plantilla de Amazon', 'CA': '',}
         feed_product_type = request.POST.get('feed_product_type', '')
         if feed_product_type == '0' or feed_product_type == 0:
             feed_product_type = ''

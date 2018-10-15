@@ -29,14 +29,17 @@ class wish_store_sort_bar_plugin(BaseAdminPlugin):
             }
             activeflag = params.get('EXPRESS', 'STANDARD')
             if activeflag == 'DE':
-                list_dict['Order7daysDE'] = u'7天order数'
+                list_dict['Order7daysDE'] = u'7天order数(德国仓)'
                 list_dict['OfsalesDE'] = u'总订单量(德国仓)'
             elif activeflag == 'GB':
-                list_dict['Order7daysGB'] = u'7天order数'
+                list_dict['Order7daysGB'] = u'7天order数(英国仓)'
                 list_dict['OfsalesGB'] = u'总订单量(英国仓)'
             elif activeflag == 'US':
-                list_dict['Order7daysUS'] = u'7天order数'
+                list_dict['Order7daysUS'] = u'7天order数(美国仓)'
                 list_dict['OfsalesUS'] = u'总订单量(美国仓)'
+            elif activeflag == 'FBW':
+                list_dict['Order7daysFBW'] = u'7天order数(FBW)'
+                list_dict['OfsalesFBW'] = u'总订单量(FBW)'
             else:
                 list_dict['Orders7Days'] = u'7天order数'
                 list_dict['OfSales'] = u'总销量'

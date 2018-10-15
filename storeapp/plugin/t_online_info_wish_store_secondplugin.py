@@ -24,6 +24,7 @@ from brick.classredis.classshopname import classshopname
 # from Project.settings import connRedis
 from skuapp.table.t_store_configuration_file import t_store_configuration_file
 from datetime import datetime as timetime
+from skuapp.public.check_permission_legality import check_permission_legality
 
 
 class t_online_info_wish_store_secondplugin(BaseAdminPlugin):
@@ -31,6 +32,9 @@ class t_online_info_wish_store_secondplugin(BaseAdminPlugin):
 
     def init_request(self, *args, **kwargs):
         return bool(self.wish_listing_secondplugin)
+
+    def wish_right_button(self):
+        return True if check_permission_legality(self) else False
 
     def block_search_cata_nav(self, context, nodes):
         # messages.error(self.request,'search1-------%s' % timetime.now())
@@ -59,7 +63,7 @@ class t_online_info_wish_store_secondplugin(BaseAdminPlugin):
             synurl = '/syndata_by_wish_api_shopname/?shopname=%s' % flag
 
         buttonlist = []
-        if self.request.user.is_superuser:
+        if self.request.user.is_superuser or self.model._meta.model_name == 't_online_info_wish':
             objs = t_store_configuration_file.objects.filter(ShopName__startswith='Wish-').values('ShopName_temp')
         else:
             allobj = User.objects.filter(groups__id__in=[38])
@@ -79,15 +83,19 @@ class t_online_info_wish_store_secondplugin(BaseAdminPlugin):
         activeflag = self.request.GET.get('EXPRESS','')
 
         nowurl = self.request.get_full_path().replace('EXPRESS=STANDARD', '').replace('EXPRESS=DE', '').replace(
-            'EXPRESS=GB', '').replace('EXPRESS=US', '').replace('?&', '?').replace('&&', '&')
+            'EXPRESS=GB', '').replace('EXPRESS=US', '').replace('EXPRESS=FBW', '').replace('?&', '?').replace('&&', '&')
         if nowurl[-1:] in ['?', '&']:
             nowurl = nowurl[:-1]
         if nowurl.find('?') == -1:
             nowurl = nowurl + '?'
         else:
             nowurl = nowurl + '&'
+
+        readonly = ''
+        if self.model._meta.model_name == 't_online_info_wish' or not self.wish_right_button():
+            readonly = 'readonly'
         # messages.error(self.request, 'search2-------%s' % timetime.now())
         nodes.append(loader.render_to_string('products_listing_base_secondtemplate.html',
                                              {'objs': json.dumps(buttonlist), 'synurl': synurl, 'flag': flag,
                                               'lastupdatetime':lastupdatetime,'refreshstatus':refreshstatus,
-                                              'nowurl': nowurl, 'activeflag': activeflag}))
+                                              'nowurl': nowurl, 'activeflag': activeflag, 'readonly':readonly}))

@@ -5,8 +5,8 @@
  @author: wuchongxiang 
  @site: 
  @software: PyCharm
- @file: fba_refresh-20180928.py
- @time: 2018/9/28 8:49
+ @file: fba_refresh-20181008a.py
+ @time: 2018/10/8 17:37
 """
 import logging.handlers
 from mws import Reports, Products,Finances
@@ -111,7 +111,7 @@ def refresh_db_tables(auth_info, sql_execute_obj):
     sql_ad_delete = "delete from t_amazon_cpc_ad where shop_name = '%s' and shop_site = '%s'" % (auth_info['ShopName'], auth_info['ShopSite'])
     print 'sql_ad_delete is: %s' % sql_ad_delete
     logging.debug('sql_ad_delete is: %s' % sql_ad_delete)
-    sql_ad_insert = "insert into t_amazon_cpc_ad(shop_name,shop_site,seller_sku,title,asin,image_url,price,quantity,create_date,STATUS,Parent_asin,product_id_type) select ShopName,shopsite,seller_sku,item_name,asin1,image_url,price,quantity,open_date,STATUS,Parent_asin,product_id_type from t_online_info_amazon where ShopName = '%s' and ShopSite = '%s';" % (
+    sql_ad_insert = "insert into t_amazon_cpc_ad(shop_name,shop_site,seller_sku,title,asin,image_url,price,quantity,create_date,STATUS,Parent_asin,product_id_type) select ShopName,shopsite,seller_sku,item_name,asin1,image_url,price,quantity,open_date,STATUS,Parent_asin,product_id_type from t_online_info_amazon where ShopName = '%s' and ShopSite = '%s' and refresh_status = 0;" % (
         auth_info['ShopName'], auth_info['ShopSite'])
     print 'sql_ad_insert is: %s' % sql_ad_insert
     logging.debug('sql_ad_insert is: %s' % sql_ad_insert)
@@ -303,7 +303,8 @@ def refresh_db_tables(auth_info, sql_execute_obj):
             ''' % auth_info['ShopName']
 
     sql_estimated_fba_fees = '''UPDATE t_online_info_amazon a, t_amazon_estimated_fba_fees b
-                   SET a.estimated_fee = b.estimated_fee
+                   SET a.estimated_fee = b.estimated_fee,
+                          a.product_size_tier = b.product_size_tier
                  WHERE a.shopname = b.shop_name
                    AND a.seller_sku = b.sku
                    and a.shopname = '%s'
@@ -1024,9 +1025,7 @@ class ReportPublic:
         #                "where a.seller_sku=b.seller_sku and  a.ShopName = b.ShopName and a.ShopName = '%s'" \
         #                % (self.auth_info['table_name'], self.auth_info['table_name_really'], self.auth_info['ShopName'])
         sql_relation = '''update %s a, %s b
-           set a.parent_asin             = b.parent_asin,
-               a.product_type            = b.product_type,
-               a.image_url               = b.image_url,
+           set a.image_url               = b.image_url,
                a.inventory_received_date = b.inventory_received_date,
                a.shipping_price          = b.shipping_price,
                a.estimated_fee           = b.estimated_fee,
@@ -2067,7 +2066,14 @@ except Exception as e:
 get_info_obj = GetLocalIPAndAuthInfo()
 while True:
     try:
-        local_ip = get_info_obj.get_out_ip(get_info_obj.get_real_url())
+        try:
+            local_ip = get_info_obj.get_out_ip(get_info_obj.get_real_url())
+        except Exception as ex:
+            print ex
+            from json import load
+            from urllib2 import urlopen
+            local_ip = load(urlopen('https://api.ipify.org/?format=json'))['ip']
+
         if local_ip is not None:
             if local_ip == '47.254.83.145':
                 local_ip = '210.16.103.56'  # 160

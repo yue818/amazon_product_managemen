@@ -21,12 +21,19 @@
                 EXPRESS-US
             </a>
         </li>
+        <li {% if activeflag == 'FBW' %} class="active" {% endif %}>
+            <a href="{{ nowurl }}EXPRESS=FBW">
+                FBW
+            </a>
+        </li>
     </ul>
     <div>
         <span style="height: 50px;width: 240px;font-size: 20px; color:red;">
-            1.此页面的数据每6小时刷新一次
+            1.此页面的数据每6小时刷新一次。如遇数据不准，可手动刷新；如果还是不准，请截图给IT
             <br>
             2.一次分页显示数据越多越慢，因为会有大量的图片下载
+            <br>
+            3.海外仓显示本仓的总订单量和7天订单量，其中总订单量为近期数据统计，数值偏小
         </span>
     </div>
     <br>
@@ -39,7 +46,7 @@
                 <br>
                 <div class="satrdiv inline mRight20" style="float: left;height: 34px;width: 65.3px;">搜索店铺:</div>
                     <div class="inline" style="float: left">
-                        <form id="seach_shopname">
+                        <form id="seach_shopname" autocomplete="off">
                         <input id="q" class="textatr" name="shopname" style="border-radius: 10px;width:364px; " onFocus="if(this.value=='搜索店铺...'){this.value='';}else{this.select();}this.style.color='black';"  value="{{ flag }}">
                         <input type="button" class="sybutton" onclick="to_seach_shopname()" value="点击搜索" >
                         </form>
@@ -71,6 +78,7 @@
             {% endif %}
         </ul>
     </div>
+{% if readonly == '' %}
     <div class="dropdown" style="float: right;">
         <button type="button" class="btn dropdown-toggle sybutton" id="dropdownMenu1" data-toggle="dropdown">
             店铺SKU操作
@@ -85,10 +93,17 @@
             </li>
         </ul>
     </div>
+{#style="bottom: 100px;left: 200px;position:fixed;"#}
     <div>
-        <a class="sybutton" type="button" style="display: inline; width: 125px ; float: right;" target="_blank" href="/Project/admin/storeapp/t_add_variant_information/">运费调整</a>
+        <a class="sybutton" type="button" style="display: inline; width: 180px ; float: right;" target="_blank" href="/Project/admin/wishpubapp/t_templet_wish_publish_draft/add/">产品刊登(公测版)</a>
     </div>
-
+{% endif %}
+<div class="btn btn-default" style="bottom: 20px;right: 300px;height: 56px;width: 150px;position: fixed;box-shadow: 2px 2px 16px rgba(0, 0, 0, 0.5);background-color: #f5f5f5;z-index: 295"
+        onclick="javaScrip: var height_val = document.documentElement.scrollTop; var topval = 0; if (height_val > 400){topval=0}else {topval=5000000000} document.body.scrollTop = document.documentElement.scrollTop = topval;">
+    <div style="background-color: #5cb85c;color: white;height: 80%;line-height: 30px;margin-top: 3%;">
+        回到顶部(底部)
+    </div>
+</div>
     <!-- 模态框（Modal）全量刷新店铺 -->
     <div class="modal fade" id="shopname_full" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -160,5 +175,4 @@
             </div><!-- /.modal-content -->
         </div><!-- /.modal -->
     </div>
-
 
