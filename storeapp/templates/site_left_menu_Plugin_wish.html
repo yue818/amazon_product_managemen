@@ -1,0 +1,36 @@
+<style>
+    .col-md-14 {
+    width: 13%;
+  }
+  .col-md-10 {
+    width: 87%;
+  }
+
+</style>
+
+<div id="left-side" class="col-sm-1 col-md-14">
+    <ul class="well nav nav-list nav-sitemenu list-group">
+        {% for param in paramsList %}
+        <li class="list-group-item">
+            <a href="{{ param.href }}">
+                <i id="i" class="fa-fw fa fa-circle-o"></i>
+                <font style="font-size: 15px;" onclick="window.location.href=''">{{ param.title }}</font>
+            </a>
+            <b data-toggle="collapse" data-target="#demo" class="caret" style="cursor:pointer;float: right;"></b>
+        </li>
+        <div id="demo" class="panel-collapse collapse in">
+            {% for pa in param.branch %}
+                <li id="li_{{ forloop.counter }}" class="list-group-item " style="cursor:pointer;{% if reviewState == pa.flag %} background-color: #1b9dec; {% endif %}">
+                    <a href="{{ pa.href }}">
+                        <i id="i" class="fa-fw fa fa-circle-o"></i>
+                        <font id="font_{{ forloop.counter }}" style="{% if reviewState == pa.flag %} color:white {% endif %}">{{ pa.title }}</font>
+                    </a>
+                </li>
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </ul>
+</div>
+
+
+

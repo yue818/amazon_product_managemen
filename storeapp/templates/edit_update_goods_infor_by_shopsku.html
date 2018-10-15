@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<link href="/static/xadmin/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+{#<link href="/static/xadmin/vendor/bootstrap-select-1.12.4/css/bootstrap-select.min.css" rel="stylesheet" />#}
+<script src="/static/xadmin/js/jquery-1.7.1.min.js"></script>
+<script src="/static/xadmin/vendor/bootstrap/js/bootstrap.min.js"></script>
+{#<script src="/static/xadmin/vendor/bootstrap-select-1.12.4/js/bootstrap-select.min.js"></script>#}
+<script>
+    var info = '';
+    var color_list = [];
+    $(document).ready(function() {
+        color_list = {{ colorlist|safe }};
+        for (var i = 0; i < color_list.length; i++) {
+            info += '<div class="div_item"onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" onClick="ChangeText(this);">'+ color_list[i] +'</div>';
+        }
+    });
+
+    function change_image(num){
+        top.img_path = '';
+        top.flag = 0;
+        top.uflag = '0';
+        top.layer.open({
+            type: 2,
+            skin: 'layui-layer-lan', //加上边框
+            shadeClose: true,
+            area: ['800px', '600px'], //宽高
+            content: '/change_image/?abc={{ ProductID }}',
+            end: function(index){
+                if (top.flag == 1){
+                    document.getElementById(num).src = top.img_path;
+                    document.getElementById('imgs_' + num).value = top.img_path;
+                    $('#imgs_'+num+'_flag').val($.trim(top.uflag));
+                }
+            }
+        });
+    }
+
+    function writeObj(obj){
+        var description = "";
+        for(var i in obj){
+            var property=obj[i];
+            description+=i+" = "+property+"\n";
+        }
+        alert(description);
+    }
+
+    function ityzl_SHOW_LOAD_LAYER(){
+        return parent.layer.msg('努力修改中...', {icon: 16,shade: [0.5, '#f5f5f5'],scrollbar: false,offset: '50%', time:100000}) ;
+    }
+    function ityzl_CLOSE_LOAD_LAYER(index){
+        parent.layer.close(index);
+    }
+    function ityzl_SHOW_TIP_LAYER(){
+        parent.layer.msg('修改完成！',{time: 1000,offset: '50%'});
+    }
+
+    function to_submit() {
+        parent.layer.confirm('确定提交变更吗？', {
+            skin: 'layui-layer-lan',
+            title:'变更提示。。',
+            btn: ['确定','算了'], //按钮
+            btn1:function(){
+                // 所有ShopSKU
+                var shopskulist = document.getElementsByName('ShopSKU');
+                // 循环提取所有被修改的过的数据
+                var datadict = {};
+                for (var s=0;s<shopskulist.length;s++){
+                    var tmpdict = {};
+                    var namelist = ['size','msrp','price','color','inventory','shipping','shipping_time','edcheck','main_image'];
+                    for (var n=0;n<namelist.length;n++){
+                        var nametmp = document.getElementsByName(namelist[n])[s];
+                        var nowvalue = '';
+                        var oldvalue = '';
+                        if (namelist[n] == 'edcheck'){
+                            oldvalue = nametmp.defaultChecked;
+                            nowvalue = nametmp.checked;
+                        }
+                        else {
+                            oldvalue = nametmp.defaultValue;
+                            nowvalue = nametmp.value;
+                        }
+                        if (namelist[n] == 'main_image'){
+                            var oldimg = document.getElementsByName(namelist[n] + '_copy')[s];
+                            oldvalue = oldimg.defaultValue;
+                        }
+                        if(nowvalue != oldvalue){
+                            if (namelist[n] != 'edcheck' && nowvalue == ''){
+                                alert('修改的值不能为空！！！');
+                                return
+                            }
+                            if (namelist[n] == 'main_image'){
+                                var img_flag = document.getElementsByName(namelist[n] + '_flag')[s];
+                                var dicttmp = {};
+                                dicttmp[nowvalue] = img_flag.value;
+                                tmpdict[namelist[n]] = dicttmp;
+                            }else {
+                                tmpdict[namelist[n]] = nametmp.value;
+                            }
+                            if (namelist[n] == 'edcheck'){
+                                if (nametmp.value == 'Enabled'){
+                                    nametmp.value = 'Disabled';
+                                    nametmp.defaultChecked = false;
+                                }else {
+                                    nametmp.value = 'Enabled';
+                                    nametmp.defaultChecked = true;
+                                }
+                            }
+                        }
+                    }
+                    var a = JSON.stringify(tmpdict);
+                    if (a != '{}'){
+                        datadict[shopskulist[s].value] = JSON.stringify(tmpdict); // 这里提取了所有变化的值 {shopsku:{color:value,}}
+                    }
+                }
+                var b = JSON.stringify(datadict);
+                if (b != '{}'){
+                    console.log(b);
+                    start_ajax(b);
+                }else {
+                    alert('没有修改的信息');
+                }
+            }
+        });
+    }
+
+    function start_ajax(a) {
+        var i;
+        // 这里开始调取api
+        $.ajax({
+            url: "/t_online_info_wish_store/ShopSKU/?abc={{ ProductID }}&express={{ activeflag }}",
+            type: "POST",
+            dataType: "json",
+            data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                alldata: a
+            },
+            beforeSend: function () {
+                i = ityzl_SHOW_LOAD_LAYER();
+            },
+            success: function (result) {
+                if (result.resultCode == 1) {
+                    alert(result.info);
+                    ityzl_CLOSE_LOAD_LAYER(i);
+                    ityzl_SHOW_TIP_LAYER();
+                } else {
+                    alert(result.errorinfo);
+                    ityzl_CLOSE_LOAD_LAYER(i);
+                }
+                window.location.href = "/t_online_info_wish_store/ShopSKU/?abc={{ ProductID }}&express={{ activeflag }}";
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                ityzl_CLOSE_LOAD_LAYER(i);
+                console.log('错误信息：' + XMLHttpRequest.responseText);
+            }
+        });
+    }
+
+    function shopsku_enordis(ff,shopsku,shopname,productid) {
+        var message = '';
+        if (ff == 'enshopsku'){
+            message = '上架'
+        }else {
+            message = '下架'
+        }
+        parent.layer.confirm(shopsku + ' 请问确定要进行' + message + '操作吗？',{
+            btn: ['确定','算了'],
+            yes:function(index, layero){
+                parent.layer.close(index);
+                window.location.href='/up_dis_by_wish_api_shopsku/?'+ff+'='+shopsku + '&shopname=' + shopname + '&productid=' + productid + '&flag=1';
+            }
+        });
+    }
+
+    function coloronkeyup(inputColor) {
+{#        console.log(inputColor.id);#}
+{#        var intext = document.getElementById("'" + inputColor.id + "'");#}
+        var inputtext = inputColor.value;
+{#        console.log(inputtext);#}
+        var ids = inputColor.id.split('_')[1];
+        if (inputtext != "") {
+            var html = "";
+            for (var i = 0; i < color_list.length; i++) {
+                if (color_list[i].indexOf(inputtext) >= 0) {
+                    html += '<div class="div_item"onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" onClick="ChangeText(this);">'+ color_list[i] +'</div>';
+                }
+            }
+            if (html != "") {
+                $("#coloralls_" + ids).show().html(html);
+            } else {
+                $("#coloralls_" + ids).hide().html("");
+            }
+        }else {
+            $("#coloralls_" + ids).show().html(info);
+        }
+    }
+
+   window.onload=function(){
+      $("body").click(function () {
+            $(".div_Color").css('display', 'none');
+        });
+   };
+
+    //移入移出效果
+    function getnewcolor(obj) {
+        $(obj).css('background-color', '#1C86EE').css('color', 'white');
+    }
+
+    function getoldcolor(obj) {
+        $(obj).css('background-color', 'white').css('color', 'black');
+    }
+    //项点击
+    function ChangeText(obj) {
+        var value = $(obj).text();
+        var ids = (obj.parentNode.id).split('_')[1];
+        $("#color_"+ids).val(value);
+        $("#coloralls_"+ids).show().html('<div class="div_item" onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" onClick="ChangeText(this);">'+ value +'</div>');
+    }
+    
+    function show_another(self) {
+        if (self.className == 'glyphicon glyphicon-chevron-right'){
+            $('#add_variant').css('display', 'block');
+            self.className = 'glyphicon glyphicon-chevron-left';
+        }else if (self.className == 'glyphicon glyphicon-chevron-left'){
+            $('#add_variant').css('display', 'none');
+            self.className = 'glyphicon glyphicon-chevron-right';
+        }
+    }
+    
+    function add_one() {
+        top.layer.open({
+            type: 2,
+            skin: 'layui-layer-lan', //加上边框
+            shadeClose: true,
+            title:'增加变体',
+            area: ['1200px', '800px'], //宽高
+            content: '/t_online_info_wish_store_add_variant/?product_id={{ ProductID }}',
+            end: function(index){
+                // 弹出框是增加变体使用，关闭后 刷新变体显示页面
+                window.location.href = "/t_online_info_wish_store/ShopSKU/?abc={{ ProductID }}&express={{ activeflag }}";
+            }
+        });
+    }
+    
+</script>
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<style>
+    .button {
+        background-color: #428bca;
+        border: none;
+        color: white;
+        padding: 15px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        margin: 4px 2px;
+        cursor: pointer;
+    }
+    .bootstrap-select:not([class*=col-]):not([class*=form-control]):not(.input-group-btn){width: 120px;}
+    .div_Color {
+        position: absolute;
+        width: 364px;
+        height: 300px;
+        border: 1px solid #66afe9;
+        border-top: 0px;
+        overflow: auto;
+        display: none;
+        background-color: white;
+    }
+</style>
+<body>
+<a  style=" color:red; font-size:12px;" >注*：修改图片功能已经开放，现可以测试使用 如发现问题 请及时联系IT人员</a><br>
+{% if readonly == '' %}
+<input type="button" class="button" style="background-color: #8c8c8c;padding: 1px 3px;" onclick="add_one()" value="新增变体">
+{% endif %}
+<form id="updateshopskuform" name="updateshopskuform" action="" method="">
+{% csrf_token %}
+    <table align="center" class="table table-bordered table-striped table-hover">
+        <thead>
+            <tr align="center">
+            <th style="text-align:center; min-width: 55px">变体图</th>
+            <th style="text-align:center">子SKU</th>
+            <th style="text-align:center">采购未入库</th>
+            <th style="text-align:center">商品状态</th>
+            <th style="text-align:center">库存</th>
+            <th style="text-align:center">占用</th>
+            <th style="text-align:center">可用数量</th>
+            <th style="text-align:center">可售天数</th>
+            <th style="text-align:center">店铺SKU</th>
+            <th style="text-align:center">颜色</th>
+            <th style="text-align:center">尺寸</th>
+            <th style="text-align:center">标签价</th>
+            <th style="text-align:center">价格</th>
+            {% if activeflag == '' or activeflag == 'STANDARD' %}
+                <th style="text-align:center">标准仓库存</th>
+                <th style="text-align:center">标准仓运费</th>
+            {% elif activeflag == 'DE' %}
+                <th style="text-align:center">德国仓库存</th>
+                <th style="text-align:center">德国仓运费</th>
+            {% elif activeflag == 'GB' %}
+                <th style="text-align:center">英国仓库存</th>
+                <th style="text-align:center">英国仓运费</th>
+                <thv>英国仓运费</thv>
+            {% elif activeflag == 'US' %}
+                <th style="text-align:center">美国仓库存</th>
+                <th style="text-align:center">美国仓运费</th>
+            {% endif %}
+            <th style="text-align:center">运输时间</th>
+            <th style="text-align:center">变体状态</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for my in mylist %}
+            <tr align="center">
+            <td>
+                <a class="thumbnail" style="float: left;margin-top: 1px;margin-left: 1px;margin-bottom: 1px">
+                    <img id="{{ forloop.counter }}" name="shopsku_image" width="40" height="40"
+                          src="{% if my.ShopSKUImage %}{{ my.ShopSKUImage }}{% else %}http://ou3qh0g46.bkt.clouddn.com/fancyqube.jpg{% endif %} "
+                           onclick="change_image({{ forloop.counter }})"/>
+                    <input id="imgs_{{ forloop.counter }}" type="hidden" name="main_image" value="{{ my.ShopSKUImage }}" />
+                    <input id="imgs_{{ forloop.counter }}_copy" type="hidden" name="main_image_copy" value="{{ my.ShopSKUImage }}" />
+                    <input id="imgs_{{ forloop.counter }}_flag" type="hidden" name="main_image_flag" value="0" />
+                </a>
+            </td>
+            <td><input class="text-field admintextinputwidget form-control" readonly="readonly" type="text" name="SKU" value="{{ my.SKU }}" /></td>
+            <td>{{ my.nn }}</td>
+            <td>{{ my.goodsstatus }}</td>
+            <td>{{ my.inventory }}</td>
+            <td>{{ my.occupyNum }}</td>
+            <td>{{ my.canuse }}</td>
+            <td>{{ my.CanSaleDay }}</td>
+            <td><input class="text-field admintextinputwidget form-control" readonly="readonly" type="text" name="ShopSKU" value="{{ my.ShopSKU }}" /></td>
+            <td>
+                <input id="color_{{ forloop.counter }}" class="text-field admintextinputwidget form-control" type="text" name="color" value="{{ my.Color }}" onkeyup="coloronkeyup(this)">
+                <div id="coloralls_{{ forloop.counter }}" class="div_Color">
+                </div>
+            </td>
+            <td><input class="text-field admintextinputwidget form-control" type="text" name="size" value="{{ my.Size }}" /></td>
+            <td><input class="text-field admintextinputwidget form-control" type="text" name="msrp" value="{{ my.msrp }}" /></td>
+            <td><input class="text-field admintextinputwidget form-control" type="text" name="price" value="{{ my.Price }}" /></td>
+
+            <td><input class="text-field admintextinputwidget form-control" type="text" name="inventory" value="{{ my.Quantity|default_if_none:'' }}"
+                    {% if activeflag not in warehouse %}
+                       onmousemove="this.title='该店铺没有该仓信息，不允许更改该仓库存'" readonly
+                    {% endif %}/>
+            </td>
+            <td><input class="text-field admintextinputwidget form-control" type="text" name="shipping" value="{{ my.Shipping|default_if_none:'' }}"
+                    {% if activeflag not in warehouse %}
+                       onmousemove="this.title='该店铺没有该仓信息，不允许更改该仓运费'" readonly
+                    {% endif %}/>
+            </td>
+
+            <td><input class="text-field admintextinputwidget form-control" type="text"  name="shipping_time" value="{{ my.ShippingTime }}" /></td>
+                <td>
+                    {% if my.Status == 'Enabled' %}
+                        <div class="checkbox" style="width:100px">
+                            <label><input type="checkbox" value="Enabled" name="edcheck" checked="checked">是否启用</label>
+                        </div>
+                    {% else %}
+                        <div class="checkbox" style="width:100px">
+                            <label><input type="checkbox" name="edcheck" value="Disabled">是否启用</label>
+                        </div>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% if readonly == '' %}
+    <table align="center">
+        <tr>
+            <td style="float: left">
+                <input type="button" class="button" onclick="to_submit()" value="确定保存">
+{#                <b class="glyphicon glyphicon-chevron-right" onclick="show_another(this)" title="点击展开增加变体"></b>#}
+            </td>
+            <td id="add_variant" style="display: none;float: left">
+                <input type="button" class="button" style="background-color: #8c8c8c" onclick="add_one()" value="新增变体">
+            </td>
+        </tr>
+    </table>
+{% endif %}
+</form>
+</body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="/static/xadmin/js/jquery-1.7.1.min.js"></script>
+    <style>
+        .button {
+            background-color: #428bca;
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+        }
+    </style>
+    <script>
+        function will_submit() {
+            var text = document.getElementById('remark_id');
+            var textval = text.value;
+            // 这里开始调取api
+            $.ajax({
+                url: "/t_online_info_wish/w_remark/?productid={{ productid }}",
+                type: "POST",
+                dataType: "json",
+                data: {
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                    alldata: textval
+                },
+                success: function (result) {
+                    if (result.code == 0) {
+                        var hh_id = document.getElementById('hidden_id');
+                        var parval = parent.document.getElementById('remark_content_'+hh_id.value);
+                        parval.text = textval ;
+                        var index = parent.layer.getFrameIndex(window.name);
+                        parent.layer.close(index);
+                    } else {
+                        alert('保存错误！请联系IT人员。');
+                    }
+                },
+                error:function (XMLHttpRequest, textStatus, errorThrown) {
+                   alert('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+               }
+            });
+        }
+    </script>
+</head>
+<body>
+<form id="remark_form" action="" method="POST">
+    {% csrf_token %}
+    <div style="text-align:center;">
+        <input type="hidden" id="hidden_id" value="{{ id }}">
+        <textarea name="remark_name" id="remark_id" style="width: 97%;height: 180px;">
+        {{ remark|safe }}
+        </textarea>
+        {% if readonly == '' %}
+        <button type="button" class="button" onclick="will_submit()">提交</button>
+        {% endif %}
+    </div>
+</form>
+</body>
+</html>

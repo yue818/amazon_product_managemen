@@ -1,0 +1,270 @@
+<link href="/static/js/t_online_info_wish_store_search.css?t=201803211234" rel="stylesheet" type="text/css" />
+<script src="/static/js/t_online_info_wish_store_search.js?t=201803211234"></script>
+    <div class="re_echo">
+        搜索内容 &gt;
+        {% for k, v in navigation.items %}
+            &gt;<span class="crumb-select-item">{{ k }}:{{ v }}</span>
+        {% endfor %}
+    </div>
+    <br><br>
+    <div>
+        <div style="font-size:15px;">
+            <div class="padatr">
+                {% if lastupdatetime != '' and lastupdatetime != 'undefined' %}
+                    <em style="color: #d58512;font-size: 10px;"> 最近增量更新时间(utc):{{ lastupdatetime }} </em>
+                {% endif %}
+                <br>
+                <div class="satrdiv inline mRight20" style="float: left;height: 34px;width: 65.3px;">搜索店铺:</div>
+                <div class="inline" style="float: left">
+                    <input id="q" class="textatr" name="shopname" style="border-radius: 10px;width:364px; " onFocus="if(this.value=='搜索店铺...'){this.value='';}else{this.select();}this.style.color='black';"  value="{{ flag }}">
+                    <input type="button" class="sybutton" value="点击搜索" onclick="searchItemAmazon()">
+                    <div class="selectize-dropdown-content" id="div_items">
+                    </div>
+                </div>
+                <input type="hidden" id="list_id" value='{{ objs|safe }}'>
+                <input type="hidden" id="synurl_id" value='{{ synurl }}'>
+            </div>
+        </div>
+        <br>
+		<br>
+        <br>
+    </div>
+
+    <div style="font-size:15px; ">
+         <div style="font-size:15px;">
+            <div class="padatr">
+                <div class="satrdiv inline mRight20">搜索类型:</div>
+                <div class="inline">
+                    <a id="search_hidden_id" style="display: none">{{ search_hidden_id }}</a>
+                    {% for k,v in Typeconfiguration.items %}
+                         <a name="setSearch" class="myj-aFocus mRight20" href="javascript:;" id="{{ k }}" onclick="setformsattribute(this.id,this.name)">{% for a,b in v.items %} <li style="display: none">{{ a }}</li>{{ b }}{% endfor %}</a>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="padatr">
+                <div class="satrdiv inline mRight20">搜索内容:</div>
+                <div class="inline">
+                    <input type="text" class="textatr" id="searchItem" value="{{ search_hidden }}" onfocus="if(this.value.indexOf('搜索') != 0){}else{this.value = ''}"/>
+                    <input type="button" class="sybutton" value="搜索" onclick="searchItemAmazon()">
+                    <a class="myj-aFocus mRight20" href="javascript:;" style="font-size: 10px;" onclick="advancedSearch()">&nbsp;&nbsp;高级搜索 <span id="show_tips" style="color: #d58512">{{ open_flag }}</span></a>
+
+                    <a id="open_flag" style="display: none">{{ open_flag }}</a>
+                    <div style="display:none;" id="ads_form">
+                        <table>
+                            <tr>
+                                <td class="lefttd">大类名称: </td>
+                                <td>
+                                    <a id="large_hiden" style="display:none;">{{ large_hiden }}</a>
+                                    <select class="form-control" id="large_header" style="width:355px;">                         
+                                        {% for largeConfig in large_list %}
+                                            {% for lcode, largeClass in largeConfig.items %}
+                                                <option value="{{ lcode }}">{{ largeClass }}</option>
+                                            {% endfor %}
+                                        {% endfor %}
+                                   </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="lefttd">小类名称: </td>
+                                <td>
+                                     <a id="small_hiden" style="display:none;">{{ small_hiden }}</a>
+                                    <select class="form-control" id="small_header" style="width:355px;">                                 
+                                        {% for smallConfig in small_list %}
+                                            {% for scode, sclass in smallConfig.items %}
+                                                <option value="{{ scode }}">{{ sclass }}</option>
+                                            {% endfor %}
+                                        {% endfor %}
+                                    </select>               
+                                </td>
+                            </tr>
+                        
+                            <tr>
+                                <td class="lefttd">7天order数: </td>
+                                <td>
+                                    <input type="text" class="form-control" id="orders7DaysStart"  maxlength="9"  onkeyup="this.value=this.value.replace(/[^0-9]/g,'')" value={{ orders7DaysStart }}>
+                                        -
+                                    <input type="text" class="form-control" id="orders7DaysEnd" maxlength="9"  onkeyup="this.value=this.value.replace(/[^0-9]/g,'')" value={{ orders7DaysEnd }}>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td class="lefttd">总销量: </td>
+                                <td>
+                                    <input type="text" class="form-control" id="OfSalesStart" maxlength="9" onkeyup="value=value.replace(/[^0-9]/g,'')" value={{ OfSalesStart }}>
+                                        -
+                                    <input type="text" class="form-control" id="OfSalesEnd" maxlength="9" onkeyup="value=value.replace(/[^0-9]/g,'')" value={{ OfSalesEnd }}>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td class="lefttd">
+                                    <a id="timeType_hiden" style="display:none;">{{ timeType_hiden }}</a>
+                                    <select class="form-control" id="advancedTime" style="width:105px;">
+                                        {% for k,v in timeType_config.items %}
+                                            {% for a, b in v.items %}
+                                                <option value="{{ b.left }}&{{ b.right }}">{{ a }}</option>
+                                            {% endfor %}
+                                        {% endfor %}
+                                    </select>
+                                </td>
+                                <td>
+                                    <input type="date" class="form-control" style="height:34px;" id="timeLift" type="text" value="{{ timeL }}">
+                                        -
+                                    <input type="date" class="form-control" style="height:34px;" id="timeRight" type="text" value="{{ timeR }}">
+                                </td>
+                            </tr>
+
+
+                            <tr>
+                                <td class="lefttd"></td>
+                                <td style="text-align:right;">
+                                    <a href="javascript:" id="closeProductListAdvancedSearch" class="myj-aFocus mRight20" onclick="advancedSearch();cleanContentAll()">取消</a>
+                                    <a onclick="cleanContentAll()" style="cursor:pointer!important;" class="myj-aFocus mRight20">重置</a>
+                                    <button type="button" class="sybutton" onclick="btnSearchIt();">搜索</button>
+                                </td>
+                            </tr>
+
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div >
+            {% for t_list in config_list %}
+                 <div class="padatr">
+                    <div class="satrdiv inline mRight20">{{ t_list.desc }}</div>
+                    <div class="inline">
+                        <a name="forms_id" style="display: none">{{ t_list.forms_id }}</a>
+                        <a name="configform" style="display: none">{{ t_list.parameter }}</a>
+                        {% for k,v in t_list.configuration.items %}
+                            <a class="myj-aFocus mRight20" href="javascript:;" name="{{ t_list.parameter }}" id='{{ k }}' onclick="setformsattribute(this.id,this.name)">{% for a,b in v.items %} <li style="display: none">{{ a }}</li>{{ b }}{% endfor %}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        </br>
+    </div>
+
+    <div>
+        <div class="dropdown" style="float: right;">
+            <button type="button" class="btn dropdown-toggle sybutton" id="dropdownMenu1" data-toggle="dropdown">
+                同步店铺数据
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                {% if synurl != '' %}
+                    <li role="presentation">
+                        <a role="menuitem" tabindex="-1" data-toggle="modal" data-target="#shopname_full">全量同步</a>
+{#                            onclick="{location.href='{{ synv }}&flag=0'}" #}
+                    </li>
+                    <li role="presentation">
+                        <a role="menuitem" tabindex="-1" data-toggle="modal" data-target="#shopname_part">增量同步</a>
+{#                            onclick="{location.href='{{ synv }}&flag=1'}" #}
+                    </li>
+                {% else %}
+                    <li role="presentation">
+                        <a style="color:red" role="menuitem" tabindex="-1">{{ refreshstatus }}</a>
+                    </li>
+                {% endif %}
+{#                <li role="presentation">#}
+{#                    <a role="menuitem" tabindex="-1" onclick="">同步选中产品</a>#}
+{#                </li>#}
+            </ul>
+        </div>
+        <div class="dropdown" style="float: right;">
+            <button type="button" class="btn dropdown-toggle sybutton" id="dropdownMenu1" data-toggle="dropdown">
+                店铺SKU操作
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+                <li role="presentation">
+                    <a role="menuitem" tabindex="-1" onclick="change_shopsku('1')" >选中店铺SKU上架</a>
+                </li>
+                <li role="presentation">
+                    <a role="menuitem" tabindex="-1" onclick="change_shopsku('0')" >选中店铺SKU下架</a>
+                </li>
+            </ul>
+        </div>
+        {% if synurl != '' %}
+            <input class="sybutton" style="display: inline; width: 125px; " type="button" onclick="tocreateProduct('{{ synurl }}')" value="创建产品"/>
+        {% endif %}
+        <a class="sybutton" type="button" style="display: inline; width: 125px; " target="_blank" href="/Project/admin/storeapp/t_add_variant_information/">运费调整</a>
+    </div>
+
+    <!-- 模态框（Modal）全量刷新店铺 -->
+    <div class="modal fade" id="shopname_full" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">
+                        全量刷新店铺
+                    </h4>
+                </div>
+                <div class="modal-body">
+{#                    // 进度条#}
+                    <span id="full_bar_span">是否确定全量刷新该店铺数据，刷新速度可能较慢？</span>
+                    <div class="progress progress-striped active" id="full_bar" style="display: none">
+                        <div class="progress-bar progress-bar-success" role="progressbar"
+                             aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"
+                             style="width: 0%;" id="full_bar_id">
+                            <span class="sr-only">0% 完成</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="Refresh_Ajax_full('0')" id="sub_full">
+                        提交更改
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="onclick_refresh_page()" style="display: none" id="sub_refresh_full">
+                        刷新页面
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+
+    <!-- 模态框（Modal）增量刷新店铺 -->
+    <div class="modal fade" id="shopname_part" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">
+                        增量刷新店铺
+                    </h4>
+                </div>
+                <div class="modal-body">
+{#                    // 进度条#}
+                    <span id="part_bar_span">是否确定增量刷新该店铺数据？</span>
+                    <div class="progress progress-striped active" id="part_bar" style="display: none">
+                        <div class="progress-bar progress-bar-success" role="progressbar"
+                             aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"
+                             style="width: 0%;" id="part_bar_id">
+                            <span class="sr-only">0% 完成</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="Refresh_Ajax_full('1')" id="sub_part">
+                        提交更改
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="onclick_refresh_page()" style="display: none" id="sub_refresh_part">
+                        刷新页面
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+
+

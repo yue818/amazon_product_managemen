@@ -1,0 +1,53 @@
+<link rel="stylesheet" href="/static/xadmin/vendor/bootstrap-select-1.12.4/css/bootstrap-select.min.css">
+<script src="/static/xadmin/vendor/jquery/jquery.min.js"></script>
+<script src="/static/xadmin/vendor/bootstrap-select-1.12.4/js/bootstrap-select.min.js"></script>
+
+<div style="padding: 5% 30% 10px;">
+    <form id="change_shipping" class="bs-example bs-example-form" role="form" action="/t_online_info_wish_store_change_shipping/" method="POST">
+{#        <div class="input-group">#}
+{#            <span class="input-group-addon">ProductID</span>#}
+{#            <input type="text" class="form-control" placeholder="请输入所有需要调整国际运费的ProductID。。。" name="ProductID" id="ProductID">#}
+{#        </div>#}
+        <div class="form-group">
+            <label for="name">ProductID</label>
+            <textarea class="form-control" placeholder="请输入所有需要调整国际运费的ProductID。。。" autocomplete="off" rows="3" name="ProductID" id="ProductID"></textarea>
+        </div>
+        <br>
+        <div class="input-group">
+            <span class="input-group-addon">国家</span>
+            <select id="Country" name="Country" class="selectpicker show-tick form-control" multiple data-live-search="false">
+                <option value="FR">法国</option>
+                <option value="DE">德国</option>
+                <option value="JP">日本</option>
+                <option value="HU">匈牙利</option>
+                <option value="ZA">南非</option>
+                <option value="US">美国</option>
+                <option value="FI">芬兰</option>
+                <option value="DK">丹麦</option>
+                <option value="PR">波多黎各</option>
+                <option value="NL">荷兰</option>
+                <option value="NO">挪威</option>
+                <option value="NZ">新西兰</option>
+                <option value="PL">波兰</option>
+                <option value="CH">瑞士</option>
+                <option value="IT">意大利</option>
+                <option value="CZ">捷克</option>
+                <option value="AU">澳大利亚</option>
+                <option value="AT">奥地利</option>
+                <option value="IE">爱尔兰</option>
+                <option value="ES">西班牙</option>
+                <option value="SE">瑞典</option>
+                <option value="GB">英国</option>
+            </select>
+        </div>
+        <br>
+        <div class="modal-footer">
+{#            <button type="button" class="btn btn-default" onclick="javascript :history.back(-1);" >返回上一页#}
+{#            </button>#}
+            <button type="submit" class="btn btn-primary" >
+                提交更改
+            </button>
+        </div>
+        {% csrf_token %}
+    </form>
+</div>

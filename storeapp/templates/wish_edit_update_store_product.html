@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<script src="/static/xadmin/js/jquery-1.7.1.min.js"></script>
+<link href="/static/xadmin/vendor/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
+<script>
+    var idx = parent.layer.getFrameIndex(window.name);
+    function change_image(num){
+        top.img_path = '';
+        top.flag = 0;
+        top.uflag = '0';
+        top.layer.open({
+            type: 2,
+            skin: 'layui-layer-lan', //加上边框
+            shadeClose: true,
+            area: ['800px', '600px'], //宽高
+            content: '/change_image/?abc={{ productid }}',
+            end: function(index){
+                if (top.flag == 1){
+                    $('#id_'+num).attr('src', $.trim(top.img_path));
+                    $('#'+num).val($.trim(top.img_path));
+                    $('#'+num+'_flag').val($.trim(top.uflag));
+                }
+            }
+        });
+    }
+    function to_submit() {
+        parent.layer.confirm('确定提交变更吗？', {
+            skin: 'layui-layer-lan',
+            title:'变更提示。。',
+            btn: ['确定','算了'], //按钮 encodeURI
+            btn1:function(){
+                var datadict = {};
+                var idlist = ['name','description','tags','brand','landing_page_url','upc','max_quantity','main_image'];
+                for (var i=0,j=idlist.length;i<j;i++){
+                    var nametmp = document.getElementById(idlist[i]);
+                    var oldvalue = nametmp.defaultValue;
+                    var nowvalue = nametmp.value;
+
+                    if (idlist[i] == 'main_image'){
+                        var oldimg = document.getElementById('main_image_copy');
+                        oldvalue = oldimg.defaultValue;
+                    }
+
+                    if (oldvalue != nowvalue && nowvalue != ''){
+                        if (idlist[i] == 'main_image'){
+                            var dicttmp = {};
+                            dicttmp[nowvalue] = $('#main_image_flag').val();
+
+                            datadict[idlist[i]] = dicttmp;
+                        }else {
+                            datadict[idlist[i]] = nowvalue;
+                        }
+                    }
+                }
+                var e_images = document.getElementsByName('extraimg');
+                var e_images_copy = document.getElementsByName('extraimg_copy');
+                var e_images_flag = document.getElementsByName('extraimg_flag');
+                var e_list = new Array();
+                var change_flag = 0;
+                for (var a=0,b=e_images.length;a<b;a++){
+                    if (e_images[a].value != ''){
+                        var dicttmp = {};
+                        dicttmp[e_images[a].value] = e_images_flag[a].value;
+                        e_list.push(dicttmp);
+                    }
+
+                    if(e_images[a].value != e_images_copy[a].value){
+                        change_flag = 1;
+                    }
+                }
+                if (change_flag == 1){
+                    datadict['extra_images'] = e_list;
+                }
+
+                var data = JSON.stringify(datadict);
+                if (data != '{}'){
+                    to_start_submit(data);
+                    console.log(data);
+                }else {
+                    alert("请修改信息后，提交！");
+                }
+            }
+        });
+    }
+
+    function to_update_ing(){
+        return parent.layer.msg('努力修改中...', {icon: 16,shade: [0.5, '#f5f5f5'],scrollbar: false,offset: '50%', time:100000}) ;
+    }
+    function to_close_f(index){
+        parent.layer.close(index);
+    }
+    function to_done_ed(){
+        parent.layer.msg('修改完成！',{time: 1000,offset: '50%'});
+    }
+
+    function to_start_submit(data) {
+        var a = '';
+        var url = '/edit_update_by_wish_api_listid/?productid={{ productid }}&shopname={{ shopname }}&readonly={{ readonly }}';
+{##}
+{#        var myform=$('#updateform'); //得到form对象#}
+{#        var tmpInput=$("<input type='hidden' name='uflag'/>");#}
+{#        tmpInput.attr("value", uflag);#}
+{#        myform.append(tmpInput);#}
+
+        $.ajax({
+            url: url,
+            data: {
+                formdata: data
+            },
+            type: "POST",
+            dataType: "json",
+            beforeSend: function(xhr, settings) {
+                a = to_update_ing();
+            },
+            success: function (result) {
+                if (result.Code == '1'){
+                    alert(result.messages);
+                    to_close_f(a);
+                    to_done_ed(a);
+                }else {
+                    alert(result.messages);
+                    to_done_ed(a);
+                }
+                window.location.href = url;
+            },
+            error:function (XMLHttpRequest, textStatus, errorThrown) {
+                alert('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+            }
+        });
+    }
+
+</script>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Wish店铺管理--编辑更新</title>
+</head>
+
+<style>
+.button {
+    background-color: #428bca;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+</style>
+
+<body>
+    <a  style=" color:red; font-size:12px;" >注*：修改图片功能已经开放，现可以测试使用 如发现问题 请及时联系IT人员</a>
+    <form id="updateform" name="updateform" action="" method="POST">
+        <table align="center" style="width: 90%;margin-left: 10%;">
+            <tr>
+                <td width="200"><label>标题(Name)</label></td>
+                <td><input style="width: 90%;height: 30px" type="text" name="name" id="name" value="{{ name|safe }}" /></td>
+            </tr>
+            <tr>
+                <td><label>描述(Description)</label></td>
+                <td><textarea name="description" id="description" style="width: 90%;height: 165px;margin-top: 1px;">{{ descri|safe }}</textarea></td>
+            </tr>
+            <tr>
+                <td><label>标签(Tags)</label></td>
+                <td><input style="width: 90%;height: 30px;margin-top: 1px;" type="text" name="tags" id="tags" value="{{ tags|safe }}" /></td>
+            </tr>
+            <tr>
+                <td><label>品牌(Brand)</label></td>
+                <td><input style="width: 20%;height: 30px;margin-top: 1px;" type="text" name="brand" id="brand" value="" /></td>
+            </tr>
+            <tr>
+                <td><label>着陆页的URL</label></td>
+                <td><input style="width: 90%;height: 30px;margin-top: 1px;" type="text" name="landing_page_url" id="landing_page_url" value="" /></td>
+            </tr>
+            <tr>
+                <td><label>UPC</label></td>
+                <td><input style="width: 30%;height: 30px;margin-top: 1px;" type="text" name="upc" id="upc" value="" /></td>
+            </tr>
+            <tr>
+                <td><label>最大购买数</label></td>
+                <td><input type="text" name="max_quantity" id="max_quantity"  value="" style="margin-top: 1px;"/></td>
+            </tr>
+            <tr>
+                <td><label>主图</label></td>
+                <td>
+                    <a class="thumbnail" style="float: left;margin-top: 1px;">
+                        <img id="id_main_image" width="120" height="120"
+                              src="{{ MainImage }}"
+                              alt="主图" onclick="change_image('main_image')"/>
+                        <a style=" color:red; font-size:12px; float: left; margin-top: 110px;" >注意*：点击图片可以修改图片</a>
+                        <input id="main_image" type="hidden" name="main_image" value="{{ MainImage }}" />
+                        <input id="main_image_copy" type="hidden" name="main_image_copy" value="{{ MainImage }}" />
+                        <input id="main_image_flag" type="hidden" name="main_image_flag" value="0" />
+                    </a>
+                </td>
+            </tr>
+            <tr>
+                <td><label>附图</label></td>
+                <td>
+                    {% for v in extra_image_list %}
+                        <a class="thumbnail" style="float: left;margin-top: 1px;margin-left: 1px">
+                            <img id="id_{{ forloop.counter }}" onclick="change_image({{ forloop.counter }})" name="extra_images" width="80" height="80" src="{% if v %}{{ v }}{% else %}http://ou3qh0g46.bkt.clouddn.com/fancyqube.jpg{% endif %}"  alt="附图_{{ forloop.counter }}" />
+                            <input id="{{ forloop.counter }}" type="hidden" name="extraimg" value="{{ v }}" />
+                            <input id="{{ forloop.counter }}_copy" type="hidden" name="extraimg_copy" value="{{ v }}" />
+                            <input id="{{ forloop.counter }}_flag" type="hidden" name="extraimg_flag" value="0" />
+                        </a>
+                    {% endfor %}
+                </td>
+            </tr>
+        </table>
+        {% if readonly == '' %}
+        <table align="center">
+            <tr>
+                <td>
+                    <input type="button" class="button" onclick="to_submit()" value="确定保存">
+                </td>
+            </tr>
+        </table>
+        {% endif %}
+    {% csrf_token %}
+    </form>
+</body>
+</html>

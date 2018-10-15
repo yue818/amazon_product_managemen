@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Wish店铺运费调整</title>
+    <link rel="stylesheet" href="/static/xadmin/vendor/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/xadmin/vendor/bootstrap-select-1.12.4/css/bootstrap-select.min.css">
+{#	<script src="/static/xadmin/js/jquery-1.7.1.min.js"></script>#}
+	<script src="/static/xadmin/vendor/jquery/jquery.min.js"></script>
+	<script src="/static/xadmin/vendor/bootstrap/js/bootstrap.min.js"></script>
+	<script src="/static/xadmin/vendor/bootstrap-select-1.12.4/js/bootstrap-select.min.js"></script>
+
+</head>
+<body>
+<div style="padding: 5% 30% 10px;">
+    <form id="change_shipping" class="bs-example bs-example-form" role="form" action="{{ request.path }}?{{ request.GET.urlencode }}" method="POST">
+{#        <div class="input-group">#}
+{#            <span class="input-group-addon">ProductID</span>#}
+{#            <input type="text" class="form-control" placeholder="请输入所有需要调整国际运费的ProductID。。。" name="ProductID" id="ProductID">#}
+{#        </div>#}
+        <div class="form-group">
+            <label for="name">ProductID</label>
+            <textarea class="form-control" placeholder="请输入所有需要调整国际运费的ProductID。。。" autocomplete="off" rows="3" name="ProductID" id="ProductID"></textarea>
+        </div>
+        <br>
+        <div class="input-group">
+            <span class="input-group-addon">国家</span>
+            <select id="Country" name="Country" class="selectpicker show-tick form-control" multiple data-live-search="false">
+                <option value="BE">BE</option>
+                <option value="FR">FR</option>
+                <option value="BG">BG</option>
+                <option value="VE">VE</option>
+                <option value="BA">BA</option>
+                <option value="BB">BB</option>
+                <option value="DO">DO</option>
+                <option value="HR">HR</option>
+                <option value="BM">BM</option>
+                <option value="DE">DE</option>
+                <option value="JP">JP</option>
+                <option value="HU">HU</option>
+                <option value="HK">HK</option>
+                <option value="ZA">ZA</option>
+                <option value="JO">JO</option>
+                <option value="HN">HN</option>
+                <option value="US">US</option>
+                <option value="BR">BR</option>
+                <option value="FI">FI</option>
+                <option value="CO">CO</option>
+                <option value="DK">DK</option>
+                <option value="PR">PR</option>
+                <option value="RU">RU</option>
+                <option value="NL">NL</option>
+                <option value="PT">PT</option>
+                <option value="NO">NO</option>
+                <option value="TW">TW</option>
+                <option value="UA">UA</option>
+                <option value="VG">VG</option>
+                <option value="TR">TR</option>
+                <option value="NZ">NZ</option>
+                <option value="LI">LI</option>
+                <option value="LV">LV</option>
+                <option value="LT">LT</option>
+                <option value="LU">LU</option>
+                <option value="TH">TH</option>
+                <option value="PE">PE</option>
+                <option value="PK">PK</option>
+                <option value="PH">PH</option>
+                <option value="RO">RO</option>
+                <option value="EG">EG</option>
+                <option value="PL">PL</option>
+                <option value="CH">CH</option>
+                <option value="AE">AE</option>
+                <option value="GR">GR</option>
+                <option value="CL">CL</option>
+                <option value="EE">EE</option>
+                <option value="VI">VI</option>
+                <option value="CA">CA</option>
+                <option value="AL">AL</option>
+                <option value="EC">EC</option>
+                <option value="IT">IT</option>
+                <option value="CZ">CZ</option>
+                <option value="CY">CY</option>
+                <option value="AR">AR</option>
+                <option value="AU">AU</option>
+                <option value="AT">AT</option>
+                <option value="IN">IN</option>
+                <option value="VN">VN</option>
+                <option value="CR">CR</option>
+                <option value="IE">IE</option>
+                <option value="ID">ID</option>
+                <option value="ES">ES</option>
+                <option value="MD">MD</option>
+                <option value="MA">MA</option>
+                <option value="MC">MC</option>
+                <option value="JM">JM</option>
+                <option value="SG">SG</option>
+                <option value="IL">IL</option>
+                <option value="RS">RS</option>
+                <option value="MK">MK</option>
+                <option value="SK">SK</option>
+                <option value="KR">KR</option>
+                <option value="SI">SI</option>
+                <option value="KW">KW</option>
+                <option value="SA">SA</option>
+                <option value="MY">MY</option>
+                <option value="MX">MX</option>
+                <option value="SE">SE</option>
+                <option value="GB">GB</option>
+            </select>
+        </div>
+        <br>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" onclick="javascript :history.back(-1);" >返回上一页
+            </button>
+            <button type="submit" class="btn btn-primary" >
+                提交更改
+            </button>
+        </div>
+        {% csrf_token %}
+    </form>
+</div>
+<div class="pagination">
+    <span class="step-links">
+        {% if contacts.has_previous %}
+            <a href="?page={{ contacts.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ contacts.number }} of {{ contacts.paginator.num_pages }}.
+        </span>
+
+        {% if contacts.has_next %}
+            <a href="?page={{ contacts.next_page_number }}">next</a>
+        {% endif %}
+    </span>
+</div>
+<div>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>产品ID</th>
+                <th>国家</th>
+                <th>父SKU</th>
+{#                <th>店铺SKU</th>#}
+{#                <th>入参</th>#}
+{#                <th>出参</th>#}
+                <th>结果</th>
+                <th>调价后运费</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for pro in contacts %}
+            <tr>
+                <td>{{ pro.ProductID }}</td>
+                <td>{{ pro.Country }}</td>
+                <td>{{ pro.ParentSKU }}</td>
+{#                <td>{{ pro.ShopSKU }}</td>#}
+{#                <td>{{ pro.Param }}</td>#}
+{#                <td>{{ pro.Content }}</td>#}
+                <td>{{ pro.Sresult }}</td>
+                <td>{{ pro.Shipping_Price }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

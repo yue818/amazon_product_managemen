@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<link href="/static/xadmin/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+<script src="/static/xadmin/js/jquery-1.7.1.min.js"></script>
+<script src="/static/xadmin/vendor/bootstrap/js/bootstrap.min.js"></script>
+<script>
+    function set_shipping_price(self) {
+        var td_next = self.parentNode.nextElementSibling;
+        var price_dom = $(td_next).find('input')[0];
+        if (self.value == 'True'){
+            $(price_dom).attr('value','');
+            $(price_dom).attr('disabled','disabled');
+        }else {
+            $(price_dom).removeAttr('disabled');
+        }
+    }
+    
+    function show_seach_country(self) {
+        var all_countrys = document.getElementsByName('countryname');
+        for (var i=0,j=all_countrys.length;i<j;i++){
+            var ptrdom = all_countrys[i].parentNode.parentNode;
+            if ($.trim(self.value) != '' && all_countrys[i].innerText.indexOf($.trim(self.value)) == -1){
+                $(ptrdom).css('display', 'none');
+            }else {
+                $(ptrdom).css('display', '');
+            }
+        }
+    }
+
+    function return_selected(obj) {
+        var opts = obj.getElementsByTagName('option');
+        for (var a in opts) {
+            if (opts[a].defaultSelected) {
+                return opts[a].value;
+            }
+        }
+        return ''
+    }
+    
+    function to_update_shipping() {
+        var Tmp_dom = document.getElementsByName('countrycode');
+        var dom_lenght = Tmp_dom.length;
+
+        var datalist = new Array();
+        for (var i=0;i<dom_lenght;i++){
+            var datadict = {};
+            var name_list = ['countrycode', 'shipping_type', 'shipping_value', 'WishExpress', 'enabled'];
+
+            var country_name = document.getElementsByName('countryname')[i];
+            var country_code = document.getElementsByName('countrycode')[i];
+
+            var wish_express = document.getElementsByName('WishExpress')[i];
+            if (wish_express.defaultChecked != wish_express.checked){
+                if (wish_express.checked){
+                    datadict['wish_express']   = 'true';
+                }else {
+                    datadict['wish_express']   = 'false';
+                }
+            }
+
+            var country_enabled = document.getElementsByName('enabled')[i];
+            if (country_enabled.defaultChecked != country_enabled.checked){
+                if (country_enabled.checked){
+                    datadict['enabled']   = 'true';
+                }else {
+                    datadict['enabled']   = 'false';
+                }
+            }
+
+            var shipping_type = document.getElementsByName('shipping_type')[i];
+            var defaultselectedvalue = return_selected(shipping_type);
+            if ((shipping_type.value != defaultselectedvalue && defaultselectedvalue != '') || (JSON.stringify(datadict) != '{}')){
+                var shipping_price = document.getElementsByName('shipping_value')[i];
+                if (shipping_type.value == 'False' && shipping_price.value == ''){ // 单独设置运费时，请输入运费值
+                    alert('选择设置运费，请输入运费值！');
+                    return null
+                }else if (shipping_type.value == 'False' && shipping_price.value != '') {
+                    datadict['price']   = shipping_price.value;
+                }else {
+                    datadict['use_product_shipping'] = 'true';
+                    datadict['price'] = '1';
+                }
+            }
+
+            if (JSON.stringify(datadict) != '{}'){
+                datadict['country'] = country_code.value;
+                datalist.push(datadict);
+            }
+        }
+
+        if (JSON.stringify(datalist) != '[]'){
+            console.log(datalist);
+            start_ajax(JSON.stringify(datalist));
+        }else {
+            alert('无运费修改！');
+            return null
+        }
+    }
+
+    function beforeSend_ajax(){
+        return parent.layer.msg('努力修改中...', {icon: 16,shade: [0.5, '#f5f5f5'],scrollbar: false,offset: '50%', time:100000}) ;
+    }
+    function close_load(index){
+        parent.layer.close(index);
+    }
+    function show_log(){
+        parent.layer.msg('修改完成！',{time: 1000,offset: '50%'});
+    }
+
+    function start_ajax(post_data) {
+        var i;
+        var url = "/wish_store/edit_shipping_other_country/?product_id={{ product_id }}&shopname={{ shopname }}"+
+            "&readonly={{ readonly }}&warehouse={{ warehouse }}";
+        // 这里开始调取api
+        $.ajax({
+            url: url,
+            type: "POST",
+            dataType: "json",
+            data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                post_data: post_data
+            },
+            beforeSend: function () {
+                i = beforeSend_ajax();
+            },
+            success: function (result) {
+                console.log(result);
+                if (result.errorcode == 1) {
+                    var show_text = result.logs.split('; param: ');
+                    alert(show_text[0]);
+                    close_load(i);
+                    show_log();
+                } else {
+                    alert(result.errortext);
+                    console.log(result.errortext);
+                    close_load(i);
+                }
+                window.location.href = url;
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                console.log('错误信息：' + XMLHttpRequest.responseText);
+                close_load(i);
+            }
+        });
+    }
+
+
+</script>
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form id="update_shipping_form" name="update_shipping_form" action="" method="" autocomplete="off">
+{% csrf_token %}
+    {% if errorcode == 1 %}
+        <table align="center" class="table table-bordered table-striped table-hover" style="width: 80%">
+        <thead>
+            <tr align="center">
+                <th style="text-align:center; min-width: 55px;max-width: 88px;">
+                    <input type="text" class="form-control" name="seach_country" placeholder="搜索国家" onkeyup="show_seach_country(this)">
+                </th>
+                <th style="text-align:center">运费类型</th>
+                <th style="text-align:center">运费</th>
+                <th style="text-align:center">启用<br>WishExpress</th>
+                <th style="text-align:center">启用<br>选中国家可以售卖</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for detail_shipping in rsplist %}
+            <tr align="center">
+                <td>
+                    {% for k, v in countrys_code.items %}
+                        {% if k == detail_shipping.country_code %}
+                            <span name="countryname">{{ v }}</span>
+                        {% endif %}
+                    {% endfor %}
+                    <input type="hidden" name="countrycode" value="{{ detail_shipping.country_code }}">
+                </td>
+                <td>
+                    <select name="shipping_type" class='text-field admintextinputwidget form-control' onchange="set_shipping_price(this)"
+                        {% if detail_shipping.use_product_shipping == 'True' %}
+                            >
+                            <option value="True" selected>使用产品运费</option>
+                            <option value="False">使用设置运费</option>
+                        {% else %}
+                            disabled="disabled" >
+                            <option value="True">使用产品运费</option>
+                            <option value="False" selected>使用设置运费</option>
+                        {% endif %}
+                    </select>
+                </td>
+                <td>
+                    <div class="input-group" style="max-width: 150px;">
+                        {% if detail_shipping.use_product_shipping == 'True' %}
+                            <input type="text" class="form-control" name="shipping_value" value="" disabled="disabled" onkeyup="value=value.replace(/[^\d.]/g,'');">
+                        {% else %}
+                            <input type="text" class="form-control" name="shipping_value" value="{{ detail_shipping.shipping_price }}" onkeyup="value=value.replace(/[^\d.]/g,'');">
+                        {% endif %}
+                        <span class="input-group-addon">USD</span>
+                    </div>
+                </td>
+                <td style="text-align:center">
+                    <div class="checkbox">
+                        {% if detail_shipping.wish_express == 'True' %}
+                            <label><input type="checkbox" name="WishExpress" checked >是否启用</label>
+                        {% else %}
+                            <label><input type="checkbox" name="WishExpress" >是否启用</label>
+                        {% endif %}
+                    </div>
+                </td>
+                <td style="text-align:center">
+                    <div class="checkbox">
+                        {% if detail_shipping.enabled == 'True' %}
+                            <label><input type="checkbox" name="enabled" checked>是否可售</label>
+                        {% else %}
+                            <label><input type="checkbox" name="enabled">是否可售</label>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+        {% if not readonly %}
+        <table align="center">
+            <tr>
+                <td style="float: left">
+                    <input type="button" class="btn btn-primary" onclick="to_update_shipping()" value="确定修改">
+                </td>
+            </tr>
+        </table>
+        {% endif %}
+    {% else %}
+        {{ errortext|safe }}
+    {% endif %}
+</form>
+</body>
+</html>

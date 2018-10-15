@@ -1,0 +1,32 @@
+
+{% if activeflag != 'FBW' %}
+<div style="float: right;margin-top: 15px;">
+    <label class="radio-inline">帮助选中按钮: </label>
+    <label class="radio-inline"><input name="select" type="radio" onclick="_to_select(this.value)" value="正常" disabled="disabled">正常</label>
+    <label class="radio-inline"><input name="select" type="radio" onclick="_to_select(this.value)" value="临时下架">临时下架</label>
+    <label class="radio-inline"><input name="select" type="radio" onclick="_to_select(this.value)" value="售完下架">售完下架</label>
+    <label class="radio-inline"><input name="select" type="radio" onclick="_to_select(this.value)" value="停售">停售</label>
+    <label class="radio-inline"><input name="select" type="radio" onclick="_to_select(this.value)" value="全部" disabled="disabled">全部</label>
+    <label class="radio-inline"><input name="select" type="radio" onclick="_to_select(this.value)" value="取消选择" checked>取消选择</label>
+</div>
+
+<script>
+    function _to_select(selectval) {
+        var trdoms = document.getElementsByName('detail_infors');
+
+        for (var i=0,j=trdoms.length;i<j;i++){
+            var tddoms = trdoms[i].childNodes;
+            if (tddoms.length <= 0){
+                continue;
+            }
+            var selectval_GET = tddoms[2].innerText;
+            var input_checkbox = $(tddoms[0]).find('input')[0];
+            if (selectval_GET == selectval || selectval == '全部'){
+                $(input_checkbox).prop("checked", true);
+            }else {
+                $(input_checkbox).prop("checked", false);
+            }
+        }
+    }
+</script>
+{% endif %}

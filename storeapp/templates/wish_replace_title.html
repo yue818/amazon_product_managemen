@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Wish标题批量替换与修改</title>
+    <link rel="stylesheet" href="/static/xadmin/vendor/bootstrap/css/bootstrap.min.css">
+	<script src="/static/xadmin/js/jquery-1.7.1.min.js"></script>
+	<script src="/static/xadmin/vendor/bootstrap/js/bootstrap.min.js"></script>
+    <script>
+        var partlength = 0;
+        var id = '';
+
+        function _sub_to_action_() {
+            var oldvalue = document.getElementById('oldkeywords');
+            var newvalue = document.getElementById('newkeywords');
+            if (!oldvalue.value){
+                alert('请输入原标题关键词');
+                return
+            }
+            if (!newvalue.value){
+                alert('请输入现标题关键词');
+                return
+            }
+            if (oldvalue.value.toLowerCase( ) == newvalue.value.toLowerCase( )){
+                alert('标题修改新值和旧值不能一样！');
+                return
+            }
+            $('#updatetitle_box').modal({backdrop: 'static', keyboard: false});
+        }
+        $(function () {
+            $('#updatetitle_box').on('hide.bs.modal', function () {
+                var hidden = document.getElementById('hidden_id');
+                if (hidden.value == '1'){
+                    alert("更新没有完成不能关闭");
+                    return false
+                }
+                document.getElementById('model_progress').style.width = '0%';
+                document.getElementById('progress_bar').style.display = 'none';
+                var model_info = document.getElementById('model_info');
+                model_info.innerText = '';
+                var model_text = document.getElementById('model_text');
+                model_text.innerText = '';
+                clearInterval(id);
+            })
+        });
+
+        function to_updatetitle() {
+            var model_info = document.getElementById('model_info');
+            model_info.innerHTML = model_info.innerHTML + '<span id="zt">正在同步数据。。。</span>';
+
+            $.ajax({
+                url: "/t_online_info_wish_store_update_title/?productid={{ protmp }}",
+                data: $("#updatetitle").serialize(),
+                type: "POST",
+                dataType: "json",
+                success: function (result) {
+                    if (result.Code == '1'){
+                        $('#hidden_id').val('1'); // progress_bar
+                        document.getElementById('progress_bar').style.display = '';
+                        refresh_process(result.flagname);
+                    }else {
+                        alert(result.messages);
+                    }
+                },
+                error:function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                }
+            });
+        }
+
+        function refresh_process(key) {
+            $.getJSON('/wish_store_management/get_refresh_process/?key='+key, function(result){
+                if (result.resultCode == '1'||result.resultCode == '2') { //进程查询成功
+                    var aNum = Number(result.aNum);
+                    var rNum = Number(result.rNum);
+                    var eNum = Number(result.eNum);
+                    var StartTime = result.StartTime;
+
+                    var model_text = document.getElementById('model_text');
+                    model_text.innerHTML ='<br><span id="starttime">' + '开始时间:' + StartTime + '</span><span id="EndTime"></span>' +
+                                          '<br><span id="processid">' + '全部:'+aNum + '\n已成功:'+rNum + '\n已失败' + eNum + '</span>' +
+                                          '<br><div id="elogs"><span>错误日志：<br></span></div>';
+
+                    document.getElementById('model_progress').style.width = (((rNum+eNum)/aNum).toFixed(2)).toString() + '%';
+                    id = setInterval('get_process("'+ key + '")',500);
+
+                }
+                if (result.resultCode == '-1'){
+                    alert(result.errorText);
+                    console.log(result.errorText);
+                }
+            });
+        }
+
+
+        // 更新刷新进度
+        function get_process(key) {
+            $.getJSON('/wish_store_management/get_refresh_process/?key='+key, function(result){
+                partlength ++;
+                console.log(partlength);
+                var process = document.getElementById('processid');
+                if (result.resultCode == '1') {
+                    var aNum = Number(result.aNum);
+                    var rNum = Number(result.rNum);
+                    var eNum = Number(result.eNum);
+                    var eLogs = eval(result.eSynLog);
+
+                    process.innerText = '全部:'+aNum + '\n已成功:'+rNum + '\n已失败' + eNum;
+
+                    var elogshtml = document.getElementById('elogs');
+                    var html = '错误日志：<br>';
+                    for (var i=0;i<eLogs.length;i++){
+                        html += '<span>'+ eLogs[i]["key"] + ':'+ eLogs[i]["mag"].toString() +'</span><br>';
+                    }
+                    elogshtml.innerHTML = html;
+
+                    document.getElementById('model_progress').style.width = (((rNum+eNum)/aNum).toFixed(2)*100).toString() + '%';
+                }
+                if (result.resultCode == '2'){
+                    var aNume = Number(result.aNum);
+                    var rNume = Number(result.rNum);
+                    var eNume = Number(result.eNum);
+                    var eeLogs = eval(result.eSynLog);
+                    var EndTime = result.EndTime;
+
+                    process.innerText = '全部:'+aNume + '\n已成功:'+rNume + '\n已失败' + eNume;
+
+                    var eelogshtml = document.getElementById('elogs');
+                    var ehtml = '错误日志：<br>';
+                    for (var e=0; e<eeLogs.length;e++){
+                         ehtml += '<span>'+ eeLogs[e]["key"] + ':'+ eeLogs[e]["mag"].toString() +'</span><br>';
+                    }
+                    eelogshtml.innerHTML = ehtml;
+
+                    var endtime = document.getElementById('EndTime');
+                    endtime.innerText = '结束时间:'+EndTime;
+                    document.getElementById('model_progress').style.width = '100%';
+
+                    var zt = document.getElementById('zt');
+                    zt.innerText = '---完成';
+                    clearInterval(id);
+                    $('#hidden_id').val('0');
+                }
+                if (result.resultCode == '-1'){
+                    alert(result.errorText);
+                    console.log(result.errorText);
+                }
+            });
+        }
+
+
+    </script>
+</head>
+<body>
+<div style="padding: 5% 30% 10px;">
+    <form id="updatetitle" class="bs-example bs-example-form" role="form" action="" method="POST">
+        <div class="input-group">
+            <span class="input-group-addon">原标题关键词</span>
+            <input type="text" class="form-control" placeholder="原标题关键词,请输入。。。" name="oldkeywords" id="oldkeywords">
+        </div>
+        <br>
+        <div class="input-group">
+            <span class="input-group-addon">现标题关键词</span>
+            <input type="text" class="form-control" placeholder="现标题关键词,请输入。。。" name="newkeywords" id="newkeywords">
+        </div>
+        <br>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" onclick="javascript :history.back(-1);" >返回上一页
+            </button>
+            <button type="button" class="btn btn-primary" onclick="_sub_to_action_()">
+                提交更改
+            </button>
+        </div>
+        {% csrf_token %}
+    </form>
+</div>
+<!-- 模态框（Modal）-->
+<div class="modal fade" id="updatetitle_box" tabindex="-1" role="dialog" aria-labelledby="action_Modal_title" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="Modal_title">
+                    Title
+                </h4>
+            </div>
+            <input type="hidden" value="" id="modal_hidden_id">
+            <input type="hidden" value="0" id="hidden_id">
+            <div class="modal-body">
+                <span id="model_info">更新标题</span>
+                <div class="progress progress-striped active" id="progress_bar" style="display: none">
+                    <div class="progress-bar progress-bar-success" role="progressbar"
+                         aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"
+                         style="width: 0%;" id="model_progress">
+                        <span class="sr-only">0% 完成</span>
+                    </div>
+                </div>
+                <span id="model_text"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                </button>
+                <button type="button" class="btn btn-primary" onclick="to_updatetitle()" id="action_model">
+                    提交
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+</body>
+</html>

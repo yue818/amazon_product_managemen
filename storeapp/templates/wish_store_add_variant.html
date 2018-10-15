@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<script type="text/javascript" src="/static/xadmin/vendor/jquery/jquery.min.js"></script>
+<link href="/static/xadmin/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+<script src="/static/xadmin/vendor/bootstrap/js/bootstrap.min.js"></script>
+<script src="/static/xadmin/vendor/selectize/selectize.js"></script>
+<link href="/static/xadmin/vendor/selectize/selectize.css" rel="stylesheet" />
+<script>
+    $(document).ready(function() {
+        var color_list_tmp = {{ colorlist|safe }};
+        var color_list = new Array();
+        for (var i=0,j=color_list_tmp.length;i<j;i++){
+            color_list.push({'id': color_list_tmp[i], 'title': color_list_tmp[i]})
+        }
+        $('#id_color').selectize({
+            valueField: 'id',
+            labelField: 'title',
+            searchField: 'title',
+            sortField: 'title',
+            options: color_list,
+            create: true,
+            dropdownParent : 'body'
+        });
+    });
+    
+    var index = parent.layer.getFrameIndex(window.name);
+    function submit_variant() {
+{#        alert('变体增加请求已发出');#}
+        var data = {};
+        data['sku'] = $('#id_sku').val();
+        data['inventory'] = $('#id_inventory').val();
+        data['msrp'] = $('#id_msrp').val();
+        data['price'] = $('#id_price').val();
+        data['shipping'] = $('#id_shipping').val();
+        data['color'] = $('#id_color').val();
+        data['size'] = $('#id_size').val();
+        data['shipping_time'] = $('#id_shippingtime').val();
+
+        var pic_dict = {};
+        pic_dict[$('#img').val()] = $('#if_flag').val();
+        data['main_image'] = pic_dict;
+
+        console.log(data);
+        var str_data = JSON.stringify(data);
+
+        var i = '';
+        $.ajax({
+            url: '/t_online_info_wish_store_add_variant/?product_id={{ product_id }}',
+            data: {
+                formData: str_data
+            },
+            type: "Post",
+            dataType: "json",
+            beforeSend: function () {
+                i = ityzl_SHOW_LOAD_LAYER();
+            },
+            success: function (result) {
+                if (result.errorcode == '1'){
+                    alert(result.messages);
+                    console.log(result);
+                }else {
+                    alert('错误信息：' + result.errortext);
+                    console.log('错误信息：' + result.errortext);
+                }
+                ityzl_CLOSE_LOAD_LAYER(i);
+                ityzl_SHOW_TIP_LAYER();
+            },
+            error:function (XMLHttpRequest, textStatus, errorThrown) {
+                alert('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                console.log('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                ityzl_CLOSE_LOAD_LAYER(i);
+            }
+        });
+
+{#        var u_flag = $('#if_flag').val();#}
+{#        var img_path = document.getElementById('img').value;#}
+{#        if (img_path != ''){#}
+{#            top.flag = 1;#}
+{#            top.uflag = u_flag;#}
+{#            top.img_path = img_path;#}
+{#            top.layer.close(index);#}
+{#        }#}
+{#        else {#}
+{#            parent.layer.confirm('确定不修改图片吗？', {#}
+{#            skin: 'layui-layer-lan',#}
+{#            title:'信息提示。。',#}
+{#            btn: ['确定','在想想'], //按钮#}
+{#            btn1:function () {#}
+{#                top.layer.close(index);#}
+{#            }#}
+{#        });#}
+{#        }#}
+    }
+
+    function show_this_pic() {
+        var pic_value = $('#img_url').val();
+        if (pic_value != '') {
+            var wish_flag = pic_value.indexOf('.wish.');
+            if (wish_flag == -1){
+                alert('只能输入Wish平台图片！');
+                $('#img_url').val('');
+            }else {
+                $('#img').val(pic_value);
+                $('#id_img').attr('src', pic_value);
+                $('#if_flag').val('0');
+            }
+        }else {
+            alert('请输入图片URL');
+        }
+    }
+
+    function ityzl_SHOW_LOAD_LAYER(){
+        return parent.layer.msg('努力修改中，请稍等...', {icon: 16,shade: [0.5, '#f5f5f5'],scrollbar: false,offset: '50%', time:100000}) ;
+    }
+    function ityzl_CLOSE_LOAD_LAYER(index){
+        parent.layer.close(index);
+    }
+    function ityzl_SHOW_TIP_LAYER(){
+        parent.layer.msg('修改完成！',{time: 1000,offset: '50%'});
+    }
+
+    function upload_vImg(self) {
+        var i = '';
+        var formFile = new FormData();
+        var fileObj = self.files[0];
+
+        if (typeof (fileObj) == "undefined" || fileObj.size <= 0) {
+           alert("请选择图片");
+           return;
+        }
+
+        var action = "/t_online_info_wish_store_upload_image/store_upload_image/" ;
+        formFile.append("action", action);
+        formFile.append("image", fileObj); //加入文件对象
+        formFile.append("shopname", $('#id_shopname').val()); //加入文件对象
+
+        $.ajax({
+            url: action,
+            data: formFile,
+            type: "Post",
+            dataType: "json",
+            cache: false,//上传文件无需缓存
+            processData: false,//用于对data参数进行序列化处理 这里必须false
+            contentType: false, //必须
+            beforeSend: function () {
+                i = ityzl_SHOW_LOAD_LAYER();
+            },
+            success: function (result) {
+                console.log('获取函数返回结果时间---' + new Date());
+                if (result.Code == '1'){
+                    $('#img').val($.trim(result.PicPath));
+                    $('#id_img').attr('src', $.trim(result.PicPath));
+                    $('#if_flag').val('1');
+                }else {
+                    alert('错误信息：' + JSON.stringify(result));
+                    console.log(JSON.stringify(result));
+                }
+                ityzl_CLOSE_LOAD_LAYER(i);
+                ityzl_SHOW_TIP_LAYER();
+            },
+            error:function (XMLHttpRequest, textStatus, errorThrown) {
+                alert('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                console.log('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                ityzl_CLOSE_LOAD_LAYER(i);
+            }
+        });
+    }
+</script>
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+
+<style>
+.button {
+    background-color: #428bca;
+    border: none;
+    color: white;
+    padding: 10px 8px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+</style>
+
+<body>
+<form autocomplete="off">
+    <div class="panel-body ">
+        <div class="row" id="id_variant_image">
+            <a class="thumbnail dropdown-toggle" style="position: absolute;" ondragstart="return false;" data-toggle="dropdown">
+                <img src="http://ou3qh0g46.bkt.clouddn.com/fancyqube.jpg" alt="变体图" id="id_img" width="100" height="100">
+                <input type="hidden" value="" name="img" id="img">
+                <input type="hidden" value="0" name="upload_flag" id="if_flag">
+            </a>
+        </div>
+    </div>
+    <table align="left" style="margin-top: 100px;width: 100%">
+        <tr align="left">
+            <td>
+                <input style="width: 600px;float: left" type='text'  id='img_url' name="img_url" value="" class="text-field admintextinputwidget form-control">
+                <button type="button" class="btn btn-default" onclick="show_this_pic()" >点击预览URL图片</button>
+                <button type="button" class="btn btn-default" onclick="javascrip:$('#id_upload').click();">点击上传本地图</button>
+            </td>
+            <input type="file" id="id_upload" onchange="upload_vImg(this);" style="display:none;" value="" accept="image/gif, image/jpeg, image/png, image/gif ">
+        </tr>
+    </table>
+    <br>
+    <span style="color: red" id="warning">* 注意: 新增变体的颜色或者尺寸不能重复，如果重复会进行修改操作，而不是新增</span>
+    <table align="center" class="table table-bordered table-striped table-hover editable" style="width: 100%;margin-top: 20px;">
+        <tr>
+            <td>
+                <label style="float: left;margin-top: 8px; width: 90px">产品ID:</label>
+                <input type="text" class="text-field admintextinputwidget form-control" value="{{ product_id }}" id="id_product_id" name="product_id" style="width: 280px" readonly>
+            </td>
+            <td>
+                <label style="float: left;margin-top: 8px; width: 90px">店铺SKU:</label>
+                <input type="text" class="text-field admintextinputwidget form-control" value="" id="id_sku" name="sku" style="width: 280px">
+            </td>
+            <td>
+                <label style="float: left;margin-top: 8px; width: 90px">库存量:</label>
+                <input type="text" class="text-field admintextinputwidget form-control" value="" id="id_inventory" name="inventory" style="width: 280px" onkeyup="value=value.replace(/[^\d]/g,'');">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label style="float: left;margin-top: 8px; width: 90px">MSRP:</label>
+                <input type="text" class="text-field admintextinputwidget form-control" value="" id="id_msrp" name="msrp" style="width: 280px" onkeyup="value=value.replace(/[^\d.]/g,'');">
+            </td>
+            <td>
+                <label style="float: left;margin-top: 8px; width: 90px">价格:</label>
+                <input type="text" class="text-field admintextinputwidget form-control" value="" id="id_price" name="price" style="width: 280px" onkeyup="value=value.replace(/[^\d.]/g,'');">
+            </td>
+            <td>
+                <label style="float: left;margin-top: 8px; width: 90px">运费:</label>
+                <input type="text" class="text-field admintextinputwidget form-control" value="" id="id_shipping" name="shipping" style="width: 280px" onkeyup="value=value.replace(/[^\d.]/g,'');">
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label style="float: left;margin-top: 8px; width: 90px">颜色:</label>
+                <div style="float: left;">
+                    <select id="id_color" name="color" style="width: 280px">
+                    </select>
+                </div>
+            </td>
+            <td>
+                <label style="float: left;margin-top: 8px; width: 90px">尺寸:</label>
+                <input type="text" class="text-field admintextinputwidget form-control" value="" id="id_size" name="size" style="width: 280px">
+            </td>
+            <td>
+                <label style="float: left;margin-top: 8px; width: 90px">运输时间:</label>
+                <input type="text" class="text-field admintextinputwidget form-control" value="10-25" id="id_shippingtime" name="shippingtime" style="width: 280px" onkeyup="value=value.replace(/[^\d-]/g,'');">
+            </td>
+        </tr>
+    </table>
+    <br>
+    <table align="center">
+        <tr align="center">
+            <td>
+                <input type="button" class="button" onclick="submit_variant()" value="确定增加变体">
+                <input type="hidden" id="id_parent_sku" name="parent_sku" value="{{ parent_sku }}">
+            </td>
+        </tr>
+    </table>
+    {% csrf_token %}
+</form>
+</body>
+</html>
