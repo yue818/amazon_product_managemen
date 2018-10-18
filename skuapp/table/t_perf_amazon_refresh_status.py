@@ -52,6 +52,16 @@ class t_perf_amazon_refresh_status(models.Model):
     finance_refresh_end_time = models.DateTimeField(u'退款记录刷新结束时间', blank=True, null=True)
     finance_refresh_remark = models.CharField(u'退款记录刷新备注', max_length=255, blank=True, null=True)
 
+    actionable_refresh_status = models.CharField(u'未发货订单刷新状态', max_length=32, blank=True, null=True)
+    actionable_refresh_begin_time = models.DateTimeField(u'未发货订单刷新开始时间', blank=True, null=True)
+    actionable_refresh_end_time = models.DateTimeField(u'未发货订单刷新结束时间', blank=True, null=True)
+    actionable_refresh_remark = models.CharField(u'未发货订单刷新备注', max_length=255, blank=True, null=True)
+
+    odr_refresh_status = models.CharField(u'缺陷订单刷新状态', max_length=32, blank=True, null=True)
+    odr_refresh_begin_time = models.DateTimeField(u'缺陷订单刷新开始时间', blank=True, null=True)
+    odr_refresh_end_time = models.DateTimeField(u'缺陷订单刷新结束时间', blank=True, null=True)
+    odr_refresh_remark = models.CharField(u'缺陷订单刷新备注', max_length=255, blank=True, null=True)
+
     is_valid = models.IntegerField(u'店铺状态', max_length=1, blank=True, null=True)
 
     class Meta:

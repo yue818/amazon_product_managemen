@@ -867,7 +867,7 @@ class t_online_info_amazon_listing_Admin(object):
     list_display = ('id', 'show_image_url', 'show_item_name_and_product_id', 'show_order', 'Status', 'show_sku_list', 'show_time', 'show_operations', 'action_remark')
     search_fields = None
     list_filter = None
-    list_editable = ('action_remark',)
+    list_editable = ['action_remark']
 
     def get_list_queryset(self, ):
         request = self.request

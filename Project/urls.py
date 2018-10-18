@@ -23,7 +23,9 @@ from skuapp.views import *
 from gather_app.views import *
 from storeapp.views import *
 from pyapp.views import *
+from reportapp.views import *
 from wishpubapp.views import *
+from sqlapp.views import *
 from pyapp.views import shopSKU,show_moreInfo,show_Remark,show_transportGoods,syn_b_goods
 import xadmin
 xadmin.autodiscover()
@@ -34,6 +36,7 @@ handler500 = page_error1
 handler502 = page_error2
 handler504 = page_error3
 from app_djcelery.views import *
+from aliapp.views import *
 # from django.contrib import admin
 xadmin.autodiscover()
 from chart_app.views import *
@@ -41,6 +44,11 @@ import joom_app.urls
 import aliexpress_app.urls
 from picapp.views import *
 import mymall_app.urls
+import ebayapp.urls
+import lzd_app.urls
+import shopee_app.urls
+# import factory_app.urls
+from callbackapp.views import *
 
 urlpatterns = [
     url(r'^$',homepage),
@@ -53,7 +61,11 @@ urlpatterns = [
     url(r'^t_config_apiurl_asin/show_rank/', show_rank),
     url(r'^t_product_mainsku_sku/show_price_sj/', wish_calculate),
     url(r'^t_online_info_wish/SKU/', SKU),
-    url(r'^show_1688pic/', show_1688pic), 
+    url(r'^show_1688pic/', show_1688pic),
+    url(r'^aliexpress_cc/', aliexpress_cc),
+    url(r'^aliexpress_exe/', aliexpress_exe),
+    url(r'^batch_suanjia',batch_suanjia),
+    url(r'^get_tags/',get_tags),
     url(r'^t_online_info_wish_store/ShopSKU/',ShopSKU_edit,name='ShopSKU_edit'),
     url(r'^t_task_details/details/', t_task_details),
     url(r'^task/sub/', task_sub),
@@ -63,13 +75,16 @@ urlpatterns = [
     url(r'^t_task_trunk/bhtc/', trunk_bhtc),
     url(r'^t_task_trunk/wtqx/', trunk_wtqx),
     url(r'^t_task_trunk/rwtj/', t_task_trunk_rwtj),
-    url(r'^t_product_up_down/delay/', t_product_up_down_delay), 
-    url(r'^delay/day', delay_day),      
-    url(r'^aliexpress_refund_info/',aliexpress_refund_info),  
-    url(r'^storage/',storage),    
+    url(r'^t_product_up_down/delay/', t_product_up_down_delay),
+    url(r'^delay/day', delay_day),
+    url(r'^aliexpress_refund_info/',aliexpress_refund_info),
+    url(r'^storage/',storage),
+    url(r'^addseats/',addseats),
+    url(r'^joom_refund/',joom_refund),
     url(r'^price_list/',price_list),
     url(r'^price_list2/',price_list2),
     url(r'^price_list3/',price_list3),
+    url(r'^price_list4/',price_list4),
     url(r'^price_list_tab/',price_list_tab),
     url(r'^price_list_file/',price_list_file),
     url(r'^price_list_rz/',price_list_rz),
@@ -81,6 +96,7 @@ urlpatterns = [
     url(r'^Project/admin/skuapp/t_task_trunk/t_task_son/', t_task_son),
     url(r'^t_online_info_wish/PB/', PB),
     url(r'^t_product_mainsku_all/SKUB/', SKUB),
+    url(r'^t_stockorderm_track/t_stockorderm_sku/',t_stockorderm_sku),
     url(r'^t_product_b_goods_shopSKU/shopSKU',shopSKU),
     url(r'^t_product_b_goods_show_transportGoods/show_transportGoods',show_transportGoods),
     url(r'^t_product_b_goods_show_Remark/show_Remark',show_Remark),
@@ -103,16 +119,30 @@ urlpatterns = [
     url(r'^t_product_up_downPlugin/$',t_product_up_downPlugin,name ='t_product_up_downPlugin'),
     url(r'^black_list_Plugin/$',black_list_Plugin,name ='black_list_Plugin'),
     url(r'^kc_currentstock_sku_log/saleseveryday/', saleseveryday),
+    url(r'^create_cg_stockorderm_refund/$',create_cg_stockorderm_refund,name ='create_cg_stockorderm_refund'),
+    url(r'^cg_stockorderm_show_Goods/show_cg_Goods',show_cg_Goods),
+    url(r'^cg_stockorderm_show_refund/show_cg_refund',show_cg_refund),
+    url(r'^add_cg_abnormal_display/add_cg_abnormal',add_cg_abnormal),
+    url(r'^search_cg_sku/$',search_cg_sku,name ='search_cg_sku'),
+    url(r'^insert_cg_abnormal/$',insert_cg_abnormal,name ='insert_cg_abnormal'),
+    url(r'^handele_abnorma_status/$',handele_abnorma_status,name ='handele_abnorma_status'),
+    url(r'^create_report_supplier/$',create_report_supplier,name ='create_report_supplier'),
     url(r'^update_cg_status/$',update_cg_status,name ='update_cg_status'),
     url(r'^shift_to_ignore/$',shift_to_ignore,name ='shift_to_ignore'),
     url(r'^get_cg_data/$',get_cg_data,name ='get_cg_data'),
+    url(r'^shift_to_gift/$',shift_to_gift,name ='shift_to_gift'),
+    url(r'^get_cg_bufa/$',get_cg_bufa,name ='get_cg_bufa'),
+    url(r'^wirte_to_cg_note/$',wirte_to_cg_note,name ='wirte_to_cg_note'),
+    url(r'^create_cg_data/$',create_cg_data,name ='create_cg_data'),
     url(r'^get_cg_remark/$',get_cg_remark,name ='get_cg_remark'),
+    url(r'^shift_to_archive/$',shift_to_archive,name ='shift_to_archive'),
     url(r'^shift_to_cg/$',shift_to_cg,name ='shift_to_cg'),
+    url(r'^search_SupplierName/$',search_SupplierName,name ='search_SupplierName'),
     url(r'^kc_currentstock_Plugin/$',kc_currentstock_Plugin,name ='kc_currentstock_Plugin'),
     #url(r'^check_box_list/$',check_box_list,name ='check_box_list'),
     url(r'^search_Purchaser/$', search_Purchaser,name='search_Purchaser'),
     url(r'^jump_kc_Status/$', jump_kc_Status,name='jump_kc_Status'),
-    url(r'^update_purchaserData/$', update_purchaserData,name='update_purchaserData'),        
+    url(r'^update_purchaserData/$', update_purchaserData,name='update_purchaserData'),
     url(r'^addmainsku_sku/$',addmainsku_sku,name ='addmainsku_sku'),
     url(r'^button_Plugin/$',button_Plugin,name ='button_Plugin'),
     url(r'^search_sku_Plugin/$',search_sku_Plugin,name ='search_sku_Plugin'),
@@ -176,9 +206,10 @@ urlpatterns = [
     url(r'^index/',index,name='index'),
     url(r'^celery_mix_opration/',celery_mix_opration,name='celery_mix_opration'),
     url(r'^cexport_refund_to_oss_Plugin/$', cexport_refund_to_oss_Plugin, name='cexport_refund_to_oss_Plugin'),
+    url(r'^t_config_store_ebay_regetpes_oauth/', t_config_store_ebay_regetpes_oauth,name='t_config_store_ebay_regetpes_oauth'),
     url(r'^t_config_store_ebay_regetpes_torken/', t_config_store_ebay_regetpes_torken, name='t_config_store_ebay_regetpes_torken'),
     url(r'^t_config_store_ebay_regetpes_plugin/', t_config_store_ebay_regetpes_plugin,name='t_config_store_ebay_regetpes_plugin'),
-
+    url(r'^', include(ebayapp.urls, namespace='ebayapp')),
     url(r'^t_config_wishapi_product_analyse_info_start/', t_config_wishapi_product_analyse_info_start, name='t_config_wishapi_product_analyse_info_start'),
     url(r'^importfile_paypal_tort/',importfile_paypal_tort,name='importfile_paypal_tort'),
     url(r'^importfile_aliexpress_refund/',importfile_aliexpress_refund,name='importfile_aliexpress_refund'),
@@ -189,6 +220,7 @@ urlpatterns = [
 
     # Joom URL
     url(r'^', include(joom_app.urls, namespace='joom_app')),
+    url(r'^lzd_app/', include(lzd_app.urls, namespace='lzd_app')),
 
     url(r'^up_dis_by_wish_api_shopsku/',dis_enable_by_shopsku,name='dis_enable_by_shopsku'),
     url(r'^edit_update_by_wish_api_listid/',wish_edit_update,name='wish_edit_update'),
@@ -200,7 +232,7 @@ urlpatterns = [
     url(r'^change_colcol/',change_col,name='change_col'),
     url(r'^syn_b_goods/',syn_b_goods, name='syn_b_goods'),
     url(r'^TestAjax/',TestAjax, name='TestAjax'),
-    
+
     url(r'^t_online_info_amazon_listing_syn_shopname/', t_online_info_amazon_listing_syn_shopname, name='t_online_info_amazon_listing_syn_shopname'),
     url(r'^t_online_info_amazon_listing_complete_shopname/', t_online_info_amazon_listing_complete_shopname, name='t_online_info_amazon_listing_complete_shopname'),
     url(r'^syndata_by_amazon_api/', syndata_by_amazon_api,name='syndata_by_amazon_api'),
@@ -221,8 +253,8 @@ urlpatterns = [
     url(r'^chioce_three_cate_of_clothing/',chioce_three_cate_of_clothing,name='chioce_three_cate_of_clothing'), # 用于 开发页面 显示 选择服装三级分类的函数调用
     url(r'^select_next_cate/',select_next_cate,name='select_next_cate'), # 用于 根据所选上级分类 查询下级分类
     url(r'^t_online_info_wish/w_remark/',w_remark,name='w_remark'), # 用于 Wish店铺管理
-    
-    
+
+
     url(r'refresh_product_amzon/',refresh_product_amzon,name='refresh_product_amzon'),
     url(r'load_amazon_products/',load_amazon_products,name='load_amazon_products'),
     url(r'^change_joom_picture/',change_joom_picture,name='change_joom_picture'),
@@ -249,7 +281,7 @@ urlpatterns = [
     url(r'^t_online_info_wish_store_update_title/',wish_store_update_title,name='wish_store_update_title'), # 用于 Wish 批量替换标题
 
     url(r'^t_online_info_wish_store_change_shipping/',wish_store_change_shipping,name='wish_store_change_shipping'), # 用于 Wish 批量修改运费
-    url(r'^t_templet_amazon_upload/',amazon_prodcut_variation,name='amazon_prodcut_variation'), 
+    url(r'^t_templet_amazon_upload/',amazon_prodcut_variation,name='amazon_prodcut_variation'),
     url(r'^t_product_depart_get/show_SalesAttr/', edit_show_SalesAttr, name='edit_show_SalesAttr'),# 用于 修改销售所属人
     url(r'^del_feedback_pic/',del_feedback_pic,name='del_feedback_pic'),
 
@@ -258,7 +290,8 @@ urlpatterns = [
     url(r'^wish_store_management/get_refresh_process/', refresh_process, name='refresh_process'),# 用于 wish店铺管理获取刷新进程
     url(r'^wish_store_management/change_wish_express_type/', change_wish_express_type, name='change_wish_express_type'),# 用于 wish店铺管理 修改海外仓类型
 
-    
+    url(r'^app/hh/aliexp-svr/auth-code-get', get_auth_code, name='get_auth_code'),
+    url(r'^app/hh/aliexp-svr/auth-token-get', get_auth_token, name='get_auth_token'),
     url(r'^remove_wish_pic_update_flag/',remove_wish_pic_update_flag,name='remove_wish_pic_update_flag'),
     #pulgin url
     url(r'^repeat_sku/',repeat_sku,name='repeat_sku'),
@@ -274,6 +307,7 @@ urlpatterns = [
     url(r'^mymallapp/', include(mymall_app.urls, namespace='mymall_app')),
 
     url(r'^campaign/.*', op_t_wish_pb, name='op_t_wish_pb'),
+    url(r'^wishpb_syncshopdata/', op_t_wishpb_sync, name='op_t_wishpb_sync'),
     url(r'^t_work_flow_of_plate_house/update_info/', update_info, name='update_info'),# 更新字段
 
     url(r'^get_survey_results_info/$', get_survey_results_info, name='get_survey_results_info'),
@@ -309,14 +343,82 @@ urlpatterns = [
     url(r'^BeyondNum/', BeyondNum, name='BeyondNum'),
     url(r'^listing_rating/',listing_rating,name='listing_rating'),
     url(r'^remove_wish_pic_update_flag/',remove_wish_pic_update_flag,name='remove_wish_pic_update_flag'),
+    url(r'refresh_ali_online_info_by_shopname/',refresh_ali_online_info_by_shopname,name='refresh_ali_online_info_by_shopname'),
+    url(r'^edit_update_by_ali_api_listid/',edit_update_by_ali_api_listid,name='edit_update_by_ali_api_listid'),
+    url(r'^syndata_by_ali_api/',syndata_by_ali_api,name='syndata_by_ali_api'),
+    url(r'^syndata_sku_status_by_ali_api/',syndata_sku_status_by_ali_api,name='syndata_sku_status_by_ali_api'),
+    url(r'^t_erp_aliexpress_online_info/ShopSKU/',show_ali_child_sku_info,name='show_ali_child_sku_info'),
+
+    # ebay url
+    # url(r'^', include(ebayapp.urls, namespace='ebayapp')),
+
+    url(r'^t_supply_chain_production/subsku/',t_supply_chain_production_subsku,name='t_supply_chain_production_subsku'),
+    url(r'^t_supply_chain_production_basic/main_pic/',t_supply_chain_production_mainpic,name='t_supply_chain_production_mainpic'),
+    url(r'^out_of_stock_schedule_status/',out_of_stock_schedule_status,name='out_of_stock_schedule_status'),
+    url(r'generate_mrp_price_india/',generate_mrp_price_india,name='generate_mrp_price_india'),
+
+    url(r't_store_configuration_file/change_status/', update_store_status, name='update_store_status'),  # 店铺配置文件 修改
+    url(r't_sku_weight_examine/seach_sku_infor/', seach_sku_infor, name='seach_sku_infor'),  # 克重审核 查询sku信息
+    url(r't_online_info_wish_store_upload_image/store_upload_image/', store_upload_image, name='store_upload_image'),  # Wish 店铺管理 用于上传图片
+    url(r'^t_templet_wish_publish_draft/change_profitrate/', change_profitrate, name='change_profitrate'),  # Wish 刊登 利润率  价格  计算
+    url(r'^t_online_info_wish_store_add_variant/', add_variant, name='add_variant'),  # Wish 店铺管理中增加变体
+
+
+    url(r'^kc_unsalable_dispose/operation/', kc_unsalable_dispose_operation, name='kc_unsalable_dispose_operation'),
+    url(r'^delete_wish_joom_extraimage/',delete_wish_joom_extraimage,name='delete_wish_joom_extraimage'),
+    url(r'get_childSKU_by_mainSKU/',get_childSKU_by_mainSKU,name='get_childSKU_by_mainSKU'),
+    url(r'check_sku_tortinfo/',check_sku_tortinfo,name='check_sku_tortinfo'),
+    url(r'^add_warning_modify/',add_warning_modify,name='add_warning_modify'),
+    url(r'^add_information_modify/',add_information_modify,name='add_information_modify'),
+    url(r'^show_modify_detail/',show_modify_detail,name='show_modify_detail'),
+    url(r'get_template_amazon/',get_template_amazon,name='get_template_amazon'),
+    url(r'^add_merge_sku/',add_merge_sku,name='add_merge_sku'),
+    url(r'^verify_merge_sku/',verify_merge_sku,name='verify_merge_sku'),
+    url(r't_check_report_Plugin/',t_check_report_Plugin,name='t_check_report_Plugin'),
+    url(r'deal_checkReportData/',deal_checkReportData,name='deal_checkReportData'),
+    url(r'transaction_text_amazon/',transaction_text_amazon,name='transaction_text_amazon'),
+    url(r't_stocking_purchase_Plugin/',t_stocking_purchase_Plugin,name='t_stocking_purchase_Plugin'),
+    url(r'^save_modify_second/',save_modify_second,name='save_modify_second'),
     url(r'amazon_product_price_modify/', amazon_product_price_modify, name='amazon_product_price_modify'),
+    url(r'^t_upload_shopname_chart/',t_upload_shopname_chart,name='t_upload_shopname_chart'),
+    url(r'^check_title/',check_title,name='check_title'),   # Wish 刊登校验标题是否侵权
+    url(r'^wish_store/edit_shipping_other_country/',edit_shipping,name='edit_shipping'),   # Wish 店铺管理编辑链接的运费
+    #url(r'v_product_photo_change/',v_product_photo_change,name='v_product_photo_change'),
+    url(r'^aliexpress_online_sku_off/',aliexpress_online_sku_off,name='aliexpress_online_sku_off'),
+    url(r'^upload_goods_pic/',upload_goods_pic,name='upload_goods_pic'),
+
+    # shopee_app URL
+    url(r'^shopeeapp/', include(shopee_app.urls, namespace='shopee_app')),
+    url(r'^modify_purchaser/',modify_purchaser,name='modify_purchaser'),
+    url(r'^modify_purchaser_schedule/',modify_purchaser_schedule,name='modify_purchaser_schedule'),
+    url(r'^deal_saler_profit/$', deal_saler_profit,name='deal_saler_profit'),
+    url(r'^modify_supplier/',modify_supplier,name='modify_supplier'),
+    url(r'^wish_activerate/weeklytrend/', get_weeklytrend, name='get_weeklytrend'),
+    url(r'change_ad_title/',change_ad_title,name='change_ad_title'),
+    url(r'del_ad/',del_ad,name='del_ad'),
+    url(r'edit_remark/',edit_remark,name='edit_remark'),
+    url(r'show_remark/',show_remark,name='show_remark'),
+    url(r'check_amazon_word_tort/',check_amazon_word_tort,name='check_amazon_word_tort'),
+    url(r'^fba_deliver_skunum_dealdata/$', fba_deliver_skunum_dealdata,name='fba_deliver_skunum_dealdata'),
 
     url(r'show_sku_price_detail/', show_sku_price_detail, name='show_sku_price_detail'),
     url(r'show_sku_remove_detail/', show_sku_remove_detail, name='show_sku_remove_detail'),
     url(r'show_sku_pend_detail/', show_sku_pend_detail, name='show_sku_pend_detail'),
     url(r'amazon_product_cost_refresh/', amazon_product_cost_refresh, name='amazon_product_cost_refresh'),
     url(r'show_seller_detail/', show_seller_detail, name='show_seller_detail'),
+    url(r'update_duplicate_order/',update_duplicate_order,name='update_duplicate_order'),
+    url(r'^store_refund_of_wish/',store_refund_of_wish,name='store_refund_of_wish'),  # Wish店铺退款统计
+    url(r'^t_work_flow/.+', t_work_flow_turnto, name='t_work_flow_turnto'),
+    # url(r'^factoryapp/', include(factory_app.urls, namespace='factory_app')),
+    # 获取速卖通品类
+    url(r'skuapp_getcategory',skuapp_getcategory,name='skuapp_getcategory'),
+    # 修改速卖通品类
+    url(r'skuapp_editcategory',skuapp_editcategory,name='skuapp_editcategory'),
     url(r'show_estimated_detail/', show_estimated_detail, name='show_estimated_detail'),
 
+    url(r'personal_customization_sku/',personal_customization_sku,name='personal_customization_sku'),
+    url(r'^get_amazon_comments/', get_amazon_comments, name='get_amazon_comments'),
+    url(r'^find_amazon_comments/', find_amazon_comments, name='find_amazon_comments'),
+    url(r't_work_flow_of_plate_house_button_click/',t_work_flow_of_plate_house_button_click,name='t_work_flow_of_plate_house_button_click'),
 ]
 

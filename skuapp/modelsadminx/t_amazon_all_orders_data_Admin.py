@@ -116,7 +116,7 @@ class t_amazon_all_orders_data_Admin(object):
                       'shop_name__icontains':  shop_name,
                       'sku__in': sku,
                       'asin__in': asin,
-                      'order_id__in': order_id,
+                      'amazon_order_id__in': order_id,
                       'purchase_date__gte': purchase_date_start,
                       'purchase_date__lte': purchase_date_end,
                       }

@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/../amazon_cpc_ad/.idea/amazon_cpc_ad.iml" filepath="$PROJECT_DIR$/../amazon_cpc_ad/.idea/amazon_cpc_ad.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/amazon_product_managemen.iml" filepath="$PROJECT_DIR$/.idea/amazon_product_managemen.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../../S/python_project/.idea/python_project.iml" filepath="$PROJECT_DIR$/../../S/python_project/.idea/python_project.iml" />
       <module fileurl="file://$PROJECT_DIR$/../tool_project/.idea/tool_project.iml" filepath="$PROJECT_DIR$/../tool_project/.idea/tool_project.iml" />
     </modules>
   </component>

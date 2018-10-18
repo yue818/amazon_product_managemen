@@ -426,7 +426,7 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
                     },
 
                     {
-                        "name": u"按到货日期出单情况统计",
+                        "name": u"激活率",
                         "icon": "",
                         "code": "110306",
                         "parentCode": "1103",
@@ -437,9 +437,20 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
                     },
 
                     {
-                        "name": u"价格调整记录",
+                        "name": u"未发货订单",
                         "icon": "",
                         "code": "110307",
+                        "parentCode": "1103",
+                        "selected": "",
+                        "to_url": '/Project/admin/skuapp/t_amazon_actionable_order_data/',
+                        "flag": 'actionable_order_data',
+                        "child": []
+                    },
+
+                    {
+                        "name": u"价格调整记录",
+                        "icon": "",
+                        "code": "110308",
                         "parentCode": "1103",
                         "selected": "",
                         "to_url": '/Project/admin/skuapp/t_amazon_operation_log/',
@@ -510,42 +521,34 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
 
         if 't_config_amazon_template' in self.request.get_full_path():
             flag = 'template_flag'
-
-        if 't_config_shop_alias' in self.request.get_full_path():
+        elif 't_config_shop_alias' in self.request.get_full_path():
             flag = 'shop_alias_flag'
+        elif 't_amazon_product_inventory_cost' in self.request.get_full_path():
+            flag = 'inventory_cost'
+        elif 't_amazon_removal_order_detail' in self.request.get_full_path():
+            flag = 'removal_order'
+        elif 't_amazon_shopsku_modify' in self.request.get_full_path():
+            flag = 'shopsku_modify'
+        elif 't_amazon_all_orders_data' in self.request.get_full_path():
+            flag = 'all_orders'
+        elif 't_amazon_product_remove_cost' in self.request.get_full_path():
+            flag = 'remove_cost'
+        elif 't_amazon_product_order_pend_cost' in self.request.get_full_path():
+            flag = 'pend_cost'
+        elif 't_amazon_orders_by_receive_day_total' in self.request.get_full_path():
+            flag = 'orders_by_receive_day'
+        elif 't_amazon_operation_log' in self.request.get_full_path():
+            flag = 'operation_log'
+        elif 't_perf_amazon_refresh_status' in self.request.get_full_path():
+            flag = 'refresh_status'
+        elif 't_amazon_actionable_order_data' in self.request.get_full_path():
+            flag = 'actionable_order_data'
 
         if '_p_refresh_status=1' in self.request.get_full_path():
             flag = 'remove'
 
-        if 't_amazon_product_inventory_cost' in self.request.get_full_path():
-            flag = 'inventory_cost'
-
-        if 't_amazon_removal_order_detail' in self.request.get_full_path():
-            flag = 'removal_order'
-
-        if 't_amazon_shopsku_modify' in self.request.get_full_path():
-            flag = 'shopsku_modify'
-
         if '_p_shop_status=1' in self.request.get_full_path():
             flag = 'inactive_shop'
-
-        if 't_amazon_all_orders_data' in self.request.get_full_path():
-            flag = 'all_orders'
-
-        if 't_amazon_product_remove_cost' in self.request.get_full_path():
-            flag = 'remove_cost'
-
-        if 't_amazon_product_order_pend_cost' in self.request.get_full_path():
-            flag = 'pend_cost'
-
-        if 't_amazon_orders_by_receive_day_total' in self.request.get_full_path():
-            flag = 'orders_by_receive_day'
-
-        if 't_amazon_operation_log' in self.request.get_full_path():
-            flag = 'operation_log'
-
-        if 't_perf_amazon_refresh_status' in self.request.get_full_path():
-            flag = 'refresh_status'
 
         menu_list = [
             {

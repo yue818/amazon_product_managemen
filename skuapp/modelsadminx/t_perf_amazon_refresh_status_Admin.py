@@ -144,7 +144,62 @@ class t_perf_amazon_refresh_status_Admin(object):
         return mark_safe(finance_status_html)
     show_finance_status.short_description = mark_safe('<p style="color:#428BCA" align="center">退款订单</p>')
 
-    list_display = ('id', 'name', 'show_product_status', 'show_fba_status', 'show_order_status', 'show_receive_status', 'show_fee_status', 'show_remove_status', 'show_finance_status')
+    def show_actionable_status(self, obj):
+        now = datetime.datetime.now()
+        today_zero = now - datetime.timedelta(hours=now.hour, minutes=now.minute, seconds=now.second, microseconds=now.microsecond)
+        if obj.actionable_refresh_status != 'Success' and obj.actionable_refresh_remark != '_DONE_NO_DATA_' or obj.actionable_refresh_begin_time < today_zero:
+            style_html = '<p style="color:red; word-break:break-all;">'
+        else:
+            style_html = '<p style="color:green">'
+
+        actionable_status_html = '''
+        刷新结果：%s <br>
+        开始时间：%s <br>
+        结束时间：%s <br>
+        备       注：%s          
+        ''' % (obj.actionable_refresh_status, obj.actionable_refresh_begin_time, obj.actionable_refresh_end_time, obj.actionable_refresh_remark)
+        actionable_status_html = style_html + actionable_status_html + '</p>'
+        return mark_safe(actionable_status_html)
+    show_actionable_status.short_description = mark_safe('<p style="color:#428BCA" align="center">未发货订单</p>')
+
+    def show_actionable_status(self, obj):
+        now = datetime.datetime.now()
+        today_zero = now - datetime.timedelta(hours=now.hour, minutes=now.minute, seconds=now.second, microseconds=now.microsecond)
+        if obj.actionable_refresh_status != 'Success' and obj.actionable_refresh_remark != '_DONE_NO_DATA_' or obj.actionable_refresh_begin_time < today_zero:
+            style_html = '<p style="color:red; word-break:break-all;">'
+        else:
+            style_html = '<p style="color:green">'
+
+        actionable_status_html = '''
+        刷新结果：%s <br>
+        开始时间：%s <br>
+        结束时间：%s <br>
+        备       注：%s          
+        ''' % (obj.actionable_refresh_status, obj.actionable_refresh_begin_time, obj.actionable_refresh_end_time, obj.actionable_refresh_remark)
+        actionable_status_html = style_html + actionable_status_html + '</p>'
+        return mark_safe(actionable_status_html)
+    show_actionable_status.short_description = mark_safe('<p style="color:#428BCA" align="center">未发货订单</p>')
+
+    def show_odr_status(self, obj):
+        now = datetime.datetime.now()
+        today_zero = now - datetime.timedelta(hours=now.hour, minutes=now.minute, seconds=now.second, microseconds=now.microsecond)
+        if obj.odr_refresh_status != 'Success' and obj.odr_refresh_remark != '_DONE_NO_DATA_' or obj.odr_refresh_begin_time < today_zero:
+            style_html = '<p style="color:red; word-break:break-all;">'
+        else:
+            style_html = '<p style="color:green">'
+
+        odr_status_html = '''
+        刷新结果：%s <br>
+        开始时间：%s <br>
+        结束时间：%s <br>
+        备       注：%s          
+        ''' % (obj.odr_refresh_status, obj.odr_refresh_begin_time, obj.odr_refresh_end_time, obj.odr_refresh_remark)
+        odr_status_html = style_html + odr_status_html + '</p>'
+        return mark_safe(odr_status_html)
+    show_odr_status.short_description = mark_safe('<p style="color:#428BCA" align="center">缺陷订单</p>')
+
+    list_display = ('id', 'name', 'show_product_status', 'show_fba_status', 'show_order_status', 'show_receive_status',
+                    'show_fee_status', 'show_remove_status', 'show_finance_status', 'show_actionable_status', 'show_odr_status')
 
     def get_list_queryset(self, ):
         qs = super(t_perf_amazon_refresh_status_Admin, self).get_list_queryset().filter(is_valid__exact=1)
@@ -164,7 +219,10 @@ class t_perf_amazon_refresh_status_Admin(object):
                            Q(~Q(receive_refresh_status='Success') & ~Q(receive_refresh_remark='_DONE_NO_DATA_') | Q(receive_refresh_begin_time__lte=today_zero)) |
                            Q(~Q(fee_refresh_status='Success') & ~Q(fee_refresh_remark='_DONE_NO_DATA_') | Q(fee_refresh_begin_time__lte=today_zero)) |
                            Q(~Q(remove_refresh_status='Success') & ~Q(remove_refresh_remark='_DONE_NO_DATA_') | Q(remove_refresh_begin_time__lte=today_zero)) |
-                           Q(~Q(finance_refresh_status='Success') & ~Q(finance_refresh_remark='_DONE_NO_DATA_') | Q(finance_refresh_begin_time__lte=today_zero)))
+                           Q(~Q(finance_refresh_status='Success') & ~Q(finance_refresh_remark='_DONE_NO_DATA_') | Q(finance_refresh_begin_time__lte=today_zero)) |
+                           Q(~Q(actionable_refresh_status='Success') & ~Q(actionable_refresh_remark='_DONE_NO_DATA_') | Q(actionable_refresh_begin_time__lte=today_zero))
+                           # |Q(~Q(odr_refresh_status='Success') & ~Q(odr_refresh_remark='_DONE_NO_DATA_') | Q(odr_refresh_begin_time__lte=today_zero))
+                           )
         elif refresh_result == '1':
             qs = qs.filter(Q(Q(product_refresh_status='Success') | Q(product_refresh_remark='_DONE_NO_DATA_') & Q(product_refresh_begin_time__gte=today_zero)) &
                            Q(Q(fba_refresh_status='Success') | Q(fba_refresh_remark='_DONE_NO_DATA_') & Q(fba_refresh_begin_time__gte=today_zero)) &
@@ -172,10 +230,12 @@ class t_perf_amazon_refresh_status_Admin(object):
                            Q(Q(receive_refresh_status='Success') | Q(receive_refresh_remark='_DONE_NO_DATA_') & Q(receive_refresh_begin_time__gte=today_zero)) &
                            Q(Q(fee_refresh_status='Success') | Q(fee_refresh_remark='_DONE_NO_DATA_') & Q(fee_refresh_begin_time__gte=today_zero)) &
                            Q(Q(remove_refresh_status='Success') | Q(remove_refresh_remark='_DONE_NO_DATA_') & Q(remove_refresh_begin_time__gte=today_zero)) &
-                           Q(Q(finance_refresh_status='Success') | Q(finance_refresh_remark='_DONE_NO_DATA_') & Q(finance_refresh_begin_time__gte=today_zero)))
+                           Q(Q(finance_refresh_status='Success') | Q(finance_refresh_remark='_DONE_NO_DATA_') & Q(finance_refresh_begin_time__gte=today_zero)) &
+                           Q(Q(actionable_refresh_status='Success') | Q(actionable_refresh_remark='_DONE_NO_DATA_') & Q(actionable_refresh_begin_time__gte=today_zero))
+                           # & Q(Q(odr_refresh_status='Success') | Q(odr_refresh_remark='_DONE_NO_DATA_') & Q(odr_refresh_begin_time__gte=today_zero))
+                           )
         else:
             pass
-
 
         search_list = {
                       'name__icontains': name,

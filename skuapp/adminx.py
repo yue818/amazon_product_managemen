@@ -1169,3 +1169,7 @@ xadmin.site.register(t_perf_amazon_refresh_status, t_perf_amazon_refresh_status_
 
 from skuapp.plugin.t_amazon_order_type_plugin import t_amazon_order_type_plugin
 xadmin.site.register_plugin(t_amazon_order_type_plugin, ListAdminView)
+
+from skuapp.table.t_amazon_actionable_order_data import t_amazon_actionable_order_data
+from skuapp.modelsadminx.t_amazon_actionable_order_data_Admin import t_amazon_actionable_order_data_Admin
+xadmin.site.register(t_amazon_actionable_order_data, t_amazon_actionable_order_data_Admin)

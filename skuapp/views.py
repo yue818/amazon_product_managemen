@@ -29,7 +29,7 @@ import oss2
 from django.views.decorators.csrf import requires_csrf_token  ,csrf_exempt
 from datetime import datetime
 from django.db import transaction,connection
-from skuapp.table.t_report_orders1days import t_report_orders1days
+from skuapp.table.t_report_orders1days import t_report_orders1days, t_report_orders1days_wish_overseas_warehouse
 from skuapp.table.t_store_marketplan_execution import t_store_marketplan_execution 
 from skuapp.table.t_online_info import *
 from skuapp.table.t_product_price_check import *
@@ -75,7 +75,7 @@ from skuapp.table.t_config_apiurl_amazon import *
 from skuapp.table.t_templet_config_amazon_published import *
 from skuapp.table.t_template_product_config_amazon import *
 from skuapp.table.t_supply_chain_production_basic import t_supply_chain_production_basic
-
+from skuapp.table.t_work_flow_of_plate_house import t_work_flow_of_plate_house
 from skuapp.table.t_templet_joom_collection_box import *
 from skuapp.table.t_templet_public_joom import *
 from skuapp.table.t_templet_joom_wait_upload import *
@@ -86,11 +86,14 @@ from skuapp.table.t_wish_pb_campaignproductstats import t_wish_pb_campaignproduc
 from brick.function.encryption import encrypt_password
 from brick.aliexpress.get_info_from_url import *
 from brick.aliexpress.get_info_from_puyuan import *
-from brick.wish.WishPbAPI import getKeyWords, StopCampaign, CancelCampaign
+from brick.wish.WishPbAPI import getKeyWords, StopCampaign, CancelCampaign, GetMaxBudget, AddBudget,UpdateKeywords
+from brick.wish.WishPbSyncData import run_wishpb
 from brick.classredis.classmainsku import classmainsku
 from django.http import HttpResponse
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
+from brick.wish.to_translation import *
+from brick.public.amazon_asin import get_comments
 import os
 import uuid
 import json
@@ -568,7 +571,8 @@ def addmainsku_sku(request):
 
         t_product_mainsku_sku_obj = t_product_mainsku_sku(
             MainSKU='',SKU='',SKUATTRS= obj.SupplierPColor,UnitPrice=obj.UnitPrice,Weight= obj.Weight,
-            PackNID=obj.PackNID,MinPackNum=obj.MinPackNum,pid = obj.id,DressInfo='',SupplierLink=obj.SupplierPUrl1
+            PackNID=obj.PackNID,MinPackNum=obj.MinPackNum,pid = obj.id,DressInfo='',SupplierLink=obj.SupplierPUrl1,
+            SupplierNum=obj.SupplierArtNO
         )
         t_product_mainsku_sku_obj.save()
 
@@ -942,7 +946,8 @@ def kc_currentstock_Plugin_1(request):
 @csrf_exempt    
 def search_SupplierName(request):
     import datetime
-    from reportapp.models import t_report_supplier_sku_m
+    # from reportapp.models import t_report_supplier_sku_m
+    from reportapp.table.t_report_supplier_sku_m import t_report_supplier_sku_m
     from pyapp.table.t_product_b_goods import t_product_b_goods
     from pyapp.models import B_Supplier
     from django.db.models import Q
@@ -1488,41 +1493,67 @@ def mstscReboot(request):
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
 
 
+def get_show_list_data(order1daysobjs, param):
+    import datetime as datime
+
+    categories = []
+    series = []
+    newcategories = []
+    orders1days_objs = order1daysobjs.objects.filter(**param).order_by('-YYYYMMDD')[:60]
+    if orders1days_objs.exists():
+        for orders1days_obj in orders1days_objs:
+            categories.append(int(orders1days_obj.YYYYMMDD))
+            series.append(orders1days_obj.OrdersLast1Days)
+    categ = (datime.datetime.now() + + datime.timedelta(days=-1)).strftime('%Y%m%d')
+    # if len(categories) >= 1:
+    #     categ = str(categories[0])
+    for i in range(0, 60):
+        tmpcategories = int((datime.datetime.strptime(categ, '%Y%m%d') + datime.timedelta(days=-i)).strftime('%Y%m%d'))
+        if tmpcategories not in categories:
+            series.insert(i, 0)
+        newcategories.append(tmpcategories)
+    if len(series) > 60:
+        series = series[0:60]
+    newcategories.reverse()
+    series.reverse()
+
+    return newcategories, series
+
 
 def order1day(request):
-    import datetime as datime
     from django.db.models import Max
     from skuapp.table.t_wish_pb_productdailystats import t_wish_pb_productdailystats
 
     ProductID = request.GET['aID']
+    express = request.GET.get('express', 'STANDARD')
+    if express == 'STANDARD':
+        newcategories, series = get_show_list_data(t_report_orders1days, {'ProductID': ProductID})
+    elif express == 'FBW':
+        warelist = ['FBW-LAX', 'FBW-SF']  #  FBW-CVG
+
+        newcategories1, series1 = get_show_list_data(
+            t_report_orders1days_wish_overseas_warehouse, {'ProductID': ProductID, 'WarehouseName': warelist[0]}
+        )
+
+        newcategories2, series2 = get_show_list_data(
+            t_report_orders1days_wish_overseas_warehouse, {'ProductID': ProductID, 'WarehouseName': warelist[1]}
+        )
+        newcategories = newcategories1
+        series = []
+        for i in range(len(newcategories)):
+            series.append(series1[i]+series2[i])
+
+    else:
+        newcategories, series = get_show_list_data(
+            t_report_orders1days_wish_overseas_warehouse, {'ProductID': ProductID, 'WarehouseName': express}
+        )
+    rt = ''
     mdate = '0'
     pbobjs = t_wish_pb_productdailystats.objects.filter(product_id=ProductID)
     if pbobjs.exists():
         dateobjs = pbobjs.aggregate(mdate=Max('p_date'))
         mdate = dateobjs['mdate'].strftime('%Y%m%d')
     mdate = int(mdate)
-
-    categories = []
-    series = []
-    rt = ''
-    newcategories = []
-    t_report_orders1days_objs = t_report_orders1days.objects.filter(ProductID=ProductID)
-    if t_report_orders1days_objs.exists():
-        for t_report_orders1days_obj in t_report_orders1days_objs:
-            categories.append(int(t_report_orders1days_obj.YYYYMMDD))
-            series.append(t_report_orders1days_obj.OrdersLast1Days)
-    categ = (datime.datetime.now()++ datime.timedelta(days=-1)).strftime('%Y%m%d')
-    # if len(categories) >= 1:
-    #     categ = str(categories[0])
-    for i in range(0,60):
-        tmpcategories = int((datime.datetime.strptime(categ, '%Y%m%d') + datime.timedelta(days=-i)).strftime('%Y%m%d'))
-        if tmpcategories not in categories:
-            series.insert(i,0)
-        newcategories.append(tmpcategories)
-    if len(series) > 60:
-        series = series[0:60]
-    newcategories.reverse()
-    series.reverse()
 
     try:
         idx = newcategories.index(mdate)
@@ -2209,7 +2240,7 @@ def search_sku_save(request):
 
         
     
-    
+@csrf_exempt   
 def button_Plugin(request):
     sku = request.POST.get('GoodsSKU','')
     if sku=='':
@@ -3511,48 +3542,60 @@ def save_wish_schedule(request):
     start = post.get('start', '')
     interval = post.get('interval', '')
     param = post.get('param', '')
-
     myId = eval(post.get('myId', ''))
 
     if (start == '') or (interval == ''):
         rt = u'铺货开始时间和时间间隔都不能为空!'
         return render(request, 'SKU.html', {'rt': rt})
-
     elif (number == '') and (shops == ''):
         rt = u'铺货数量和铺货店铺不能都为空!'
         return render(request, 'SKU.html', {'rt': rt})
-
     else:
-
         # 所有店铺名的列表
         ShopName_list = []
-        t_upload_shopname_objs = t_upload_shopname.objects.values('ShopName')
+        t_upload_shopname_objs = t_upload_shopname.objects.filter(IsAvailable=1).values('ShopName')
         for t_upload_shopname_obj in t_upload_shopname_objs:
             ShopName_list.append(t_upload_shopname_obj['ShopName'][-4:])
 
         if number == '':
-            shops = shops
-            if isinstance(myId, int):
-                schedule = {}
-                schedule['start'] = start
-                schedule['interval'] = interval
-                t_templet_wish_wait_upload.objects.filter(id=int(myId)).update(ShopSets=shops, TimePlan=schedule,
-                                                                               UpdateStaff=user, UpdateTime=time)
-                rt = u'修改成功！'
-                return render(request, 'SKU.html', {'rt': rt})
-
-            else:
-                for each in myId:
-                    obj = t_templet_wish_wait_upload.objects.filter(id=int(each))
-                    schedule = eval(obj[0].TimePlan)
+            shops_list = shops.split(',')
+            available_shop_list = []
+            unavailable_shop_list = []
+            for shop in shops_list:
+                if shop in ShopName_list:
+                    available_shop_list.append(shop)
+                else:
+                    unavailable_shop_list.append(shop)
+            if available_shop_list:
+                available_shop_str = ','.join(available_shop_list)
+                if isinstance(myId, int):
+                    schedule = {}
+                    schedule['start'] = start
                     schedule['interval'] = interval
-                    obj.update(ShopSets=shops, TimePlan=schedule, UpdateStaff=user, UpdateTime=time)
-                return HttpResponseRedirect('%s' % param)
+                    t_templet_wish_wait_upload.objects.filter(id=int(myId)).update(ShopSets=available_shop_str, TimePlan=schedule,UpdateStaff=user, UpdateTime=time)
+                    if unavailable_shop_list:
+                        rt = u'店铺编号: %s 修改成功!<br>店铺编号: %s 不在铺货店铺配置表中,或为"不可铺货"状态,已为您过滤掉!' % (available_shop_str, ','.join(unavailable_shop_list))
+                    else:
+                        rt = u'店铺编号: %s 修改成功!' % available_shop_str
+                    return render(request, 'SKU.html', {'rt': rt})
+                else:
+                    for each in myId:
+                        obj = t_templet_wish_wait_upload.objects.filter(id=int(each))
+                        schedule = eval(obj[0].TimePlan)
+                        schedule['interval'] = interval
+                        obj.update(ShopSets=available_shop_str, TimePlan=schedule, UpdateStaff=user, UpdateTime=time)
+
+                    if unavailable_shop_list:
+                        messages.error(request, u'店铺编号: %s 修改成功!<br>店铺编号: %s 不在铺货店铺配置表中,或为"不可铺货"状态,已为您过滤掉!' % (available_shop_str, ','.join(unavailable_shop_list)))
+                    else:
+                        messages.error(request, u'店铺编号: %s 修改成功!' % available_shop_str)
+                    return HttpResponseRedirect('%s' % param)
+            if unavailable_shop_list:
+                pass
         else:
             num_int = int(number)
             if num_int > 50:
                 num_int = 50
-
             # 修改单个记录
             if isinstance(myId, int):
                 Shop_list = random.sample(ShopName_list, num_int)
@@ -3560,11 +3603,9 @@ def save_wish_schedule(request):
                 schedule = {}
                 schedule['start'] = start
                 schedule['interval'] = interval
-                t_templet_wish_wait_upload.objects.filter(id=int(myId)).update(ShopSets=shops, TimePlan=schedule,
-                                                                               UpdateStaff=user, UpdateTime=time)
+                t_templet_wish_wait_upload.objects.filter(id=int(myId)).update(ShopSets=shops, TimePlan=schedule,UpdateStaff=user, UpdateTime=time)
                 rt = u'修改成功！'
                 return render(request, 'SKU.html', {'rt': rt})
-
             else:
                 for each in myId:
                     Shop_list = random.sample(ShopName_list, num_int)
@@ -3596,17 +3637,23 @@ def show_wish_result(request):
     
     
     
-def get_pic_list(MainSKU):
+def get_pic_list(MainSKU, plateform):
     from skuapp.table.t_product_mainsku_pic import t_product_mainsku_pic
     ImageTemp = t_product_mainsku_pic.objects.filter(MainSKU = MainSKU)
     main_pic_list = []
     other_pic_list = []
     for temp in ImageTemp:
-        pic = temp.WishPic.replace('original', 'small')
-        if temp.Flag == 0:
-            other_pic_list.append({'id': temp.id, 'pic': pic, 'new': temp.NewFlag})
+        pic = temp.WishPic.replace('original', 'medium')
+        if plateform == 'wish':
+            if temp.Flag == 0:
+                other_pic_list.append({'id': temp.id, 'pic': pic, 'new': temp.NewFlag})
+            else:
+                main_pic_list.append({'id': temp.id, 'pic': pic, 'new': temp.NewFlag})
         else:
-            main_pic_list.append({'id': temp.id, 'pic': pic, 'new': temp.NewFlag})
+            if temp.FlagJoom == 0:
+                other_pic_list.append({'id': temp.id, 'pic': pic, 'new': temp.NewFlagJoom})
+            else:
+                main_pic_list.append({'id': temp.id, 'pic': pic, 'new': temp.NewFlagJoom})
     return main_pic_list, other_pic_list
     
 def oss2_image(MainSKU,name,imgs,url):
@@ -3622,7 +3669,13 @@ def all_image_modify(request):
     from skuapp.table.t_product_image_modify import t_product_image_modify
     from datetime import datetime
     MainSKU = request.GET.get('code','')
-    t_product_image_modify.objects.filter(MainSKU=MainSKU).update(UpdateFlag=0)
+    plateform = request.GET.get('plateform', '')
+
+    if plateform == 'wish':
+        t_product_image_modify.objects.filter(MainSKU=MainSKU).update(UpdateFlag=0)
+    else:
+        t_product_image_modify.objects.filter(MainSKU=MainSKU).update(UpdateFlagJoom=0)
+
     if request.method == "POST":
         image_local = request.FILES.get('image_local', '')
         image_web = request.POST.get('image_web', '')
@@ -3639,8 +3692,9 @@ def all_image_modify(request):
             if image_bytes is not None:
                 name = '%s.jpg'%datetime.now().strftime('%Y%m%d%H%M%S')
                 oss2_image(MainSKU,name,image_bytes,image_web)
-    main_pic_list, other_pic_list = get_pic_list(MainSKU)
-    return render(request, 'all_image.html', {'main_pic_list':main_pic_list, 'other_pic_list': other_pic_list, 'MainSKU':MainSKU})
+    main_pic_list, other_pic_list = get_pic_list(MainSKU, plateform)
+    return render(request, 'all_image.html',
+                  {'main_pic_list':main_pic_list, 'other_pic_list': other_pic_list, 'MainSKU':MainSKU, 'plateform': plateform})
     
     
 def all_image_modify_del(request):
@@ -3648,13 +3702,22 @@ def all_image_modify_del(request):
     id = request.GET.get('id','')
     MainSKU = request.GET.get('code','')
     source = request.GET.get('source','')
+    plateform = request.GET.get('plateform','')
+
     if id is not None and id.strip() != '':
-        if source == 'remove':
-            t_product_mainsku_pic.objects.filter(id=id).update(Flag=0)
+        if plateform == 'wish':
+            if source == 'remove':
+                t_product_mainsku_pic.objects.filter(id=id).update(Flag=0)
+            else:
+                t_product_mainsku_pic.objects.filter(id=id).update(Flag=1)
         else:
-            t_product_mainsku_pic.objects.filter(id=id).update(Flag=1)
-    main_pic_list, other_pic_list = get_pic_list(MainSKU)
-    return render(request, 'all_image.html', {'main_pic_list':main_pic_list, 'other_pic_list': other_pic_list, 'MainSKU':MainSKU})
+            if source == 'remove':
+                t_product_mainsku_pic.objects.filter(id=id).update(FlagJoom=0)
+            else:
+                t_product_mainsku_pic.objects.filter(id=id).update(FlagJoom=1)
+    main_pic_list, other_pic_list = get_pic_list(MainSKU, plateform)
+    return render(request, 'all_image.html',
+                  {'main_pic_list':main_pic_list, 'other_pic_list': other_pic_list, 'MainSKU':MainSKU, 'plateform': plateform})
     
     
 def show_aliexpress_warning(request):
@@ -3854,16 +3917,61 @@ def importfile_aliexpress_refund(request):
     return HttpResponseRedirect('/Project/admin/skuapp/t_aliexpress_refund/')
     
 def importfile_stocking_demand(request):
-    from app_djcelery.tasks import import_excel_file
-    if request.FILES.get('myfile') is not None:
-        user_name = request.user.first_name
-        file_obj = request.FILES['myfile']
-        result = import_excel_file(file_obj,user_name)
-        if result['errorcode'] == 0:
-            messages.success(request,result['errortext'])
+    import os
+    from app_djcelery.tasks import import_excel_file,import_fba_excel_file,import_fbw_excel_file,import_excel_saler_profit_config_file,import_fbareject_excel_file,import_excel_clothfactory_file
+    from django.contrib.auth.models import User
+    dealflag = request.GET.get('dealflag', '')
+    file = request.FILES.get('myfile')
+    result = {'errorcode': 0, 'errortext': u'操作正在执行，请稍等片刻'}
+    if file is not None:
+        file = os.path.splitext(file.name)
+        filename, type = file
+        tmpList = ['.xls','.xlsx','xls','xlsx']
+        if str(type) in tmpList:
+            user_name = request.user.first_name
+            file_obj = request.FILES['myfile']
+            if dealflag == "FBW":
+                result = import_fbw_excel_file(file_obj, user_name)
+            elif dealflag == "FBA":
+                userID = [each.id for each in User.objects.filter(groups__id__in=[65])]
+                if request.user.id in userID:
+                    result = import_fba_excel_file(file_obj, user_name)
+                else:
+                    messages.info(request,u"无权限批量导入操作。")
+                    result['errorcode'] = -1
+                    result['errortext'] = ''
+            elif dealflag == "FBAREJECT":
+                result = import_fbareject_excel_file(file_obj, user_name)
+            elif dealflag == "OTHER":
+                result = import_excel_file(file_obj, user_name)
+            elif dealflag == "SALERPROFITCONFIG":
+                result = import_excel_saler_profit_config_file(file_obj, user_name)
+            elif dealflag == "CLOTHFACTORY":
+                userID = [each.id for each in User.objects.filter(groups__id__in=[64])]
+                if request.user.is_superuser or request.user.id in userID:
+                    result = import_excel_clothfactory_file(file_obj, user_name)
+                else:
+                    messages.info(request,u"无权限批量导入操作。")
+                    result['errorcode'] = -1
+                    result['errortext'] = ''
+            if result['errorcode'] == 0:
+                messages.success(request, result['errortext'])
+            else:
+                messages.error(request, result['errortext'])
         else:
-            messages.success(request, result['errortext'])
-    return HttpResponseRedirect('/Project/admin/skuapp/t_stocking_demand_list/')
+            messages.success(request, u'选择文件存在问题，必须是以xls、xlsx后缀的execl表格')
+    if dealflag == "FBW":
+        return HttpResponseRedirect('/Project/admin/skuapp/t_stocking_demand_fbw/?Status=notyet')
+    elif dealflag == "FBA":
+        return HttpResponseRedirect('/Project/admin/skuapp/t_stocking_demand_fba/?Status=notgenpurchase')
+    elif dealflag == "FBAREJECT":
+        return HttpResponseRedirect('/Project/admin/skuapp/t_stocking_reject_fba/?Status=reject')
+    elif dealflag == "SALERPROFITCONFIG":
+        return HttpResponseRedirect('/Project/admin/skuapp/t_saler_profit_config')
+    elif dealflag == "CLOTHFACTORY":
+        return HttpResponseRedirect('/Project/admin/skuapp/t_cloth_factory_dispatch_needpurchase')
+    elif dealflag == "OTHER":
+        return HttpResponseRedirect('/Project/admin/skuapp/t_stocking_demand_list/?Status=notgenerated')
 
 def upload_to_oss2(data,name):
     auth = oss2.Auth(ACCESS_KEY_ID, ACCESS_KEY_SECRET)
@@ -4198,12 +4306,18 @@ def t_config_store_ebay_regetpes_oauth(request):
                 'certid': developerdata['datasrcset'][1],
                 'runame': developerdata['datasrcset'][2],
             }
+
+            runIP = developerdata['datasrcset'][3]
+
             ClientSecretId = str(appinfo['appid'])+':'+str(appinfo['certid'])
             base64_ClientSecretId = base64.encodestring(ClientSecretId)
             headers = {'Content-Type': 'application/x-www-form-urlencoded','Authorization': 'Basic '+str(base64_ClientSecretId).replace("\n","")}
             # return HttpResponse(str(headers))
             body = 'grant_type=authorization_code&code='+str(code)+'&redirect_uri='+str(appinfo['runame'])
-            get_OAuth_request_url = 'https://api.ebay.com/identity/v1/oauth2/token'
+            if len(runIP) > 0:
+                get_OAuth_request_url = 'http://%s:9193/fancyqube/api.ebay.com/identity/v1/oauth2/token'% runIP
+            else:
+                get_OAuth_request_url = 'https://api.ebay.com/identity/v1/oauth2/token'
             # return HttpResponse(str(headers) + str(body))
             req = urllib2.Request(url=get_OAuth_request_url, data=body, headers=headers)
             res = urllib2.urlopen(req, timeout=30).read()
@@ -5099,6 +5213,8 @@ def validation_amazon_product_data(obj):
     upload_product_type = obj.upload_product_type
     prodcut_variation_id = obj.prodcut_variation_id
     main_image_url = obj.main_image_url
+    variation_objs = t_templet_amazon_published_variation.objects.filter(
+        prodcut_variation_id=prodcut_variation_id)
     deal_result = u'待完善字段：'
     if obj.recommended_browse_nodes is None or obj.recommended_browse_nodes.strip() == '':
         is_all_data_done = -1
@@ -5190,8 +5306,16 @@ def validation_amazon_product_data(obj):
                 is_all_data_done = -1
                 deal_result += u'家居品尺寸(IN),'
             if obj.homes_color is None or str(obj.homes_color).strip() == '':
+                if variation_objs.exists():
+                    if 'Color' not in variation_objs[0].variation_theme:
+                        is_all_data_done = -1
+                        deal_result += u'家居品颜色(IN),'
+            if obj.included_components is None or str(obj.included_components).strip() == '':
                 is_all_data_done = -1
-                deal_result += u'家居品颜色(IN),'
+                deal_result += u'组件(IN),'
+            if obj.are_batteries_included is None or str(obj.are_batteries_included).strip() == '':
+                is_all_data_done = -1
+                deal_result += u'是否带电(IN),'
         if upload_product_type == 'Sports':
             if obj.item_type_name is None or str(obj.item_type_name).strip() == '':
                 is_all_data_done = -1
@@ -5231,63 +5355,60 @@ def validation_amazon_product_data(obj):
             if obj.material_composition is None or str(obj.material_composition).strip() == '':
                 is_all_data_done = -1
                 deal_result += u'材料成分(德法),'
-    else:
-        if upload_product_type in department_name_list:
-            department_name1 = obj.department_name1
-            if department_name1 is None or department_name1.strip() == '':
-                is_all_data_done = -1
-                deal_result += u'适用性别1,'
-        if upload_product_type in product_subtype_list:
-            product_subtype = obj.product_subtype
-            if product_subtype is None or product_subtype.strip() == '':
-                is_all_data_done = -1
-                deal_result += u'服装类型,'
-        if upload_product_type in clothing_list:
-            clothing_size = obj.clothing_size
-            clothing_color = obj.clothing_color
-            if clothing_size is None or clothing_size.strip() == '':
-                is_all_data_done = -1
-                deal_result += u'服装尺寸,'
-            if clothing_color is None or clothing_color.strip() == '':
-                is_all_data_done = -1
-                deal_result += u'服装颜色,'
-        if upload_product_type in unit_count_list:
-            unit_count = obj.unit_count
-            unit_count_type = obj.unit_count_type
-            if unit_count is None or unit_count.strip() == '':
-                is_all_data_done = -1
-                deal_result += u'单位数量,'
-            if unit_count_type is None or unit_count_type.strip() == '':
-                is_all_data_done = -1
-                deal_result += u'单位名称,'
-        if upload_product_type == 'Home' or upload_product_type == 'Jewelry':
-            material = obj.material_type
-            if material is None or material.strip() == '':
-                is_all_data_done = -1
-                deal_result += u'材料种类,'
-        if upload_product_type == 'Jewelry':
-            metal = obj.metal_type
-            item_shape = obj.item_shape
-            if metal is None or metal.strip() == '':
-                is_all_data_done = -1
-                deal_result += u'金属类型,'
-        if upload_product_type == 'Luggage':
-            item_weight = str(obj.item_weight)
-            item_weight_unit  = obj.item_weight_unit
-            color_name_public = obj.color_name_public
-            if item_weight is None or item_weight.strip() == '':
-                is_all_data_done = -1
-                deal_result += u'重量,'
-            if item_weight_unit is None or item_weight_unit.strip() == '':
-                is_all_data_done = -1
-                deal_result += u'重量单位,'
-            if color_name_public is None or color_name_public.strip() == '':
-                is_all_data_done = -1
-                deal_result += u'颜色,'
+    if upload_product_type in department_name_list:
+        department_name1 = obj.department_name1
+        if department_name1 is None or department_name1.strip() == '':
+            is_all_data_done = -1
+            deal_result += u'适用性别1,'
+    if upload_product_type in product_subtype_list:
+        product_subtype = obj.product_subtype
+        if product_subtype is None or product_subtype.strip() == '':
+            is_all_data_done = -1
+            deal_result += u'服装类型,'
+    if upload_product_type in clothing_list:
+        clothing_size = obj.clothing_size
+        clothing_color = obj.clothing_color
+        if clothing_size is None or clothing_size.strip() == '':
+            is_all_data_done = -1
+            deal_result += u'服装尺寸,'
+        if clothing_color is None or clothing_color.strip() == '':
+            is_all_data_done = -1
+            deal_result += u'服装颜色,'
+    if upload_product_type in unit_count_list:
+        unit_count = obj.unit_count
+        unit_count_type = obj.unit_count_type
+        if unit_count is None or unit_count.strip() == '':
+            is_all_data_done = -1
+            deal_result += u'单位数量,'
+        if unit_count_type is None or unit_count_type.strip() == '':
+            is_all_data_done = -1
+            deal_result += u'单位名称,'
+    if upload_product_type == 'Home' or upload_product_type == 'Jewelry':
+        material = obj.material_type
+        if material is None or material.strip() == '':
+            is_all_data_done = -1
+            deal_result += u'材料种类,'
+    if upload_product_type == 'Jewelry':
+        metal = obj.metal_type
+        item_shape = obj.item_shape
+        if metal is None or metal.strip() == '':
+            is_all_data_done = -1
+            deal_result += u'金属类型,'
+    if upload_product_type == 'Luggage':
+        item_weight = str(obj.item_weight)
+        item_weight_unit  = obj.item_weight_unit
+        color_name_public = obj.color_name_public
+        if obj.item_weight is None or item_weight.strip() == '':
+            is_all_data_done = -1
+            deal_result += u'重量,'
+        if item_weight_unit is None or item_weight_unit.strip() == '':
+            is_all_data_done = -1
+            deal_result += u'重量单位,'
+        if color_name_public is None or color_name_public.strip() == '':
+            is_all_data_done = -1
+            deal_result += u'颜色,'
         # if item_shape is None or item_shape.strip() == '':
         #     is_all_data_done = -1
-    variation_objs = t_templet_amazon_published_variation.objects.filter(
-        prodcut_variation_id=prodcut_variation_id)
     if variation_objs.exists():
         count = 1
         for variation_obj in variation_objs:
@@ -6616,6 +6737,8 @@ def price_list(request):
     platformCountryCode = request.GET.get("platformCountryCode")
     DestinationCountryCode = request.GET.get("DestinationCountryCode")
     category = request.GET.get('category', '')
+    currencycode = request.GET.get('currencycode', '')
+    price_des = request.GET.get('price_des', '')
     try:
         country_name = t_cfg_b_country.objects.get(country_code=DestinationCountryCode).country
     except:
@@ -6645,7 +6768,7 @@ def price_list(request):
         country_his = ''
 
     return render(request, 'price_list.html',{'t_cfg_platform_country_objs':t_cfg_platform_country_objs,'t_cfg_b_emsfare2_objs':t_cfg_b_emsfare2_objs,'t_cfg_b_country_objs':t_cfg_b_country_objs,'SKU_info':SKU_info,'SellingPrice_info':SellingPrice_info,'platformCountryCode_info':platformCountryCode,'DestinationCountryCode_info':DestinationCountryCode,'t_cfg_standard_large_objs':t_cfg_standard_large_objs,'country_name':country_name,
-                                               'category': category,'platform_his':platform_his,'country_his':country_his,'username':username})
+                                               'category': category,'platform_his':platform_his,'country_his':country_his,'username':username,'currencycode':currencycode,'price_des':price_des})
     
 def price_list2(request):
     from skuapp.table.t_cfg_platform_country import *
@@ -6923,27 +7046,66 @@ def aliexpress_cc(request):
     count_list=request.POST.getlist('count') 
     reason_list=request.POST.getlist('reason') 
     remark_list=request.POST.getlist('remark') 
-    ordernum_list=request.POST.getlist('ordernum') 
-    tracenum_list=request.POST.getlist('tracenum') 
+    ordernum_list=request.POST.getlist('ordernum')
+    for i in range(len(ordernum_list)):
+        if ordernum_list[i].strip() == '':
+            ordernum_list[i] = ordernum_list[i-1]
+    tracenum_list=request.POST.getlist('tracenum')
+    for i in range(len(tracenum_list)):
+        if tracenum_list[i].strip() == '':
+            tracenum_list[i] = tracenum_list[i-1]
     sd_man_list=request.POST.getlist('sd_man')
-    sd_time_list=request.POST.getlist('sd_time') 
-    jd_man_list=request.POST.getlist('jd_man') 
+    for i in range(len(sd_man_list)):
+        if sd_man_list[i].strip() == '':
+            sd_man_list[i] = sd_man_list[i-1]
+    sd_time_list=request.POST.getlist('sd_time')
+    for i in range(len(sd_time_list)):
+        if sd_time_list[i].strip() == '':
+            sd_time_list[i] = sd_time_list[i-1]
+    jd_man_list=request.POST.getlist('jd_man')
+    for i in range(len(jd_man_list)):
+        if jd_man_list[i].strip() == '':
+            jd_man_list[i] = jd_man_list[i-1]
     yx_fee_list=request.POST.getlist('yx_fee') 
-    route_name_list=request.POST.getlist('route_name')  
-    ip_list=request.POST.getlist('ip') 
-    buyer_account_list=request.POST.getlist('buyer_account') 
-    pay_account_list=request.POST.getlist('pay_account') 
+    route_name_list=request.POST.getlist('route_name')
+    for i in range(len(route_name_list)):
+        if route_name_list[i].strip() == '':
+            route_name_list[i] = route_name_list[i-1]
+    ip_list=request.POST.getlist('ip')
+    for i in range(len(ip_list)):
+        if ip_list[i].strip() == '':
+            ip_list[i] = ip_list[i-1]
+
+    buyer_account_list=request.POST.getlist('buyer_account')
+    for i in range(len(buyer_account_list)):
+        if buyer_account_list[i].strip() == '':
+            buyer_account_list[i] = buyer_account_list[i-1]
+    pay_account_list=request.POST.getlist('pay_account')
+    for i in range(len(pay_account_list)):
+        if pay_account_list[i].strip() == '':
+            pay_account_list[i] = pay_account_list[i-1]
+   
     pj_time_man_list=request.POST.getlist('pj_time_man')
+    for i in range(len(pj_time_man_list)):
+        if pj_time_man_list[i].strip() == '':
+            pj_time_man_list[i] = pj_time_man_list[i-1]
+
     
     for i in range(0,len(shopname_list)):
         new_obj = t_store_execution_aliexpress()
         new_obj.type_num = type_num_list[i]
-        new_obj.createtime = datetime.datetime.strptime(createtime_list[i],'%Y年%m月%d日 %H:%M')
+        try:
+            new_obj.createtime = datetime.datetime.strptime(createtime_list[i],'%Y年%m月%d日 %H:%M')
+        except:
+            new_obj.createtime = None
         new_obj.shopname = shopname_list[i]
         new_obj.createman = createman_list[i]
         new_obj.MainSKU = MainSKU_list[i]
         new_obj.productid = productid_list[i]
-        new_obj.money=money_list[i]
+        if money_list[i] is None:
+            new_obj.money=money_list[i]
+        else:
+            new_obj.money=0
         new_obj.count=count_list[i]
         new_obj.reason=reason_list[i]
         new_obj.remark=remark_list[i]
@@ -7398,8 +7560,13 @@ def remove_wish_pic_update_flag(request):
     from skuapp.table.t_product_image_modify import t_product_image_modify
     from skuapp.table.t_product_mainsku_pic import t_product_mainsku_pic
     main_sku = request.GET.get('main_sku', '')
-    t_product_mainsku_pic.objects.filter(MainSKU=main_sku).update(NewFlag=1)
-    t_product_image_modify.objects.filter(MainSKU=main_sku).update(UpdateFlag=0)
+    plateform = request.GET.get('plateform', '')
+    if plateform == 'wish':
+        t_product_mainsku_pic.objects.filter(MainSKU=main_sku).update(NewFlag=1)
+        t_product_image_modify.objects.filter(MainSKU=main_sku).update(UpdateFlag=0)
+    else:
+        t_product_mainsku_pic.objects.filter(MainSKU=main_sku).update(NewFlagJoom=1)
+        t_product_image_modify.objects.filter(MainSKU=main_sku).update(UpdateFlagJoom=0)
     myResult = {'resultCode': 0}
     return JsonResponse(myResult)
 
@@ -7443,13 +7610,25 @@ def op_t_wish_pb(request):
 
     url = request.path
     param = {}
-    pbid = request.POST.get('pbid', '')  # 流水号
-    x = request.POST.get('access_token', '')
-    if x != '':
-        param[str('access_token')] = str(x)
-    x = request.POST.get('id', '')
-    if x != '':
-        param[str('id')] = str(x)
+
+    if request.method == "POST":
+        pbid = request.POST.get('pbid', '')  # 流水号
+        x = request.POST.get('access_token', '')
+        if x != '':
+            param[str('access_token')] = str(x)
+        x = request.POST.get('id', '')
+        if x != '':
+            param[str('id')] = str(x)
+    else:
+        x = request.GET.get('access_token', '')
+        if x != '':
+            param[str('access_token')] = str(x)
+        x = request.GET.get('id', '')
+        if x != '':
+            param[str('id')] = str(x)
+        x = request.GET.get('amount', 0)
+        if float(x) >= 0.01:
+            param[str('amount')] = str(x)
 
     if 'keywords' in url:
         _prarm = {}
@@ -7471,7 +7650,101 @@ def op_t_wish_pb(request):
             else:
                 return JsonResponse({'result': 'NG', 'data': x['data']})
         except Exception, ex:
-            return JsonResponse({'result':'NG', 'data': repr(ex)})
+            return JsonResponse({'result': 'NG', 'data': repr(ex)})
+
+    elif 'addBudget' in url:
+        try:
+            curr = request.GET.get('currBudget', '~')
+            x = GetMaxBudget(param[str('access_token')])
+            if x['retcode'] == 0:
+                data = x['data']['data']
+                maxBudget = data['Budget']['max_budget']
+
+                return render(request, 't_wish_pb_addBudget.html',
+                              {'maxBudget': maxBudget, 'currBudget': curr, 'id': param[str('id')],
+                               'access_token': param[str('access_token')]})
+            else:
+                return JsonResponse({'result': x['data']})
+
+        except Exception, ex:
+            return JsonResponse({'result': repr(ex)})
+
+    elif 'updateBudget' in url:
+        try:
+            if 'amount' not in param:
+                return JsonResponse({'result': u'预算输入非法.'})
+
+            isnull = lambda x: x if x else ''
+
+            x = AddBudget(param)
+            if x['retcode'] == 0:
+                obj = t_wish_pb.objects.filter(campaign_id=param['id'])
+                msg = isnull(obj[0].operation_remark)+'/' + datetime.now().strftime('%Y-%m-%d') + u'加预算' + param['amount']
+                obj.update(max_budget=F('max_budget')+float(param['amount']),
+                operation_remark=msg, updatetime=datetime.now(), StaffID=request.user.username)
+
+                return JsonResponse({'result': 'OK'})
+            else:
+                return JsonResponse({'result': x['data']})
+
+        except Exception, ex:
+            return JsonResponse({'result': repr(ex)})
+
+    elif 'translation' in url:
+        try:
+            id = request.GET.get('id', '~')
+            curr = request.GET.get('keywords', '~')
+            at = request.GET.get('access_token', '~')
+            if len(curr) >= 2:
+                l = curr.split(',')
+                ll = curr
+
+                return render(request, 't_wish_pb_translation.html', locals())
+            else:
+                return JsonResponse({'result': repr('No Keywords')})
+
+        except Exception, ex:
+            return JsonResponse({'result': repr(ex)})
+
+    elif 'updateKeyword' in url:
+        try:
+            keywords = request.POST.get('keywords')
+            language = request.POST.get('language')
+            keywordsList = request.POST.get('keywordsList')
+            access_token = request.POST.get('at')
+            id = request.POST.get('id')
+
+            if len(keywordsList.split(',')) >= 30:
+                return JsonResponse({'result': repr('Keywords Full')})
+
+            if language == 'all':
+                result = concatall(keywords)
+                for i in result:
+                    if i == '':
+                        return JsonResponse({'result': repr('API Error')})
+                    if i not in keywordsList and len(keywordsList.split(',')) < 30:
+                        keywordsList +=','+i
+            else:
+                result = to_translate('en', keywords, language)
+                if result == '':
+                    return JsonResponse({'result': repr('API Error')})
+                if result in keywordsList:
+                    return JsonResponse({'result': repr('Keyword Exist')})
+                if result not in keywordsList and len(keywordsList.split(',')) < 30:
+                    keywordsList +=',' + result
+
+            obj = t_wish_pb.objects.filter(id=id)
+
+            x = UpdateKeywords(obj, access_token, keywordsList)
+            if x['retcode'] == 0:
+                obj.update(keywords=keywordsList)
+                return JsonResponse({'result': 'OK'})
+            else:
+                return JsonResponse({'result': x['data']})
+
+        except Exception, ex:
+            return JsonResponse({'result': repr(ex)})
+            
     elif 'stop' in url:
         try:
             x = StopCampaign(param)
@@ -7534,7 +7807,19 @@ def op_t_wish_pb(request):
     else:
         return JsonResponse({'result': 'invalid url:%s'%url})
 
+@csrf_exempt
+def op_t_wishpb_sync(request):
 
+    shopname = request.GET.get('ShopName', '')  # 流水号
+
+    res = run_wishpb(shopname)
+
+    if res['result'] == 'OK':
+        messages.info(request, '%s 店铺数据已同步成功!'%shopname)
+    else:
+        messages.error(request, '%s 店铺数据同步失败:%s!' % (shopname, res['info']))
+
+    return JsonResponse(res)
 
 def update_info(request):
     sResult = {}
@@ -7547,7 +7832,12 @@ def update_info(request):
         from skuapp.table.t_supply_chain_production_basic_permission import t_supply_chain_production_basic_permission
         from pyapp.table.kc_unsalable_dispose import kc_unsalable_dispose
         from skuapp.table.t_sku_weight_examine import t_sku_weight_examine
+        from skuapp.table.t_stocking_demand_fba import t_stocking_demand_fba
+        from skuapp.table.t_stocking_demand_fbw import t_stocking_demand_fbw
         from skuapp.table.t_progress_tracking_of_product_customization_table import t_progress_tracking_of_product_customization_table
+        from skuapp.table.t_stocking_demand_fba_deliver import t_stocking_demand_fba_deliver
+        from skuapp.table.t_stocking_rejecting_fba import t_stocking_rejecting_fba
+        from skuapp.table.t_stocking_demand_fba_detail import t_stocking_demand_fba_detail
 
         udata = {}
         id = request.GET.get('id')
@@ -7561,10 +7851,37 @@ def update_info(request):
             workobjs = t_work_flow_of_plate_house.objects.filter(id=id)
         elif type == '1':
             workobjs = t_work_battledore.objects.filter(id=id)
+        elif type == 't_stocking_demand_fba':
+            workobjs = t_stocking_demand_fba.objects.filter(id=id)
         elif type == 't_stocking_purchase_order':
             workobjs = t_stocking_purchase_order.objects.filter(id=id)
             if key == "Single_number" and len(value) > 0:
                 t_stocking_purchase_order.objects.filter(id=id).update(Status='purchasing')
+        elif type == 't_stocking_demand_fba_purchase':
+            workobjs = t_stocking_demand_fba.objects.filter(id=id)
+            _workobjs = workobjs.first()
+            if key == "Single_number" and len(value) > 0:
+                if _workobjs.QTY :
+                    t_stocking_demand_fba.objects.filter(id=id).update(Status='purchasing',recordPurchaseCodeMan=request.user.first_name,recordPurchaseCodeDate=datetime.datetime.now())
+                    t_stocking_demand_fba_detail.objects.filter(Stocking_plan_number=_workobjs.Stocking_plan_number).update(
+                        Status='purchasing')
+            elif  key == "QTY" and len(value) > 0:
+                if _workobjs.Single_number:
+                    t_stocking_demand_fba.objects.filter(id=id).update(Status='purchasing',recordPurchaseCodeMan=request.user.first_name,recordPurchaseCodeDate=datetime.datetime.now())
+                    t_stocking_demand_fba_detail.objects.filter(Stocking_plan_number=_workobjs.Stocking_plan_number).update(
+                        Status='purchasing')
+        elif type == 't_stocking_demand_fbw':
+            workobjs = t_stocking_demand_fbw.objects.filter(id=id)
+            if key == "QTY" and len(value) > 0:
+                t_stocking_demand_fbw_obj = t_stocking_demand_fbw.objects.filter(id=id)
+                _t_stocking_demand_fbw_obj = t_stocking_demand_fbw_obj.first()
+                t_stocking_demand_fbw.objects.filter(id=id).update(DeliverMoney=int(value)*float(_t_stocking_demand_fbw_obj.ProductPrice))
+            if key == "ListNumber" and len(value) > 0:
+                t_stocking_demand_fbw.objects.filter(id=id).update(Status='genbatch',ListNumber=value)
+        elif type == 't_stocking_demand_fba_deliver':
+            workobjs = t_stocking_demand_fba_deliver.objects.filter(id=id)
+        elif type == 't_stocking_rejecting_fba':
+            workobjs = t_stocking_rejecting_fba.objects.filter(id=id)
         elif type == 't_supply_chain_production_basic':
             if key:
                 workobjs=t_supply_chain_production_basic.objects.filter(id=id)
@@ -7622,7 +7939,7 @@ def update_info(request):
             return JsonResponse(sResult)
 
         if key:
-            udata[key] = value
+            udata[key] = (u'{}'.format(value)).strip()
 
         if workobjs and udata:
             workobjs.update(**udata)
@@ -7721,7 +8038,8 @@ def get_survey_results_info(request):
 def get_ali1688_page_info(request):
     import json
     import datetime
-    from reportapp.models import t_report_supplier_sku_m
+    # from reportapp.models import t_report_supplier_sku_m
+    from reportapp.table.t_report_supplier_sku_m import t_report_supplier_sku_m
     from pyapp.table.t_product_b_goods import t_product_b_goods
     from pyapp.models import B_Supplier
     from django.db.models import Q
@@ -9336,8 +9654,9 @@ def t_product_suringPlugin(request):
                         getinfostatus = 'Get data from haiying api fail'
                     if obj['errcode'] == -4:
                         getinfostatus = 'wish api requests fail'
-                    sql = "insert into t_product_suvering (suvering_time,product_id,getinfo_time,getinfo_status,status) values ('%s','%s','%s','%s',%s) on  DUPLICATE key update product_id ='%s',getinfo_time='%s',getinfo_status='%s',status=%s" % (
-                    tttime.now(), pid, tttime.now(), getinfostatus, 0, pid, tttime.now(), getinfostatus, 0)
+                    user_name = request.user.username
+                    sql = "insert into t_product_suvering (suvering_time,product_id,getinfo_time,saler,getinfo_status,status) values ('%s','%s','%s','%s','%s',%s) on  DUPLICATE key update product_id ='%s',getinfo_time='%s',getinfo_status='%s',status=%s" % (
+                    tttime.now(), pid, tttime.now(),user_name, getinfostatus, 0, pid, tttime.now(), getinfostatus, 0)
                     cursor.execute(sql)
                     cursor.execute('commit;')
                 except:
@@ -9422,17 +9741,18 @@ def show_wish_refresh(request):
                 if boughtthis == '':
                     boughtthis = 0
                 if obj['errcode'] == 0:
-                    getinfostatus = 'Refresh SUCCESS'
+                    getinfostatus = 'SUCCESS'
                     status = 1
                 else:
                     getinfostatus = 'Get data from haiying api is None or out of stock'
                     status = 0
+                user_name = request.user.username
                 sql = "insert into t_product_suvering (suvering_time,sourcepic_path,product_id,title,category,price,sale_time,sale_number,comment_number,point," \
-                      "little_flames,rating_details,PB,getinfo_time,getinfo_status,sevenratingnum,status)  " \
-                      "values ('%s','%s','%s','%s','%s','%s','%s',%s,%s,%s,%s,'%s',%s,'%s','%s',%s,%s) on  DUPLICATE key update sourcepic_path='%s',category='%s',price='%s',sale_number=%s,comment_number=%s,point=%s,little_flames=%s,rating_details='%s',getinfo_time='%s',getinfo_status='%s',sevenratingnum=%s,status=%s ;" \
+                      "little_flames,rating_details,PB,saler,getinfo_time,getinfo_status,sevenratingnum,status)  " \
+                      "values ('%s','%s','%s','%s','%s','%s','%s',%s,%s,%s,%s,'%s',%s,'%s','%s','%s',%s,%s) on  DUPLICATE key update sourcepic_path='%s',category='%s',price='%s',sale_number=%s,comment_number=%s,point=%s,little_flames=%s,rating_details='%s',getinfo_time='%s',getinfo_status='%s',sevenratingnum=%s,status=%s ;" \
                       % (tttime.now(), picpath, pid, obj['title'], str(categorynames), fxprice, obj['gen_time'],
                          boughtthis, params['rating_count'], params['avg_star'], obj['aver'], obj['rating_detail'],
-                         obj['is_pb'], tttime.now(), getinfostatus, rating_num, status, picpath, str(categorynames),
+                         obj['is_pb'],user_name, tttime.now(), getinfostatus, rating_num, status, picpath, str(categorynames),
                          fxprice, boughtthis,
                          params['rating_count'], params['avg_star'], obj['aver'], obj['rating_detail'],
                          tttime.now(), getinfostatus, rating_num, status)
@@ -9450,8 +9770,9 @@ def show_wish_refresh(request):
                     getinfostatus = 'Get data from haiying api fail'
                 if obj['errcode'] == -4:
                     getinfostatus = 'wish api requests fail'
-                sql = "insert into t_product_suvering (suvering_time,product_id,getinfo_time,getinfo_status,status) values ('%s','%s','%s','%s',%s) on  DUPLICATE key update product_id ='%s',getinfo_time='%s',getinfo_status='%s',status=%s" % (
-                    tttime.now(), pid, tttime.now(), getinfostatus, 0, pid, tttime.now(), getinfostatus, 0)
+                user_name = request.user.username
+                sql = "insert into t_product_suvering (suvering_time,product_id,getinfo_time,saler,getinfo_status,status) values ('%s','%s','%s','%s','%s',%s) on  DUPLICATE key update product_id ='%s',getinfo_time='%s',getinfo_status='%s',status=%s" % (
+                    tttime.now(), pid, tttime.now(), getinfostatus,user_name, 0, pid, tttime.now(), getinfostatus, 0)
                 cursor.execute(sql)
                 cursor.execute('commit;')
             except Exception as e:
@@ -9584,7 +9905,7 @@ def BeyondNum(request):
             pyconn.py_close_conn_database()
             return JsonResponse(result)
         else:
-            t_cloth_factory_dispatch_needpurchase.objects.filter(id=idValue).update(remarkDisPatch='',
+            t_cloth_factory_dispatch_needpurchase.objects.filter(id=idValue).update(remarkDisPatch=remark,
                                                                                     completeNumbers='0')
             result['errorcode'] = 0
             result['errortext'] = "OK"
@@ -9955,7 +10276,7 @@ def add_information_modify(request):
     if source == 'add_modify':
         return render(request, 't_product_information_modify.html', {'sku': '', 'exists': 'no'})
     elif source == 'search_modify':
-        sku = request.GET.get('search_sku', '').strip()
+        sku = request.GET.get('search_sku', '').strip().upper()
         search_modify_result = search_modify(sku)
         return render(request, 't_product_information_modify.html', search_modify_result)
     else:
@@ -10011,7 +10332,7 @@ def search_modify(sku):
                 if B_Supplier_obj.exists():
                     supplier_name = B_Supplier_obj[0].SupplierName
                 warning_obj = kc_currentstock_sku.objects.filter(SKU=sku).values_list('CgCategory')
-                if warning_obj.exists():
+                if warning_obj.exists() and warning_obj[0]:
                     WarningCats = WARNING_DICT.get(warning_obj[0][0], '')
                 else:
                     WarningCats = ''
@@ -10042,7 +10363,7 @@ def search_modify(sku):
                     'ShopCarryCost': str(obj.ShopCarryCost), 'PackWeight': str(obj.PackWeight),
                     'ExchangeRate': str(obj.ExchangeRate), 'LogisticsCost': str(obj.LogisticsCost),
                     'GrossRate': str(obj.GrossRate), 'CalSalePrice': str(obj.CalSalePrice), 'PackFee': str(obj.PackFee),
-                    'AttributeName': str(obj.AttributeName)
+                    'AttributeName': str(obj.AttributeName), 'WarningCats': WarningCats
                 }
                 sku_list.append(obj.SKU)
             modify_dict['public'] = modify_dict[sku_list[0]]
@@ -10334,14 +10655,14 @@ def save_modify_second(request):
                             post_value[-1] = post_value[2]
                         single_sku_dict[item] = deepcopy(post_value)
                 all_sku_dict[sku] = single_sku_dict
-            t_product_information_modify.objects.filter(id=modify_id).update(Details=str(all_sku_dict))
+            t_product_information_modify.objects.filter(id=modify_id).update(Details=str(all_sku_dict), Mstatus='DLQ')
         else:
             for sku in sku_list:
                 post_value = request.POST.getlist(sku, '')
                 if post_value:
                     single_sku_dict = {'delete_sku': sku, 'retain_sku': post_value[0], 'describe': post_value[1]}
                     all_sku_list.append(single_sku_dict)
-            t_product_information_modify.objects.filter(id=modify_id).update(Details=str(all_sku_list))
+            t_product_information_modify.objects.filter(id=modify_id).update(Details=str(all_sku_list), Mstatus='DLQ')
         rr = u'修改成功,关闭后刷新'
     else:
         rr = u'没有要保存的数据，此次不保存您的修改'
@@ -10677,19 +10998,27 @@ def t_check_report_Plugin(request):
     return HttpResponseRedirect('/Project/admin/skuapp/t_stocking_check_report/')
 
 def t_stocking_purchase_Plugin(request):
+    dealpage = request.GET.get('dealpage','')
     try:
         result = {'errorcode': 0,'errortext': '','count':0}
         from brick.pydata.py_syn.b_stockStatus import b_stockStatus
         obj_stockStatus = b_stockStatus()
-        result = obj_stockStatus.deal_purchase_data()
+        if dealpage == 'FBA':
+            result = obj_stockStatus.deal_fba_purchase_data()
+        else:
+            result = obj_stockStatus.deal_purchase_data()
     except Exception as e:
         result = {'errorcode': -1, 'errortext': u'%s' % e}
     messages.info(request, u'成功刷新%s条,%s' %(result['count'],result['errortext']))
-    return HttpResponseRedirect('/Project/admin/skuapp/t_stocking_purchase_order/')
+    if dealpage == 'FBA':
+        return HttpResponseRedirect('/Project/admin/skuapp/t_stocking_demand_fba_purchase/?Status=purchasing')
+    else:
+        return HttpResponseRedirect('/Project/admin/skuapp/t_stocking_purchase_order/')
 
 def deal_checkReportData(request):
     try:
         from skuapp.table.t_stocking_check_report import t_stocking_check_report
+        from skuapp.table.t_stocking_demand_fba import t_stocking_demand_fba
         from datetime import datetime as ddtime
         get_ProductSKU = request.GET.get('ProductSKU')
         get_id = request.GET.get('id')
@@ -10697,17 +11026,36 @@ def deal_checkReportData(request):
         checkPass_Num = request.GET.get('checkPass_Num')
         empty = request.GET.get('empty')
         selectCheck = request.GET.get('selectCheck')
-        if str(selectCheck) in (0,1,2,'0','1','2'):
-            t_stocking_check_report.objects.filter(id=get_id).update(isCheck=selectCheck,CheckMan = request.user.first_name,CheckTime=ddtime.now())
-            return JsonResponse({'result': 'OK'})
-        if str(empty) == "99999":
-            t_stocking_check_report.objects.filter(id=get_id).update(CheckNumber=checkPart_Num,CheckQualified=checkPass_Num,PercentOfPass="0",CheckMan = request.user.first_name,CheckTime=ddtime.now())
-            return JsonResponse({'result': 'OK','dataContent':0})
-        if (checkPart_Num == 0 or int(checkPart_Num) < int(checkPass_Num)):
-            return JsonResponse({'result': 'NG'})
-        PercentOfPass = '%.2f'%((float(checkPass_Num)/float(checkPart_Num))*100)
-        t_stocking_check_report.objects.filter(id=get_id).update(CheckNumber=checkPart_Num,CheckQualified=checkPass_Num,PercentOfPass=str(PercentOfPass),CheckMan = request.user.first_name,CheckTime=ddtime.now())
-        return JsonResponse({'result': 'OK','dataContent':PercentOfPass})
+        dealflag = request.GET.get('dealflag')
+        checkconfirmflag = request.GET.get('checkconfirmflag')
+        if dealflag == "FBA":
+            if checkconfirmflag == "checkconfirmflag":
+                t_stocking_demand_fba.objects.filter(id=get_id).update(checkConfirmMan=request.user.first_name,checkConfirmDate=ddtime.now(),checkConfirmFlag='1')
+                return JsonResponse({'result': 'OK'})
+            else:
+                if str(selectCheck) in (0,1,2,'0','1','2'):
+                    t_stocking_demand_fba.objects.filter(id=get_id).update(isCheck=selectCheck,CheckMan = request.user.first_name,CheckTime=ddtime.now())
+                    return JsonResponse({'result': 'OK'})
+                if str(empty) == "99999":
+                    t_stocking_demand_fba.objects.filter(id=get_id).update(CheckNumber=checkPart_Num,CheckQualified=checkPass_Num,PercentOfPass="0",CheckMan = request.user.first_name,CheckTime=ddtime.now())
+                    return JsonResponse({'result': 'OK','dataContent':0})
+                if (checkPart_Num == 0 or int(checkPart_Num) < int(checkPass_Num)):
+                    return JsonResponse({'result': 'NG'})
+                PercentOfPass = '%.2f'%((float(checkPass_Num)/float(checkPart_Num))*100)
+                t_stocking_demand_fba.objects.filter(id=get_id).update(CheckNumber=checkPart_Num,CheckQualified=checkPass_Num,PercentOfPass=str(PercentOfPass),CheckMan = request.user.first_name,CheckTime=ddtime.now())
+                return JsonResponse({'result': 'OK','dataContent':PercentOfPass})
+        else:
+            if str(selectCheck) in (0,1,2,'0','1','2'):
+                t_stocking_check_report.objects.filter(id=get_id).update(isCheck=selectCheck,CheckMan = request.user.first_name,CheckTime=ddtime.now())
+                return JsonResponse({'result': 'OK'})
+            if str(empty) == "99999":
+                t_stocking_check_report.objects.filter(id=get_id).update(CheckNumber=checkPart_Num,CheckQualified=checkPass_Num,PercentOfPass="0",CheckMan = request.user.first_name,CheckTime=ddtime.now())
+                return JsonResponse({'result': 'OK','dataContent':0})
+            if (checkPart_Num == 0 or int(checkPart_Num) < int(checkPass_Num)):
+                return JsonResponse({'result': 'NG'})
+            PercentOfPass = '%.2f'%((float(checkPass_Num)/float(checkPart_Num))*100)
+            t_stocking_check_report.objects.filter(id=get_id).update(CheckNumber=checkPart_Num,CheckQualified=checkPass_Num,PercentOfPass=str(PercentOfPass),CheckMan = request.user.first_name,CheckTime=ddtime.now())
+            return JsonResponse({'result': 'OK','dataContent':PercentOfPass})
     except Exception as e:
         #messages.info(request, u'id=%s,get_ProductSKU=%s,checkPart_Num=%s,checkPass_Num=%s error:%s,录入数据存在问题，请修正后重新计算。'% (get_id,get_ProductSKU,checkPart_Num,checkPass_Num,str(e)))
         return JsonResponse({'result': 'NG'})    
@@ -10771,121 +11119,543 @@ def amazon_product_price_modify(request):
     import urllib
     from django.http import HttpResponseRedirect
 
-    ids = request.POST.get('id','').split(',')
-    modify_type = request.POST.get('modify_type', '')
-    modify_base = request.POST.get('modify_base', '')
-    modify_number = request.POST.get('modify_number', '')
+    if request.method == 'GET':
+        ids = request.GET.get('id','').split(',')
+        modify_type = request.GET.get('modify_type', '')
+        modify_base = request.GET.get('modify_base', '')
+        modify_number = request.GET.get('modify_number', '')
 
-    shop_sku = dict()
-    fail_record = list()
-    sku_str = ''
-    refresh_type = 'product_price_modify_multi'
+        shop_sku = dict()
+        fail_record = list()
+        sku_str = ''
+        refresh_type = 'product_price_modify_multi'
 
-    for record in ids:
-        t_online_info_amazon_ins = t_online_info_amazon.objects.filter(id=record)
-        for obj in t_online_info_amazon_ins:
-            seller_sku = obj.seller_sku
-            sku_str = sku_str + seller_sku + ','  # 用于执行操作后显示相应条目
-            shop_name = obj.ShopName
+        for record in ids:
+            t_online_info_amazon_ins = t_online_info_amazon.objects.filter(id=record)
+            for obj in t_online_info_amazon_ins:
+                seller_sku = obj.seller_sku
+                sku_str = sku_str + seller_sku + ','  # 用于执行操作后显示相应条目
+                shop_name = obj.ShopName
 
-            # 获取基准价格
-            if modify_base == 'price':
-                base_price = obj.price
-            elif modify_base == 'estimated_fee':
-                base_price = obj.estimated_fee
-            else:
-                base_price = None
-
-            # 计算调整后的价格，计算价格异常或调整后的价格小于等于0时跳过
-            try:
-                if modify_type == 'increase':
-                    price_after = float('%.2f' % (float(base_price) + float(modify_number)))
-                elif modify_type == 'reduce':
-                    price_after = float('%.2f' % (float(base_price) - float(modify_number)))
-                elif modify_type == 'reset':
-                    price_after = float('%.2f' % float(modify_number))
+                # 获取基准价格
+                if modify_base == 'price':
+                    base_price = obj.price
+                elif modify_base == 'estimated_fee':
+                    base_price = obj.estimated_fee
                 else:
+                    base_price = None
+
+                # 计算调整后的价格，计算价格异常或调整后的价格小于等于0时跳过
+                try:
+                    if modify_type == 'increase':
+                        price_after = float('%.2f' % (float(base_price) + float(modify_number)))
+                    elif modify_type == 'reduce':
+                        price_after = float('%.2f' % (float(base_price) - float(modify_number)))
+                    elif modify_type == 'reset':
+                        price_after = float('%.2f' % float(modify_number))
+                    else:
+                        continue
+                except:
+                    fail_record.append(obj.seller_sku)
                     continue
-            except:
-                fail_record.append(obj.seller_sku)
-                continue
+                if price_after <= 0:
+                    fail_record.append(obj.seller_sku)
+                    continue
 
-            try:
-                if obj.estimated_fee:
-                    lowest_price = float('%.2f' % float(obj.estimated_fee))
+                # 按店铺合成店铺下的商品sku价格调整字典: {店铺名1:[{sku1:price1, sku2:price2}], 店铺名2:[{sku3:price3, sku4:price4}]}，样例如下
+                # {u'AMZ-0086-Jiquan-US/PJ': [{u'3_(}}445': 8.0}, {u'3_(}}444': 9.0}],  u'AMZ-0029-Taihexin-US/PJ': [{u'5591$43496': 12.0}, {u'5591$43495': 12.0}]}
+                sku_price = dict()
+                sku_price[seller_sku] = price_after
+                if shop_name not in shop_sku:
+                    shop_sku[shop_name] = [sku_price]
                 else:
-                    lowest_price = 0
-            except:
-                lowest_price = 0
+                    shop_sku[shop_name].append(sku_price)
 
-            if price_after <= lowest_price:
-                fail_record.append(obj.seller_sku)
-                continue
+                # 更新状态
+                t_online_info_amazon_ins.update(deal_action='product_price_modify',
+                                                deal_result=None,
+                                                deal_result_info=None,
+                                                UpdateTime=datetime.datetime.now())
 
-            # 按店铺合成店铺下的商品sku价格调整字典: {店铺名1:[{sku1:price1, sku2:price2}], 店铺名2:[{sku3:price3, sku4:price4}]}，样例如下
-            # {u'AMZ-0086-Jiquan-US/PJ': [{u'3_(}}445': 8.0}, {u'3_(}}444': 9.0}],  u'AMZ-0029-Taihexin-US/PJ': [{u'5591$43496': 12.0}, {u'5591$43495': 12.0}]}
-            sku_price = dict()
-            sku_price[seller_sku] = price_after
-            if shop_name not in shop_sku:
-                shop_sku[shop_name] = [sku_price]
+        # shop_sku: {u'AMZ-0086-Jiquan-US/PJ': [{u'3_(}}445': 8.0}, {u'3_(}}444': 9.0}],  u'AMZ-0029-Taihexin-US/PJ': [{u'5591$43496': 12.0}, {u'5591$43495': 12.0}]}
+        for key, value in shop_sku.items():
+            get_auth_info_ins = GetAuthInfo(connection)
+            auth_info = get_auth_info_ins.get_auth_info_by_shop_name(str(key))
+            auth_info['IP'] = auth_info['ShopIP']
+            auth_info['table_name'] = 't_online_info_amazon'
+            auth_info['update_type'] = refresh_type
+            auth_info['product_list'] = list()
+            auth_info['price_info_dic'] = dict()
+            for sku_price_dic in value:
+                for sku, price in sku_price_dic.items():
+                    auth_info['product_list'].append(sku)
+                    auth_info['price_info_dic'][sku] = price
+
+            # 获取货币单位
+            sale_sites = {'US': 'USD', 'DE': 'EUR', 'FR': 'EUR', 'UK': 'GBP', 'AU': 'AUD', 'IN': 'INR'}
+            shop_site = key.split('-')[-1].split('/')[0]
+            if shop_site in sale_sites.keys():
+                currency_type = sale_sites[shop_site]
             else:
-                shop_sku[shop_name].append(sku_price)
+                currency_type = 'USD'
 
-            # 更新状态
-            t_online_info_amazon_ins.update(deal_action='product_price_modify',
-                                            deal_result=None,
-                                            deal_result_info=None,
-                                            UpdateTime=datetime.datetime.now())
+            # 获取价格xml
+            feed_xml_price_obj = GenerateFeedXml(auth_info)
+            feed_xml_price = feed_xml_price_obj.get_price_xml_multi(value, currency_type)
+            auth_info['feed_xml'] = feed_xml_price
 
-    # shop_sku: {u'AMZ-0086-Jiquan-US/PJ': [{u'3_(}}445': 8.0}, {u'3_(}}444': 9.0}],  u'AMZ-0029-Taihexin-US/PJ': [{u'5591$43496': 12.0}, {u'5591$43495': 12.0}]}
-    for key, value in shop_sku.items():
-        get_auth_info_ins = GetAuthInfo(connection)
-        auth_info = get_auth_info_ins.get_auth_info_by_shop_name(str(key))
-        auth_info['IP'] = auth_info['ShopIP']
-        auth_info['table_name'] = 't_online_info_amazon'
-        auth_info['update_type'] = refresh_type
-        auth_info['product_list'] = list()
-        auth_info['price_info_dic'] = dict()
-        for sku_price_dic in value:
-            for sku, price in sku_price_dic.items():
-                auth_info['product_list'].append(sku)
-                auth_info['price_info_dic'][sku] = price
+            # 消息送至mq
+            message_to_rabbit_obj = MessageToRabbitMq(auth_info, connection)
+            auth_info_price = json.dumps(auth_info)
+            message_to_rabbit_obj.put_message(auth_info_price)
 
-        # 获取货币单位
-        sale_sites = {'US': 'USD', 'DE': 'EUR', 'FR': 'EUR', 'UK': 'GBP', 'AU': 'AUD', 'IN': 'INR'}
-        shop_site = key.split('-')[-1].split('/')[0]
-        if shop_site in sale_sites.keys():
-            currency_type = sale_sites[shop_site]
+        # 提示调价异常记录
+        fail_str = ''
+        if fail_record:
+            for fail in fail_record:
+                fail_str = fail_str + fail + ','
+            messages.error(request, '以下商品计算调整后价格异常，不予调整：%s' %fail_str[:-1])
+
+        # 不是所有调价都异常给调价中提示
+        if len(ids) != len(fail_record):
+            messages.success(request, '商品价格调整中')
+
+        if sku_str == '':
+            sku_str = ' '
         else:
-            currency_type = 'USD'
+            sku_str = sku_str[:-1]
+        sku_str = urllib.quote(sku_str.decode('gbk', 'replace').encode('utf-8', 'replace'))
+        return HttpResponseRedirect('/Project/admin/skuapp/t_online_info_amazon_listing/?SKU=%s' % sku_str)
+        
+def t_upload_shopname_chart(request):
+    import datetime
+    from skuapp.table.t_upload_shopname import t_upload_shopname
 
-        # 获取价格xml
-        feed_xml_price_obj = GenerateFeedXml(auth_info)
-        feed_xml_price = feed_xml_price_obj.get_price_xml_multi(value, currency_type)
-        auth_info['feed_xml'] = feed_xml_price
+    date_data_list = []
+    rating_list = []
 
-        # 消息送至mq
-        message_to_rabbit_obj = MessageToRabbitMq(auth_info, connection)
-        auth_info_price = json.dumps(auth_info)
-        message_to_rabbit_obj.put_message(auth_info_price)
-
-    # 提示调价异常记录
-    fail_str = ''
-    if fail_record:
-        for fail in fail_record:
-            fail_str = fail_str + fail + ','
-        messages.error(request, '以下商品计算调整后价格异常，不予调整：%s' %fail_str[:-1])
-
-    # 不是所有调价都异常给调价中提示
-    if len(ids) != len(fail_record):
-        messages.success(request, '商品价格调整中')
-
-    if sku_str == '':
-        sku_str = ' '
+    id = request.GET.get('id', '')
+    chart_type = request.GET.get('type', '')
+    t_upload_shopname_obj = t_upload_shopname.objects.filter(id=id)
+    if t_upload_shopname_obj.exists():
+        shop_name = t_upload_shopname_obj[0].ShopName
+        if chart_type == 'order':
+            text = u'订单数(个)'
+            title = u'订单数'
+            result = eval(t_upload_shopname_obj[0].AllOrderNumber) if t_upload_shopname_obj[0].AllOrderNumber else {}
+        else:
+            text = u'销售额($)'
+            title = u'销售额'
+            result = eval(t_upload_shopname_obj[0].AllSalesVolume) if t_upload_shopname_obj[0].AllSalesVolume else {}
     else:
-        sku_str = sku_str[:-1]
-    sku_str = urllib.quote(sku_str.decode('gbk', 'replace').encode('utf-8', 'replace'))
-    return HttpResponseRedirect('/Project/admin/skuapp/t_online_info_amazon_listing/?SKU=%s' % sku_str)
+        result = {}
+        shop_name = ''
+        text = ''
+
+    i = 0
+    for key in sorted(result.keys())[-20:]:
+        week_start = key
+        week_end = str(datetime.datetime.strptime(week_start, '%Y-%m-%d') + datetime.timedelta(days=7))[:10]
+        week_date_range = week_start.replace('-', '.') + '-' + week_end.replace('-', '.')
+        date_data_list.append(week_date_range)
+        rating_list.append(float(result[key]))
+        i += 1
+
+    return render(request, 't_upload_shopname_chart.html',
+                  {
+                      'date_data': json.dumps(date_data_list), 'shop_name': shop_name,
+                      'rating_list': rating_list, 'text': text, 'title': title
+                  })
+                  
+
+
+def deal_saler_profit(request):
+    try:
+        from app_djcelery.tasks import get_saler_profit_data,gen_execl_saler_profit_data
+        from datetime import datetime as ddtime
+        selmonth = request.GET.get('selmonth')
+        dealflag = request.GET.get('dealflag')
+        salerman = request.GET.get('salerman')
+        shopname = request.GET.get('shopname')
+        result = {'errorcode': 0, 'errortext': u'操作正在执行，请稍等片刻'}
+        if dealflag == 'select':
+            return HttpResponseRedirect('/Project/admin/skuapp/t_saler_profit_reportform/?selmonth=%s&salerman=%s&shopname=%s' % (selmonth,salerman,shopname))
+        elif dealflag == 'genexecl':
+            filename = request.user.username + '_' + ddtime.now().strftime('%Y%m%d%H%M%S') + '.xlsx'
+            gen_execl_saler_profit_data.delay(request.user.username,selmonth,filename)
+            messages.info(request, u'业绩数据正在生成execl，稍后到下载中心下载文件:%s'%(filename))
+        elif dealflag == 'delete':
+            from skuapp.table.t_saler_profit_reportform import t_saler_profit_reportform
+            t_saler_profit_reportform_objs = t_saler_profit_reportform.objects.filter(StatisticsMonth=selmonth)
+            t_saler_profit_reportform_objs.delete()
+        else:
+            get_saler_profit_data.delay(selmonth)
+            messages.info(request, u'业绩数据正在生成，大约需要2-3小时,稍后刷新.')
+    except Exception as e:
+        messages.error(request,"deal fail,原因:%s"%(str(e)))
+    return HttpResponseRedirect('/Project/admin/skuapp/t_saler_profit_reportform/?selmonth=%s&salerman=%s&shopname=%s'%(selmonth,salerman,shopname))
+    
+    
+def get_weeklytrend(request):
+    PeriodNO = request.GET['PeriodNO']
+
+    sql = "select PeriodNO2,Ordercnt,Sales from t_wish_activerate_weektrend where PeriodNO='%s' and PeriodType=1 order by 1" % PeriodNO
+    with connection.cursor() as cursor:
+        cursor.execute(sql)
+        data = cursor.fetchall()
+
+    PeriodNO2 = []
+    Ordercnt = []
+    Sales = []
+    for P, O, S in data:
+        PeriodNO2.append(P)
+        Ordercnt.append(int(O))
+        Sales.append(float(S))
+
+    return render(request, 't_wish_activerate_weeklytrend.html', {'PeriodNO': PeriodNO, 'datelist': json.dumps(PeriodNO2), 'ordercnt': Ordercnt, 'sales':Sales})
+    
+from skuapp.table.t_template_amazon_advertising_business_count_report import t_template_amazon_advertising_business_count_report
+from skuapp.table.t_template_amazon_business_report import t_template_amazon_business_report
+from skuapp.table.t_template_amazon_advertising_business_count_shop_report import t_template_amazon_advertising_business_count_shop_report
+from skuapp.table.t_template_amazon_advertising_business_daily_report import t_template_amazon_advertising_business_daily_report
+from skuapp.table.t_template_amazon_advertising_business_report import t_template_amazon_advertising_business_report
+from skuapp.table.t_template_amazon_advertising_report import t_template_amazon_advertising_report
+from skuapp.table.t_online_info_amazon import t_online_info_amazon
+def caculate_new_count_amazon_ad(objs,old_obj,advertising_key,shopSKU):
+    parent_ASIN = advertising_key
+    child_ASIN = ''
+    item_name = ''
+    ShopSKU = shopSKU
+    visit_count = 0
+    visit_percent = 0.00
+    viewed_count = 0
+    viewed_percent = 0.00
+    buyed_button_percent = 0.00
+    ordered_count = 0
+    ordered_sales = decimal.Decimal("%.2f" % float(0.00))
+    count = 1
+    for obj in objs:
+        if obj:
+            child_ASIN = obj.child_ASIN
+            item_name = obj.item_name
+            visit_count += obj.visit_count
+            viewed_count += obj.viewed_count
+            ordered_count += obj.ordered_count
+            ordered_sales += obj.ordered_sales
+            visit_percent += float(obj.visit_percent.replace('%', ''))
+            viewed_percent += float(obj.viewed_percent.replace('%', ''))
+            buyed_button_percent += float(obj.buyed_button_percent.replace('%', ''))
+            count += 1
+    visit_percent = str(visit_percent / count) + '%'
+    viewed_percent = str(viewed_percent / count) + '%'
+    buyed_button_percent = str(buyed_button_percent / count) + '%'
+    ordered_count_Conversion_rate = '0.00'
+    business_more = '0'
+    if count > 2:
+        business_more = '1'
+    if visit_count != 0:
+        ordered_count_Conversion_rate = str('%.2f' % (float(ordered_count) * 100 / float(visit_count)))
+    AS_amazon = '0.00'
+    if ordered_sales != 0.00 and old_obj.cost != 0.00:
+        AS_amazon = str('%.2f' % (float(100 * old_obj.cost / ordered_sales)))
+    AT_amazon = '0.00'
+    if ordered_count != 0 and old_obj.orders_count != 0:
+        AT_amazon = str('%.2f' % (float(100 * old_obj.orders_count / ordered_count)))
+    result = {'parent_ASIN': parent_ASIN, 'child_ASIN': child_ASIN, 'item_name': item_name, 'ShopSKU': ShopSKU,
+              'visit_count': visit_count, 'visit_percent': visit_percent, 'viewed_count': viewed_count,
+              'viewed_percent': viewed_percent, 'buyed_button_percent': buyed_button_percent, 'ordered_count': ordered_count,
+              'ordered_sales': ordered_sales, 'ordered_count_Conversion_rate': ordered_count_Conversion_rate,
+              'AS_amazon': AS_amazon, 'AT_amazon': AT_amazon, 'business_more': business_more}
+    return result
+
+def change_ad_title(request):
+    ad_b_id = request.GET.get('ad_b_id', '')
+    is_show = request.GET.get('is_show', '')
+    shopname = request.GET.get('shopname', '')
+    if is_show == '1':
+        title = t_template_amazon_advertising_business_count_report.objects.filter(id__exact=ad_b_id).values('advertising_campaign_name')[0]
+        return render(request, 'edit_amazon_ad_title.html', {'title': title['advertising_campaign_name'],'is_done':0,'ad_b_id':ad_b_id,'shopname':shopname})
+    else:
+        title_name = request.GET.get('title_name', '')
+        shopSKU = title_name.split('-')[0].upper()
+        t_online_info_amazon_objs = t_online_info_amazon.objects.filter(ShopName__exact=shopname,seller_sku__iexact=shopSKU)
+        advertising_key = ''
+        if t_online_info_amazon_objs.exists():
+            advertising_key = t_online_info_amazon_objs[0].asin1
+        else:
+            advertising_key = shopSKU.upper()
+        online_objs = t_online_info_amazon.objects.filter(ShopName__exact=shopname, Parent_asin__iexact=advertising_key)
+        child_ASIN = []
+        if online_objs.exists():
+            for online_obj in online_objs:
+                child_ASIN.append(online_obj.asin1)
+        old_obj = t_template_amazon_advertising_business_count_report.objects.filter(id__exact=ad_b_id)[0]
+        if child_ASIN:
+            objs = t_template_amazon_business_report.objects.filter(shopname__exact=shopname,
+                                                                    child_ASIN__in=child_ASIN,
+                                                                    business_date__gte=old_obj.advertising_business_date)
+        else:
+            objs = t_template_amazon_business_report.objects.filter(shopname__exact=shopname,
+                                                                    parent_ASIN__exact=advertising_key,
+                                                                    business_date__gte=old_obj.advertising_business_date)
+        if old_obj.advertising_online_status == 'Stoping_ad':
+            objs = objs.filter(upload_time__lte=old_obj.action_time)
+        old_title_name = old_obj.advertising_campaign_name
+        result = caculate_new_count_amazon_ad(objs, old_obj, advertising_key,shopSKU)
+        t_template_amazon_advertising_business_count_report.objects.filter(id__exact=ad_b_id).update(parent_ASIN= result['parent_ASIN'],
+                   child_ASIN= result['child_ASIN'],item_name= result['item_name'],ShopSKU= result['ShopSKU'],visit_count= result['visit_count'],visit_percent= result['visit_percent'],
+                   viewed_count= result['viewed_count'],viewed_percent= result['viewed_percent'],buyed_button_percent= result['buyed_button_percent'],
+                   ordered_count= result['ordered_count'],ordered_sales= result['ordered_sales'],ordered_count_Conversion_rate= result['ordered_count_Conversion_rate'],
+                   AS_amazon= result['AS_amazon'],AT_amazon= result['AT_amazon'],advertising_campaign_name=title_name)
+        old_count_shop_obj = t_template_amazon_advertising_business_count_shop_report.objects.filter(shopname__exact=shopname)[0]
+        result['visit_count'] += old_count_shop_obj.visit_count - old_obj.visit_count
+        # result['viewed_count'] += old_count_shop_obj.viewed_count - old_obj.viewed_count
+        result['ordered_count'] += old_count_shop_obj.ordered_count - old_obj.ordered_count
+        result['ordered_sales'] += old_count_shop_obj.ordered_sales - old_obj.ordered_sales
+        result['ordered_count_Conversion_rate'] = '0.00'
+        if result['visit_count'] != 0:
+            result['ordered_count_Conversion_rate'] = str('%.2f' % (float(result['ordered_count']) * 100 / float(result['visit_count'])))
+        result['AS_amazon'] = '0.00'
+        if result['ordered_sales'] != 0.00 and old_count_shop_obj.cost != 0.00:
+            result['AS_amazon'] = str('%.2f' % (float(100 * old_count_shop_obj.cost / result['ordered_sales'])))
+        result['AT_amazon'] = '0.00'
+        if result['ordered_count'] != 0 and old_count_shop_obj.orders_count != 0:
+            result['AT_amazon'] = str('%.2f' % (float(100 * old_count_shop_obj.orders_count / result['ordered_count'])))
+        t_template_amazon_advertising_business_count_shop_report.objects.filter(shopname__exact=shopname).update(visit_count=result['visit_count'],
+                   ordered_count=result['ordered_count'],
+                   ordered_sales=result['ordered_sales'],ordered_count_Conversion_rate=result['ordered_count_Conversion_rate'],
+                   AS_amazon=result['AS_amazon'],AT_amazon=result['AT_amazon'],advertising_campaign_name=title_name)
+
+        daily_counts = t_template_amazon_advertising_business_daily_report.objects.filter(shopname__exact=shopname,
+                                                                                          advertising_business_date__gte=old_obj.advertising_business_date)
+        if old_obj.advertising_online_status == 'Stoping_ad':
+            daily_counts = daily_counts.filter(upload_time__lte=old_obj.action_time)
+        for daily_count in daily_counts:
+            if daily_count:
+                old_ad_b = t_template_amazon_advertising_business_report.objects.filter(advertising_campaign_name__exact=old_obj.advertising_campaign_name,
+                                                                                        advertising_business_date__exact=daily_count.advertising_business_date)[0]
+                if child_ASIN:
+                    b_objs = t_template_amazon_business_report.objects.filter(shopname__exact=shopname,
+                                                                              business_date__exact=daily_count.advertising_business_date,
+                                                                              child_ASIN__in=child_ASIN)
+                else:
+                    b_objs = t_template_amazon_business_report.objects.filter(shopname__exact=shopname,business_date__exact=daily_count.advertising_business_date,
+                                                                            parent_ASIN__exact=advertising_key)
+                tiny_result = caculate_new_count_amazon_ad(b_objs,old_ad_b,advertising_key,shopSKU)
+                t_template_amazon_advertising_business_report.objects.filter(id__exact=old_ad_b.id).update(
+                    parent_ASIN=tiny_result['parent_ASIN'],advertising_campaign_name=title_name,
+                    child_ASIN=tiny_result['child_ASIN'], item_name=tiny_result['item_name'], ShopSKU=tiny_result['ShopSKU'],
+                    visit_count=tiny_result['visit_count'], visit_percent=tiny_result['visit_percent'],
+                    viewed_count=tiny_result['viewed_count'], viewed_percent=tiny_result['viewed_percent'],
+                    buyed_button_percent=tiny_result['buyed_button_percent'],
+                    ordered_count=tiny_result['ordered_count'], ordered_sales=tiny_result['ordered_sales'],
+                    ordered_count_Conversion_rate=tiny_result['ordered_count_Conversion_rate'],
+                    AS_amazon=tiny_result['AS_amazon'], AT_amazon=tiny_result['AT_amazon'],business_more=tiny_result['business_more'])
+                old_daily_obj = t_template_amazon_advertising_business_daily_report.objects.filter(shopname__exact=shopname,advertising_business_date__exact=daily_count.advertising_business_date)[0]
+                tiny_result['visit_count'] += old_daily_obj.visit_count - old_ad_b.visit_count
+                # tiny_result['viewed_count'] += old_daily_obj.viewed_count - old_ad_b.viewed_count
+                tiny_result['ordered_count'] += old_daily_obj.ordered_count - old_ad_b.ordered_count
+                tiny_result['ordered_sales'] += old_daily_obj.ordered_sales - old_ad_b.ordered_sales
+                tiny_result['ordered_count_Conversion_rate'] = '0.00'
+                if tiny_result['visit_count'] != 0:
+                    tiny_result['ordered_count_Conversion_rate'] = str(
+                        '%.2f' % (float(tiny_result['ordered_count']) * 100 / float(tiny_result['visit_count'])))
+                tiny_result['AS_amazon'] = '0.00'
+                if tiny_result['ordered_sales'] != 0.00 and old_daily_obj.cost != 0.00:
+                    tiny_result['AS_amazon'] = str('%.2f' % (float(100 * old_daily_obj.cost / tiny_result['ordered_sales'])))
+                tiny_result['AT_amazon'] = '0.00'
+                if tiny_result['ordered_count'] != 0 and old_daily_obj.orders_count != 0:
+                    tiny_result['AT_amazon'] = str(
+                        '%.2f' % (float(100 * old_daily_obj.orders_count / tiny_result['ordered_count'])))
+                t_template_amazon_advertising_business_daily_report.objects.filter(
+                    shopname__exact=shopname,advertising_business_date__exact=daily_count.advertising_business_date).update(visit_count=tiny_result['visit_count'],
+                                                     ordered_count=tiny_result['ordered_count'],
+                                                     ordered_sales=tiny_result['ordered_sales'],
+                                                     ordered_count_Conversion_rate=tiny_result[
+                                                         'ordered_count_Conversion_rate'],advertising_campaign_name=title_name,
+                                                     AS_amazon=tiny_result['AS_amazon'], AT_amazon=tiny_result['AT_amazon'])
+        t_template_amazon_advertising_report.objects.filter(advertising_campaign_name__exact=old_title_name).update(advertising_campaign_name=title_name)
+        return render(request, 'edit_amazon_ad_title.html', {'title': title_name,'is_done':1,'ad_b_id':ad_b_id,'shopname':shopname})
+
+
+
+
+
+
+
+
+@csrf_exempt
+def v_product_photo_change(request):
+    from skuapp.table.t_product_photo_ing import t_product_photo_ing
+    from skuapp.table.v_product_photo import v_product_photo
+    url=request.path
+    msg={}
+    try:
+        if url.endswith('SamplestateChange/') and request.method=='POST':
+            postdata=request.POST
+            id=postdata.get('id')
+            SampleState=postdata.get('SampleState')
+            Position=postdata.get('Position')
+            if Position=='photoing':
+                rows=t_product_photo_ing.objects.filter(id=id).update(SampleState=SampleState,Entertime=datetime.datetime.now())
+            elif Position in ('photograph','alreadly'):
+                rows=t_product_photograph.objects.filter(id=id).update(SampleState=SampleState,Entertime=datetime.datetime.now())
+            else:
+                rows=0
+            if int(rows)==1:
+                msg={'msg':'修改成功'}
+            else:
+                msg={'msg':'修改失败','Position':Position}
+        elif url.endswith('pzChange/') and request.method=='POST':
+            postdata=request.POST
+            id=postdata.get('id')
+            objs=t_product_photograph.objects.filter(id=id)
+            for querysetid in objs:
+                t_product_photo_ing_obj = t_product_photo_ing()
+                t_product_photo_ing_obj.__dict__ = querysetid.__dict__
+                t_product_photo_ing_obj.PZStaffName = request.user.first_name
+                t_product_photo_ing_obj.Entertime = datetime.datetime.now()
+                t_product_photo_ing_obj.save()
+
+                t_product_oplog.objects.create(pid=querysetid.pid, MainSKU=querysetid.MainSKU,
+                                               Name=querysetid.Name, Name2=querysetid.Name2, OpID=request.user.username,
+                                               OpName=request.user.first_name,
+                                               StepID=u'LQSP', StepName='领取拍照', BeginTime=datetime.datetime.now())
+
+                #querysetid.delete()
+            msg={'msg':'修改成功'}
+            objs.delete()
+    except Exception:
+        msg={'msg':traceback.format_exc()}
+    return JsonResponse(msg)
+def deal_del_data(count_obj, report_obj):
+    CNY = count_obj.CNY - report_obj.CNY
+    display_count = count_obj.display_count - report_obj.display_count
+    click_count = count_obj.click_count - report_obj.click_count
+    cost = count_obj.cost - report_obj.cost
+    orders_count = count_obj.orders_count - report_obj.orders_count
+    sales_count = count_obj.sales_count - report_obj.sales_count
+    CTR = '0'
+    if display_count > 0:
+        CTR = str('%.4f' % (float(100 * click_count) / float(display_count)))
+    CPC = 0.00
+    if click_count > 0:
+        CPC = '%.2f' % float(cost / click_count)
+    ACoS = '0.00'
+    if sales_count > 0:
+        ACoS = str('%.2f' % float(100 * cost / sales_count))
+
+    visit_count = count_obj.visit_count - report_obj.visit_count
+    ordered_count = count_obj.ordered_count - report_obj.ordered_count
+    ordered_sales = count_obj.ordered_sales - report_obj.ordered_sales
+    ordered_count_Conversion_rate = '0.00'
+    if ordered_count != 0 and visit_count != 0:
+        ordered_count_Conversion_rate = str('%.2f' % (float(ordered_count) * 100 / float(visit_count)))
+    AS_amazon = '0.00'
+    if ordered_sales != 0.00 and cost != 0.00:
+        AS_amazon = str('%.2f' % (float(100 * cost / ordered_sales)))
+    AT_amazon = '0.00'
+    if ordered_count != 0 and orders_count != 0:
+        AT_amazon = str('%.2f' % (float(100 * orders_count / ordered_count)))
+    rResult = {'CNY': CNY, 'display_count': display_count, 'click_count': click_count, 'cost': cost, 'orders_count': orders_count,
+               'sales_count': sales_count, 'CTR': CTR, 'CPC': CPC, 'ACoS': ACoS, 'visit_count': visit_count,
+               'ordered_count': ordered_count, 'ordered_sales': ordered_sales,
+               'ordered_count_Conversion_rate': ordered_count_Conversion_rate, 'AS_amazon': AS_amazon, 'AT_amazon': AT_amazon}
+    return rResult
+
+def del_ad(request):
+    del_id = request.GET.get('del_id', '')
+    try:
+        daily_report_obj = t_template_amazon_advertising_business_daily_report.objects.filter(id=del_id)[0]
+        shopname = daily_report_obj.shopname
+        upload_time = daily_report_obj.upload_time
+        advertising_business_date = daily_report_obj.advertising_business_date
+        count_shop_obj = t_template_amazon_advertising_business_count_shop_report.objects.filter(shopname__exact=shopname)[0]
+        rResult = deal_del_data(count_shop_obj, daily_report_obj)
+        t_template_amazon_advertising_business_count_shop_report.objects.filter(shopname__exact=shopname).update(CNY= rResult['CNY'],
+                 display_count= rResult['display_count'],click_count= rResult['click_count'],cost= rResult['cost'],
+                 orders_count= rResult['orders_count'], sales_count= rResult['sales_count'],
+                 CTR= rResult['CTR'], CPC= rResult['CPC'],ACoS= rResult['ACoS'],visit_count= rResult['visit_count'],
+                 ordered_count= rResult['ordered_count'],ordered_sales= rResult['ordered_sales'],
+                  ordered_count_Conversion_rate= rResult['ordered_count_Conversion_rate'],AS_amazon= rResult['AS_amazon'],
+                  AT_amazon= rResult['AT_amazon'])
+        report_objs = t_template_amazon_advertising_business_report.objects.filter(shopname__exact=shopname,
+                                 upload_time__exact=upload_time,advertising_business_date__exact=advertising_business_date)
+        for report_obj in report_objs:
+            if report_obj:
+                count_report_obj = t_template_amazon_advertising_business_count_report.objects.filter(shopname__exact=shopname,ShopSKU__exact=report_obj.ShopSKU)[0]
+                new_rResult = deal_del_data(count_report_obj, report_obj)
+                t_template_amazon_advertising_business_count_report.objects.filter(shopname__exact=shopname,ShopSKU__exact=report_obj.ShopSKU).update(
+                    CNY=new_rResult['CNY'],
+                    display_count=new_rResult['display_count'], click_count=new_rResult['click_count'],
+                    cost=new_rResult['cost'],
+                    orders_count=new_rResult['orders_count'], sales_count=new_rResult['sales_count'],
+                    CTR=new_rResult['CTR'], CPC=new_rResult['CPC'], ACoS=new_rResult['ACoS'],
+                    visit_count=new_rResult['visit_count'],
+                    ordered_count=new_rResult['ordered_count'], ordered_sales=new_rResult['ordered_sales'],
+                    ordered_count_Conversion_rate=new_rResult['ordered_count_Conversion_rate'],
+                    AS_amazon=new_rResult['AS_amazon'],
+                    AT_amazon=new_rResult['AT_amazon'])
+
+        t_template_amazon_advertising_report.objects.filter(shopname__exact=shopname,advertising_data__exact=advertising_business_date,upload_time__exact=upload_time).delete()
+        t_template_amazon_business_report.objects.filter(shopname__exact=shopname,business_date__exact=advertising_business_date,upload_time__exact=upload_time).delete()
+        t_template_amazon_advertising_business_daily_report.objects.filter(id=del_id).delete()
+        t_template_amazon_advertising_business_report.objects.filter(shopname__exact=shopname,upload_time__exact=upload_time,advertising_business_date__exact=advertising_business_date).delete()
+        sResult = {'code': 1, 'data': u'del success'}
+        # messages.info(request,u'删除数据成功')
+    except Exception, ex:
+        messages.error(request, u'删除数据失败')
+    return HttpResponseRedirect('/Project/admin/skuapp/t_template_amazon_advertising_business_daily_report/')
+    
+@csrf_exempt
+def fba_deliver_skunum_dealdata(request):
+    try:
+        from datetime import datetime as ddtime
+        from skuapp.table.t_stocking_demand_fba_deliver import t_stocking_demand_fba_deliver
+        get_id = request.GET.get('id')
+        edit_skus = request.GET.get('edit_skus')
+        t_stocking_demand_fba_deliver.objects.filter(id=get_id).update(editSKU=edit_skus,editSKUMan = request.user.first_name,editSKUDate=ddtime.now(),editFlag='1')
+        return JsonResponse({'result': 'OK'})
+    except Exception as e:
+        return JsonResponse({'result': 'NG'})    
+
+def edit_remark(request):
+    from datetime import datetime as dtime_ywp
+    id = request.GET.get('edit_id', '')
+    sResult = {'code': -1, 'errortext': u'no id'}
+    if id:
+        remark_value = request.GET.get('remark_value', '')
+        action_remark_value = request.GET.get('action_remark_value', '')
+        count_report_remarks = t_template_amazon_advertising_business_count_report.objects.filter(id=id)[0]
+        if remark_value:
+            end_value = remark_value
+            if '\r\n' in remark_value:
+                end_value = remark_value.split('\r\n')[-1]
+            end_value = dtime_ywp.strftime(dtime_ywp.now(),'%Y-%m-%d %H:%M:%S') + ':' + end_value + '\r\n'
+            if count_report_remarks.remark:
+                text_values = count_report_remarks.remark.split('\r\n')
+                text_value = ''
+                if len(text_values) > 1:
+                    text_value = text_values[-2].split(':')[-1]
+                end_value = count_report_remarks.remark + end_value.replace(text_value, '')
+
+            t_template_amazon_advertising_business_count_report.objects.filter(id=id).update(remark=end_value)
+            sResult = {'code': 1, 'data': u'update remark success'}
+        if action_remark_value:
+            end_value = action_remark_value
+            if '\r\n' in action_remark_value:
+                end_value = action_remark_value.split('\r\n')[-1]
+            end_value = dtime_ywp.strftime(dtime_ywp.now(), '%Y-%m-%d %H:%M:%S') + ':' + end_value + '\r\n'
+            if count_report_remarks.action_remark:
+                text_values = count_report_remarks.action_remark.split('\r\n')
+                text_value = ''
+                if len(text_values) > 1:
+                    text_value = text_values[-2].split(':')[-1]
+                end_value = count_report_remarks.action_remark + end_value.replace(text_value, '')
+            t_template_amazon_advertising_business_count_report.objects.filter(id=id).update(action_remark=end_value)
+            sResult = {'code': 1, 'data': u'update action_remark success'}
+
+    return JsonResponse(sResult)
 
 
 def show_sku_price_detail(request):
@@ -10950,6 +11720,180 @@ def show_seller_detail(request):
     return render(request, 'show_seller_detail.html', {'seller_obj': seller_obj})
 
 
+def show_remark(request):
+    id = request.GET.get('show_id', '')
+    show_temps = {}
+    if id:
+        show_type = request.GET.get('type', '')
+        count_report_remarks = t_template_amazon_advertising_business_count_report.objects.filter(id=id)[0]
+        remarks = ''
+        if show_type == 'action_remark':
+            remarks = count_report_remarks.action_remark
+        else:
+            remarks = count_report_remarks.remark
+        if remarks:
+            remark_temps = remarks.split('\r\n')
+            for remark_temp in remark_temps:
+                if remark_temp:
+                    if ':' in remark_temp:
+                        show_temps[remark_temp.split(':' + remark_temp.split(':')[-1])[0]] = remark_temp.split(':')[-1]
+                    else:
+                        show_temps['before'] = remark_temp
+    return render(request, 'show_amazon_ad_remarks.html',{'show_temps': show_temps})
+
+@csrf_exempt
+def t_work_flow_turnto(request):
+    from datetime import datetime, timedelta
+    #from pyapp.table.t_product_b_goods import t_product_b_goods
+    from skuapp.table.t_work_flow_of_plate_house import t_work_flow_of_plate_house as t_work_flow
+    from skuapp.table.t_progress_tracking_of_product_customization_table import t_progress_tracking_of_product_customization_table as progress_tracking
+
+    url = request.path
+
+    if 'selectSKU' in url:
+        id = request.GET.get('id', '')
+        #mainsku = request.GET.get('mainsku', '')
+
+        return render(request, 't_work_flow_turnto.html', {'id': id, })
+
+    elif 'TurnToClothes' in url:
+        id = request.POST.get('id', '')
+        SKUs = request.POST.get('SKUs', '')
+        try:
+            if SKUs:
+                _SKUs = SKUs.split(',')
+                SKUs = filter(lambda x: not progress_tracking.objects.filter(SKU=x), _SKUs)
+                if len(SKUs) == 0:
+                    return JsonResponse({'result': u'所输SKU已定做,请选择其它的....'})
+
+                fromobj = t_work_flow.objects.filter(id=id)[0]
+                for sku in SKUs:
+                    progress_tracking.objects.create(
+                        SurveyPerson=fromobj.submiter,
+                        SurveyTime=fromobj.submittime,
+                        Submiter=request.user.first_name,
+                        SubmitTime=datetime.now(),
+                        FinishTime=datetime.now()+timedelta(days=7),
+                        ImageURL=fromobj.image,
+                        MainSKU=fromobj.mainsku,
+                        SKU=sku,
+                        ReverseLink=fromobj.urllink,
+                        SupplierLink=fromobj.linkali,
+                        RateOfProgress=1,
+                        FromClothes=1
+                    )
+
+                return JsonResponse({'result': 'OK'})
+            else:
+                return JsonResponse({'result': u'请输入SKU先....'})
+        except Exception, ex:
+            return JsonResponse({'result': repr(ex)})
+
+def skuapp_getcategory(request):
+    # 获取速卖通产品类别
+    flag_id = request.GET.get('flag_id', '')
+    try:
+        from skuapp.table.t_product_enter_ed_aliexpress import t_product_enter_ed_aliexpress
+        from skuapp.table.t_config_aliexpress_pl import t_config_aliexpress_pl
+        from aliapp.models import t_erp_aliexpress_shop_info
+        from skuapp.table import t_sys_department_staff
+
+        data = t_product_enter_ed_aliexpress.objects.get(id=flag_id)
+        aliexpress_data = t_config_aliexpress_pl.objects.all()
+        LargeCategory = data.LargeCategory
+        Aliexpress_PL = data.Aliexpress_PL
+        aliexpress_p_list = []
+        aliexpress_pl = ''
+        All_permissions = ['duanxiaodi']
+        if request.user.is_superuser or request.user.username in All_permissions:
+            if Aliexpress_PL:
+                aliexpress_pl = Aliexpress_PL
+            else:
+                aliexpress_l = []
+                for ali in aliexpress_data:
+                    py_pl_list = ali.py_pl.split(';')
+                    if LargeCategory in py_pl_list:
+                        aliexpress_l.append(ali.aliexpress_pl)
+                if '' in aliexpress_l:
+                    aliexpress_l.remove('')
+                if aliexpress_l:
+                    aliexpress_pl = ','.join(aliexpress_l)
+                    data.Aliexpress_PL = aliexpress_pl
+                    data.save()
+        else:
+            t_sys_department_staff_objs = t_sys_department_staff.objects.filter(StaffID=request.user.username)
+            if t_sys_department_staff_objs.count > 0:
+                if Aliexpress_PL:
+                    aliexpress_pl = Aliexpress_PL
+                else:
+                    cata_zh_objs = t_erp_aliexpress_shop_info.objects.filter(seller_zh=request.user.first_name).values('cata_zh').distinct()
+                    for cata_zh_obj in cata_zh_objs:
+                        py_pl_obj = t_config_aliexpress_pl.objects.get(aliexpress_pl=cata_zh_obj['cata_zh']).py_pl
+                        py_pl_list = py_pl_obj.split(';')
+                        if LargeCategory in py_pl_list:
+                            aliexpress_p_list.append(cata_zh_obj['cata_zh'])
+                    if '' in aliexpress_p_list:
+                        aliexpress_p_list.remove('')
+                    if aliexpress_p_list:
+                        aliexpress_pl = ','.join(aliexpress_p_list)
+                        data.Aliexpress_PL = aliexpress_pl
+                        data.save()
+            else:
+                information['message'] = u'没有权限查看和修改'
+                return render(request, 'skuapp_editcategory.html', information)
+        
+        information_title = ['业务流水号', '普元品类', '原速卖通品类(以逗号隔开)', '操作', '新速卖通品类']
+        aliexpress_list = list()
+        for a_d in aliexpress_data:
+            aliexpress_dict = dict()
+            aliexpress_dict['id'] = a_d.aliexpress_pl
+            aliexpress_dict['text'] = a_d.aliexpress_pl
+            aliexpress_list.append(aliexpress_dict)
+        information = {
+            'information_title': information_title,
+            'aliexpress_pl': aliexpress_pl,
+            'aliexpress_list': json.dumps(aliexpress_list),
+            'LargeCategory': LargeCategory,
+            'flag_id': flag_id,
+            'message': False
+        }
+    except Exception as e:
+        information['message'] = repr(e)
+    return render(request, 'skuapp_editcategory.html', information)
+
+@csrf_exempt
+def skuapp_editcategory(request):
+    sResult = dict()
+    flag = request.POST.get('flag') # flag=more则为批量,空为单个
+    if flag == 'more':
+        try:
+            from skuapp.table.t_product_enter_ed_aliexpress import t_product_enter_ed_aliexpress 
+            aliexpress_list = request.POST.get('aliexpress_list', '')
+            aliexpress_l = json.loads(aliexpress_list)
+            for a_l in aliexpress_l:
+                flag_id = a_l[0]
+                aliexpress_pl = a_l[1]
+                data = t_product_enter_ed_aliexpress.objects.get(id=flag_id)
+                data.Aliexpress_PL = aliexpress_pl
+                data.save()
+                sResult['success'] = u'修改成功'
+        except Exception as e:
+            sResult ['error'] = u'修改失败！错误信息：%s' % repr(e)
+    else:
+        try:
+            from skuapp.table.t_config_aliexpress_pl import t_config_aliexpress_pl
+            from skuapp.table.t_product_enter_ed_aliexpress import t_product_enter_ed_aliexpress
+            aliexpress_l = request.POST.get('aliexpress_list')
+            LargeCategory = request.POST.get('LargeCategory')
+            flag_id = request.POST.get('flag_id')
+            data = t_product_enter_ed_aliexpress.objects.get(id=flag_id)
+            data.Aliexpress_PL = aliexpress_l
+            data.save()
+            sResult['success'] = u'修改成功！'
+        except Exception as e:
+            sResult ['error'] = u'修改失败！错误信息：%s' % repr(e)
+    return JsonResponse(sResult)
+
 def show_estimated_detail(request):
     from skuapp.table.t_amazon_estimated_fba_fees import t_amazon_estimated_fba_fees
     seller_sku = request.GET.get('seller_sku', '')
@@ -10960,3 +11904,168 @@ def show_estimated_detail(request):
     else:
         estimated_obj = None
     return render(request, 'show_estimated_detail.html', {'estimated_obj': estimated_obj})
+    
+@csrf_exempt
+def get_amazon_comments(request):
+    try:
+        asin = request.POST.get('asin', '')
+        asin_id = str(asin).strip()
+        if asin_id == '':
+            return JsonResponse({'result': repr('no asin'),'msg':repr('no asin')})
+
+        res = get_comments(asin_id)
+        if res == u'success':
+            return JsonResponse({'result': 'OK', 'msg':repr(res)})
+        else:
+            return JsonResponse({'result': 'Faild', 'msg':repr(res)})
+    except Exception,ex:
+        return JsonResponse({'result': repr(ex)})
+       
+@csrf_exempt
+def find_amazon_comments(request):
+    try:
+        asin = request.POST.get('find_asin', '')
+        asin_id = str(asin).strip()
+        # if asin == '':
+        #     return JsonResponse({'result': repr('no asin'),'msg':repr('no asin')})
+        return HttpResponseRedirect('/Project/admin/skuapp/t_amazon_pro_comment/?asin=%s'%asin_id)
+
+    except Exception,ex:
+        return JsonResponse({'result': repr(ex)})
+		
+def reg_check_tort_amazon(chart_tort_Word, chart_tort_Source, params, dict_params):
+    import re
+    tort_word = ' ' + chart_tort_Word + ' '
+    cResult = re.search(tort_word, params[0], re.IGNORECASE)
+    if bool(cResult):
+        dict_value = ''
+        if dict_params[0].has_key(chart_tort_Source):
+            dict_value = dict_params[0][chart_tort_Source] + ' | '
+        dict_params[0][chart_tort_Source] = dict_value + chart_tort_Word
+    cResult = re.search(tort_word, params[1], re.IGNORECASE)
+    if bool(cResult):
+        dict_value = ''
+        if dict_params[1].has_key(chart_tort_Source):
+            dict_value = dict_params[1][chart_tort_Source] + ' | '
+        dict_params[1][chart_tort_Source] = dict_value + chart_tort_Word
+    cResult = re.search(tort_word, params[2], re.IGNORECASE)
+    if bool(cResult):
+        dict_value = ''
+        if dict_params[2].has_key(chart_tort_Source):
+            dict_value = dict_params[2][chart_tort_Source] + ' | '
+        dict_params[2][chart_tort_Source] = dict_value + chart_tort_Word
+    cResult = re.search(tort_word, params[3], re.IGNORECASE)
+    if bool(cResult):
+        dict_value = ''
+        if dict_params[3].has_key(chart_tort_Source):
+            dict_value = dict_params[3][chart_tort_Source] + ' | '
+        dict_params[3][chart_tort_Source] = dict_value + chart_tort_Word
+    cResult = re.search(tort_word, params[4], re.IGNORECASE)
+    if bool(cResult):
+        dict_value = ''
+        if dict_params[4].has_key(chart_tort_Source):
+            dict_value = dict_params[4][chart_tort_Source] + ' | '
+        dict_params[4][chart_tort_Source] = dict_value + chart_tort_Word
+    cResult = re.search(tort_word, params[5], re.IGNORECASE)
+    if bool(cResult):
+        dict_value = ''
+        if dict_params[5].has_key(chart_tort_Source):
+            dict_value = dict_params[5][chart_tort_Source] + ' | '
+        dict_params[5][chart_tort_Source] = dict_value + chart_tort_Word
+    cResult = re.search(tort_word, params[6], re.IGNORECASE)
+    if bool(cResult):
+        dict_value = ''
+        if dict_params[6].has_key(chart_tort_Source):
+            dict_value = dict_params[6][chart_tort_Source] + ' | '
+        dict_params[6][chart_tort_Source] = dict_value + chart_tort_Word
+    return  [dict_params[0],dict_params[1],dict_params[2],dict_params[3],dict_params[4],dict_params[5],dict_params[6]]
+
+def check_amazon_word_tort(request):
+    item_name = ' ' + request.GET.get('item_name', '') + ' '
+    bullet_point1 = ' ' + request.GET.get('bullet_point1', '') + ' '
+    bullet_point2 = ' ' + request.GET.get('bullet_point2', '') + ' '
+    bullet_point3 = ' ' + request.GET.get('bullet_point3', '') + ' '
+    bullet_point4 = ' ' + request.GET.get('bullet_point4', '') + ' '
+    bullet_point5 = ' ' + request.GET.get('bullet_point5', '') + ' '
+    product_description = ' ' + request.GET.get('product_description', '') + ' '
+    # 侵权词
+    from chart_app.table.t_chart_wish_words_tort import t_chart_wish_words_tort
+    chart_torts = t_chart_wish_words_tort.objects.all()
+    chart_tort_dict = {
+            "item_name" : {},
+            "bullet_point1" : {},
+            "bullet_point2" : {},
+            "bullet_point3" : {},
+            "bullet_point4" : {},
+            "bullet_point5" : {},
+            "product_description" : {}
+        }
+    item_name_tort_dict = {}
+    bullet_point1_tort_dict = {}
+    bullet_point2_tort_dict = {}
+    bullet_point3_tort_dict = {}
+    bullet_point4_tort_dict = {}
+    bullet_point5_tort_dict = {}
+    product_description_tort_dict = {}
+    params = [item_name,bullet_point1,bullet_point2,bullet_point3,bullet_point4,bullet_point5,product_description]
+    dict_list = [item_name_tort_dict, bullet_point1_tort_dict, bullet_point2_tort_dict, bullet_point3_tort_dict,
+                 bullet_point4_tort_dict, bullet_point5_tort_dict, product_description_tort_dict]
+    sResult = {'code': -1, 'errortext': u'no id'}
+    try:
+        gray_sql = 'select word from hq_enwords;'
+        cur = connection.cursor()
+        cur.execute(gray_sql)
+        not_gray_infos = cur.fetchall()
+        for not_gray_info in not_gray_infos:
+            if not_gray_info:
+                dict_list = reg_check_tort_amazon(not_gray_info[0], 'gray word', params, dict_list)
+        for chart_tort in chart_torts:
+            if chart_tort:
+                dict_list = reg_check_tort_amazon(chart_tort.Word, chart_tort.Source, params, dict_list)
+
+        chart_tort_dict = {
+            "item_name": item_name_tort_dict,
+            "bullet_point1": bullet_point1_tort_dict,
+            "bullet_point2": bullet_point2_tort_dict,
+            "bullet_point3": bullet_point3_tort_dict,
+            "bullet_point4": bullet_point4_tort_dict,
+            "bullet_point5": bullet_point5_tort_dict,
+            "product_description": product_description_tort_dict
+        }
+        sResult = {'code': 1, 'data': json.dumps(chart_tort_dict)}
+    except Exception,ex:
+        sResult = {'code': -1, 'errortext': u'%s'%ex}
+    return JsonResponse(sResult)
+
+
+
+def t_work_flow_of_plate_house_button_click(request):
+    objid=request.GET.get('id')
+
+    objs=t_work_flow_of_plate_house.objects.filter(id=objid).values('mainsku','cgperson','image')
+    mainsku=objs[0]['mainsku']
+    cgperson=objs[0]['cgperson']
+    img=objs[0]['image']
+
+    if not cgperson:
+        cgperson=request.user.first_name
+    flag=0
+    errmsg=''
+    try:
+        if not t_supply_chain_production_basic.objects.filter(MainSKU=mainsku).exists():
+            CostPrice=None
+            subskus = classmainsku(connection).get_sku_by_mainsku(mainsku)
+            if subskus:
+                for subsku in subskus:
+                    py_obj=b_goods.objects.filter(SKU=subsku).values('CostPrice').first()
+                    if py_obj:
+                        CostPrice=py_obj.get('CostPrice')
+                        break
+            t_supply_chain_production_basic(MainSKU=mainsku,CostPrice=CostPrice,Buyer=cgperson,DateTime=datetime.datetime.now(),Main_Pic=img).save()
+            flag=1
+        else:
+            flag = 2
+    except Exception:
+        errmsg=traceback.format_exc()
+    return JsonResponse({'flag':flag,'errmsg':errmsg})
+
