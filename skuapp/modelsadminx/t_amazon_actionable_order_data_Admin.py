@@ -42,6 +42,12 @@ class t_amazon_actionable_order_data_Admin(object):
         order_id = '' if order_id == '' else order_id.strip().split(',')
         payments_date_start = request.GET.get('payments_date_start', '')
         payments_date_end = request.GET.get('payments_date_end', '')
+        promise_date_start = request.GET.get('promise_date_start', '')
+        promise_date_end = request.GET.get('promise_date_end', '')
+        refresh_time_start = request.GET.get('refresh_time_start', '')
+        refresh_time_end = request.GET.get('refresh_time_end', '')
+        days_past_promise = request.GET.get('days_past_promise', '')
+        # days_past_promise_end = request.GET.get('days_past_promise_end', '')
 
         qs = super(t_amazon_actionable_order_data_Admin, self).get_list_queryset()
 
@@ -51,6 +57,11 @@ class t_amazon_actionable_order_data_Admin(object):
                       'order_id__in': order_id,
                       'payments_date__gte': payments_date_start,
                       'payments_date__lte': payments_date_end,
+                      'promise_date__gte': promise_date_start,
+                      'promise_date__lte': promise_date_end,
+                      'refresh_time__gte': refresh_time_start,
+                      'refresh_time__lte': refresh_time_end,
+                      'days_past_promise__gte': days_past_promise,
                       }
         sl = {}
         for k, v in search_list.items():
