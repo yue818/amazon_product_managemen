@@ -1,0 +1,227 @@
+<link href="/static/js/t_online_info_wish_store_search.css?t=201803211234" rel="stylesheet" type="text/css" />
+<style>
+    #div_categorys {
+        position: absolute;
+        width: 364px;
+        height: 300px;
+        border: 1px solid #66afe9;
+        border-top: 0px;
+        overflow: auto;
+        display: none;
+        background-color: white;
+        z-index: 999;
+    }
+</style>
+<script type="text/javascript">
+    var info = '';
+    var synurl = '';
+    $(document).ready(function() {
+        var divdown = document.getElementById('div_items');
+        var shopss = document.getElementById('list_id');
+        var synurl_div = document.getElementById('synurl_id');
+        synurl = synurl_div.value;
+
+        var node = divdown.nextSibling;
+        var shop_list = eval(shopss.value);
+        for (var s = 0; s < shop_list.length; s++) {
+            info += '<div class="div_item" onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" onClick="ChangeText(this);">' + shop_list[s] + '</div>';
+        }
+        divdown.innerHTML = info;
+        divdown.parentNode.insertBefore(divdown, node);
+        node = divdown.nextSibling;
+
+        if (document.getElementById('q').value == '') {
+            document.getElementById('q').value = '搜索店铺...';
+        }
+        //弹出列表框
+        $("#q").click(function () {
+            $("#div_items").css('display', 'block');
+            return false;
+        });
+
+        //隐藏列表框
+        $("body").click(function () {
+            $("#div_items").css('display', 'none');
+        });
+
+        //文本框输入
+        $("#q").keyup(function () {
+            var intext = document.getElementById('q');
+            var inputtext = intext.value;
+            if (inputtext != "") {
+                var html = "";
+                for (var i = 0; i < shop_list.length; i++) {
+                    if (shop_list[i].indexOf(inputtext) >= 0) {
+                        html += '<div class="div_item"onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" onClick="ChangeText(this);">'+ shop_list[i] +'</div>';
+                    }
+                }
+                if (html != "") {
+                    $("#div_items").show().html(html);
+                } else {
+                    $("#div_items").hide().html("");
+                }
+            }else {
+                $("#div_items").show().html(info);
+            }
+        });
+
+
+    });
+
+    //移入移出效果
+    function getnewcolor(obj) {
+        $(obj).css('background-color', '#1C86EE').css('color', 'white');
+    }
+
+    function getoldcolor(obj) {
+        $(obj).css('background-color', 'white').css('color', 'black');
+    }
+    //项点击
+    function ChangeText(obj) {
+        var value = $(obj).text();
+        $("#q").val(value);
+        $("#div_items").show().html('<div class="div_item" onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" onClick="ChangeText(this);">'+ value +'</div>');
+    }
+
+    function change_ad_title(id,shopname) {
+        layer.open({
+            type:2,
+            skin:'layui-layer-lan',
+            title:'修改广告名称',
+            fix:false,
+            shadeClose: true,
+            maxmin:true,
+            area:['500px','300px'],
+            content:'/Project/admin/skuapp/t_template_amazon_advertising_business_count_report/change_ad_title/?is_show=1&ad_b_id='+id+'&shopname='+shopname,
+            btn: ['确定'],
+            yes: function(index){
+            //当点击‘确定’按钮的时候，获取弹出层返回的值
+{#            var res = window["layui-layer-iframe" + index].callbackdata();#}
+{#            //打印返回的值，看是否有我们想返回的值。#}
+{#            if(count == 0){#}
+{#                document.getElementById('id_image_main').value = res.image_ur_str;#}
+{#            }else {#}
+{#                document.getElementById('id_image_'+count).value = res.image_ur_str;#}
+{#                document.getElementById('add_images_'+count).style.background = '#555555';#}
+{#            }#}
+{#            console.log(res.image_ur_str);#}
+            //最后关闭弹出层
+                layer.close(index);
+            },
+            cancel: function(index){
+                //右上角关闭回调
+                layer.close(index);
+            }
+        });
+    }
+    function del_ad(obj_id) {
+        if(confirm('确认删除该条记录以及相关数据？')){
+            var url = '/Project/admin/skuapp/t_template_amazon_advertising_business_daily_report/del_ad/?del_id='+obj_id;
+            window.location.href = url;
+        }
+    }
+    function search_shop() {
+        var shopname = $('#q').val();
+        if(synurl.indexOf('?') <0){
+            synurl += '?'
+        }else{
+            synurl += '&'
+        }
+        synurl += 'shopname=' + shopname;
+        window.location.href = synurl;
+    }
+
+    function edit_remark(id, bt_id){
+        var remark_value = $('#edit_remark_' + id).val();
+        var url = '/Project/admin/skuapp/t_template_amazon_advertising_business_count_report/edit_remark/?edit_id='+id+'&remark_value=' + remark_value;
+        $.getJSON(url, function(result){
+            console.log(result.code);
+            if(result.code == '1'){
+                alert('修改备注成功');
+            }
+        })
+    }
+
+    function edit_action_remark(id){
+        var remark_value = $('#edit_action_remark_' + id).val();
+        var url = '/Project/admin/skuapp/t_template_amazon_advertising_business_count_report/edit_remark/?edit_id='+id+'&action_remark_value=' + remark_value;
+        $.getJSON(url, function(result){
+            console.log(result.code);
+            if(result.code == '1'){
+                alert('修改操作备注成功');
+            }
+        })
+    }
+
+    function show_remark(id, bt_id){
+        var url = '/Project/admin/skuapp/t_template_amazon_advertising_business_count_report/show_remark/?show_id='+id+'&type=remark';
+        layer.open({
+            type:2,
+            skin:'layui-layer-lan',
+            title:'备注详情',
+            fix:false,
+            shadeClose: true,
+            maxmin:true,
+            area:['1000px','800px'],
+            content: url,
+            btn: ['确定'],
+            yes: function(index){
+            //最后关闭弹出层
+                layer.close(index);
+            },
+            cancel: function(index){
+                //右上角关闭回调
+                layer.close(index);
+            }
+        });
+    }
+
+    function show_action_remark(id){
+        var url = '/Project/admin/skuapp/t_template_amazon_advertising_business_count_report/show_remark/?show_id='+id+'&type=action_remark';
+        layer.open({
+            type:2,
+            skin:'layui-layer-lan',
+            title:'操作备注详情',
+            fix:false,
+            shadeClose: true,
+            maxmin:true,
+            area:['1000px','800px'],
+            content: url,
+            btn: ['确定'],
+            yes: function(index){
+            //最后关闭弹出层
+                layer.close(index);
+            },
+            cancel: function(index){
+                //右上角关闭回调
+                layer.close(index);
+            }
+        });
+    }
+</script>
+<input type="hidden" id="flag_value" value="{{ flag }}">
+{#<input type="hidden" id="accountName_value" value="{{ accountName }}">#}
+<div>
+    <div style="font-size:15px;">
+        <table style="border: 0">
+            <tr>
+                <td>
+                    <div class="padatr">
+                        <div class="satrdiv inline mRight20" style="float: left;height: 34px;width: 65.3px;">进入店铺:</div>
+                        <div class="inline" style="float: left">
+                            <form>
+                                <input id="q" class="textatr" name="shopname" style="border-radius: 10px;width:364px; " onFocus="if(this.value=='搜索店铺...'){this.value='';}else{this.select();}this.style.color='black';"  value="{{ flag }}">
+                                <input type="button" class="sybutton" value="点击进入" onclick="search_shop()">
+                            </form>
+                            <div class="selectize-dropdown-content" id="div_items">
+                            </div>
+                        </div>
+                        <input type="hidden" id="list_id" value='{{ shopNames|safe }}'>
+                        <input type="hidden" id="synurl_id" value='{{ synurl }}'>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<br>
