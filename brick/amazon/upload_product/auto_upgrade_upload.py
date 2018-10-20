@@ -225,7 +225,7 @@ fba_config = {
 }
 
 # put_file('amazon_upload_product-20180912.exe','D:\\amazon_upload_product-20180912.exe')
-put_file('fba_refresh-20181017a.exe','D:\\fba_refresh-20181017a.exe')
+put_file('fba_refresh-20181019.exe','D:\\fba_refresh-20181019.exe')
 
 # cnxn = MySQLdb.connect(DATABASES['HOST'],DATABASES['USER'],DATABASES['PASSWORD'],DATABASES['NAME'] )
 # put_message_obj = MessageToRabbitMq(cnxn)
