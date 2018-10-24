@@ -324,16 +324,16 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
                         "child": []
                     },
 
-                    {
-                        "name": u"店铺刷新状态",
-                        "icon": "",
-                        "code": "110104",
-                        "parentCode": "1101",
-                        "selected": "",
-                        "to_url": '/Project/admin/skuapp/t_perf_amazon_refresh_status',
-                        "flag": 'refresh_status',
-                        "child": []
-                    },
+                    # {
+                    #     "name": u"店铺刷新状态",
+                    #     "icon": "",
+                    #     "code": "110104",
+                    #     "parentCode": "1101",
+                    #     "selected": "",
+                    #     "to_url": '/Project/admin/skuapp/t_perf_amazon_refresh_status',
+                    #     "flag": 'refresh_status',
+                    #     "child": []
+                    # },
                 ]
         }
 

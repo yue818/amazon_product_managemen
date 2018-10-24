@@ -12,10 +12,16 @@
                   border-collapse:separate;
                   }
 </style>
+<script type="text/javascript">
+    var product_variations = {{ product_variations|safe }};
+    var variation_type = '{{variantion_theme_selected}}';
+</script>
 <script type="text/javascript" src="/static/amazon_upload/xadmin.plugin.variation_item_amazon_plugin.html.js"></script>
 <input type="hidden" id="update_flag" value="{{ update_flag }}">
+<input id="product_variations" name="product_variations" type="hidden" value="{{ product_variations }}">
 <input id="sourceURLs" name="sourceURLs" type="hidden" value="{{ sourceURLs }}">
 <input id="sourceURL" name="sourceURL" type="hidden" value="{{ sourceURL }}">
+<input id="variantion_theme_selected" name="variantion_theme_selected" type="hidden" value="{{ variantion_theme_selected }}">
 {% if update_flag == '0' %}
     <div class="panel panel-default fieldset unsort " id="box-9" >
         <div class="panel-heading"><i class='icon fa fa-chevron-up chevron'></i><h3 class="panel-title">
@@ -61,11 +67,20 @@
                                 <option id="option_4" value="Size-Color">颜色-尺寸</option>
                             {% endif %}
                         </select>
+                        <span style="display: none" id="auto_add_variation_name">
+                            <label for="id_product_main_sku" class="control-label ">
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                商品主SKU(生成变体,只支持单个主SKU)：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            </label>
+                        </span>
+                        <span style="display: none;" id="auto_add_variation">
+                            <input class="text-field admintextinputwidget form-control" id="id_product_main_sku" name="product_main_sku" type="text">
+                        </span>
                         <span style="display:none" id="addItems_span">
                             <input type="button" id="addItems" class="btn btn-primary" value="添加" onclick="add_items()" />
                         </span>
                         <span id="add_images_span">
-                            <input type="button" id="add_images_parent" class="btn btn-primary" value="上传图片" onclick="add_images()" />
+                            <input type="button" id="add_images_parent" class="btn btn-primary" value="上传图片" onclick="add_images(0)" />
                             <input type="hidden" id="id_image_main" name="main_images" value="" />
                         </span>
                     </div>
@@ -97,5 +112,152 @@
             </div>
         </div>
     </div>
+{% else %}
+    <div class="panel panel-default fieldset unsort " id="box-9" >
+        <div class="panel-heading"><i class='icon fa fa-chevron-up chevron'></i><h3 class="panel-title">
+            变体信息/单体图片</h3></div>
+        <div class="panel-body " >
+            <div  class="form-inline form-group" >
+                <div id="div_id_variation_theme" class="form-group col-sm-12">
 
+                    <div class="controls ">
+                        <label for="id_variation_theme" class="control-label ">
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            变体分辨类型/单体图片&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        </label>
+                        <select class="adminselectwidget form-control" id="select_id_variation_theme" name="variation_theme" onchange="sele_Change()">
+                            <option selected="selected" value="0">---</option>
+                            {% if select_type == 0 %}
+                                <option id="option_2" value="Color">颜色</option>
+                                <option id="option_3" value="Size">尺寸</option>
+                                <option id="option_5" value="Size-Color">颜色-尺寸</option>
+                            {% endif %}
+                            {% if select_type == 1 %}
+                                <option id="option_2" value="Color">颜色</option>
+                                <option id="option_3" value="Size">尺寸</option>
+                            {% endif %}
+                            {% if select_type == 2 %}
+                                <option id="option_2" value="Color">颜色</option>
+                            {% endif %}
+                            {% if select_type == 3 %}
+                                <option id="option_1" value="MetalType">材质</option>
+                                <option id="option_2" value="Color">颜色</option>
+                            {% endif %}
+                            {% if select_type == 4 %}
+                                <option id="option_1" value="MetalType">材质</option>
+                                <option id="option_2" value="Color">颜色</option>
+                                <option id="option_3" value="Size">尺寸</option>
+                                <option id="option_4" value="MetalType-Size">材质-尺寸</option>
+                                <option id="option_5" value="Size-Color">颜色-尺寸</option>
+                            {% endif %}
+                            {% if select_type == 5 %}
+                                <option id="option_4" value="MetalType-Size">材质-尺寸</option>
+                            {% endif %}
+                            {% if select_type == 6 %}
+                                <option id="option_4" value="Size-Color">颜色-尺寸</option>
+                            {% endif %}
+                        </select>
+                        <span style="display: none" id="auto_add_variation_name">
+                            <label for="id_product_main_sku" class="control-label ">
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                商品主SKU(生成变体,只支持单个主SKU)：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            </label>
+                        </span>
+                        <span style="display: none;" id="auto_add_variation">
+                            <input class="text-field admintextinputwidget form-control" id="id_product_main_sku" name="product_main_sku" type="text">
+                        </span>
+                        <span style="display:none" id="addItems_span">
+                            <input type="button" id="addItems" class="btn btn-primary" value="添加" onclick="add_items()" />
+                        </span>
+                        <span id="add_images_span">
+                            <input type="button" id="add_images_parent" class="btn btn-primary" value="上传图片" onclick="add_images(0)" />
+                            <input type="hidden" id="id_image_main" name="main_images" value="" />
+                        </span>
+                    </div>
+
+                    <div class="controls " id="div_id_color_name" style="display: none">
+
+                    </div>
+
+                    <div class="controls " id="div_id_size_name" style="display: none">
+
+                    </div>
+
+                    <div class="controls " id="div_id_size_color" style="display: none">
+
+                    </div>
+
+                    <div class="controls " id="div_id_MetalType" style="display: none">
+
+                    </div>
+
+                    <div class="controls " id="div_id_size_MetalType" style="display: none">
+
+                    </div>
+
+                    <div class="controls " id="div_id_MetalType_color" style="display: none">
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endif %}
+<div class="panel panel-default fieldset unsort " id="box-10" >
+        <div class="panel-heading"><i class='icon fa fa-chevron-up chevron'></i><h3 class="panel-title">
+            翻译(单句翻译：翻译当前输入框内的内容；一键翻译：翻译当前页面内的产品标题、产品描述、五点描述和关键词。注：目前只支持英文翻译到德法)</h3></div>
+        <div class="panel-body " >
+            <div  class="form-inline form-group" >
+                <div id="div_id_variation_theme" class="form-group col-sm-12">
+
+                    <div class="controls ">
+                        <label for="id_transaction" class="control-label ">
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            单句翻译/一键翻译&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        </label>
+                        <span id="id_text_transaction_span">
+                            <input class="text-field admintextinputwidget form-control" id="id_text_transaction" name="text_transaction" type="text">
+                        </span>
+                        <span id="id_transaction_single_span">
+                            <input type="button" id="id_transaction_single" class="btn btn-primary" value="翻译" onclick="transaction_single()" />
+                        </span>
+                        <span id="id_transaction_all_span">
+                            <input type="button" id="id_transaction_all" class="btn btn-primary" value="一键翻译" onclick="transaction_all()" />
+                        </span>
+                    </div>
+                    <div id="div_id_transaction_result" style="display: none;margin-left: 1%;">
+                        <p style="font-size: 18px;">翻译结果：</p>
+                        <textarea id="id_transaction_result" style="display: none;height: 100px;width: 98%;font-size: 18px"></textarea>
+                        <br/>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+
+<div class="panel panel-default fieldset unsort " id="box-11" >
+        <div class="panel-heading"><i class='icon fa fa-chevron-up chevron'></i><h3 class="panel-title">
+            侵权词检测(检测包括标题、五点描述和产品描述)</h3></div>
+        <div class="panel-body " >
+            <div  class="form-inline form-group" >
+                <div id="div_id_chart_tort" class="form-group col-sm-12">
+
+                    <div class="controls ">
+                        <label for="label_id_chart_tort" class="control-label ">
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            侵权词检测&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                        </label>
+                        <span id="id_chart_tort_span">
+                            <input type="button" id="id_chart_tort" class="btn btn-primary" value="侵权词检测" onclick="chart_tort()" />
+                        </span>
+                    </div>
+                    <div id="div_id_chart_tort_result" style="display: none;margin-left: 1%;">
+                        <p style="font-size: 18px;">检测结果：</p>
+                        <textarea id="id_chart_tort_result" style="display: none;height: 180px;width: 98%;font-size: 18px"></textarea>
+                        <br/>
+                    </div>
+                </div>
+            </div>
+        </div>
+</div>
+

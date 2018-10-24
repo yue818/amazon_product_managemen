@@ -185,6 +185,14 @@ class t_templet_amazon_upload_result_lose_pic_Admin(object):
             auth_info['lose_pic_id'] = obj.id
             auth_info['operate_type'] = 'reupload_image'
             auth_info['user_name'] = request.user.username
+
+            sku_lose_pic_list = list()
+            if '{"SKU": {"value": "' in obj.errorMessages:
+                need_params_temps = obj.errorMessages.split('{"SKU": {"value": "')
+                for i in range(1, len(need_params_temps)):
+                    if '"},' in need_params_temps[i]:
+                        sku_lose_pic_list.append(need_params_temps[i].split('"},')[0])
+            auth_info['sku_lose_pic_list'] = sku_lose_pic_list
             message_to_rabbit_obj = MessageToRabbitMq(auth_info, connection)
             auth_info = json.dumps(auth_info)
             message_to_rabbit_obj.put_message(auth_info)

@@ -386,6 +386,7 @@ class stitch_MQ_body():
                     RingSize_text = doc.createTextNode(goods_upload_variation_obj['size_name'])
                     RingSize.appendChild(RingSize_text)
                     VariationData.appendChild(RingSize)
+
                 if params['parent_child'] == 'child' and goods_upload_variation_obj['MetalType']:
                     MetalType_text = doc.createTextNode(goods_upload_variation_obj['MetalType'])
                     MetalType.appendChild(MetalType_text)
