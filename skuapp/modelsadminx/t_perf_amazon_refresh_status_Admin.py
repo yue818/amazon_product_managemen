@@ -199,7 +199,7 @@ class t_perf_amazon_refresh_status_Admin(object):
     show_odr_status.short_description = mark_safe('<p style="color:#428BCA" align="center">缺陷订单</p>')
 
     list_display = ('id', 'name', 'show_product_status', 'show_fba_status', 'show_order_status', 'show_receive_status',
-                    'show_fee_status', 'show_remove_status', 'show_finance_status', 'show_actionable_status', 'show_odr_status')
+                    'show_fee_status', 'show_remove_status', 'show_finance_status', 'show_actionable_status',)
 
     def get_list_queryset(self, ):
         qs = super(t_perf_amazon_refresh_status_Admin, self).get_list_queryset().filter(is_valid__exact=1)
