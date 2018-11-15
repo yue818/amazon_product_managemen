@@ -1,0 +1,94 @@
+<style type="text/css">
+		.btn_1{
+			display: inline-block;
+	        padding: 6px 12px;
+	        margin-bottom: 0;
+	        font-size: 14px;
+	        font-weight: normal;
+	        line-height: 1.428571429;
+	        text-align: center;
+	        vertical-align: middle;
+	        cursor: pointer;
+	        background-image: none;
+	        border: 1px solid transparent;
+	        border-radius: 6px;
+	        -webkit-user-select: none;
+	        -moz-user-select: none;
+	        color: #ffffff;
+		    background-color: #428bca;
+		}
+</style>
+{% if productSKU != '' and productSKU != None %}
+    <center>
+        <p>商品SKU：{{ productItemSku }}</p>
+    </center>
+{% endif %}
+<form action="/save_amazon_images/?{{ shop_site }}" method="post" enctype="multipart/form-data">
+    <input type="hidden" id="productSKU" name="productSKU" value="{{ productSKU }}">
+    <input type="hidden" id="productItemSku" name="productItemSku" value="{{ productItemSku }}">
+    <table id="mytable" class="border1">
+        <tr class="tr1" style="height: 30px;">
+            <td><label id="id_main_image_url">
+                    主图
+                </label>
+            </td>
+            <td><input class="adminimagewidget form-control" id="id_main_image_url" name="main_image_url" type="file" required="required" /></td>
+        </tr>
+        <tr class="tr1" style="height: 30px;">
+            <td><label id="id_other_image_url1">
+                    副图1
+                </label>
+            </td>
+            <td><input class="adminimagewidget form-control" id="id_other_image_url1" name="other_image_url1" type="file" /></td>
+            <td><label id="id_other_image_url2">
+                    副图2
+                </label>
+            </td>
+            <td><input class="adminimagewidget form-control" id="id_other_image_url2" name="other_image_url2" type="file" /></td>
+            <td><label id="id_other_image_url3">
+                    副图3
+                </label>
+            </td>
+            <td><input class="adminimagewidget form-control" id="id_other_image_url3" name="other_image_url3" type="file" /></td>
+
+        </tr>
+        <tr>
+            <td><label id="id_other_image_url4">
+                    副图4
+                </label>
+            </td>
+            <td><input class="adminimagewidget form-control" id="id_other_image_url4" name="other_image_url4" type="file" /></td>
+            <td><label id="id_other_image_url5">
+                    副图5
+                </label>
+            </td>
+            <td><input class="adminimagewidget form-control" id="id_other_image_url5" name="other_image_url5" type="file" /></td>
+            <td><label id="id_other_image_url6">
+                    副图6
+                </label>
+            </td>
+            <td><input class="adminimagewidget form-control" id="id_other_image_url6" name="other_image_url6" type="file" /></td>
+        </tr>
+        <tr class="tr1" style="height: 30px;">
+
+            <td><label id="id_other_image_url7">
+                    副图7
+                </label>
+            </td>
+            <td><input class="adminimagewidget form-control" id="id_other_image_url7" name="other_image_url7" type="file" /></td>
+            <td><label id="id_other_image_url8">
+                    副图8
+                </label>
+            </td>
+            <td><input class="adminimagewidget form-control" id="id_other_image_url8" name="other_image_url8" type="file" /></td>
+        </tr>
+    </table>
+    <br/>
+    <br/>
+    <br/>
+    <div align="right">
+        <input type="submit" id="add_images" class="btn_1" value="保存" />&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    </div>
+    {% csrf_token %}
+</form>

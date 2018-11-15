@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+　<script src="http://code.jquery.com/jquery-2.1.4.min.js"></script>
+
+<script>
+    var idx = parent.layer.getFrameIndex(window.name);
+    function change_image(num){
+        top.img_path = '';
+        top.flag = 0;
+        top.layer.open({
+            type: 2,
+            skin: 'layui-layer-lan', //加上边框
+            shadeClose: true,
+            area: ['600px', '300px'], //宽高
+            content: '/change_image/?abc={{ productid }}',
+            end: function(index){
+                if (top.flag == 1){
+                    console.log('imgs_' + num);
+                    document.getElementById(num).src = top.img_path;
+                    document.getElementById('imgs_' + num).value = top.img_path;
+                }
+            },
+        });
+    };
+
+
+
+    function to_submit() {
+        //处理尺寸和尺寸数量
+        var sizeNum_XS=$("#productNumbersXS").val() ;
+        var sizeNum_S=$("#productNumbersS").val() ;
+        var sizeNum_M=$("#productNumbersM").val() ;
+        var sizeNum_L=$("#productNumbersL").val() ;
+        var sizeNum_XL=$("#productNumbersXL").val() ;
+        var sizeNum_2XL=$("#productNumbers2XL").val() ;
+        var sizeNum_3XL=$("#productNumbers3XL").val() ;
+        var sizeNum_4XL=$("#productNumbers4XL").val() ;
+        var colour = $("#colour").val() ;
+        var outFactory = $("#outFactory").val() ;
+        var rawNumbers=$("#rawNumbers").val() ;
+        var selBranches = $("input[name='branches']:checked").val();
+
+        if($('#checkXS').is(':checked')) {
+            if(parseInt(sizeNum_XS) == 0){
+                alert("尺寸XS选中没有填写产出件数");
+                return
+            }
+        }
+        else{
+            $("#productNumbersXS").val('0');
+        }
+        if($('#checkS').is(':checked')) {
+            if(parseInt(sizeNum_S) == 0){
+                alert("尺寸S选中没有填写产出件数");
+                return
+            }
+        }
+        else{
+            $("#productNumbersS").val('0');
+        }
+        if($('#checkM').is(':checked')) {
+            if(parseInt(sizeNum_M) == 0){
+                alert("尺寸M选中没有填写产出件数");
+                return
+            }
+        }
+        else{
+            $("#productNumbersM").val('0');
+        }
+        if($('#checkL').is(':checked')) {
+            if(parseInt(sizeNum_L) == 0){
+                alert("尺寸L选中没有填写产出件数");
+                return
+            }
+        }
+        else{
+            $("#productNumbersL").val('0');
+        }
+        if($('#checkXL').is(':checked')) {
+            if(parseInt(sizeNum_XL) == 0){
+                alert("尺寸XL选中没有填写产出件数");
+                return
+            }
+        }
+        else{
+            $("#productNumbersXL").val('0');
+        }
+        if($('#check2XL').is(':checked')) {
+            if(parseInt(sizeNum_2XL) == 0){
+                alert("尺寸2XL选中没有填写产出件数");
+                return
+            }
+        }
+        else{
+            $("#productNumbers2XL").val('0');
+        }
+        if($('#check3XL').is(':checked')) {
+            if(parseInt(sizeNum_3XL) == 0){
+                alert("尺寸3XL选中没有填写产出件数");
+                return
+            }
+        }
+        else{
+            $("#productNumbers3XL").val('0');
+        }
+        if($('#check4XL').is(':checked')) {
+            if(parseInt(sizeNum_4XL) == 0){
+                alert("尺寸4XL选中没有填写产出件数");
+                return
+            }
+        }
+        else{
+            $("#productNumbers4XL").val('0');
+        }
+        if(parseFloat(rawNumbers) <= 0.0){
+            alert("原材料条数须大于0条");
+            return
+        }
+        if(colour == ""){
+            alert("颜色不能填空");
+            return
+        }
+        if(outFactory == ""){
+            alert("外派工厂不能填空");
+            return
+        }
+
+        parent.layer.confirm('确定提交变更吗？', {
+            skin: 'layui-layer-lan',
+            title:'变更提示。。',
+            btn: ['确定','取消'], //按钮
+            btn1:function(index){
+                document.getElementById('updateform').submit();
+                //parent.layer.close(index);
+                //parent.layer.close(idx);
+            }
+        });
+    };
+
+    function check(obj){
+        if (isNaN(obj.value)) {
+            alert("请输入数字！");
+            obj.value="";}
+        }
+
+    window.onload=function(){
+
+        $("#checksize").each(function(){//给所有的input绑定事件
+            $(this).change(function(){
+                var chk_value =[];//定义一个数组
+                $('input[name="check"]:checked').each(function(){//遍历每一个名字为interest的复选框，其中选中的执行函数
+                     chk_value.push($(this).val());//将选中的值添加到数组chk_value中
+                 });
+             $("#check_hidden").val(chk_value);//将数据值联合字符串给显示对象附值
+            })
+        });
+    }
+</script>
+
+<head>
+    <meta charset="UTF-8">
+    <title>服装工厂派单信息</title>
+</head>
+
+<style>
+.button {
+    background-color: #428bca;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}
+</style>
+
+<body>
+
+    <form id="updateform" name="updateform" action="/t_cloth_factor_eidt/update_applyInfo/" method="POST">
+        <table align="center" width="900">
+
+            <tr>
+                <td width="300"><label>款号(girards):</label></td>
+                <td><input style="width: 600px;height: 40px" type="text" name="girard" value="{{ sku|safe }}" /></td>
+                <input type="hidden" name="girard_hidden" value="{{ sku|safe }}" />
+            </tr>
+            <tr>
+                <td><label>颜色:</label></td>
+                <td><input style="width: 600px;height: 40px" type="text" name="colour" id="colour" value="" /></td>
+            </tr>
+            <tr>
+                <td><label>尺码:</label></td>
+                <td id="checksize" style="width: 600px;height: 40px">
+                    <input type="checkbox" name="check" id="checkXS" value="XS">XS
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="check" id="checkS" value="S">S
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="check" id="checkM" value="M">M
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="check" id="checkL" value="L">L
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="check" id="checkXL" value="XL">XL
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="check" id="check2XL" value="2XL">2XL
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="check" id="check3XL" value="3XL">3XL
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="check" id="check4XL" value="4XL" >4XL
+                    &nbsp;<input type="hidden" name="check_hidden" id="check_hidden" />
+                </td>
+            </tr>
+            <tr>
+                <td><label>相对尺码件数:</label></td>
+                <td style="width: 600px;height: 40px">
+                    <input style="width: 50px;height: 40px" id="productNumbersXS"  type="text" name="productNumbersXS" value="0" onkeyup="check(this);"/>
+                    &nbsp;&nbsp;&nbsp;<input style="width: 50px;height: 40px"  id="productNumbersS"  type="text" name="productNumbersS" value="0" onkeyup="check(this);"/>
+                    &nbsp;&nbsp;&nbsp;<input style="width: 50px;height: 40px"  id="productNumbersM"  type="text" name="productNumbersM" value="0" onkeyup="check(this);"/>
+                    &nbsp;&nbsp;&nbsp;<input style="width: 50px;height: 40px"  id="productNumbersL"  type="text" name="productNumbersL" value="0" onkeyup="check(this);"/>
+                    &nbsp;&nbsp;&nbsp;<input style="width: 50px;height: 40px" id="productNumbersXL"  type="text" name="productNumbersXL" value="0" onkeyup="check(this);"/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<input style="width: 50px;height: 40px" id="productNumbers2XL"  type="text" name="productNumbers2XL" value="0" onkeyup="check(this);"/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<input style="width: 50px;height: 40px" id="productNumbers3XL"  type="text" name="productNumbers3XL" value="0" onkeyup="check(this);"/>
+                    &nbsp;&nbsp;&nbsp;&nbsp;<input style="width: 50px;height: 40px" id="productNumbers4XL"  type="text" name="productNumbers4XL" value="0" onkeyup="check(this);"/>
+                </td>
+            </tr>
+            <tr>
+                <td><label>借款金额:</label></td>
+                <td><input style="width: 600px;height: 40px" type="text" name="loanMoney" value="0" onkeyup="check(this);"/></td>
+            </tr>
+            <tr>
+                <td><label>实际金额:</label></td>
+                <td><input style="width: 600px;height: 40px" type="text" name="actualMoney" value="0" onkeyup="check(this);"/></td>
+            </tr>
+            <tr>
+                <td><label>外发工厂:</label></td>
+                <td>
+                    <input style="width: 600px;height: 50px"  list="factory" name="outFactory" id="outFactory" placeholder="选择外派工厂"  />
+                        <datalist id="factory">
+                            {% for t_cloth_factory in t_cloth_factory_list %}
+                                <option value ="{{ t_cloth_factory }}"></option>
+                            {% endfor %}
+                        </datalist>
+                </td>
+            </tr>
+            <tr>
+                <td><label>原材料条数/米:</label></td>
+                <td>
+                    <input style="width: 500px;height: 40px" type="text" name="rawNumbers" id="rawNumbers" value="0" onkeyup="check(this);"/>
+                    <input style="width: 20px;height: 20px" name="branches" id="branches" checked="true" type="radio" value="1"/><label>条</label>
+                    <input style="width: 20px;height: 20px" name="branches" id="branches" type="radio" value="2"/><label>米</label>
+                </td>
+            </tr>
+            <tr>
+                <td><label>备注:</label></td>
+                <td><textarea name="remarkApply" id="remarkApply" rows="4" cols="80"></textarea></td>
+            </tr>
+        </table>
+        <table align="center">
+            <tr>
+                <td>
+                    <input type="button" class="button" onclick="to_submit()" value="确定保存">
+                </td>
+            </tr>
+        </table>
+    {% csrf_token %}
+    </form>
+</body>
+</html>

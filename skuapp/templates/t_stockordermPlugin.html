@@ -1,0 +1,35 @@
+<style type="text/css">
+        .btn_1{
+            display: inline-block;
+            padding: 6px 12px;
+            margin-bottom: 0;
+            font-size: 18px;
+            font-weight: normal;
+            line-height: 1.428571429;
+            text-align: center;
+            vertical-align: middle;
+            cursor: pointer;
+            background-image: none;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            color: #ffffff;
+            background-color: #555555;
+        }
+</style>
+
+
+<div class="messsub">
+    <input type="hidden" id="flag" value="{{ flag }}" />
+    <button id="btc0" class="btn_1" onclick="{location.href='/Project/admin/pyapp/t_stockorderm/'}"><span style="color:#ffffff;">全部订单</span></button>
+    <button id="btc1" class="btn_1" onclick="{location.href='/Project/admin/pyapp/t_stockorderm/?_p_WarningFlag__contains=1'}"><span style="color:#ffffff;">超时订单</span></button>
+    <button id="btc2" class="btn_1" onclick="{location.href='/Project/admin/pyapp/t_stockorderm/?_p_WarningFlag__contains=2'}"><span style="color:#ffffff;">未发货</span></button>
+    <button id="btc3" class="btn_1" onclick="{location.href='/Project/admin/pyapp/t_stockorderm/?_p_WarningFlag__contains=3'}"><span style="color:#ffffff;">物流异常</span></button>
+    <button id="btc4" class="btn_1" onclick="{location.href='/Project/admin/pyapp/t_stockorderm/?_p_WarningFlag__contains=4'}"><span style="color:#ffffff;">签收未入库</span></button>
+    <button id="btc5" class="btn_1" onclick="{location.href='/Project/admin/pyapp/t_stockorderm/?_p_WarningFlag__contains=5'}"><span style="color:#ffffff;">缺货</span></button>
+    <button id="btc6" class="btn_1" onclick="{location.href='/Project/admin/pyapp/t_stockorderm/?_p_WarningFlag__contains=6'}"><span style="color:#ffffff;">内部标签三天未更新</span></button>
+	<span style="height: 50px;width: 240px;font-size: 20px; color:red;">
+		最新数据刷新时间:{{refreshTime}}
+	</span>
+</div>

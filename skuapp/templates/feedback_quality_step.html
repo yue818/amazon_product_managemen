@@ -1,0 +1,61 @@
+<style>
+    table{
+        border-collapse: collapse;
+        border:0;
+        cellspacing:0;
+        cellpadding:0;
+    }
+
+    input{
+        width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        border:none;
+        margin: 0;
+        line-height:100%;
+{#        text-align:center;#}
+	}
+
+	th{
+        border: 0.05px solid #dddddd;
+		text-align:center;
+	    font-size:15px;
+	    height:25px;
+	}
+
+    td{
+        padding: 8px;
+        height:50px;
+        border: 0.05px solid #dddddd;
+        margin: 0;
+        white-space: nowrap;
+    }
+
+    textarea{
+        border:none;
+        height:100%;
+        width:100%;
+    }
+</style>
+
+<table border="1" id="mytable" width="100%">
+        <tr>
+            <th>时间</th>
+            <th>处理步骤</th>
+            <th>处理人</th>
+            <th>状态</th>
+            <th>备注</th>
+            <th>驳回原因</th>
+        </tr>
+        {% for result in results %}
+        <tr>
+            <td width="130px" nowrap><input readonly="true" type="text" value="{{ result.time }}"></td>
+            <td width="100px" nowrap><input readonly="true" type="text" value="{{ result.step }}"></td>
+            <td width="60px" nowrap><input readonly="true" type="text" value="{{ result.name }}"></td>
+            <td width="120" nowrap><input readonly="true" type="text" value="{{ result.state }}"></td>
+            <td nowrap><input readonly="true" type="text" onmouseover="this.title=this.value" value="{{ result.note }}"></td>
+            <td nowrap><input readonly="true" type="text" onmouseover="this.title=this.value" value="{{ result.reject_reason }}"></td>
+        </tr>
+        {% endfor %}
+</table>

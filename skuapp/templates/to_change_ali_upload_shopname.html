@@ -1,0 +1,87 @@
+<!--<form action="/make_shopname/?myId={{ myid }}&cate={{ mycate }}" method="POST"> -->
+<!--{% for obj in objs %}-->
+<!--<label><input name="shopname" type="checkbox" value={{ obj }} />{{ obj }}</label> -->
+<!--{% endfor %}-->
+<!--<button type = 'submit'>确定</button>-->
+<!--{% csrf_token %}-->
+<!--</form> -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>修改店铺</title>
+    <link rel="stylesheet" href="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="http://cdn.static.runoob.com/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="http://cdn.static.runoob.com/libs/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <script>
+        function makesubmit() {
+            $('#makeshonameform').submit();
+        }
+        //
+        function linecheck() {
+            $(".table tr").click(function () {
+                if ($(this).find(":checkbox").prop("checked") == true) {
+                    $(this).find(":checkbox").prop("checked", false);
+                } else {
+                    $(this).find(":checkbox").prop("checked", true);
+                }
+
+            });
+            // $("input[type='checkbox'], input[type='text']").click(function (e) {
+            //     e.stopPropagation();
+            // });
+        }
+    </script>
+
+</head>
+<!--<link rel="stylesheet" href="/static/xadmin/vendor/bootstrap/css/bootstrap.min.css">-->
+<!--<link rel="stylesheet" href="/static/xadmin/vendor/bootstrap-select-1.12.4/css/bootstrap-select.min.css">-->
+<!--<script src="/static/xadmin/js/jquery-1.7.1.min.js"></script>-->
+<!--<script src="/static/xadmin/vendor/jquery/jquery.min.js"></script>-->
+<!--<script src="/static/xadmin/vendor/bootstrap/js/bootstrap.min.js"></script>-->
+<!--<script src="/static/xadmin/vendor/bootstrap-select-1.12.4/js/bootstrap-select.min.js"></script>-->
+<body>
+<form id="makeshonameform" action="/make_shopname/?myId={{ myid }}&cate={{ mycate }}" method="POST">
+    <div style="width: 80%;">
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th><input name="checkbox_parent" type="checkbox"/></th>
+                <th>店铺简称</th>
+                <th>账号群</th>
+                <th>最近铺货时间</th>
+                <th>是否为服装</th>
+               
+            </tr>
+            </thead>
+            <tbody>
+            {% for obj in objs|dictsort:"AccountGroup"|dictsort:"is_cloth" %}
+                
+               
+                <td><input name="shopname" type="checkbox" value={{ obj.ShopName }}/></td>
+                
+                {% if obj.is_cloth == '服装' %}
+                <td><font color="#FF4500">{{ obj.ShopName }}</font></td>
+                {% else %}
+                <td>{{ obj.ShopName }}</td>
+                {% endif %}
+                <td>{{ obj.AccountGroup }}</td>
+                <td>{{ obj.UpdateTime }}</td>
+                {% if obj.is_cloth == '服装' %}
+                <td><font color="#FF4500">{{obj.is_cloth}}</font></td>
+                {% else %}
+                <td>{{obj.is_cloth}}</td>
+                {% endif %}
+
+                
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <button type="button" class="btn btn-primary" data-toggle="button" onclick="makesubmit()"> 确定</button>
+    {% csrf_token %}
+</form>
+</body>
+</html>

@@ -1,0 +1,7 @@
+
+	<option value="{{PackNID}}" selected = "selected" >  {{ B_PackInfos }} </option>
+    {% for packing2 in packing2s %}
+	        <option value ="{{packing2.id}}">NID:{{packing2.id}} 规格:{{packing2.PackName}} 价格(¥元):{{packing2.CostPrice }} 重量(g):{{packing2.Weight }}</option>
+    {% endfor %}
+
+

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="/static/xadmin/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/static/xadmin/vendor/bootstrap-select-1.12.4/css/bootstrap-select.min.css" rel="stylesheet" />
+
+    <script src="/static/xadmin/vendor/jquery/jquery.min.js"></script>
+    <script src="/static/xadmin/vendor/bootstrap/js/bootstrap.min.js"></script>
+    <script  src="/static/xadmin/vendor/bootstrap-select-1.12.4/js/bootstrap-select.min.js"></script>
+
+    <style>
+        .col-center-block {
+            float: none;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+    </style>
+
+    <script>
+        function getnextcate(cate) {
+{#            清空下一级分类#}
+            var catetwo = document.getElementById('CateTwo');
+            var catethree = document.getElementById('CateThree');
+            var next = {};
+            if (cate == 'CateOne'){
+                catetwo.options.length = 0;
+                next = catetwo;
+            }else {
+                catethree.options.length = 0;
+                next = catethree;
+            }
+
+            var cateone = document.getElementById(cate);
+            $.getJSON('/select_next_cate/?'+ cate + '='+ cateone.value, function(result){
+                if (result.resultCode == '0'){
+                    var nextcate = result['nextcate'];
+                    for (var i=0;i<nextcate.length;i++){
+                        next.options.add(new Option(nextcate[i]['Look'],nextcate[i]['Code']));
+                    }
+                    if (cate == 'CateOne'){
+                        $('#CateTwo').selectpicker('refresh');
+                    }else {
+                        $('#CateThree').selectpicker('refresh');
+                    }
+                }else {
+                    alert('异常！');
+                }
+            });
+        }
+        function Write_back() {
+            var index = parent.layer.getFrameIndex(window.name);
+            var cateone = document.getElementById('CateOne');
+            var catetwo = document.getElementById('CateTwo');
+            var cateThree = document.getElementById('CateThree');
+            if (cateone.value != ''&&catetwo.value != ''){
+                top.onevalue = cateone.value;
+                top.onelook = cateone.options[cateone.selectedIndex].text;
+                top.twovalue = catetwo.value;
+                top.twolook = catetwo.options[catetwo.selectedIndex].text;
+                top.threevalue = cateThree.value;
+                top.threelook = cateThree.options[cateThree.selectedIndex].text;
+
+                top.flag = 1;
+                parent.layer.close(index);
+            }else {
+                alert('大类和小类都不可为空！请重新选择。。')
+            }
+        }
+    </script>
+</head>
+<body style="text-align:center">
+<div class="container">
+    <div class="row myCenter">
+        <div class="col-xs-6 col-md-4 col-center-block">
+          <div class="form-group" >
+            <select class="selectpicker" title="请选择一级分类" id="CateOne" onchange="getnextcate('CateOne')">
+                {% for first in first_list %}
+                    {% for k,v in first_dict.items %}
+                        {% if k == first %}
+                            <option value="{{ v }}">{{ k }}</option>
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <select class="selectpicker" title="请选择二级分类" id="CateTwo" onchange="getnextcate('CateTwo')">
+            </select>
+          </div>
+          <div class="form-group">
+            <select class="selectpicker" title="请选择三级分类" id="CateThree">
+            </select>
+          </div>
+          <button type="button" class="btn btn-default" onclick="Write_back()">提交</button>
+        </div>
+    </div>
+</div>
+</body>
+</html>

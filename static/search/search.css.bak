@@ -1,0 +1,7 @@
+@charset "utf-8";
+.search_box {float:left;width:529px;height:40px;background:#428bca;padding-left:3px;display:inline;}
+.search a {text-decoration:none;cursor:pointer;}
+.search input {float:left;}
+.select {background:#fff ;border:0;border-right:solid 2px #fff;width:82px;height:34px;color:#666;line-height:34px;padding-left:8px;float:left;position:relative;z-index:99999;font-size:14px;margin-top:3px;}
+.part p {overflow:hidden;}
+.enter {border:0;width:348px;float:left;height:34px;color:#999;line-height:34px;padding-left:5px;margin-top:3px;font-size:14px;outline:none;}

@@ -1,0 +1,16 @@
+<link href="/static/xadmin/vendor/bootstrap/css/bootstrap.css" type="text/css" media="screen" rel="stylesheet"/>
+<script src="/static/xadmin/js/jquery-1.7.1.min.js" type="text/javascript"></script>
+<script type="text/javascript" src="/static/xadmin/vendor/bootstrap/js/bootstrap.min.js"></script>
+
+<ul id="myTab">
+    <li class="active"><b style="font-size:16px;color:red;">online系统算价大部分是根据以下文件，其余小部分是口述更改变动，依实际算法为主:</b>
+        <table style="font-size:15px;font-weight:bold;">
+        {% for i in lis %}
+        <tr><td>•&nbsp;&nbsp;</td><td><a href="http://fancyqube-download.oss-cn-shanghai.aliyuncs.com/pricelist/{{ i }}" target="_blank">{{ i }}</a></td></tr>
+        {% endfor %}
+        </table>
+    </li>
+    <br>
+</ul> 
+
+              

@@ -1,0 +1,24 @@
+{% block navigation-down %}
+<div class="navigation-down">
+	{% for v_app_names_obj in v_app_names_objs %}
+	<div id="{{ v_app_names_obj.app_label }}" class="nav-down-menu menu-3 menu-1" style="display: none;" _t_nav="{{ v_app_names_obj.app_label }}">
+		<div class="navigation-down-inner">
+		{% for v_app_names_group_names_obj in v_app_names_group_names_objs %}
+		{% if v_app_names_group_names_obj.app_label  == v_app_names_obj.app_label %}
+		<dl style="margin-left: 150px;">
+			<dt>{{ v_app_names_group_names_obj.group_name }}</dt>
+			{% for v_group_model_obj in v_group_model_objs %}
+			{% if v_group_model_obj.group_name  == v_app_names_group_names_obj.group_name %}
+			<dd>
+				<a hotrep="hp.header.{{ v_app_names_obj.app_label }}.compute1" href="/xadmin/{{ v_app_names_obj.app_label }}/{{ v_group_model_obj.model }}/">{{ v_group_model_obj.model_name }}</a>
+			</dd>
+			{% endif %}
+			{% endfor %}
+		</dl>
+		{% endif %}
+		{% endfor %}
+		</div>
+	</div>
+	{% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,780 @@
+<link href="/static/js/t_online_info_wish_store_search.css?t=201803211234" rel="stylesheet" type="text/css"/>
+<style>
+    .hide-xs {
+        display: none;
+    }
+
+    #div_categorys {
+        position: absolute;
+        width: 364px;
+        height: 300px;
+        border: 1px solid #66afe9;
+        border-top: 0px;
+        overflow: auto;
+        display: none;
+        background-color: white;
+        z-index: 999;
+    }
+</style>
+
+<script type="text/javascript">
+    var info = '<div class="div_item" onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" onClick="ChangeTextq(this);">all</div>';
+    var cata_info = '<div class="div_item" onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" id="ywp0" onClick="ChangeTextp(this);" value="">搜索分类...</div>';
+    var synurl = '';
+    var to_url = '';
+    $(document).ready(function () {
+        var divdown = document.getElementById('div_items');
+        var shopss = document.getElementById('list_id');
+        var synurl_div = document.getElementById('synurl_id');
+        var divdown1 = document.getElementById('div_categorys');
+        var categorys = document.getElementById('category_list');
+        var synurl_div1 = document.getElementById('synurl');
+        var flag_div = document.getElementById('flag_value').value;
+        synurl = synurl_div.value;
+        to_url = synurl_div1.value;
+        {#        console.log('flag='+flag_div);#}
+        var status_tag = $("#select_16");
+
+        status_tag.change(function () {
+            let status = {1: '正常', 2: '售完下架', 3: '临时下架', 4: '停售', 5: '正常无库存'};
+            var all_tr = $(".table .table-condensed tbody tr");
+
+            for (let x = 0; x < all_tr.length; x++) {
+                let child = all_tr[x]['children'];
+                if (status_tag.val() === '5') {
+                    if (child[2]['innerHTML'] === '正常' && child[4]['innerHTML'] === '0') {
+                        child[0]['children'][0]['children'][0].setAttribute('checked', '')
+                    } else {
+                        child[0]['children'][0]['children'][0].removeAttribute('checked')
+                    }
+                } else {
+                    if (child[2]['innerHTML'] === status[status_tag.val()]) {
+                        child[0]['children'][0]['children'][0].setAttribute('checked', '')
+                    } else {
+                        child[0]['children'][0]['children'][0].removeAttribute('checked')
+                    }
+                }
+            }
+
+        });
+        setTimeout(function () {
+            $("a.question.btn.btn-default").remove();
+            $("#disable_data_by_ali_api_batch").attr("onclick", "product_disabled()");
+        }, 500);
+
+        if (flag_div != 'all') {
+            $('#account_show').show();
+            $('#account_none').hide();
+        } else {
+            $('#account_show').hide();
+            $('#account_none').show();
+        }
+
+        var node = divdown.nextSibling;
+        var shop_list = eval(shopss.value);
+        {#        console.log(shop_list);#}
+        for (var s = 0; s < shop_list.length; s++) {
+            info += '<div class="div_item" onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" onClick="ChangeTextq(this);">' + shop_list[s] + '</div>';
+        }
+        divdown.innerHTML = info;
+        divdown.parentNode.insertBefore(divdown, node);
+        node = divdown.nextSibling;
+
+        if (document.getElementById('q').value == '') {
+            document.getElementById('q').value = '搜索店铺...';
+        }
+        //弹出列表框
+        $("#q").click(function () {
+            $("#div_items").css('display', 'block');
+            return false;
+        });
+        //文本框输入
+        $("#q").keyup(function () {
+            var intext = document.getElementById('q');
+            var inputtext = intext.value;
+            if (inputtext != "") {
+                var html1 = "";
+                for (var i = 0; i < shop_list.length; i++) {
+                    if (shop_list[i].indexOf(inputtext) >= 0) {
+                        html1 += '<div class="div_item"onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" onClick="ChangeTextq(this);">' + shop_list[i] + '</div>';
+                    }
+                }
+                if (html != "") {
+                    $("#div_items").show().html(html1);
+                } else {
+                    $("#div_items").hide().html("");
+                }
+            } else {
+                $("#div_items").show().html(info);
+            }
+        });
+
+        var node1 = divdown1.nextSibling;
+        var category_list = JSON.parse(categorys.value);
+        {#        console.log(shop_list);#}
+        for (var cata in category_list) {
+            cata_info += '<div class="div_item" onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" onClick="ChangeTextp(this);" id="' + cata + '" value="' + cata + '">' + category_list[cata] + '</div>';
+        }
+        divdown1.innerHTML = cata_info;
+        divdown1.parentNode.insertBefore(divdown1, node1);
+        node1 = divdown1.nextSibling;
+
+        if (document.getElementById('p').value == '') {
+            document.getElementById('p').value = '搜索分类...';
+        }
+        //弹出列表框
+        $("#p").click(function () {
+            $("#div_categorys").css('display', 'block');
+            return false;
+        });
+        //文本框输入
+        $("#p").keyup(function () {
+            var intext = document.getElementById('p');
+            var inputtext = intext.value;
+            if (inputtext != "") {
+                var html = "";
+                for (var cata in category_list) {
+                    if (category_list[cata].indexOf(inputtext) >= 0) {
+                        html += '<div class="div_item" onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" onClick="ChangeTextp(this);" id="' + cata + '"  value="' + cata + '">' + category_list[cata] + '</div>';
+                    }
+                }
+                if (html != "") {
+                    $("#div_categorys").show().html(html);
+                } else {
+                    $("#div_categorys").hide().html("");
+                }
+            } else {
+                $("#div_categorys").show().html(cata_info);
+            }
+        });
+        //隐藏列表框
+        $("body").click(function () {
+
+            var regu = "^[ ]+$";
+            var re = new RegExp(regu);
+            var intext = document.getElementById('p').value;
+            if (intext == '' || re.test(intext)) {
+                $("#p").val("搜索分类...");
+                $("#p_temp").val(0);
+                $("#div_categorys").show().html('<div class="div_item" onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" id="ywp0" onClick="ChangeTextp(this);" value="">搜索分类...</div>');
+            }
+            $("#div_items").css('display', 'none');
+            $("#div_categorys").css('display', 'none');
+        });
+        {#        $('#value1').val($('#accountName_value').val());#}
+
+    });
+
+
+    //移入移出效果
+    function getnewcolor(obj) {
+        $(obj).css('background-color', '#1C86EE').css('color', 'white');
+    }
+
+    function getoldcolor(obj) {
+        $(obj).css('background-color', 'white').css('color', 'black');
+    }
+
+    //项点击
+    function ChangeTextq(obj) {
+        var value = $(obj).text();
+        $("#q").val(value);
+        $("#div_items").show().html('<div class="div_item" onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" onClick="ChangeTextq(this);">' + value + '</div>');
+    }
+
+    function ChangeTextp(obj) {
+        var ptext = $(obj).text();
+        var pvalue = obj.id;
+        if (pvalue == 'ywp0') {
+            pvalue = '0';
+        }
+        $("#p").val(ptext);
+        $("#p_temp").val(pvalue);
+        $("#div_categorys").show().html('<div class="div_item" onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" onClick="ChangeTextp(this);" id="' + pvalue + '"  value="' + pvalue + '">' + ptext + '</div>');
+    }
+
+    function Get_Syn_Progress1(rFlag, log_id) {
+
+        $.getJSON(synurl + "&bar=0&log_id=" + log_id, function (result) {
+            if (result.resultCode == '3' && result.messages != 'Over') {
+                if (rFlag == '0') {
+                    console.log(result.success_percent);
+                    document.getElementById('full_bar_id').style.width = result.success_percent;
+                    document.getElementById('full_bar_span').innerText = '已经开始同步全量数据数据，时间等候较长，请稍等。。。' + '(' + result.success_percent + ')';
+                    {#                    fulllength++ ;#}
+                    {#                    if (fulllength <= 98){#}
+                    {#                        document.getElementById('full_bar_id').style.width = fulllength.toString() + '%';#}
+                    {#                        document.getElementById('full_bar_span').innerText = '已经开始同步全量数据数据，时间等候较长，请稍等。。。' + '(' + fulllength.toString() + '%' + ')';#}
+                    {#                    }#}
+                }
+            }
+            if (result.resultCode == '3' && result.messages == 'Over') {
+                if (rFlag == '0') {
+                    document.getElementById('full_bar_id').style.width = '100%';
+                    document.getElementById('full_bar_span').innerText = '全量数据同步完成(100%)';
+                    document.getElementById('sub_full').style.display = 'none';
+                    document.getElementById('sub_refresh_full').style.display = '';
+                }
+            }
+        });
+    }
+
+    function refresh_shopnsme_data(rFlag) {
+        {#document.getElementById('full_bar_span').innerText = '已经开始同步全量数据数据，时间等候较长，请稍等。。。';#}
+
+        $('#process_bar').attr('style', 'width: 0%');
+
+        $('#process_bar_model').modal({
+
+            backdrop: 'static'
+
+        });
+        $.getJSON(synurl + "&flag=" + rFlag, function (result) {
+            if (result.resultCode == '0') {
+                open_process_bar([result.log_id]);
+            } else {
+                if (rFlag == '0') {
+                    document.getElementById('full_bar_span').innerText = '数据刷新错误！请联系IT部门。';
+                    document.getElementById('full_bar').style.display = 'none';
+                }
+                if (rFlag == '1') {
+                    document.getElementById('part_bar_span').innerText = '数据刷新错误！请联系IT部门。';
+                    document.getElementById('part_bar').style.display = 'none';
+                }
+                if (result.resultCode == '-1') {
+                    document.getElementById('full_bar_span').innerText = '未检测到该账号，请选择正确的账号。';
+                    document.getElementById('full_bar').style.display = 'none';
+                }
+            }
+        });
+    }
+
+    // Refresh_Ajax() 弹出框调用api，并显示进度条  # 0 全量更新  # 1 增量更新
+    function Refresh_Ajax_full(rFlag) { //全量刷新
+        shopname_full
+        $('#shopname_full').modal('hide');
+        $("#shopname_full.modal-backdrop").remove();
+        console.log('synurl=' + synurl);
+        if (rFlag == '0') { // 全量更新
+            {#document.getElementById('full_bar_span').innerText = '已经开始同步全量数据数据，时间等候较长，请稍等。。。';#}
+            {#document.getElementById('full_bar').style.display = '';#}
+            refresh_shopnsme_data(rFlag)
+        }
+        {#refresh_shopnsme_data(rFlag); // 正式开始同步刷新数据#}
+    }
+
+    function onclick_refresh_page() {
+        location.reload();
+    }
+
+
+    function modalClose() {
+        //$("#myModal").modal('hide');
+        $('#process_bar_model').modal('hide');
+        $("#process_bar_model.modal-backdrop").remove();
+        //$("#d").trigger('click');
+    }
+
+    function open_process_bar(taskid) {
+        let s = setInterval(function () {
+            if ($("#process_bar_model").attr("aria-hidden") === 'true') {
+                clearInterval(s)
+            }
+            $(document).ready(function () {
+                $.ajax({
+                    type: "GET",
+                    dataType: 'jsonp',
+                    url: 'http://106.14.157.218/api/process_bar/?taskid=' + taskid.join(','),
+                    success: function (Data) {
+                        let data = JSON.parse(Data);
+                        console.log(data);
+                        let percent = data._percent;
+                        let finished = data._finished;
+                        let success = data._success;
+                        let failed = data._failed;
+                        let total = data._total;
+                        $("#bar_process").text('进度:' + finished + '/' + total);
+                        $('#bar_success').text('成功:' + success);
+                        $('#bar_failed').text("失败:" + failed);
+                        $("#process_bar")[0].style.width = percent + "%";
+                        if (percent === 100) {
+                            clearInterval(s)
+                        }
+                    }
+                });
+            });
+        }, 3000);
+    }
+
+    function static_refresh(url) {
+        $.getJSON(url, function (result) {
+            if (result.resultCode == '1') {
+                $('#process_bar').attr('style', 'width: 0%');
+                $('#process_bar_model').modal({
+                    backdrop: 'static'
+                });
+                let taskid = result.taskid;
+                $("#bar_process").text('');
+                $('#bar_success').text('');
+                $('#bar_failed').text('');
+                open_process_bar(taskid);
+
+            } else {
+                alert('异常:' + result.messages);
+            }
+        });
+    };
+
+    function isHidden(oDiv) {
+        var vDiv = document.getElementById(oDiv);
+        vDiv.style.display = (vDiv.style.display == 'none') ? 'block' : 'none';
+    }
+
+    function enable_id(listingid, shopname, accountName, product_id) {
+        layer.confirm(listingid + '  请问确定要进行上架吗？', {
+            btn: ['确定', '算了'],
+            btn1: function () {
+                static_refresh('/syndata_by_ali_api/?enable=' + listingid + '&shopname=' + shopname + '&' +
+                    'accountName=' + accountName + '&product_id=' + product_id)
+            },
+        });
+    }
+
+    function disable_id(listingid, shopname, accountName, product_id) {
+        layer.confirm(listingid + '  请问确定要进行下架吗？', {
+            btn: ['确定', '算了'],
+            btn1: function () {
+                static_refresh('/syndata_by_ali_api/?disable=' + listingid + '&shopname=' + shopname + '&' +
+                    'accountName=' + accountName + '&product_id=' + product_id)
+            },
+        });
+    }
+
+    function delete_id(listingid, shopname, accountName, product_id) {
+        layer.confirm(listingid + '  请问确定要标记已删除吗？', {
+            btn: ['确定', '算了'],
+            btn1: function () {
+                static_refresh('/syndata_by_ali_api/?delete=' + listingid + '&shopname=' + shopname + '&' +
+                    'accountName=' + accountName + '&product_id=' + product_id)
+            },
+        });
+    }
+
+    function change_shopsku(flag) {
+        var all_shopsku_info = document.getElementsByName('shopskucheck');
+        var checkinfo = new Array();
+        for (var i = 0; i < all_shopsku_info.length; i++) {
+            if (all_shopsku_info[i].checked) {
+                var id = all_shopsku_info[i].id;
+                console.log('id: ' + id);
+                checkinfo.push(id);
+            }
+        }
+        // alert('checkinfo==='+checkinfo);
+        // checkinfo 包含了需要上下架的店铺SKU和归属店铺
+        if (checkinfo.length >= 1) {
+            submit_shopsku_update(JSON.stringify(checkinfo), flag);
+        } else {
+            alert('请选择要进行上下架的记录');
+        }
+    }
+
+
+    function ali_disable_all_stopsales_sku(flag) {
+        if (flag === 'disableSKUall') {
+            var ret = window.confirm("确定下架全部停售店铺SKU,此过程可能时间超长，是否继续?");
+            //当点击确定时 返回 true
+            if (ret) {
+                //do something 点确定
+                $.get('/aliexpress_online_sku_off/', function (data, status) {
+                    let msg = data['msg'];
+                    if (msg === undefined) {
+                        alert('任务已提交!')
+                    } else {
+                        alert(msg);
+
+                    }
+                });
+            } else {
+                //do otherthing 点取消
+
+            }
+        }
+    }
+
+    function ityzl_SHOW_LOAD_LAYER() {
+        return parent.layer.msg('努力修改中...', {
+            icon: 16,
+            shade: [0.5, '#f5f5f5'],
+            scrollbar: false,
+            offset: '50%',
+            time: 100000
+        });
+    }
+
+    function ityzl_CLOSE_LOAD_LAYER(index) {
+        parent.layer.close(index);
+    }
+
+    function ityzl_SHOW_TIP_LAYER(text) {
+        parent.layer.msg(text, {time: 5000, offset: '30%'});
+    }
+
+    function submit_shopsku_update(data, flag) {
+        console.log('data: ' + data);
+        var i;
+        var token = document.getElementsByName('csrfmiddlewaretoken')[0];
+        // 这里开始调取api
+        $.ajax({
+            url: "/syndata_sku_status_by_ali_api/?flag=" + flag,
+            type: "POST",
+            dataType: "json",
+            data: {
+                csrfmiddlewaretoken: token.value,
+                alldata: data
+            },
+            beforeSend: function () {
+                i = ityzl_SHOW_LOAD_LAYER();
+            },
+            success: function (sresult) {
+                $('#process_bar').attr('style', 'width: 0%');
+                $('#process_bar_model').modal({
+                    backdrop: 'static'
+                });
+                if (sresult.code == 0) {
+                    let taskid = sresult.taskid;
+                    ityzl_CLOSE_LOAD_LAYER(i);
+                    $("#bar_process").text('');
+                    $('#bar_success').text('');
+                    $('#bar_failed').text('');
+                    open_process_bar(taskid);
+                    {#var r = confirm(sresult.content + "\n是否刷新页面？");#}
+                    {#if (r == true) {#}
+                    {#    location.reload();#}
+                    {# } else {#}
+                    {#    return;#}
+                    {# }#}
+                    // ityzl_SHOW_TIP_LAYER(sresult.content);
+                } else if (sresult.code == -1) {
+                    ityzl_CLOSE_LOAD_LAYER(i);
+                    ityzl_SHOW_TIP_LAYER('传参错误！请联系IT相关人员。');
+                } else {
+                    ityzl_CLOSE_LOAD_LAYER(i);
+                    ityzl_SHOW_TIP_LAYER('错误，请联系IT相关人员。');
+                }
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                ityzl_CLOSE_LOAD_LAYER(i);
+                ityzl_SHOW_TIP_LAYER('错误信息：' + XMLHttpRequest.responseText);//获取的信息即是异常中的Message
+                console.log('错误信息：' + XMLHttpRequest.responseText)
+            }
+        });
+    }
+
+    function search_category() {
+        var pvalue = $('#p_temp').val();
+        console.log(pvalue);
+        if (pvalue != '') {
+            if (to_url.indexOf('?') > 0) {
+                to_url = to_url + '&category=' + encodeURIComponent(pvalue);
+            }
+            else {
+                to_url = to_url + '?category=' + encodeURIComponent(pvalue);
+            }
+            console.log(to_url);
+            window.location.href = to_url;
+        }
+        else {
+            ityzl_SHOW_TIP_LAYER('请选择有效的分类！');
+        }
+    }
+
+    $(function () {
+        var mystr = window.location.search;
+        if (mystr.indexOf('StopSales=1-99') != -1) {
+            if (mystr.indexOf('skustock_isempty=0') != -1) {
+                $("#disableSKUall").show();
+            } else {
+                $("#disableSKUall").hide();
+            }
+
+        } else {
+            $("#disableSKUall").hide();
+        }
+    });
+    $(function () {
+        var status_tag = $("#select_16");
+        setTimeout(function () {
+            status_tag.val('');
+        }, 1000);
+    })
+
+
+    function checkAll() {
+        var all_shopsku_info = document.getElementsByName('shopskucheck');
+        for (var i = 0; i < all_shopsku_info.length; i++) {
+            all_shopsku_info[i].checked = true;
+        }
+    }
+
+    function uncheckAll() {
+        var all_shopsku_info = document.getElementsByName('shopskucheck');
+        for (var i = 0; i < all_shopsku_info.length; i++) {
+            all_shopsku_info[i].checked = false;
+        }
+    }
+
+    function encheckAll() {
+        var all_shopsku_info = document.getElementsByName('shopskucheck');
+        for (var i = 0; i < all_shopsku_info.length; i++) {
+            all_shopsku_info[i].checked = !all_shopsku_info[i].checked;
+        }
+    }
+
+
+    function product_disabled() {
+
+        var checkbox = $("input[name='_selected_action']:checked");
+        let product_obj = {};
+        for (let cb = 0; cb < checkbox.length; cb++) {
+            var tmp = checkbox.eq(cb).parent().siblings();
+            let sales = Number(tmp.eq(2).text());
+            if (sales > 0) {
+                let infotext = tmp.eq(1);
+                let product_id = infotext.text().match(/产品ID：(?<pid>\d+)/).groups.pid;
+                product_obj[product_id] = sales;
+            }
+        }
+        if ($.isEmptyObject(product_obj)) {
+            $.do_action('disable_data_by_ali_api_batch','下架')
+        } else {
+            let tmphtml = '<table border="1" width="100%" style="font-size:15px;text-align:center;"><tbody><tr>' +
+                '<th style="text-align:center;">产品ID</th><th style="text-align:center;">7日销量</th></tr>';
+            Object.keys(product_obj).forEach(function (key) {
+                tmphtml = tmphtml + `<tr><td>${key}</td><td>${product_obj[key]}</td><tr>`
+            });
+            tmphtml = tmphtml + '</tbody></table>';
+            $("#product_off_product").empty();
+            $("#product_off_product").append(tmphtml);
+            $('#product_off_product_model').modal({
+                backdrop: 'static'
+            });
+        }
+    }
+
+</script>
+<div id="account_none">
+    <br/>
+    <p style="font-size: 18px;color: red;">当前未选中店铺账号</p>
+</div>
+<div id="account_show">
+    <br/>
+    <p style="font-size: 18px;color: red;">当前店铺账号：{{ flag }}</p>
+</div>
+<input type="hidden" id="flag_value" value="{{ flag }}">
+{#<input type="hidden" id="accountName_value" value="{{ accountName }}">#}
+<div>
+    <div style="font-size:15px;">
+        <table style="border: 0">
+            <tr>
+                <td>
+                    <div class="padatr">
+                        <div class="satrdiv inline mRight20" style="float: left;height: 34px;width: 65.3px;">进入店铺:</div>
+                        <div class="inline" style="float: left">
+                            <form>
+                                <input id="q" class="textatr" name="shopname" style="border-radius: 10px;width:364px; "
+                                       onFocus="if(this.value=='搜索店铺...'){this.value='';}else{this.select();}this.style.color='black';"
+                                       value="{{ flag }}">
+                                <input type="submit" class="sybutton" value="点击进入">
+                            </form>
+                            <div class="selectize-dropdown-content" id="div_items">
+                            </div>
+                        </div>
+                        <input type="hidden" id="list_id" value='{{ shopNames|safe }}'>
+                        <input type="hidden" id="synurl_id" value='{{ synurl }}'>
+                    </div>
+                </td>
+                <td>
+                    <div class="padatr">
+                        <div class="satrdiv inline mRight20" style="float: left;height: 34px;width: 65.3px;">产品分类:</div>
+                        <div class="inline" style="float: left">
+                            <input id="p" class="textatr" name="category" style="border-radius: 10px;width:364px; "
+                                   onFocus="if(this.value=='搜索分类...'){this.value='';}else{this.select();}this.style.color='black';"
+                                   value="{{ category }}">
+                            <input id="p_temp" type="hidden" value="{{ category_id }}">
+                            <input type="button" class="sybutton" value="点击搜索" onclick="search_category()">
+                            <div class="selectize-dropdown-content" id="div_categorys">
+                            </div>
+                        </div>
+                        <input type="hidden" id="category_list" value='{{ category_list|safe }}'>
+                        <input type="hidden" id="synurl" value='{{ synurl_cata }}'>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+<br>
+
+<div class="dropdown" style="float: right;">
+    <button type="button" class="btn dropdown-toggle sybutton" id="dropdownMenu1" data-toggle="dropdown">
+        店铺SKU操作
+        <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+        {#        {% if Permission == '1' and ff_shelf_flag == 0 %}#}
+        {#            <li role="presentation">#}
+        {#                <a role="menuitem" tabindex="-1" onclick="change_shopsku('enableSKU')">选中店铺SKU上架</a>#}
+        {#            </li>#}
+        {#            <li role="presentation">#}
+        {#                <a role="menuitem" tabindex="-1" onclick="change_shopsku('disableSKU')">选中店铺SKU下架</a>#}
+        {#            </li>#}
+        {#            <li role="presentation" id="disableSKUall">#}
+        {#                <a role="menuitem" tabindex="-1"#}
+        {#                   onclick="ali_disable_all_stopsales_sku('disableSKUall')">所有停售店铺SKU下架</a>#}
+        {#            </li>#}
+        {#        {% else %}#}
+        {#            {% if off_shelf_flag == 1 %}#}
+        {#               <li role="presentation">#}
+        {#                   <a role="menuitem" tabindex="-1" onclick="change_shopsku('disableSKU')">选中店铺SKU下架</a>#}
+        {#               </li>#}
+        {#            {% endif %}#}
+        {#        {% endif %}#}
+
+        {% if off_shelf_flag == 1 %}
+            <li role="presentation">
+                <a role="menuitem" tabindex="-1" onclick="checkAll()">全选(店铺SKU)</a>
+            </li>
+            <li role="presentation">
+                <a role="menuitem" tabindex="-1" onclick="uncheckAll()">全不选(店铺SKU)</a>
+            </li>
+            <li role="presentation">
+                <a role="menuitem" tabindex="-1" onclick="encheckAll()">反选(店铺SKU)</a>
+            </li>
+            <li role="presentation">
+                <a role="menuitem" tabindex="-1" onclick="change_shopsku('disableSKU')">选中店铺SKU下架</a>
+            </li>
+        {% else %}
+            {% if Permission == '1' %}
+                <li role="presentation">
+                    <a role="menuitem" tabindex="-1" onclick="change_shopsku('enableSKU')">选中店铺SKU上架</a>
+                </li>
+                <li role="presentation">
+                    <a role="menuitem" tabindex="-1" onclick="change_shopsku('disableSKU')">选中店铺SKU下架</a>
+                </li>
+                <li role="presentation" id="disableSKUall">
+                    <a role="menuitem" tabindex="-1"
+                       onclick="ali_disable_all_stopsales_sku('disableSKUall')">所有停售店铺SKU下架</a>
+                </li>
+            {% endif %}
+        {% endif %}
+    </ul>
+</div>
+<div class="dropdown" style="float: right;">
+    <button type="button" class="btn dropdown-toggle sybutton" id="dropdownMenu1" data-toggle="dropdown">
+        同步店铺数据
+        <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+        {% if Permission == '1' %}
+            {% if synurl != '' %}
+                <li role="presentation">
+                    <a role="menuitem" tabindex="-1" data-toggle="modal" data-target="#shopname_full">全量同步</a>
+                </li>
+            {% else %}
+                <li role="presentation">
+                    <a style="color:red" role="menuitem" tabindex="-1">{{ refreshstatus }}</a>
+                </li>
+            {% endif %}
+        {% endif %}
+    </ul>
+</div>
+<!-- 模态框（Modal）全量刷新店铺 -->
+<div class="modal fade" id="shopname_full" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    全量刷新店铺
+                </h4>
+            </div>
+            <div class="modal-body">
+                <span id="full_bar_span">是否确定全量刷新该店铺数据，刷新速度可能较慢？</span>
+                <div class="progress progress-striped active" id="full_bar" style="display: none">
+                    <div class="progress-bar progress-bar-success" role="progressbar"
+                         aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"
+                         style="width: 0%;" id="full_bar_id">
+                        <span class="sr-only">0% 完成</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                </button>
+                <button type="button" class="btn btn-primary" onclick="Refresh_Ajax_full('0')" id="sub_full">
+                    提交更改
+                </button>
+                <button type="button" class="btn btn-primary" onclick="onclick_refresh_page()" style="display: none"
+                        id="sub_refresh_full">
+                    刷新页面
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+
+<div class="modal fade" id="process_bar_model" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" style="width:30%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true" onclick="">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    任务进度
+                </h4>
+            </div>
+            <div class="progress">
+                <div class="progress-bar progress-bar-info" role="progressbar"
+                     aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"
+                     style="width: 0%;" id="process_bar">
+                </div>
+            </div>
+            <div id="bar_process"></div>
+            <div id="bar_success"></div>
+            <div id="bar_failed"></div>
+
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="product_off_product_model" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" style="width:30%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true" onclick="">
+                    &times;
+                </button>
+                <h3 class="modal-title" id="myModalLabel">
+                    确定下架7日有销量的连接?
+                </h3>
+            </div>
+
+            <div id="product_off_product"></div>
+            <div class="modal-footer">
+                <a id="product_off_product_continue" class="btn"
+                   onclick="$.do_action('disable_data_by_ali_api_batch','下架');">继续</a>
+                <a id="product_off_product_cancel" class="btn btn-primary" data-dismiss="modal">取消</a>
+            </div>
+        </div>
+    </div>
+</div>
+

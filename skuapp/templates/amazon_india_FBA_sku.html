@@ -1,0 +1,95 @@
+<br/>
+<p style="font-size: 15px;margin-left: 1%">
+    FBA_SKU:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <input id="fba_sku" style="font-size: 18px;width: 400px" placeholder="输入FBA_SKU,半角逗号隔开" value="{{ fba_sku }}">
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <input class="create_pdf" type="button" value="生成FBA面单" onclick="cerate_fba_price_pdf()">
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    SKU:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <input id="sku" style="font-size: 18px;width: 400px" placeholder="输入SKU,半角逗号隔开" value="{{ sku }}">
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <input class="create_pdf" type="button" value="生成MRP价格" onclick="cerate_mrp_price()">
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <input class="create_pdf" type="button" value="生成MRP表格" onclick="cerate_mrp_xls()" id="a_after">
+</p>
+<br/>
+<div id="mrp_price_div" style="display: none;margin-left: 1%">
+    <p style="font-size: 18px;">MRP价格：(价格与输入的SKU顺序相对应)</p>
+    <textarea id="mrp_price" style="display: none;height: 80px;width: 68%;font-size: 18px"></textarea>
+</div>
+<input type="hidden" id="source_url" value="{{ source_url }}">
+<input type="hidden" id="source_mrp_path" value="{{ source_mrp_path }}">
+<script>
+    function cerate_fba_price_pdf() {
+        var fba_sku = $('#fba_sku').val();
+        var source_url = $('#source_url').val();
+        if(fba_sku && source_url) {
+            window.location.href = source_url + '&fba_sku=' + fba_sku;
+        }else {
+            alert('请输入需要生成面单的FBA SKU');
+        }
+
+    }
+    function cerate_mrp_price() {
+        var sku = $('#sku').val();
+        var source_mrp_path = $('#source_mrp_path').val();
+        if(sku && source_mrp_path) {
+            var url = source_mrp_path + '&action_type=mrp_price&mrp_sku=' + sku;
+            $.getJSON(url, function(result){
+                console.log(result.code);
+                if(result.code == 1){
+                    $('#mrp_price_div').css("display", "block");
+                    $('#mrp_price').css("display", "block");
+                    $('#mrp_price').val(result.data);
+                }else {
+                    console.log(result.errortext);
+                }
+            });
+{#            window.location.href = source_mrp_path + '&mrp_sku=' + sku;#}
+        }else {
+            alert('请输入需要生成MRP价格的SKU');
+        }
+
+    }
+    function cerate_mrp_xls() {
+        var sku = $('#sku').val();
+        var source_mrp_path = $('#source_mrp_path').val();
+        if(sku && source_mrp_path) {
+            var url = source_mrp_path + '&action_type=mrp_xls&mrp_sku=' + sku;
+            $.getJSON(url, function(result){
+                console.log(result.code);
+                if(result.code == 1){
+                    console.log(result.data);
+                    $('#mrp_xls_div').css("display", "block");
+                    $('#a_after').after('<a href= "'+result.data+'" download= '+result.data+'  >  '+result.data+' -  -  - ->>   Download </a>');
+                }else {
+                    console.log(result.errortext);
+                }
+            });
+{#            window.location.href = source_mrp_path + '&mrp_sku=' + sku;#}
+        }else {
+            alert('请输入需要生成MRP价格的SKU');
+        }
+
+    }
+</script>
+<style>
+    .create_pdf {
+        display: inline-block;
+	        padding: 6px 12px;
+	        margin-bottom: 0;
+	        font-size: 14px;
+	        font-weight: normal;
+	        line-height: 1.428571429;
+	        text-align: center;
+	        vertical-align: middle;
+	        cursor: pointer;
+	        background-image: none;
+	        border: 1px solid transparent;
+	        border-radius: 6px;
+	        -webkit-user-select: none;
+	        -moz-user-select: none;
+	        color: #ffffff;
+		    background-color: #428bca;
+    }
+</style>

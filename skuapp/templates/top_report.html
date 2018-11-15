@@ -1,0 +1,9 @@
+<div class="navbar-header">
+    <div style="margin-top:10px;">
+        {% widthratio user_kf_objs.Rank 1 -1 as kf_rank %}
+        <span style="color:#c00; font-size:10px">自己调研开发数({{ user_kf_objs.SelfCount|default:"-" }})-平均数({{ user_kf_objs.Avg|default:"-" }})-截至更新排名({{ kf_rank|default:"-" }}/{{ user_kf_objs.Number|default:"-" }})</span>
+        <br>
+        {% widthratio user_jzl_objs.Rank 1 -1 as jzl_rank %}
+        <span style="color:#c00; font-size:10px">自己建资料数({{ user_jzl_objs.SelfCount|default:"-" }})-平均数({{ user_jzl_objs.Avg|default:"-" }})-截至更新排名({{ jzl_rank|default:"-" }}/{{ user_jzl_objs.Number|default:"-" }})</span>
+    </div>
+</div>

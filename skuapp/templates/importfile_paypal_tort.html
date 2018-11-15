@@ -1,0 +1,8 @@
+
+
+<form action = "/importfile_paypal_tort/" method="POST" enctype="multipart/form-data">
+    <input type='file' name='myfile'>
+    <br>
+    <button type='submit' >上传</button>
+    {% csrf_token %}
+</form>

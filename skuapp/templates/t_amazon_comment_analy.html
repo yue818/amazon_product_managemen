@@ -1,0 +1,133 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>评论数据分析</title>
+    <script src="/static/highcharts/jquery-1.8.3.min.js"></script>
+    <script src="/static/highcharts/highcharts.js"></script>
+    <script src="/static/highcharts/exporting.js"></script>
+    <script src="/static/highcharts/highcharts-zh_CN.js"></script>
+    <style>
+        .btn-primary {
+                    color: #ffffff;
+                    background-color: #428bca;
+                    border-color: #357ebd;
+                    }
+        .btn {
+                height:35px;
+                padding: 6px 12px;
+                margin-bottom: 0;
+                font-size: 14px;
+                font-weight: normal;
+                line-height: 1.428571429;
+                text-align: center;
+                vertical-align: middle;
+                cursor: pointer;
+                background-image: none;
+                border: 1px solid transparent;
+                border-radius: 4px;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                -ms-user-select: none;
+                -o-user-select: none;
+                user-select: none;
+                margin-left:20px;
+                }
+
+        #totalx,#colorx,#sizex {border-collapse: collapse;margin: 20px;text-align: center;}
+        #totalx td,#colorx td,#sizex td { border: 1px solid #cad9ea;
+            color: #666;
+            height: 30px;}
+        #totalx tr,#colorx tr,#sizex tr:nth-child(odd) {background: #fff;}
+        #totalx tr,#colorx tr,#sizex tr:nth-child(even) {background: #F5FAFA;}
+                
+
+    </style>
+</head>
+<body>
+    <br>
+    <br>
+    <input type="button" id="total" value="查看总数据报告" style="display: none;" class="btn btn-primary" onclick='show1({{ total|safe }})'>
+    <input type="button" id="color" value="查看颜色属性数据报告" style="display: none;" class="btn btn-primary" onclick='show2({{ color|safe }})'>
+    <input type="button" id="size" value="查看尺寸属性数据报告" style="display: none;" class="btn btn-primary" onclick='show3({{ size|safe }},{{ size_color|safe }})'>
+    <br>
+
+    <table  id="totalx" style="display: none;font-size: 17px;">
+        <tr>
+            <td>星级</td>
+            <td>评论总数</td>
+        </tr>
+    </table>
+
+
+    <table  id="colorx" style="display: none;font-size: 17px;">
+        <tr>
+            <td></td>
+            <td>5.0</td>
+            <td>4.0</td>
+            <td>3.0</td>
+            <td>2.0</td>
+            <td>1.0</td>
+            <td>总数</td>
+        </tr>
+    </table>
+
+    <table  id="sizex" style="display: none;font-size: 17px;">
+        <tr id="size_num">
+            <td></td>
+        </tr>
+    </table>
+    <br>
+    <br>
+    <script>
+        if(JSON.stringify({{ total|safe}}) != "[]"){$('#total').css("display","inline-block");}
+        if(JSON.stringify({{ color|safe}}) != "[]"){$('#color').css("display","inline-block");}
+        if(JSON.stringify({{ size|safe}}) != "[]"){$('#size').css("display","inline-block");}
+        var flag1 = true;
+        var flag2 = true;
+        var flag3 = true;
+        function show1(data){
+            if(flag1){
+                flag1 = false;
+                for(i=0;i<data.length;i++)
+                {   var obj = data[i];
+                    $("#totalx").append('<tr><td>'+obj[0]+'</td><td>'+obj[1]+'</td></tr>');}
+                $('#totalx').css("display","inline-block");
+            }
+        }
+
+        function show2(data){
+            if(flag2) {
+                flag2 = false;
+                for (i = 0; i < data.length; i++) {
+                    var obj = data[i];
+                    $("#colorx").append('<tr><td>' + obj[0] + '</td><td>' + obj[1] + '</td><td>' + obj[2] + '</td><td>' + obj[3] + '</td><td>' + obj[4] + '</td><td>' + obj[5] + '</td><td>' + obj[6] + '</td></tr>');
+                }
+                $('#colorx').css("display", "inline-block");
+            }
+        }
+
+        function show3(data1,data2) {
+            if (flag3) {
+                flag3 = false;
+                for (i = 0; i < data1.length; i++) {
+                    var obj = data1[i];
+                    $("#size_num").append('<td>' + obj[0] + '</td>');
+                }
+                $("#size_num").append('<td>总数</td>');
+
+                for (j = 0; j < data2.length; j++) {
+
+                    var obj = data2[j];
+                    var s = '';
+                    for (k = 0; k < obj.length; k++) {
+                        s += '<td>' + obj[k] + '</td>';
+                    }
+                    $("#sizex").append('<tr>' + s + '</tr>');
+                }
+                $('#sizex').css("display", "inline-block");
+
+            }
+        }
+    </script>
+</body>
+</html>

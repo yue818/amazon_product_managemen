@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<script>
+    var idx = parent.layer.getFrameIndex(window.name);
+    function change_image(num){
+        top.img_path = '';
+        top.flag = 0;
+        top.layer.open({
+            type: 2,
+            skin: 'layui-layer-lan', //加上边框
+            shadeClose: true,
+            area: ['600px', '300px'], //宽高
+            content: '/change_image/?abc={{ productid }}',
+            end: function(index){
+                if (top.flag == 1){
+                    console.log('imgs_' + num);
+                    document.getElementById(num).src = top.img_path;
+                    document.getElementById('imgs_' + num).value = top.img_path;
+                }
+            },
+        });
+    };
+
+    function to_submitOK() {
+        document.getElementById('updateform').submit();
+    };
+
+    function to_submitNO() {
+       parent.document.getElementById("layui-layer-shade1").style.display="none";
+       parent.document.getElementById("layui-layer1").style.display="none";
+
+    };
+
+</script>
+<head>
+    <style>
+    <!-- css样式也可以写在这里 -->
+    body{
+    margin:0;/* 外边距0 */
+    padding:0;/* 内边距0 */
+    font:12px/1.8 '微软雅黑';/*  设置页面的字体大小，行高（没记错的话），字体*/
+    }
+    .btn1{
+    color: #ffffff;
+    background-color: #428bca;
+    border-color: #357ebd;
+    display: inline-block;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-size: 30px;
+    font-weight: normal;
+    line-height: 1.428571429;
+    text-align: center;
+    vertical-align: 20px;
+    cursor: pointer;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+        height: 80px;
+        width: 120px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+        position: absolute;
+        top:300px;
+        left: 250px;
+    }
+    .btn2{
+    color: #ffffff;
+    background-color: #428bca;
+    border-color: #357ebd;
+    display: inline-block;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-size: 30px;
+    font-weight: normal;
+    line-height: 1.428571429;
+    text-align: center;
+    vertical-align: 20px;
+    cursor: pointer;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+        height: 80px;
+        width: 120px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+        position: absolute;
+        top:300px;
+        left: 800px;
+    }
+    td{
+        /*border: 0.05px solid #dddddd;*/
+		text-align:center;
+	    font-size:40px;
+        color:red;
+	    height:30px;
+	}
+    </style>
+</head>
+<body>
+
+    <form id="updateform" name="updateform" action="/t_cloth_factor_eidt/update_applyInfo/" method="POST">
+        <table align="center">
+            <br>
+            <br>
+            <tr>
+                <td>【{{ sku|safe }}】商品已在派单流程，当前处于未关闭状态</td><br>
+            </tr>
+            <tr>
+                <td>是否继续对【{{ sku|safe }}】商品新增派单？</td>
+            </tr>
+            <tr>
+                <td>
+                    <input type="button" class="btn1" onclick="to_submitOK()" value="是">
+                </td>
+                <td>
+                    <input type="button" class="btn2" onclick="to_submitNO()" value="否">
+                </td>
+            </tr>
+            <tr>
+                <input type="hidden" name="sku_hidden" value="{{ sku|safe }}" />
+                <input type="hidden" name="no_hidden" id="no_hidden" value="yes" />
+            </tr>
+        </table>
+    {% csrf_token %}
+    </form>
+</body>
+</html>

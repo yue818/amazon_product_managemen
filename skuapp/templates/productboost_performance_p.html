@@ -1,0 +1,114 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>每日表现</title>
+        <style type="text/css">
+        .btn_1{
+			display: inline-block;
+	        padding: 6px 12px;
+	        margin-bottom: 0;
+	        font-size: 14px;
+	        font-weight: normal;
+	        line-height: 1.428571429;
+	        text-align: center;
+	        vertical-align: middle;
+	        cursor: pointer;
+	        background-image: none;
+	        border: 1px solid transparent;
+	        border-radius: 6px;
+	        -webkit-user-select: none;
+	        -moz-user-select: none;
+	        color: #ffffff;
+		    background-color: #555555;
+		}
+        </style>
+
+    </head>
+    <body>
+        <script src="/static/highcharts/jquery-1.8.3.min.js"></script>
+	    <script src="/static/highcharts/highcharts.js"></script>
+	    <script src="/static/highcharts/modules/exporting.js"></script>
+	    <script src="/static/highcharts/highcharts-zh_CN.js"></script>
+        <div>
+            <table border="0" cellpadding="0" cellspacing="0" style="margin-left:auto; margin-right:auto;">
+                <tr>
+                    <td>
+                        <div id="container" style="width:1500px;height:500px" align="center"></div>
+                    </td>
+                </tr>
+            </table>
+            <script type="text/javascript">
+				var chart;
+				$(document).ready(function() {
+					chart = new Highcharts.Chart({
+						chart: {
+							renderTo: 'container',
+							type: 'spline',
+							plotBackgroundColor: null,
+							plotBorderWidth: null,
+							plotShadow: false
+						},
+						title: {
+							text: '业绩表现'
+						},
+						subtitle: {
+							text: '{{title}}'
+						},
+						xAxis: {
+							categories: {{ datelist|safe}},
+							crosshair: true
+						},
+						yAxis:  [{
+                                min: 0,
+                                title: {
+                                    text: '统计量'
+                                }
+                            },
+                            {min: 0,
+                            title: {
+                            text: '统计值'
+                            },
+                            opposite: true
+                            }
+                        ],
+						tooltip: {
+							headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+							pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+							'<td style="padding:0"><b>{point.y:.2f}</b></td></tr>',
+							footerFormat: '</table>',
+							shared: true,
+							useHTML: true
+						},
+						plotOptions: {
+							column: {
+								borderWidth: 0
+							}
+						},
+						series: [{
+							name: '总曝光量',
+							data: {{ impressions}}
+						},{
+							name: '付费曝光量',
+							data: {{ paid_impressions}}
+						},
+                        {
+                            type: 'column',
+							name: '订单数',
+							data: {{ sales}},
+							yAxis: 1
+						},
+                        {
+                            type: 'column',
+							name: '销售额',
+							data: {{ gmv}},
+							yAxis: 1
+						}]
+					});
+				});
+            </script>
+            <div>
+                <button id="btc1" class="btn_1" onclick="location.href='{{sourceURL}}'" ><span style="color:#ffffff;">返回上一页</span></button>
+            </div>
+        </div>
+    </body>
+</html>

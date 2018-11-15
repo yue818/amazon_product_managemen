@@ -1,0 +1,72 @@
+<div class="panel panel-default fieldset unsort " id="box-8">
+    <div class="panel-heading">
+        <i class="icon fa fa-chevron-up chevron"></i>
+        <h3 class="panel-title">服装三级分类选择</h3>
+    </div>
+    <div class="panel-body ">
+        <div class="form-inline form-group">
+            <div id="div_id_ClothingSystem1" class="form-group col-sm-6">
+                <label for="id_ClothingSystem1" class="control-label " style="float:left;width: 170px;padding-top: 22px !important;text-align: right">
+                服装一级分类<span class="asteriskField">*</span> </label>
+                <div class="controls "  style="float:left;">
+                    <input style="width: 300px" class="text-field admintextinputwidget form-control" id="id_ClothingSystem1" maxlength="32" name="ClothingSystem1" type="text" readonly="readonly" value="{{ one }}">
+                    <input id="id_ClothingSystem1_copy" name="ClothingSystem1_copy" type="hidden" value="{{ one }}">
+                </div>
+            </div>
+            <div id="div_id_ClothingSystem2" class="form-group col-sm-6">
+                <label for="id_ClothingSystem2" class="control-label "  style="float:left;width: 170px;padding-top: 22px !important;text-align: right">
+                服装二级分类<span class="asteriskField">*</span> </label>
+                <div class="controls "  style="float:left;">
+                    <input style="width: 300px" class="text-field admintextinputwidget form-control" id="id_ClothingSystem2" maxlength="32" name="ClothingSystem2" type="text" readonly="readonly" value="{{ two }}">
+                    <input id="id_ClothingSystem2_copy" name="ClothingSystem2_copy" type="hidden" value="{{ two }}">
+                </div>
+            </div>
+            <div id="div_id_ClothingSystem3" class="form-group col-sm-6">
+                <label for="id_ClothingSystem3" class="control-label "  style="float:left;width: 170px;padding-top: 22px !important;text-align: right">
+                服装三级分类<span class="asteriskField">*</span> </label>
+                <div class="controls "  style="float:left;">
+                    <input style="width: 300px" class="text-field admintextinputwidget form-control" id="id_ClothingSystem3" maxlength="32" name="ClothingSystem3" type="text" readonly="readonly" value="{{ three }}">
+                    <input id="id_ClothingSystem3_copy" name="ClothingSystem3_copy" type="hidden" value="{{ three }}">
+                </div>
+            </div>
+            <div id="div_Choice" class="form-group col-sm-6">
+                <div class="controls "  style="float:left;width: 190px;text-align:right;">
+                    <button type="button" class="btn btn-primary" onclick="to_Chioce()">
+                        <span style="color:#ffffff;">选择三级分类</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function to_Chioce() {
+        top.onevalue = '';
+        top.onelook = '';
+        top.twovalue = '';
+        top.twolook = '';
+        top.threevalue = '';
+        top.threelook = '';
+        top.flag = 0;
+        layer.open({
+            type:2,
+            skin:'layui-layer-lan',
+            title:'请选择大小类',
+            fix:false,
+            shadeClose: true,
+            maxmin:true,
+            area:['500px','400px'],
+            content:'/chioce_three_cate_of_clothing/',
+            end: function(index){
+                if (top.flag == 1){
+                    document.getElementById('id_ClothingSystem1').value = top.onelook;
+                    document.getElementById('id_ClothingSystem1_copy').value = top.onevalue;
+                    document.getElementById('id_ClothingSystem2').value = top.twolook;
+                    document.getElementById('id_ClothingSystem2_copy').value = top.twovalue;
+                    document.getElementById('id_ClothingSystem3').value = top.threelook;
+                    document.getElementById('id_ClothingSystem3_copy').value = top.threevalue;
+                }
+            }
+        });
+    }
+</script>

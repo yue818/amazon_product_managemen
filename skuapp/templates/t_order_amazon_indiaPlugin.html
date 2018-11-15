@@ -1,0 +1,116 @@
+<style type="text/css">
+
+        .navbar-nav{
+                display:none;
+            }
+        .hide-xs{margin-top:-55px;margin-right:-15px;}
+</style>
+<table align="center" border="1">
+    <tbody>
+        <tr>
+            <td>卖家信息:</td>
+            <td>姓名：{{t_shop_amazon_india_obj.ShopUserName}}<br/>
+            电话：{{t_shop_amazon_india_obj.Mobile}}<br/>
+            地址：{{t_shop_amazon_india_obj.PostCode}},&nbsp;
+            {{t_shop_amazon_india_obj.Company}},&nbsp;
+            {{t_shop_amazon_india_obj.UserAdress}}</td>
+        </tr>
+        <tr>
+            <td>收货详情:</td>
+            <td>
+            姓名：{{t_order_amazon_india_obj.shipName}}<br/>
+            电话：{{t_order_amazon_india_obj.shipPhone}}<br/>
+            地址：{{t_order_amazon_india_obj.shipCountryCode}},&nbsp;
+            {{t_order_amazon_india_obj.shipStateOrRegion}},&nbsp;
+            {{t_order_amazon_india_obj.shipCity}},&nbsp;
+            {{t_order_amazon_india_obj.shipPostalCode}},<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{t_order_amazon_india_obj.shipAddressLine1}},<br/>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{t_order_amazon_india_obj.shipAddressLine2}}
+            </td>
+        </tr>
+        <tr>
+            <td>商品信息:</td>
+            <td>
+                <table>
+                {% for toiaio in toiaios %}
+                    <td>
+                        商品SKU：{% if toiaio.SKU != '' %}
+                                        {{toiaio.SKU}}<br/>
+                                 {% else %}
+                                        未绑定店铺SKU！！！<br/>
+                                 {% endif %}
+                        订单总数：{{toiaio.QuantityOrdered}}<br/>
+                        商品价格：{{toiaio.goods_amount}}<br/>
+                        是否带电：{{toiaio.IsCharged}}<br/>
+                        发票要求：{% if toiaio.InvoiceRequirement == 'Individual' or toiaio.InvoiceRequirement == 'Consolidated' %}
+                                        {{toiaio.InvoiceRequirement}}<br/>
+                                 {% else %}
+                                        否<br/>
+                                 {% endif %}
+                        报关中文名：<input id="aliasCnName_{{toiaio.id}}" value="{{toiaio.AliasCnName}}"><br/>
+                        报关英文名：<input id="aliasEnName_{{toiaio.id}}" value="{{toiaio.AliasEnName}}">
+                        <input type="hidden" name="goodsnum" value="{{toiaio.id}}">
+                    </td>
+                {% endfor %}
+                </table>
+            </td>
+        </tr>
+        <tr><td>备注:</td><td><input id="order_notes_{{id}}"></td></tr>
+        <tr><td>箱数:</td><td><input id="pQuantity_{{id}}" value="1"></td></tr>
+
+    </tbody>
+
+</table>
+<div align="center">
+    <table>
+        <tr>
+            <td>
+                <button id="apply_track_confirm" value="确认" onclick="applyTrackConfirm()">确认</button>
+            </td>
+            <td>
+                <button id="apply_track_cancel" value="重置" onclick="applyTrackCancel()">重置</button>
+            </td>
+        </tr>
+    </table>
+</div>
+<input type="hidden" id="num" value="{{num}}">
+<input type="hidden" id="id" value="{{id}}">
+<input type="hidden" id="url" value="{{turl}}">
+<input type="hidden" id="canTrack" value="{{canTrack}}">
+<input type="hidden" id="track_server" value="{{track_server}}">
+<input type="hidden" id="trackTime" value="{{trackTime}}">
+<script type="text/javascript">
+    function applyTrackConfirm() {
+        var aid = document.getElementById("id").value;
+        var canTrack = document.getElementById("canTrack").value;
+        var pQuantity = document.getElementById("pQuantity_"+aid).value;
+        if(canTrack == '0'){
+            var goodsnum = document.getElementsByName('goodsnum');
+            var aliasCnNames = '{'
+            var aliasEnNames = '{'
+            for(var i = 0; i < goodsnum.length; i++){
+                var goodsid = goodsnum[i].value;
+                var aliasCnName = document.getElementById("aliasCnName_"+goodsid).value;
+                var aliasEnName = document.getElementById("aliasEnName_"+goodsid).value;
+                aliasCnNames += '"'+goodsid+'":"'+aliasCnName+'",'
+                aliasEnNames += '"'+goodsid+'":"'+aliasEnName+'",'
+            }
+            aliasCnNames = aliasCnNames.slice(0,-1) + '}';
+            aliasEnNames = aliasEnNames.slice(0,-1)  + '}';
+            var turl = document.getElementById("url").value;
+            var track_server = document.getElementById("track_server").value;
+            var order_notes = document.getElementById("order_notes_"+aid).value;
+            var trackTime = document.getElementById("trackTime").value;
+            turl = turl.replace('_p_ShopName__exact','shopname');
+            var click_url = turl + '&order_id='+aid+'&pQuantity='+pQuantity+'&track_server='+track_server+
+                '&order_notes='+order_notes+'&aliasCnNames='+aliasCnNames+'&aliasEnNames='+aliasEnNames+'&trackTime='+trackTime;
+//            +'&aliasCnName='+aliasCnName+'&aliasEnName='+aliasEnName
+            window.location.href=click_url;
+        }
+
+    }
+    function applyTrackCancel(){
+        document.getElementById("order_notes").value = '';
+        document.getElementById("pQuantity").value = '';
+    }
+</script>

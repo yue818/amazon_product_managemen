@@ -1,0 +1,21 @@
+<link href="/static/xadmin/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+<table align="center" class="table table-hover">
+    <thead>
+        <tr align="center">
+            <th style="text-align:center">类型</th>
+            <th style="text-align:center">变体名</th>
+            <th style="text-align:center">店铺SKU</th>
+            <th style="text-align:center">包装数</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for variation in prodcut_variation_list %}
+            <tr align="center">
+                <td>{{ variation.variation_theme }}</td>
+                <td>{{ variation.variation_value }}</td>
+                <td>{{ variation.child_sku }}</td>
+                <td>{{ variation.item_quantity }}</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

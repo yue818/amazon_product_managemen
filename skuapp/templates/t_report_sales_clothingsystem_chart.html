@@ -1,0 +1,98 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>基础柱形图</title>
+        <style type="text/css">
+                .btn_1{
+                    display: inline-block;
+                    padding: 6px 12px;
+                    margin-bottom: 0;
+                    font-size: 14px;
+                    font-weight: normal;
+                    line-height: 1.428571429;
+                    text-align: center;
+                    vertical-align: middle;
+                    cursor: pointer;
+                    background-image: none;
+                    border: 1px solid transparent;
+                    border-radius: 6px;
+                    -webkit-user-select: none;
+                    -moz-user-select: none;
+                    color: #ffffff;
+                    background-color: #555555;
+                }
+
+                a{
+                    text-decoration: none;
+                }
+        </style>
+
+    </head>
+    <body>
+        <script src="/static/highcharts/jquery-1.8.3.min.js"></script>
+	    <script src="/static/highcharts/highcharts.js"></script>
+	    <script src="/static/highcharts/modules/exporting.js"></script>
+	    <script src="/static/highcharts/highcharts-zh_CN.js"></script>
+        <div>
+            <table border="0" cellpadding="0" cellspacing="0" style="margin-left:auto; margin-right:auto;">
+                <tr>
+                    <td>
+                        <div id="container" style="width:1400px;height:500px" align="center"></div>
+                    </td>
+                </tr>
+            </table>
+            <script type="text/javascript">
+				var chart;  
+				$(document).ready(function() {  
+					chart = new Highcharts.Chart({  
+						chart: {  
+							renderTo: 'container', 
+							type: 'column',
+							plotBackgroundColor: null,  
+							plotBorderWidth: null,  
+							plotShadow: false  
+						},  
+						title: {
+							text: '{{title}}'
+						},
+						subtitle: {
+							text: '数据来源: online'
+						},
+						xAxis: {
+							categories: {{ date_data|safe}},
+							crosshair: true
+						},
+						yAxis: {
+							min: 0,
+							title: {
+								text: '销售量 (件)'
+							}
+						},
+						tooltip: {
+							headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+							pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+							'<td style="padding:0"><b>{point.y:.1f} 件</b></td></tr>',
+							footerFormat: '</table>',
+							shared: true,
+							useHTML: true
+						},
+						plotOptions: {
+							column: {
+								borderWidth: 0
+							}
+						},
+						series: [{
+							name: '服装体系',
+							data: {{ sales_data}}
+						} ]
+					});
+				});
+            </script>
+
+            <button type="hidden" id="flag" value="{{ flag }}"></button>
+            <a class="btn_1" href="/Project/admin/skuapp/t_report_sales_clothingsystem/?cate=day" id="btc1">日统计</a>
+            <a class="btn_1" href="/Project/admin/skuapp/t_report_sales_clothingsystem/?cate=week" id="btc2">周统计</a>
+            <a class="btn_1" href="/Project/admin/skuapp/t_report_sales_clothingsystem/?cate=month" id="btc3">月统计</a>
+        </div>
+    </body>
+</html>

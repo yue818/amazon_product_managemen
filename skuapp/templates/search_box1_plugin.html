@@ -1,0 +1,1135 @@
+<script type="text/javascript" src="http://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+<style type="text/css">
+        .myInput {
+            line-height: 22px;
+        }
+        input[type=checkbox]:after  {
+            content: "";
+            display:block;
+            width: 14px;
+            height: 14px;
+            text-align: center;
+            line-height: 25px;
+            font-size: 16px;
+            color: #fff;
+            border: 2px solid #ddd;
+            background-color: #fff;
+            box-sizing:border-box;
+        }
+        input[type=checkbox]:checked:after  {
+            border: 2px solid #ddd;
+            background-color: #37AF6E;
+        }
+        input[type=radio],input[type=checkbox]  {
+            display: inline-block;
+            vertical-align: middle;
+            width: 14px;
+            height: 14px;
+            -webkit-appearance: none;
+            background-color: transparent;
+            border: 0;
+            outline: 0 !important;
+            line-height: 25px;
+            color: #d8d8d8;
+        }
+        input[type=radio]:after  {
+            content: "";
+            display:block;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            text-align: center;
+            line-height:25px;
+            font-size: 16px;
+            color: #fff;
+            border: 2px solid #ddd;
+            background-color: #fff;
+            box-sizing:border-box;
+        }
+        input[type=radio]:checked:after  {
+            content: "";
+            transform:matrix(-0.766044,-0.642788,-0.642788,0.766044,0,0);
+            -webkit-transform:matrix(-0.766044,-0.642788,-0.642788,0.766044,0,0);
+            border-color: #37AF6E;
+            background-color: #37AF6E;
+        }
+        
+        {% if AAA == 't_product_b_goods' %}
+        #add {
+            display: none
+        }
+        {% endif %}
+
+        
+        
+        
+        .border1 { 
+                  border-spacing:5px;
+                  margin-top:-15px;
+                  padding-left:5px;
+                  width:100%;align:left;
+                  border-radius:5px;
+                  }
+        .td1 {font-size: 15px;width:20px; align:left;}
+        .tr1 {  width:500px;
+                border-top:1px solid #ddd;
+                border-left:0px;
+                border-right:0px;
+                border-bottom:1px solid #ddd;
+                margin-top:8px;}
+
+        
+        .hide-xs{margin-top:15px;margin-right:-15px;}
+        
+        .td3 {width:5px;align:left;font-size: 15px;}
+        .btn_1{
+            display: inline-block;
+            padding: 6px 12px;
+            margin-bottom: 0;
+            font-size: 14px;
+            font-weight: normal;
+            line-height: 1.428571429;
+            text-align: center;
+            vertical-align: middle;
+            cursor: pointer;
+            background-image: none;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            color: #ffffff;
+            background-color: #555555;
+        }
+
+        .item {
+                padding: 3px 5px;
+                cursor: pointer;
+                }
+        .addbg {
+                background: #2abbeb;
+                }
+        #append {
+
+                overflow:scroll;
+                border: solid #2abbeb 2px;
+                border-top: 0;
+                display: none;
+                }
+        #append2 {
+
+                overflow:scroll;
+                border: solid #2abbeb 2px;
+                border-top: 0;
+                display: none;
+                }
+        #append3 {
+
+                overflow:scroll;
+                border: solid #2abbeb 2px;
+                border-top: 0;
+                display: none;
+                }
+        #append4 {
+
+                overflow:scroll;
+                border: solid #2abbeb 2px;
+                border-top: 0;
+                display: none;
+                }
+
+</style>
+<script type="text/javascript">
+    $(document).ready(function(){
+        var countFor = document.getElementsByName('count');
+        var input_id1 = document.getElementsByName('input_id1');
+        for(var i = 0; i < countFor.length; i++){
+            var idx = input_id1[i].value
+            var sel = document.getElementById('select' + idx).value;
+            var dvalue = document.getElementById('dvalue' + idx).value;
+            var nameid = document.getElementById('id_' + idx).value;
+            if(sel==2){
+                var check = document.getElementsByName('checkbox' + nameid + '[]');
+                var vlist = dvalue.split(',');
+                for(var j=0; j<check.length; j++){
+                    for(var l=0; l<vlist.length; l++){
+                        if(check[j].value == vlist[l]) check[j].checked=true;
+                    }
+                }
+            }else if(sel == 1) {
+                var radio = document.getElementsByName('radio' + nameid + '[]');
+                for(var j=0; j<radio.length; j++){
+                    if(radio[j].value == dvalue) radio[j].checked=true;
+                }
+            }else if(sel == 3) {
+                var selec = document.getElementById('select_' + idx);
+                for(var j=0; j<selec.length; j++){
+                    if(selec.options[j].value == dvalue) selec.options[j].selected=true;
+                }
+            }
+        }
+    });
+    Date.prototype.format = function(fmt) {
+        var o = {
+            "M+" : this.getMonth()+1,                 //月份
+            "d+" : this.getDate(),                    //日
+            "h+" : this.getHours(),                   //小时
+            "m+" : this.getMinutes(),                 //分
+            "s+" : this.getSeconds(),                 //秒
+            "q+" : Math.floor((this.getMonth()+3)/3), //季度
+            "S"  : this.getMilliseconds()             //毫秒
+        };
+        if(/(y+)/.test(fmt)) {
+            fmt=fmt.replace(RegExp.$1, (this.getFullYear()+"").substr(4 - RegExp.$1.length));
+        }
+        for(var k in o) {
+            if(new RegExp("("+ k +")").test(fmt)){
+                fmt = fmt.replace(RegExp.$1, (RegExp.$1.length==1) ? (o[k]) : (("00"+ o[k]).substr((""+ o[k]).length)));
+            }
+        }
+        return fmt;
+    }
+    function mySearch() {
+        var validation = true;
+        var countFor = document.getElementsByName('count');
+        var urlstr = document.getElementById('url').value;
+        var input_id1 = document.getElementsByName('input_id1');
+        for(var i = 0; i < countFor.length; i++) {
+            var idx = input_id1[i].value
+            var sel = document.getElementById('select' + idx).value;
+            var ul1 = document.getElementById('urlname' + idx).value;
+            var nameid = document.getElementById('id_' + idx).value;
+            if (sel == 1) {
+                var radio = document.getElementsByName('radio' + nameid + '[]');
+                var conditions = '';
+                for (var j = 0; j < radio.length; j++) {
+                    if (radio[j].checked) {
+                        conditions += radio[j].value;
+                        break;
+                    }
+                }
+            } else if (sel == 2) {
+                var check = document.getElementsByName('checkbox' + nameid + '[]');
+                var conditions = '';
+                for (var j = 0; j < check.length; j++) {
+                    if (check[j].checked) {
+                        conditions += check[j].value + ',';
+                    }
+                }
+                conditions = conditions.slice(0, -1);
+            } else if (sel == 3) {
+                var selec = document.getElementById('select_' + idx);
+                var index = selec.selectedIndex;
+                if(index != -1){
+                var conditions = selec.options[index].value;
+                }
+            } else {
+                var conditions = document.getElementById('value' + idx).value;
+            }
+            if(ul1 == "shopSKU"){
+                conditions = escape(conditions);
+            }
+            if(ul1 == "ShopName"){
+                conditions = conditions.replace(/(^\s*)|(\s*$)/g, "")
+                conditions = encodeURIComponent(conditions);
+            }
+            if(ul1 == "LargeCategory"){
+                conditions = conditions.replace(/(^\s*)|(\s*$)/g, "")
+                conditions = encodeURIComponent(conditions);
+            }
+            if (ul1 == "ShopName_ZY")
+            {
+                conditions = conditions.replace("/","%2F")
+                conditions = conditions.replace(/(^\s*)|(\s*$)/g, "")
+            }
+            if (ul1 == "LinkUrl")
+            {
+                conditions = conditions.replace(/\//g,"%2F");
+                conditions = conditions.replace(":","%3A");
+            }
+            if ((conditions != null) && (conditions != "") && (conditions.replace(/(^s*)|(s*$)/g, "").length > 0)) {
+                urlstr += ul1 + '=' + conditions + '&';
+            }
+        }
+
+
+        var countTwo = document.getElementsByName('countTwo');
+        var input_id2 = document.getElementsByName('input_id2');
+        for(var i = 0; i < countTwo.length; i++) {
+            var idx = input_id2[i].value
+            var ul1 = document.getElementById('urlname1' + idx).value;
+            var ul2 = document.getElementById('urlname2' + idx).value;
+            var conditions1 = document.getElementById('value1' + idx).value;
+            var conditions2 = document.getElementById('value2' + idx).value;
+
+            var dateT = document.getElementById('date' + idx).value;
+            if ((conditions1 != null) && (conditions1 != "") && (conditions1.replace(/(^s*)|(s*$)/g, "").length > 0))
+            {
+                urlstr += ul1 + '=' + conditions1 + '&';
+            }
+            if ((conditions2 != null) && (conditions2 != "") && (conditions2.replace(/(^s*)|(s*$)/g, "").length > 0))
+            {
+                if(dateT==1){
+                    var endTime = new Date(Date.parse(conditions2));
+                    endTime.setDate(endTime.getDate()+1);
+                    conditions2 = endTime.format('yyyy-MM-dd');
+                }
+                urlstr += ul2 + '=' + conditions2 + '&';
+                
+            }
+            if(dateT==0){
+                if((conditions1 != null)&&(conditions2 != null)&&(conditions1 != '')&&(conditions2 != '')){
+                    var aa = parseInt(conditions1);
+                    var bb = parseInt(conditions2);
+                    if(aa > bb){
+                        validation = false;
+                        alert('数字输入错误！');
+                    }                    
+                }
+            }else {
+                if((conditions1 != null)&&(conditions2 != null)&&(conditions1 != '')&&(conditions2 != '')&&(conditions2<conditions1)){
+                    validation = false;
+                    alert('日期输入错误！');
+                }
+            }
+        }
+        urlstr = urlstr.slice(0,-1);
+
+        urlstr = urlstr.replace('?&','?');
+
+
+        var iCategory1 = document.getElementById("category1");
+        var iCategory2 = document.getElementById("category2");
+        var iCategory3 = document.getElementById("category3"); 
+
+        var params = new Array();
+        params['cate'] = '';
+
+        if(iCategory1.value != 0){
+            if(iCategory2.value !== 0) {
+                if(iCategory3.value !==0){
+                    params['cate'] = 'cate1=' + iCategory1.value + '&' + 'cate2=' + iCategory2.value+ '&' + 'cate3=' + iCategory3.value;
+                }
+                else {
+                    params['cate'] = 'cate1=' + iCategory1.value + '&' + 'cate2=' + iCategory2.value;
+                }
+            }
+
+            else{
+                  params['cate'] = 'cate1=' + iCategory1.value;
+
+            }
+        }
+
+        var url = '?';
+        for (var key in params){
+            if(params[key] != ''){
+                url = url + '&' + params[key]
+            }
+        }
+        if (url == '?'){
+            url = '';
+        }else{
+            url = url.replace('?&','?');
+        }
+        if(validation){
+            a=url;
+            b=urlstr;
+            n='?';
+            if (a ==''){
+                window.location.href = urlstr;
+            }
+
+            if( b.indexOf("?")==-1){
+                window.location.href = url;
+            }
+            if(a=='' && b.indexOf("?"==-1)){
+                window.location.href=urlstr;
+            }
+            c=url;
+            d=urlstr;
+            if (a!=''&& b!='' && b.indexOf("?")>=0 && c.replace('?','')!==null && d.replace('?','')!==null) {
+                url = url.replace('?','');
+                window.location.href =urlstr +'&'+ url;
+            }
+        }
+        else {
+            myReset();
+        }
+    }
+
+    function myReset() {
+        var countFor = document.getElementsByName('count');
+        var countTwo = document.getElementsByName('countTwo');
+        var input_id1 = document.getElementsByName('input_id1');
+        for(var i = 0; i < countFor.length; i++) {
+            var idx = input_id1[i].value
+            var sel = document.getElementById('select' + idx).value;
+            var nameid = document.getElementById('id_' + idx).value;
+            var dvalue1 = document.getElementById('dvalue' + idx).value;
+            if (sel == 0) {
+                var m = document.getElementById('value' + idx);
+                m.value = dvalue1;
+            } else if (sel == 2) {
+                var check = document.getElementsByName('checkbox' + nameid + '[]');
+                var vlist = dvalue1.split(',');
+                for (var j = 0; j < check.length; j++) {
+                    for (var l = 0; l < vlist.length; l++) {
+                        if (check[j].value == vlist[l]) {
+                            check[j].checked = true;
+                            break;
+                        }
+                    }
+                }
+            } else if (sel == 3) {
+                var selec = document.getElementById('select_' + idx);
+                for (var j = 0; j < selec.length; j++) {
+                    if (selec.options[j].value == dvalue1) selec.options[j].selected = true;
+                }
+            } else {
+                var radio = document.getElementsByName('radio' + nameid + '[]');
+                for (var j = 0; j < radio.length; j++) {
+                    if (radio[j].value == dvalue1) {
+                        radio[j].checked = true;
+                    }
+                }
+            }
+        }
+
+        var input_id2 = document.getElementsByName('input_id2');
+        for(var i = 0; i < countTwo.length; i++) {
+            var idx = input_id2[i].value
+            var dvalue1 = document.getElementById('dvalue1' + idx).value;
+            var dvalue2 = document.getElementById('dvalue2' + idx).value;
+            var m1 = document.getElementById('value1' + idx);
+            var m2 = document.getElementById('value2' + idx);
+            m1.value=dvalue1;
+            m2.value=dvalue2;
+        }
+    }
+
+    function clearAll(){
+        var countFor = document.getElementsByName('count');
+        var countTwo = document.getElementsByName('countTwo');
+        var input_id1 = document.getElementsByName('input_id1');
+        for(var i = 0; i < countFor.length; i++) {
+            var idx = input_id1[i].value
+            var sel = document.getElementById('select' + idx).value;
+            var m = document.getElementById('value' + idx);
+            var nameid = document.getElementById('id_' + idx).value;
+            if (sel == 0) {
+                m.value = '';
+            } else if (sel == 2) {
+                var check = document.getElementsByName('checkbox' + nameid + '[]');
+                for (var j = 0; j < check.length; j++) {
+                    check[j].checked = false;
+                }
+            } else if (sel == 3) {
+                var selec = document.getElementById('select_' + idx);
+                for (var j = 0; j < selec.length; j++) {
+                    if (selec.options[j].value == '') selec.options[j].selected = true;
+                }
+            } else {
+                var radio = document.getElementsByName('radio' + nameid + '[]');
+                for (var j = 0; j < radio.length; j++) {
+                    if (radio[j].value == '') {
+                        radio[j].checked = true;
+                    }
+                }
+            }
+        }
+
+        var input_id2 = document.getElementsByName('input_id2');
+        for(var i = 0; i < countTwo.length; i++) {
+            var idx = input_id2[i].value
+            var m1 = document.getElementById('value1' + idx);
+            var m2 = document.getElementById('value2' + idx);
+
+            m1.value='';
+            m2.value='';
+        }
+    }
+    function searchAll() {
+        var uu = document.getElementById('searchAll').value;
+        var lastuu = uu.slice(-1);
+        if(lastuu == '&'){
+            uu = uu.slice(0,-1);
+        }
+        document.getElementById('btc0').href = uu;
+    }
+
+    function checkNum(obj) {
+         //检查是否是非数字值
+         if (isNaN(obj.value)) {
+    
+             obj.value = "";
+         }
+         if (obj != null) {
+             //检查小数点后是否对于两位
+             if (obj.value.toString().split(".").length > 1 && obj.value.toString().split(".")[1].length > 2) {
+                 alert("小数点后多于两位！");
+                 obj.value = "";
+             }
+         }
+     }
+    $(document).ready(function() {
+        $(document).keydown(function(e) {
+            e = e || window.event;
+            var keycode = e.which ? e.which : e.keyCode;
+            if (keycode == 38) {
+                if (jQuery.trim($("#append").html()) == "") {
+                    return;
+            }
+            movePrev();
+            } else if (keycode == 40) {
+                if (jQuery.trim($("#append").html()) == "") {
+                return;
+            }
+            $("#value17").blur();
+            if ($(".item").hasClass("addbg")) {
+                moveNext();
+            } else {
+                $(".item").removeClass('addbg').eq(0).addClass('addbg');
+                }
+            } else if (keycode == 13) {
+                dojob();
+                }
+            });
+
+            var dojob = function() {
+            $("#value17").blur();
+            var value = $(".addbg").text();
+            $("#value17").val(value);
+            $("#append").hide().html("");
+            }
+        });
+
+    function getContent(obj) {
+        var ShopNameData = document.getElementById("ShopNameData").innerText.replace(/(^\s*)|(\s*$)/g, "").replace("[", '').replace(']', '');
+        ShopNameData = unescape(ShopNameData.replace(/\\u/g, '%u'));
+        ShopNameData = ShopNameData.split(",");
+        var value17 = jQuery.trim($(obj).val());
+        if (value17 == "") {
+            $("#append").hide().html("");
+            return false;
+        }
+        var html = "";
+        for (var i = 0; i < ShopNameData.length; i++) {
+            if (ShopNameData[i].indexOf(value17) >= 0) {
+                html = html + "<div class='item' onmouseenter='getFocus(this)' onClick='getCon(this);'>" + ShopNameData[i].replace(/'/g, "").replace('u', '') + "</div>"
+            }
+        }
+        if (html != "") {
+            $("#append").show().html(html);
+        } else {
+            $("#append").hide().html("");
+        }
+    }
+
+    function getContent2(obj) {
+        var SupplierData = document.getElementById("SupplierData").innerText.replace(/(^\s*)|(\s*$)/g, "").replace("[", '').replace(']', '');
+        SupplierData = SupplierData.split(",");
+        var value12 = jQuery.trim($(obj).val());
+        if (value12 == "") {
+            $("#append2").hide().html("");
+            return false;
+        }
+        var html = "";
+        for (var i = 0; i < SupplierData.length; i++) {
+            if (SupplierData[i].indexOf(value12) >= 0) {
+                html = html + "<div class='item' onmouseenter='getFocus(this)' onClick='getCon(this);'>" + decodeURIComponent(SupplierData[i]).replace(/'/g, "") + "</div>"
+            }
+        }
+        if (html != "") {
+            $("#append2").show().html(html);
+            } else {
+            $("#append2").hide().html("");
+            }
+        }
+        function getContent3(obj) {
+            var shopNData = document.getElementById("shopNData").innerText.replace(/(^\s*)|(\s*$)/g, "").replace("[",'').replace(']','');
+            shopNData = shopNData.split(",");
+            var value3 = jQuery.trim($(obj).val());
+            if (value3 == "") {
+            $("#append3").hide().html("");
+            return false;
+            }
+            var html = "";
+            for (var i = 0; i < shopNData.length; i++) {
+            if (shopNData[i].indexOf(value3) >= 0) {
+                html = html + "<div class='item' onmouseenter='getFocus(this)' onClick='getCon1(this);'>" + shopNData[i].replace(/'/g,"") + "</div>"
+                }
+            }
+            if (html != "") {
+            $("#append3").show().html(html);
+            } else {
+            $("#append3").hide().html("");
+            }
+        }
+        function getContent4(obj) {
+            var Create_manData = document.getElementById("Create_manData").innerText.replace(/(^\s*)|(\s*$)/g, "").replace("[",'').replace(']','');
+            Create_manData = Create_manData.split(",");
+            var value5 = jQuery.trim($(obj).val());
+            if (value5 == "") {
+            $("#append4").hide().html("");
+            return false;
+            }
+            var html = "";
+            for (var i = 0; i < Create_manData.length; i++) {
+            if (Create_manData[i].indexOf(value5) >= 0) {
+                html = html + "<div class='item' onmouseenter='getFocus(this)' onClick='getCon4(this);'>" + Create_manData[i].replace(/'/g,"") + "</div>"
+                }
+            }
+            if (html != "") {
+            $("#append4").show().html(html);
+            } else {
+            $("#append4").hide().html("");
+            }
+        }
+
+        function getFocus(obj) {
+            $(".item").removeClass("addbg");
+            $(obj).addClass("addbg");
+        }
+
+        function getCon(obj) {
+            var value = $(obj).text();
+            $("#value17").val(value);
+            $("#append").hide().html("");
+        }
+        function getCon1(obj) {
+            var value = $(obj).text();
+            $("#value3").val(value);
+            $("#append3").hide().html("");
+        }
+        function getCon4(obj) {
+            var value = $(obj).text();
+            $("#value5").val(value);
+            $("#append4").hide().html("");
+        }
+        function fideinfunShow() {
+        $('.border1').fadeIn();
+        $('#show').hide().html();
+        $('#hide').show().html();
+    }
+
+    function fideinfunHide() {
+        $('.border1').fadeOut('slow');
+        $('#show').show().html();
+        $('#hide').hide().html();
+    }
+
+    {% if  AAA  == 't_product_b_goods' %}
+        function clickOpt() {
+            var LargeCategory1 = document.getElementById("select_19");
+            var LargeCategory1_value = LargeCategory1.value;
+            var LargeCategory2 = document.getElementById("select_20");
+            var LargeCategory2_length = LargeCategory2.options.length;
+            var cat_Dic = document.getElementById("cat_Dic").innerText;
+            cat_Dic = unescape(cat_Dic.replace(/\\u/g, '%u')).replace(/u/g, '').replace(/'/g, '"');
+            {#alert(cat_Dic);#}
+            var obj = JSON.parse(cat_Dic);
+            {#alert(obj);#}
+            {#alert(LargeCategory1_value);#}
+            var myKey = "zy" + LargeCategory1_value.replace(".", "_");
+
+            if (LargeCategory2_length > 0) {
+                for (var i = 0; i < LargeCategory2_length; i++) {
+                    LargeCategory2.options.remove(0);
+                }
+                addOption('');
+            }
+            if (LargeCategory1_value != '') {
+                var list = obj[myKey];
+                if(list!=undefined) {
+                    {#alert(list);#}
+                    for (var i = 0; i < list.length; i++) {
+                        addOption(list[i])
+                    }
+                }
+            }
+        }
+
+        function addOption(val) {
+            var LargeCategory2 = document.getElementById("select_20");
+            var opt = document.createElement('option');
+            opt.text = val;
+            LargeCategory2.options.add(opt);
+        }
+        var html = "";
+        function sup_ajax() {
+            $.ajax({
+                url:"/TestAjax/",
+                type:"POST",
+                data:{
+                    "supplier":$("#value12").val(),
+                    "csrfmiddlewaretoken":$('[name="csrfmiddlewaretoken"]').val()
+                },
+                success:function (data) {
+                    html = '';
+                    var dataObj = JSON.parse(data);
+                    var supplierName = dataObj["msg"];
+                    if (value12 == "") {
+                        $("#append2").hide().html("");
+                        return false;
+                    }
+                    for (var i = 0; i < supplierName.length; i++) {
+                        html = html + "<div class='item' onmouseenter='getFocus(this)' onClick='getCon_sup(this);'>" + supplierName[i].replace(/'/g, "").replace('u', '') + "</div>"
+                    }
+                    if (html != "") {
+                        $("#append2").show().html(html);
+                    } else {
+                        $("#append2").hide().html("");
+                    }
+                }
+            })
+        }
+        function getCon_sup(obj) {
+            var value = $(obj).text();
+            $("#value12").val(value);
+            $("#append2").hide().html("");
+        }
+    {% endif %}
+
+    var dic1 = new Array();
+    dic1['0'] ={};
+    dic1['1.男款T恤'] ={'1.1印花短袖':'1.1印花短袖','1.2纯色短袖':'1.2纯色短袖'};
+    dic1['2.女款T恤'] ={'2.1印花短袖':'2.1印花短袖','2.2纯色短袖':'2.2纯色短袖'};
+    dic1['3.男款背心'] ={'3.1连帽背心':'3.1 连帽背心','3.2普通背心':'3.2普通背心'};
+    dic1['4.女款背心'] ={'4.1印花背心':'4.1 印花背心','4.2蕾丝背心':'4.2蕾丝背心','4.3纯色背心':'4.3纯色背心'};
+    dic1['5.男款长裤'] ={'5.1男款牛仔裤':'5.1男款牛仔裤'};
+    dic1['6.女款长裤'] ={'6.1连帽背心':'6.1连帽背心','6.2普通背心':'6.2普通背心'};
+    dic1['7.男款短裤'] ={'7.1普通':'7.1普通','7.2皮裤':'7.2皮裤','7.3牛仔短裤':'7.3牛仔短裤','7.4速干':'7.4速干'};
+    dic1['8.女款短裤'] ={'8.1普通':'8.1普通','8.2假两件':'8.2假两件','8.3高腰':'8.3高腰','8.4印花':'8.4印花'};
+    dic1['9.半身裙'] ={'9.1短裙':'9.1 短裙','9.2中长':'9.2中长','9.3拖地':'9.3拖地'};
+    dic1['10.连衣裙'] ={'10.1复古':'10.1复古','10.2雪纺':'10.2雪纺','10.3普通':'10.3普通','10.4穆斯林':'10.4穆斯林'};
+    dic1['11.连体衣'] ={'11.1丁字裤':'11.1丁字裤','11.2短款':'11.2短款','11.3长款':'11.3长款'};
+    dic1['12.泳装'] ={'12.1分体':'12.1分体','12.2连体':'12.2连体','12.3比基尼罩衫':'12.3比基尼罩衫','12.4泳裤':'12.4泳裤'};
+    var dic2 = new Array();
+    dic2['00'] = {};
+    dic2['1.1印花短袖'] ={'1.1.13D印花':'1.1.13D印花','1.1.2双面印花':'1.1.2双面印花','1.1.3普通印花':'1.1.3普通印花'};
+    dic2['1.2纯色短袖'] ={'1.2.1速干':'1.2.1速干','1.2.2堆堆领':'1.2.2堆堆领','1.2.3普通':'1.2.3普通','1.2.4烧花':'1.2.4烧花'};
+
+    dic2['2.1印花短袖'] ={'2.1.1普通印花':'2.1.1普通印花','2.1.23D印花':'2.1.23D印花','2.1.3蝙蝠袖':'2.1.3蝙蝠袖','2.1.4孕妇3D印花':'2.1.4孕妇3D印花',
+                     '2.1.5渐变色':'2.1.5渐变色','2.1.6露脐':'2.1.6露脐'};
+    dic2['2.2纯色短袖'] ={'2.2.1蝙蝠袖':'2.2.1蝙蝠袖','2.2.2露脐':'2.2.2露脐','2.2.3长款':'2.2.3长款','2.2.4蕾丝拼接':'2.2.4蕾丝拼接'};
+
+    dic2['3.1连帽背心'] ={'03.1.1印花':'3.1.1印花','3.1.2纯色':'3.1.2纯色','3.1.3拉链':'3.1.3拉链'};
+    dic2['3.2普通背心'] ={'3.2.1普通印花':'3.2.1普通印花','3.2.23D印花':'3.2.2 3D印花','3.2.3拼接':'3.2.3拼接','3.2.4拉链':'3.2.4拉链',
+                            '3.2.5网格':'3.2.5网格','3.2.6纯色':'3.2.6纯色'};
+
+    dic2['4.1印花背心'] ={'4.1.1普通印花':'4.1.1普通印花','4.1.23D印花':'4.1.23D印花','4.1.3烧花':'4.1.3烧花','4.1.4露脐':'4.1.4露脐','4.1.5绑带':'4.1.5绑带',
+                     '4.1.6印花吊带':'4.1.6印花吊带','4.1.7长款':'4.1.7长款'};
+    dic2['4.2蕾丝背心'] ={'4.2.1后背蕾丝拼接':'4.2.1后背蕾丝拼接'};
+    dic2['4.3纯色背心'] ={'4.3.1纯色吊带':'4.3.1纯色吊带','4.3.2雪纺':'4.3.2雪纺','4.3.3绑带':'4.3.3绑带'};
+
+    dic2['5.1男款牛仔裤'] ={};
+
+    dic2['6.1连帽背心'] ={'6.1.17分裤':'6.1.17分裤','6.1.2蕾丝拼接':'6.1.2蕾丝拼接','6.1.3喇叭裤':'6.1.3喇叭裤','6.1.4修身':'6.1.4修身','6.1.5破洞':'6.1.5破洞',
+                     '6.1.6贴花':'6.1.6贴花','6.1.7仿牛仔':'6.1.7仿牛仔'};
+    dic2['6.2普通背心'] ={'6.2.1印花瑜伽裤':'6.2.1印花瑜伽裤','6.2.2宽松':'6.2.2宽松','6.2.3绑带':'6.2.3绑带'};
+
+    dic2['7.1普通'] ={'7.1.1普通短裤':'7.1.1普通短裤'};
+    dic2['7.2皮裤'] ={'7.2.1皮短裤':'7.2.1皮短裤'};
+    dic2['7.3牛仔短裤'] ={'7.3.1仿牛仔':'7.3.1仿牛仔'};
+    dic2['7.4速干'] ={'7.4.1运动':'7.4.1运动','7.4.2弹力':'7.4.2弹力'};
+
+    dic2['8.1普通'] ={'8.1.1拼接':'8.1.1拼接','8.1.2天鹅绒':'8.1.2天鹅绒','8.1.3亮片':'8.1.3亮片','8.1.4系带':'8.1.4系带','8.1.5蕾丝':'8.1.5蕾丝',
+                     '8.1.6皮裤':'8.1.6皮裤','8.1.7速干':'8.1.7速干'};
+    dic2['8.2假两件'] ={'8.2.1撞色':'8.2.1撞色','8.2.2不规则':'8.2.2不规则'};
+    dic2['8.3高腰'] ={'8.3.1宽松':'8.3.1宽松','8.3.3紧身':'8.3.3紧身'};
+    dic2['8.4印花'] ={'8.4.1花边':'8.4.1花边','8.4.2抽绳':'8.4.2抽绳','8.4.3宽松':'8.4.3宽松','8.4.4情侣':'8.4.4情侣','8.4.5仿牛仔':'8.4.5仿牛仔'};
+
+    dic2['9.1短裙'] ={'9.1.1印花':'9.1.1印花','9.1.2拼接':'9.1.2拼接','9.1.3皮裙':'9.1.3皮裙','9.1.4普通包臀':'9.1.4普通包臀','9.1.5亮片':'9.1.5亮片',
+                     '9.1.6百褶裙':'9.1.6百褶裙','9.1.7假两件':'9.1.7假两件','9.1.8A字裙':'9.1.8A字裙'};
+    dic2['9.2中长'] ={'9.2.1印花':'9.2.1印花','9.2.2百褶':'9.2.2百褶','9.2.3普通包臀':'9.2.3普通包臀','9.2.4鱼尾':'9.2.4鱼尾','9.2.5褶皱':'9.2.5褶皱',
+                     '9.2.6 拼接':'9.2.6拼接','9.2.7皮裙':'9.2.7皮裙','9.2.8网纱裙':'9.2.8网纱裙','9.2.9A字裙':'9.2.9A字裙','9.2.10烧花':'9.2.10烧花','9.2.11烫金':'9.2.11烫金'};
+    dic2['9.3拖地'] ={'9.3.1普通':'9.3.1普通','9.3.2百褶':'9.3.2百褶','9.3.3数码':'9.3.3数码','9.3.4绑带':'9.3.4绑带'};
+
+    dic2['10.1复古'] ={'10.1.1挂脖':'10.1.1挂脖','10.1.2无袖':'10.1.2无袖','10.1.3短袖':'10.1.3短袖','10.1.4长袖':'10.1.4长袖'};
+    dic2['10.2雪纺'] ={'10.2.1长裙':'10.2.1长裙','10.2.2纯色衬衫裙':'10.2.2纯色衬衫裙','10.2.3蕾丝拼接':'10.2.3蕾丝拼接','10.2.4网纱拼接':'10.2.4网纱拼接',
+                        '10.2.5绑带':'10.2.5绑带','10.2.6碎花衬衫':'10.2.6碎花衬衫'};
+    dic2['10.3普通'] ={'10.3.1下摆宽松':'10.3.1下摆宽松','10.3.2拼接':'10.3.2拼接','10.3.3纯色包臀':'10.3.3纯色包臀','10.3.4印花包臀':'10.3.4印花包臀','10.3.5 烫金':'10.3.5烫金',
+                      '10.3.6褶皱':'10.3.6褶皱','10.3.7拉链':'10.3.7拉链','10.3.8烧花':'10.3.8烧花','10.3.9职业裙':'10.3.9职业裙','10.3.10绑带':'10.3.10绑带'};
+    dic2['10.4穆斯林'] ={'10.4.1花边':'10.4.1花边','10.4.2雪纺':'10.4.2雪纺','10.4.3蕾丝':'10.4.3蕾丝'};
+
+    dic2['11.1丁字裤'] ={'11.1.1纯色':'11.1.1纯色','11.1.2绑带':'11.1.2绑带','11.1.3烧花':'11.1.3烧花','11.1.4拼接':'11.1.4拼接','11.1.5皮质':'11.1.5皮质','11.1.6网纱':'11.1.6网纱'};
+    dic2['11.2短款'] ={'11.2.1吊带':'11.2.1吊带','11.2.2挂脖':'11.2.2挂脖','11.2.3抹胸':'11.2.3抹胸','11.2.4印花':'11.2.4印花','11.2.5喇叭袖':'11.2.5喇叭袖','11.2.6纯色':'11.2.6纯色',
+                      '11.2.7蕾丝':'11.2.7蕾丝','11.2.8拼接':'11.2.8拼接','11.2.9亮片':'11.2.9亮片'};
+    dic2['11.3长款'] ={'11.3.1雪纺':'11.3.1雪纺','11.3.2抹胸':'11.3.2抹胸','11.3.3抹胸':'11.3.3抹胸','11.3.4阔腿':'11.3.4阔腿','11.3.5拼接':'11.3.5拼接','11.3.6纯色':'11.3.6纯色',
+                      '11.3.7普通印花':'11.3.7普通印花','11.3.8破洞':'11.3.8破洞','11.3.9绑带':'11.3.9绑带'};
+
+    dic2['12.1 分体'] ={'12.1.1纯色':'12.1.1纯色','12.1.2印花':'12.1.2印花','12.1.3挂脖':'12.1.3挂脖','12.1.4绑带':'12.1.4绑带','12.1.5荷叶边':'12.1.5荷叶边','12.1.6亮片':'12.1.6亮片','12.1.7背心':'12.1.7背心'};
+    dic2['12.2 连体'] ={'12.2.1纯色':'12.2.1纯色','12.2.2假两件':'12.2.2假两件','12.2.3烧花':'12.2.3烧花','12.2.4褶皱':'12.2.4褶皱','12.2.5绑带':'12.2.5绑带','12.2.6网格拼接':'12.2.6网格拼接','12.2.7网格贴花':'12.2.7网格贴花',
+                      '12.2.8长袖':'12.2.8长袖','12.2.9荷叶边':'12.2.9荷叶边'};
+    dic2['12.3 比基尼罩衫'] ={'12.3.1印花':'12.3.1印花'};
+    dic2['12.4 泳裤'] ={'12.4.1丁字裤':'12.4.1丁字裤'};
+
+
+    function changeCategory1() {
+        var category1 = document.getElementById("category1");
+        var category2 = document.getElementById("category2");
+        var category2_dict = dic1[category1.value];
+
+        if(category2.value!='0'){
+            document.getElementById("category2").options.length = 0;
+            category2.options.add(new Option("全部","0"));
+        }
+
+
+        for (var key in category2_dict){
+            category2.options.add(new Option(category2_dict[key],key));
+
+        };
+
+    }
+
+    function changeCategory2() {
+        var category2 = document.getElementById("category2");
+        var category3 = document.getElementById("category3");
+        var category3_dict = dic2[category2.value];
+
+        category3.options.length=0;
+        category3.options.add(new Option("全部","0"));
+
+
+        for (var key in category3_dict){
+
+            category3.options.add(new Option(category3_dict[key],key));
+        };
+
+
+        if(category3.options.length == 1){
+
+                category3.disabled=true;
+                }
+            else{
+                category3.disabled=false;
+        }
+    }
+
+    window.onload=function(){
+        f1();
+        f2();
+    };
+
+    function f1() {
+        var category1 = document.getElementById("category1");
+        var category2 = document.getElementById("category2");
+
+        var value1 = category1.value;
+        var value2 = category2.value;
+        changeCategory1();
+        for (var i=0; i<category1.options.length; i++){
+            if (category1.options[i].value == value1){
+                category1.options[i].selected = true;
+            }
+        };
+        for (var i=0; i<category2.options.length; i++){
+            if (category2.options[i].value == value2){
+                category2.options[i].selected = true;
+            }
+        };
+
+    }
+
+    function f2() {
+        var category2 = document.getElementById("category2");
+        var category3 = document.getElementById("category3");
+
+        var value2 = category2.value;
+        var value3 = category3.value;
+        changeCategory2();
+
+        for (var i=0; i<category2.options.length; i++){
+            if (category2.options[i].value == value2){
+                category2.options[i].selected = true;
+            }
+        };
+        for (var i=0; i<category3.options.length; i++){
+            if (category3.options[i].value == value3){
+                category3.options[i].selected = true;
+            }
+
+        };
+
+    }
+
+
+
+
+
+</script>
+{% for input_id1 in inputs_id1 %}
+    <input name="input_id1" type="hidden" value="{{ input_id1 }}">
+{% endfor %}
+{% for input_id2 in inputs_id2 %}
+    <input name="input_id2" type="hidden" value="{{ input_id2 }}">
+{% endfor %}
+<input id="url" type="hidden" value="{{ newUrl }}">
+<br>
+
+
+<div style="width:100% ">
+<label id="ShopNameData" style="display:none">{{ ShopNameData }}</label>
+<label id="SupplierData" style="display:none">{{ SupplierData }}</label>
+<label id="cat_Dic" style="display:none">{{ cat_Dic }}</label>
+<label id="shopNData" style="display:none">{{ shopNData }}</label>
+<label id="Create_manData" style="display:none">{{ Create_manData }}</label>
+
+    <table class="border1">
+        {% for input1 in inputs1%}
+            {% if input1.startNum == 0 %}
+                <tr class="tr1" style="height: 30px;">
+            {% endif %}
+            {% if input1.selection == 0 %}
+                <td class="td1">{{ input1.descri }}：</td>
+
+                {% if input1.id_name == 'shopname' %}
+                    <td width="25%"style=" font-size:15px;border-left:1px solid #ddd">
+                        <input id="value{{ input1.id }}" style=" padding-left:-200px height:25px;width:190px;font-size: 15px;border-radius: 5px;" class="myInput" value="{{ input1.value1 }}" placeholder="{{ input1.defult_value1 }}"
+                        onkeyup="if(this.value.length>4){this.value=this.value.substr(0,4)};this.value=this.value.replace(/[^\d]/g,'');"></td>
+                {% elif input1.id_name == 'ShopName_ZY' %}
+                    <td width="25%">
+                    <div id="container">
+                    <div id="content">
+                    <div class="first">
+                        <input id="value{{ input1.id }}"  style=" height:25px;width:190px;font-size: 15px;border-radius: 5px;" class="myInput" value="{{ input1.value1 }}"
+                           placeholder="{{ input1.defult_value1 }}" onKeyup="getContent(this);">
+                    </div>
+                    <div id="append" style="width: 190px;height:200px;"></div>
+                {% elif input1.id_name == 'SupplierID' and AAA != 't_product_b_goods' %}
+                    <td width="25%">
+                    <div id="container">
+                    <div id="content">
+                    <div class="first">
+                        <input id="value{{ input1.id }}"  style=" height:25px;width:190px;font-size: 15px;border-radius: 5px;" class="myInput" value="{{ input1.value1 }}"
+                           placeholder="{{ input1.defult_value1 }}" onKeyup="getContent2(this);">
+                    </div>
+                    <div id="append2" style="width: 190px;height:200px;"></div>
+                {% elif input1.id_name == 'SupplierID' and AAA == 't_product_b_goods'%}
+                    <td width="25%">
+                    <div id="container">
+                    <div id="content">
+                    <div class="first">
+                        <input id="value{{ input1.id }}"  style=" height:25px;width:190px;font-size: 15px;border-radius: 5px;" class="myInput" value="{{ input1.value1 }}"
+                           placeholder="{{ input1.defult_value1 }}"  onchange="sup_ajax()">
+                    </div>
+                    <div id="append2" style="width: 190px;height:200px;"></div>
+                {% elif input1.id_name == 'ShopName' %}
+                    <td width="25%">
+                    <div id="container">
+                    <div id="content">
+                    <div class="first">
+                        <input id="value{{ input1.id }}"  style=" height:25px;width:190px;font-size: 15px;border-radius: 5px;" class="myInput" value="{{ input1.value1 }}"
+                           placeholder="{{ input1.defult_value1 }}" onKeyup="getContent3(this);">
+                    </div>
+                    <div id="append3" style="width: 190px;height:200px;"></div>
+                    </div>
+                    </div>
+                    </td>
+                {% elif input1.id_name == 'Create_manData' %}
+                    <td width="25%">
+                    <div id="container">
+                    <div id="content">
+                    <div class="first">
+                        <input id="value{{ input1.id }}"  style=" height:25px;width:190px;font-size: 15px;border-radius: 5px;" class="myInput" value="{{ input1.value1 }}"
+                           placeholder="{{ input1.defult_value1 }}" onKeyup="getContent4(this);">
+                    </div>
+                    <div id="append4" style="width: 190px;height:200px;"></div>
+                    </div>
+                    </div>
+                    </td>
+                {% else %}
+                    
+                    <td width="25%">
+                        <input id="value{{ input1.id }}" type="text" style=" height:25px;width:190px;font-size: 15px;border-radius: 5px;" class="myInput" value="{{ input1.value1 }}"
+                           placeholder="{{ input1.defult_value1 }}"></td>
+                           
+                {% endif %}
+            {% elif input1.selection == 1 %}
+                <td class="td1">{{ input1.descri }}：</td>
+                <td width="25%">
+                    <input name="radio{{ input1.id_name }}[]" type="radio" value="" style="margin-left:-100px font-size: 15px;border-radius: 5px;" id="radio_{{ input1.id_name }}_all" />
+                    <label for="radio_{{ input1.id_name }}_all"><p style="margin-left: 15px; padding-left:10px;"><font style="margin-left:-15px;padding-bottom:3px;">全部</font></p></label>
+                    {% for k,v in input1.defult_value1.items %}
+                        <input name="radio{{ input1.id_name }}[]" type="radio" value="{{ v }}" style="margin-left:-100px padding-left:-10px; font-size: 15px;border-radius: 5px;" id="radio_{{ input1.id_name }}{{ forloop.counter }}" />
+                        <label for="radio_{{ input1.id_name }}{{ forloop.counter }}"><p style="margin-left: -5px; padding-left:15px;"><font style="margin-left:-5px;padding-bottom:3px;">{{ k }}</font></p></label>
+                    {% endfor %}
+                
+                </td>
+            {% elif input1.selection == 2 %}
+                <td class="td1" >{{ input1.descri }}：</p> </td>
+                <td width="25%" style="font-size:10px">
+                    {% for k,v in input1.defult_value1.items %}
+                        <input name="checkbox{{ input1.id_name }}[]" type="checkbox" value="{{ v }}" style="margin-left:-100px font-size:25px;border-radius: 5px;" id="checkbox_{{ input1.id_name }}{{ forloop.counter }}" />
+                        <label for="checkbox_{{ input1.id_name }}{{ forloop.counter }}">{{ k }} </p> </label>
+                    {% endfor %}
+                </td>
+            {% elif input1.selection == 3 %}
+                <td class="td1">{{ input1.descri }}：</td>
+                <td width="25%"><select id="select_{{ input1.id }}"  style="margin-left:-100px height:30px;width:120px ;font-size: 15px;border-radius: 5px;"{% if  AAA  == 't_product_b_goods' and input1.id == '19'%}onchange="clickOpt()" {% endif %}>
+                                    <option value=""></option>
+                                    {% for k,v in input1.defult_value1.items %}
+                                        <option value="{{ v }}">{{ k }}</option>
+                                    {% endfor %}
+                                </select>
+               
+                </td>
+            {% elif input1.selection == 4 %}
+                <td class="td1">{{ input1.descri }}：</td>
+                <td width="25%">
+                        <input id="value{{ input1.id }}"  style=" height:25px;width:190px;font-size: 15px;border-radius: 5px;" class="myInput" onkeyup="checkNum(this)" value="{{ input1.value1 }}"
+                           placeholder="{{ input1.defult_value1 }}"></td>
+            {% endif %}
+            <input id="inputs{{ input1.id }}"  type="hidden" value="{{ input1.inputs }}" >
+            <input id="id_{{ input1.id }}" type="hidden" value="{{ input1.id_name }}">
+            <input id="urlname{{ input1.id }}" type="hidden" value="{{ input1.urlname1 }}">
+            <input id="dvalue{{ input1.id }}" type="hidden" value="{{ input1.value1 }}">
+            <input id="select{{ input1.id }}" type="hidden" value="{{ input1.selection }}">
+            <input type="hidden" value="{{ input1.defult_value1 }}">
+            <input name="count" type="hidden" value="">
+            {% if input1.endNum == 0 %}
+                <td width="100px;"></td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+
+
+        {% for input2 in inputs2%}
+            {% if input2.startNum == 0 %}
+                <tr class="tr1" style="height: 35px">
+            {% endif %}
+            {%if only == 1%}
+                {% if input2.isDate == 0 %}
+                     <td class="td3">{{ input2.descri }}：</td>
+                    <td>
+                        <input id="value1{{ input2.id }}" type="text" placeholder="{{ input2.defult_value1 }}" style="height: 25px;width: 170px;font-size: 15px;border-radius: 5px;" onkeyup="if(!/^\d+$/.test(this.value)) {this.value=this.value.replace(/[^\d]+/g,'');}" value="{{ input2.value1 }}" />
+                    ----
+                        <input id="value2{{ input2.id }}" type="text" placeholder="{{ input2.defult_value2 }}" style="height: 25px;width: 170px;font-size: 15px;border-radius: 5px;" onkeyup="if(!/^\d+$/.test(this.value)) {this.value=this.value.replace(/[^\d]+/g,'');}" value="{{ input2.value2 }}" />
+                </td>
+                {% elif input2.isDate == 2 %}
+                    <td class="td3">{{ input2.descri }}：</td>
+                    <td>
+                        <input id="value1{{ input2.id }}" type="number" step="0.001" placeholder="{{ input2.defult_value1 }}" style="height: 25px;width: 100px;font-size: 15px;border-radius: 5px;" value="{{ input2.value1 }}" />
+                        ----
+                        <input id="value2{{ input2.id }}" type="number" step="0.001" placeholder="{{ input2.defult_value2 }}" style="height: 25px;width: 100px;font-size: 15px;border-radius: 5px;" value="{{ input2.value2 }}" />
+                    </td>
+				{% else %}
+                    <td class="td3">{{ input2.descri }}：</td>
+                    <td>
+                        <input id="value1{{ input2.id }}" type="date" placeholder="{{ input2.defult_value1 }}" style="height: 25px;width: 140px;font-size: 15px;border-radius: 5px;" value="{{ input2.value1 }}" />
+                        ----
+                        <input id="value2{{ input2.id }}" type="date" placeholder="{{ input2.defult_value2 }}" style="height: 25px;width: 140px;font-size: 15px;border-radius: 5px;" value="{{ input2.value2 }}" />
+                    </td>
+                
+            {% endif %} 
+            {% else %}  
+            {% if input2.isDate == 0 %}
+                 <td class="td3">{{ input2.descri }}：</td>
+                <td width="32%" style="margin-left:-100px">
+                        <input id="value1{{ input2.id }}" type="text" placeholder="{{ input2.defult_value1 }}" style="height: 25px;width: 100px;font-size: 15px;border-radius: 5px;" onkeyup="if(!/^\d+$/.test(this.value)) {this.value=this.value.replace(/[^\d]+/g,'');}" value="{{ input2.value1 }}" />
+                    ----
+                        <input id="value2{{ input2.id }}" type="text" placeholder="{{ input2.defult_value2 }}" style="height: 25px;width: 100px;font-size: 15px;border-radius: 5px;" onkeyup="if(!/^\d+$/.test(this.value)) {this.value=this.value.replace(/[^\d]+/g,'');}" value="{{ input2.value2 }}" />
+                </td>
+			{% elif input2.isDate == 2 %}
+                <td class="td3">{{ input2.descri }}：</td>
+                <td>
+                    <input id="value1{{ input2.id }}" type="number" step="0.001" placeholder="{{ input2.defult_value1 }}" style="height: 25px;width: 100px;font-size: 15px;border-radius: 5px;" value="{{ input2.value1 }}" />
+                    ----
+                    <input id="value2{{ input2.id }}" type="number" step="0.001" placeholder="{{ input2.defult_value2 }}" style="height: 25px;width: 100px;font-size: 15px;border-radius: 5px;" value="{{ input2.value2 }}" />
+                </td>
+            {% else %}
+                <td class="td3">{{ input2.descri }}：</td>
+                <td width="32%" style="margin-left:-100px">
+                        <input id="value1{{ input2.id }}" type="date" placeholder="{{ input2.defult_value1 }}" style="height: 25px;width: 140px;font-size: 15px;border-radius: 5px;" value="{{ input2.value1 }}" />
+                    ----
+                        <input id="value2{{ input2.id }}" type="date" placeholder="{{ input2.defult_value2 }}" style="height: 25px;width: 140px;font-size: 15px;border-radius: 5px;" value="{{ input2.value2 }}" />
+                </td>
+                    
+                {% endif %}
+            {% endif %}
+            <input id="inputs{{ input2.id }}"  type="hidden" value="{{ input2.inputs }}" >
+            <input id="id{{ input2.id }}" type="hidden" value="{{ input2.id_name }}">
+            <input id="urlname1{{ input2.id }}" type="hidden" value="{{ input2.urlname1 }}">
+            <input id="urlname2{{ input2.id }}" type="hidden" value="{{ input2.urlname2 }}">
+            <input id="date{{ input2.id }}" type="hidden" value="{{ input2.isDate }}">
+            <input id="dvalue1{{ input2.id }}" type="hidden" value="{{ input2.value1 }}">
+            <input id="dvalue2{{ input2.id }}" type="hidden" value="{{ input2.value2 }}">
+            <input type="hidden" value="{{ input2.defult_value1 }}">
+            <input name="countTwo" type="hidden" value="">
+            {% if input2.endNum == 0 %}
+                <td width="100px;"></td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+        
+    </table>
+    <br>
+        <table id="border1" style="color:#357ebd;">
+            <tr>
+                <td style="font-size: 15px;width:140px;">服装一级分类 : &nbsp;</td>
+                <td style="margin-left:50px;font-size: 15px;">
+                    <select style="height:25px;width:190px;border-radius: 5px;" name="category1" id="category1" onchange="changeCategory1()">
+                        <option value="{{ choice.cate1 }}">{{ choice.text1 }}</option>
+                        <option value=" "> </option>
+                        <option value="1.男款T恤">1.男款T恤</option>
+                        <option value="2.女款T恤">2.女款T恤</option>
+                        <option value="3.男款背心">3.男款背心</option>
+                        <option value="4.女款背心">4.女款背心</option>
+                        <option value="5.男款长裤">5.男款长裤</option>
+                        <option value="6.女款长裤">6.女款长裤</option>
+                        <option value="7.男款短裤">7.男款短裤</option>
+                        <option value="8.女款短裤">8.女款短裤</option>
+                        <option value="9.半身裙">9.半身裙</option>
+                        <option value="10.连衣裙">10.连衣裙</option>
+                        <option value="11.连体衣">11.连体衣</option>
+                        <option value="12.泳装">12.泳装</option>
+                    </select>
+                </td>
+				<td style="width:200px;"></td>
+                <td style=" font-size: 15px;width: 140px;">服装二级分类 : &nbsp;</td>
+                <td style="margin-left:50px;font-size: 15px;">
+                    <select style="height:25px;width:190px;border-radius: 5px;" name="category2" id="category2" onchange="changeCategory2()">
+                        <option value="{{ choice.cate2 }}">{{ choice.text2 }}</option>
+                    </select>
+                </td>
+                <td style="width:200px;"></td>
+                <td style="font-size: 15px;width:140px;">服装三级分类 : &nbsp;</td>
+                <td style="margin-left:50px;font-size: 15px;">
+                    <select style="height:25px;width:190px;border-radius: 5px;" name="category3" id="category3" disabled="true">
+                        <option value="{{ choice.cate3 }}">{{ choice.text3 }}</option>
+                    </select>
+                </td>
+
+            </tr>
+
+{#            <tr>#}
+{#                <td colspan="10">#}
+{#                    <div  align="center" style="margin-left: 1000px;padding-left:20px">#}
+{#                        <button class="myChoice" onclick="mySearch()">查询</button>#}
+{#                        &nbsp;&nbsp;&nbsp;#}
+{#                        <button class="myChoice" onclick="toAll()">全部</button>#}
+{#                    </div>#}
+{#                </td>#}
+{#            </tr>#}
+        </table>
+    </div>
+<br/></br>
+<div style="width: 100%">
+    <button type="hidden" value=""></button>
+    <button class="btn btn-primary" id="search" onclick="mySearch()" style="margin-left:1000px">查询</button>
+    <button type="reset" value="Reset" class="btn btn-primary" onclick="myReset()">重置</button>
+    <button class="btn btn-primary" onclick="clearAll()">一键清空</button>
+    {% if  AAA  == 't_product_b_goods' %}
+        <button id="show" class="btn btn-primary" onclick="fideinfunShow()" style="display: none">显示搜索</button>
+        <button id="hide" class="btn btn-primary" onclick="fideinfunHide()">隐藏搜索</button>
+    {% endif %}
+</div>
+<br/>
+
+<div class="btn btn-default" style="bottom: 20px;right: 300px;height: 56px;width: 150px;position: fixed;box-shadow: 2px 2px 16px rgba(0, 0, 0, 0.5);background-color: #f5f5f5;z-index: 295"
+        onclick="javaScrip: var height_val = document.documentElement.scrollTop; var topval = 0; if (height_val > 400){topval=0}else {topval=5000000000} document.body.scrollTop = document.documentElement.scrollTop = topval;">
+    <div style="background-color: #5cb85c;color: white;height: 80%;line-height: 30px;margin-top: 3%;">
+        回到顶部(底部)
+    </div>
+</div>

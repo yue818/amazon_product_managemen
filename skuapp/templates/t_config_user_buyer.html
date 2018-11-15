@@ -1,0 +1,194 @@
+<style>
+	.def{
+		background-color:#D3D3D3;
+		height:60px;
+	}
+	input{
+	    height:60px;
+	}
+	textarea{
+	    height:60px;
+	}
+	th{
+	    background-color:#D3D3D3;
+		text-align:center;
+	    font-size:15px;
+		color:#B8860B;
+	    height:25px;
+	}
+	.oo{
+		font-weight:900;
+	}
+	.well-sm {
+	    display:none;
+	}
+	.btn-primary {
+    color: #ffffff;
+    background-color: #428bca;
+    border-color: #357ebd;
+	}
+	.btn {
+	height:31px;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1.428571429;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
+	}
+}
+}
+</style>
+<br>
+<link rel="stylesheet" href="/static/xadmin/css/layui.css"  media="all">
+<div>
+<script type="text/javascript"  
+    src="/static/xadmin/js/layui.js"></script>  
+<script>
+layui.use('form',function(){});<!--加载form模块-->
+</script>
+<form id="buyer" class="layui-form" action="">
+<span style="font-size:20px;color:red;background-color:#00FF00">总剩余刷单数：{{ t3 }}单 </span>&nbsp;
+<span style="font-size:20px;color:red;background-color:#00FF00">当前剩余刷单数：{{ cc }}单 </span><br>
+{% if t_store_marketplan_execution_log_objs_count == 0 %}
+&nbsp;&nbsp;<span id='pro'><b><font size="3">一次刷入的产品<input style="text-align:center;font-size:20px;color:red;background-color:#FFFFCC;height:25px;width:50px" name="procount" value="{{ procount|default:'' }}"/>个(<font color="red">友情提示：默认3,不足时取最大值</font>)</font><b></span><br>
+<label class="layui-form-label"></label>
+<select id="select_BuyerAccount" name="modules" lay-verify="required" lay-search="" style="width:200px;height:30px;font-size:10px;">
+  <option class="oo" selected="selected" style="width:200px;height:30px;font-size:10px;">直接选择或搜索选择买家账号</option>
+{% for buyer_obj in buyer_objs %}
+  <option class="oo" style="width:200px;height:30px;font-size:10px;"> {{ buyer_obj.BuyerAccount }} </option>
+{% endfor %}
+</select>
+<input type="hidden" id="name_BuyerAccount" name ="name_BuyerAccount" value= "" >
+<input type="hidden" id="count" name ="count" value= "{{ t_store_marketplan_execution_log_objs_count }}" >
+       <input id="abc" type="button" class="btn btn-primary" style="display: none;"  value="领取下单任务" />
+       <div style="display:none;">
+            <table border="1"  id="table_t_store_marketplan_execution_log">
+            <tr id ="tr_t_store_marketplan_execution_log">
+                <th>图片</th>
+                <th>买家账号</th>
+                <th>卖家简称</th>
+                <th>产品ID</th>
+                <th>ParentSKU</th>
+                <th>产品价格($)</th>
+				<th>实际刷单价格($)</th>
+                <th>结果</th>
+                <th>备注</th>
+            </tr>
+                {% for t_store_marketplan_execution_log_obj in t_store_marketplan_execution_log_objs %}
+					 <input type="hidden" readonly="true" name="id_{{ forloop.counter0 }}" value= "{{t_store_marketplan_execution_log_obj.id}}" >	
+                      <tr>                    
+			            <td>
+			                <input type="text" readonly="true" name="PicURL_{{ forloop.counter0 }}" value= "{{t_store_marketplan_execution_log_obj.PicURL}}" >
+			            </td>
+					    <td>
+			                <input type="text" readonly="true"  name="BuyerAccount_{{ forloop.counter0 }}" value= "{{t_store_marketplan_execution_log_obj.BuyerAccount}}" >
+			            </td>
+			            <td>
+			                <input type="text" readonly="true" name="ShopName_{{ forloop.counter0 }}" value= "{{t_store_marketplan_execution_log_obj.ShopName}}" >
+			            </td>
+			            <td>
+			                <input type="text" readonly="true" name="ProductID_{{ forloop.counter0 }}" value= "{{t_store_marketplan_execution_log_obj.ProductID}}" >
+			            </td>
+			            <td>
+			                <input type="text" readonly="true" name="ShopSKU_{{ forloop.counter0 }}" value= "{{t_store_marketplan_execution_log_obj.ShopSKU}}" >
+			            </td>
+			            <td>
+			                <input type="text" name="Price_{{ forloop.counter0 }}" value= "{{t_store_marketplan_execution_log_obj.Price}}" >
+			            </td>
+						<td>
+			                <input type="text" name="Price2_{{ forloop.counter0 }}" value= "{{t_store_marketplan_execution_log_obj.Price2}}" >
+			            </td>
+						<td>
+			                <input type="text" name="Result_{{ forloop.counter0 }}" value= "{{t_store_marketplan_execution_log_obj.Result}}" >
+			            </td>
+						<td>
+			                <textarea type="text" name="Remark_{{ forloop.counter0 }}" >{{t_store_marketplan_execution_log_obj.Remark}} </textarea>
+			            </td>
+			        </tr>
+                {% endfor %}
+                </table>
+      </div>
+{% else %}
+&nbsp;&nbsp;<span id='pro'><b><font size="3">一次刷入的产品<input style="text-align:center;font-size:20px;color:red;background-color:#FFFFCC;height:25px;width:50px" name="procount" value="{{ t_store_marketplan_execution_log_objs_count }}"/>个(<font color="red">友情提示：默认3,不足时取最大值</font>)</font><b></span><br>
+<select style="width:175px;height:30px;font-size:10px;">
+  {% for t_store_marketplan_execution_log_obj in t_store_marketplan_execution_log_objs %}
+  <option class="oo" selected="selected"> {{ t_store_marketplan_execution_log_obj.BuyerAccount }} </option>
+  {% endfor %}
+</select>
+     <input id="ggg" type="button" class="btn btn-primary" value="完成刷单任务(OK)" />
+     <table border="1"  id="table_t_store_marketplan_execution_log">
+            <tr id ="tr_t_store_marketplan_execution_log">
+                <th>图片</th>
+                <th>买家账号</th>
+                <th>卖家简称</th>
+                <th>产品ID</th>
+                <th>ParentSKU</th>
+                <th>产品价格($)</th>
+				<th>实际刷单价格($)</th>
+                <th>结果</th>
+                <th>备注</th>
+            </tr>
+                {% for t_store_marketplan_execution_log_obj in t_store_marketplan_execution_log_objs %}
+				 <input type="hidden" readonly="true" name="id_{{ forloop.counter0 }}" value= "{{t_store_marketplan_execution_log_obj.id}}" >
+				 <input type="hidden" readonly="true" name="Pid_{{ forloop.counter0 }}" value= "{{t_store_marketplan_execution_log_obj.Pid}}" >			      
+                      <tr>		   
+			            <td>
+			                <img class="def" readonly="true" style="width:60px;height:60px" name="PicURL_{{ forloop.counter0 }}" src= "{{t_store_marketplan_execution_log_obj.PicURL}}" />
+			            </td>
+						<label class="layui-form-label"></label>
+					    <td class="def">
+							<select id="select_BuyerAccount" name="BuyerAccount_{{ forloop.counter0 }}"  class="def" style="width:220px;height:30px;font-size:10px;font-weight:bold">
+							  <option class="def" selected="selected" style="width:210px;height:30px;font-size:10px;font-weight:bold">{{t_store_marketplan_execution_log_obj.BuyerAccount}}</option>
+							{% for buyer_obj in buyer_objs %}
+							  <option class="def" style="width:210px;height:30px;font-size:10px;font-weight:bold"> {{ buyer_obj.BuyerAccount }} </option>
+							{% endfor %}
+			            </td>
+			            <td>
+			                <input type="text" style="width:190px" class="def" readonly="true" name="ShopName_{{ forloop.counter0 }}" value= "{{t_store_marketplan_execution_log_obj.ShopName}}" >
+			            </td>
+			            <td>
+			                <input type="text" style="width:200px" class="def" readonly="true" name="ProductID_{{ forloop.counter0 }}" value= "{{t_store_marketplan_execution_log_obj.ProductID}}" >
+			            </td>
+			            <td>
+			                <input type="text" style="text-align:center" class="def" readonly="true" name="ShopSKU_{{ forloop.counter0 }}" value= "{{t_store_marketplan_execution_log_obj.ShopSKU}}" >
+			            </td>
+			            <td>
+			                <input type="text" class="def" style="text-align:center" name="Price_{{ forloop.counter0 }}" value= "{{t_store_marketplan_execution_log_obj.Price}}" >
+			            </td>
+						<td>
+			                <input type="text" class="vvv" style="text-align:center" name="Price2_{{ forloop.counter0 }}" value= "{{ t_store_marketplan_execution_log_obj.Price2|default:'' }}" >
+			            </td>
+						<td>
+							<select name="Result_{{ forloop.counter0 }}" style="width:125px;height:25px;font-size:10px;">
+							  <option selected="selected" value="成功">成功</option>
+							  <option value="失败">失败</option>
+							  <option value="放弃">放弃</option>
+							</select>
+			            </td>
+						<td>
+			                <textarea type="text" class="vvv" name="Remark_{{ forloop.counter0 }}" >{{t_store_marketplan_execution_log_obj.Remark|default:'' }} </textarea>
+			            </td>
+			        </tr>
+                {% endfor %}
+                </table>
+{% endif %}
+
+
+</form>
+<script>
+layui.use('form',function(){});<!--加载form模块-->
+</script>
+</div>
+<br>
+

@@ -1,0 +1,50 @@
+<table align="center" border="1">
+    <tbody>
+        <tr>
+            <td>Amazon订单号:</td>
+            <td>{{AmazonOrderId}}</td>
+        </tr>
+        <tr>
+            <td>Gati运单号:</td>
+            <td><input id="trackNo" value=""></td>
+        </tr>
+        <tr>
+            <td>Gati物流服务:</td>
+            <td><input id="trackService" value="INWPX"></td>
+        </tr>
+
+    </tbody>
+
+</table>
+<div align="center">
+    <table>
+        <tr>
+            <td>
+                <button id="apply_track_confirm" value="确认" onclick="applyTrackConfirm()">确认</button>
+            </td>
+            <td>
+                <button id="apply_track_cancel" value="重置" onclick="applyTrackCancel()">重置</button>
+            </td>
+        </tr>
+    </table>
+</div>
+<input type="hidden" id="id" value="{{order_id}}">
+<input type="hidden" id="AmazonOrderId" value="{{AmazonOrderId}}">
+<input type="hidden" id="url" value="{{turl}}">
+<script type="text/javascript">
+    function applyTrackConfirm() {
+        var aid = document.getElementById("id").value;
+        var trackNo = document.getElementById("trackNo").value;
+        var trackService = document.getElementById("trackService").value;
+        var AmazonOrderId = document.getElementById("AmazonOrderId").value;
+        var turl = document.getElementById("url").value;
+        turl = turl.replace('_p_ShopName__exact','shopname');
+        var click_url = turl + '&order_id='+aid+'&trackNumber='+trackNo+'&track_service='+trackService+
+            '&AmazonOrderId='+AmazonOrderId;
+        window.location.href=click_url;
+    }
+    function applyTrackCancel(){
+        document.getElementById("order_notes").value = '';
+        document.getElementById("pQuantity").value = '';
+    }
+</script>

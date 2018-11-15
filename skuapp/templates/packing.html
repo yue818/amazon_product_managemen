@@ -1,0 +1,10 @@
+<label for="id_select">-    包装规格:</label>
+
+{# <select name = "select_mainsku" id="id_select" class="selectpicker bla bla bli"  data-live-search="true" > #}
+<select name = "select_mainsku" id="id_select"  >
+	<option value="{{PackNID}}" selected = "selected" >  {{ B_PackInfos }} </option>
+    {% for packing in packings %}
+        <option value ="{{packing.id}}">NID:{{packing.id}} 规格:{{packing.PackName}} 价格(¥元):{{packing.CostPrice }} 重量(g):{{packing.Weight }}</option>
+    {% endfor %}
+</select>
+

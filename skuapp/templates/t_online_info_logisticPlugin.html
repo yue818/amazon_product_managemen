@@ -1,0 +1,54 @@
+﻿<style type="text/css">
+        .btn_1{
+            display: inline-block;
+            padding: 6px 12px;
+            margin-bottom: 0;
+            font-size: 14px;
+            font-weight: normal;
+            line-height: 1.428571429;
+            text-align: center;
+            vertical-align: middle;
+            cursor: pointer;
+            background-image: none;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            color: #ffffff;
+            background-color: #555555;
+        }
+        
+        .btn_2 {
+                width:90px;
+                display: inline-block;
+                padding: 6px 8px;
+                margin-bottom: 0;
+                margin-top:5px;
+                margin-left:5px;
+                font-size: 12px;
+                font-weight: normal;
+                line-height: 1.428571429;
+                text-align: center;
+                vertical-align: middle;
+                cursor: pointer;
+                background-image: none;
+                border: 1px solid transparent;
+                border-radius: 6px;
+                -webkit-user-select: none;
+                -moz-user-select: none;
+                color: #ffffff;
+                background-color: red;
+            
+            }
+
+        .myInput {
+            line-height: 30px;
+        }
+</style>
+    <button type="hidden" id="flag" value="{{ flag }}"></button>    
+<div>    
+    <a class="btn_1" href="/Project/admin/skuapp/t_online_info_logistic/" id="btc0">全部订单</a>&nbsp;&nbsp;
+    <a class="btn_1" href="/Project/admin/skuapp/t_online_info_logistic/?_p_LogisticInfo__contains=None" id="btc1">未查询到物流信息订单</a>
+    <a class="btn_1" id="btc2" href="/t_online_info_logisticPlugin/">未在规定时间妥投订单</a>
+</div>
+

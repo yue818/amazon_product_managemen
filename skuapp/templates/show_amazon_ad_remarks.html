@@ -1,0 +1,19 @@
+<center>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>时间</th>
+                <th>备注</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for k,v in show_temps.items %}
+                <tr style="width: 100%">
+                    <td style="width: 28%">{{ k }}</td>
+                    <td style="width: 68%">{{ v }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <input type="hidden" value="{{ show_temps|safe }}">
+</center>

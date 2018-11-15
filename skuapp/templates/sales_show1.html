@@ -1,0 +1,143 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>日销量趋势图</title>
+    <script src="/static/highcharts/jquery-1.8.3.min.js"></script>
+    <script src="/static/highcharts/highcharts.js"></script>
+    <script src="/static/highcharts/exporting.js"></script>
+    <script src="/static/highcharts/highcharts-zh_CN.js"></script>
+</head>
+<body>
+<div id="conaaa" style="width:1500px;margin:0 auto;height:400px"></div><br/>
+<div id="conaaa0" style="width:1500px;margin:0 auto;height:400px"></div><br/>
+<div id="conaaa1" style="width:1500px;margin:0 auto;height:400px"></div><br/>
+<div id="conaaa2" style="width:1500px;margin:0 auto;height:400px"></div><br/>
+<div id="conaaa3" style="width:1500px;margin:0 auto;height:400px"></div><br/>
+<div id="conaaa4" style="width:1500px;margin:0 auto;height:400px"></div><br/>
+<div id="conaaa5" style="width:1500px;margin:0 auto;height:400px"></div><br/>
+<div id="conaaa6" style="width:1500px;margin:0 auto;height:400px"></div><br/>
+<div id="conaaa7" style="width:1500px;margin:0 auto;height:400px"></div><br/>
+<div id="conaaa8" style="width:1500px;margin:0 auto;height:400px"></div><br/>
+<div id="conaaa9" style="width:1500px;margin:0 auto;height:400px"></div><br/>
+<div id="conaaa10" style="width:1500px;margin:0 auto;height:400px"></div><br/>
+<div id="conaaa11" style="width:1500px;margin:0 auto;height:400px"></div><br/>
+<div id="conaaa12" style="width:1500px;margin:0 auto;height:400px"></div><br/>
+<div id="conaaa13" style="width:1500px;margin:0 auto;height:400px"></div><br/>
+<div id="conaaa14" style="width:1500px;margin:0 auto;height:400px"></div><br/>
+<div id="conaaa15" style="width:1500px;margin:0 auto;height:400px"></div><br/>
+<div id="conaaa16" style="width:1500px;margin:0 auto;height:400px"></div><br/>
+<div id="conaaa17" style="width:1500px;margin:0 auto;height:400px"></div><br/>
+<div id="conaaa18" style="width:1500px;margin:0 auto;height:400px"></div><br/>
+<div id="conaaa19" style="width:1500px;margin:0 auto;height:400px"></div><br/>
+
+{{ rt|safe }}
+
+<script>
+$(function () {
+    
+    function ss(element,title1,daylist1,saleslist1,sales7ordery1){
+      element.highcharts({
+       credits:{//右下角的文本
+            enabled: true,
+            position: {//位置设置
+                align: 'right',
+                x: -40,
+                y: -30
+            },
+            style: {color:'blue',fontSize: '10px'
+            },
+            text: "销量占比:"+title1.split('|')[1]//显示的内容
+        },
+
+        chart: {
+            zoomType: 'xy'
+        },
+        title: {
+            text: title1.split('|')[0]
+        },
+        subtitle: {
+            text: '趋势图'
+        },
+        xAxis: {
+            categories: daylist1,
+            crosshair: true
+        },
+        yAxis: [{
+            min: 0,
+            title: {
+                text: '日销量(件)',
+                style: {color: '#00BFE0'}
+            }
+            },
+            {min: 0,
+            title: {
+            text: '七日平均量(件)',
+            style: {color: '#32CD32'}
+            },
+        opposite: true
+        }],
+        tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+            '<td style="padding:0"><b>{point.y:.1f} (件)</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+        },
+        plotOptions: {
+            column: {
+                pointPadding: 0.2,
+                borderWidth: 0
+            },
+            spline: {
+                marker: {
+                    enabled: true,//是否显示点
+                    radius: 3,//点的半径
+                    fillColor: "#00FF00",
+                    lineColor: "#32CD32"
+                },
+            lineWidth:2//线条粗细
+            }
+        },
+        series: [{
+            type: 'column',
+            name: '日销量',
+            data: saleslist1
+        },
+            {
+        type: 'spline',
+        name: '七日平均量',
+        lineColor: "#32CD32",
+        data: sales7ordery1
+            }
+        ]
+    });
+    
+}
+
+ss( $('#conaaa'),'{{title}}',{{daylist|safe}},{{saleslist|safe}},{{sales7ordery|safe}})
+ss( $('#conaaa0'),'{{title0}}',{{daylist0|safe}},{{saleslist0|safe}},{{sales7ordery0|safe}})
+ss( $('#conaaa1'),'{{title1}}',{{daylist1|safe}},{{saleslist1|safe}},{{sales7ordery1|safe}})
+ss( $('#conaaa2'),'{{title2}}',{{daylist2|safe}},{{saleslist2|safe}},{{sales7ordery2|safe}})
+ss( $('#conaaa3'),'{{title3}}',{{daylist3|safe}},{{saleslist3|safe}},{{sales7ordery3|safe}})
+ss( $('#conaaa4'),'{{title4}}',{{daylist4|safe}},{{saleslist4|safe}},{{sales7ordery4|safe}})
+ss( $('#conaaa5'),'{{title5}}',{{daylist5|safe}},{{saleslist5|safe}},{{sales7ordery5|safe}})
+ss( $('#conaaa6'),'{{title6}}',{{daylist6|safe}},{{saleslist6|safe}},{{sales7ordery6|safe}})
+ss( $('#conaaa7'),'{{title7}}',{{daylist7|safe}},{{saleslist7|safe}},{{sales7ordery7|safe}})
+ss( $('#conaaa8'),'{{title8}}',{{daylist8|safe}},{{saleslist8|safe}},{{sales7ordery8|safe}})
+ss( $('#conaaa9'),'{{title9}}',{{daylist9|safe}},{{saleslist9|safe}},{{sales7ordery9|safe}})
+ss( $('#conaaa10'),'{{title10}}',{{daylist10|safe}},{{saleslist10|safe}},{{sales7ordery10|safe}})
+ss( $('#conaaa11'),'{{title11}}',{{daylist11|safe}},{{saleslist11|safe}},{{sales7ordery11|safe}})
+ss( $('#conaaa12'),'{{title12}}',{{daylist12|safe}},{{saleslist12|safe}},{{sales7ordery12|safe}})
+ss( $('#conaaa13'),'{{title13}}',{{daylist13|safe}},{{saleslist13|safe}},{{sales7ordery13|safe}})
+ss( $('#conaaa14'),'{{title14}}',{{daylist14|safe}},{{saleslist14|safe}},{{sales7ordery14|safe}})
+ss( $('#conaaa15'),'{{title15}}',{{daylist15|safe}},{{saleslist15|safe}},{{sales7ordery15|safe}})
+ss( $('#conaaa16'),'{{title16}}',{{daylist16|safe}},{{saleslist16|safe}},{{sales7ordery16|safe}})
+ss( $('#conaaa17'),'{{title17}}',{{daylist17|safe}},{{saleslist17|safe}},{{sales7ordery17|safe}})
+ss( $('#conaaa18'),'{{title18}}',{{daylist18|safe}},{{saleslist18|safe}},{{sales7ordery18|safe}})
+ss( $('#conaaa19'),'{{title19}}',{{daylist18|safe}},{{saleslist19|safe}},{{sales7ordery19|safe}})
+});
+</script>
+
+</body>
+</html>

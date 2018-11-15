@@ -1,0 +1,25 @@
+<form action = "/save_feedback_zjy_picture/?now_id={{ now_id }}" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <table>
+        {% for pic in pic_list %}
+            <img src="{{ pic }}"  width="200" height="200"/>
+            {% if page == 'zjy' %}
+                <a href="/del_feedback_pic/?source=zjy&index={{ forloop.counter0 }}&del_id={{ now_id }}">删除</a>
+            {% endif %}
+        {% endfor %}
+    </table>
+    {% if page == 'zjy' %}
+        <br>
+        <div>
+            <label>选择本地图片&nbsp;&nbsp;
+                <input type="file" name="image_local" value='' />
+            </label>
+        </div>
+        <br>
+        <div>
+            &nbsp;&nbsp;&nbsp;<button type='submit' style="height: 30px;width: 50px;">上传</button>
+        </div>
+    {% endif %}
+
+</form>

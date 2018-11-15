@@ -1,0 +1,36 @@
+
+<script src="/static/xadmin/js/jquery-1.7.1.min.js"></script>
+{% csrf_token %}
+<input type="hidden" id="Getid" value="{{ id }}">
+<input type="text" name="salesattr" id="salesattr" value="{{ salesname }}">
+<button type="button" onclick="to_change_salesattr()">提交</button>
+<script>
+    function to_change_salesattr() {
+        var text = document.getElementById('salesattr');
+        var textval = text.value;
+        // 这里开始调取api
+        $.ajax({
+            url: "/t_product_depart_get/show_SalesAttr/?id={{ id }}&person={{ salesname }}",
+            type: "POST",
+            dataType: "json",
+            data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                salesattr: textval
+            },
+            success: function (result) {
+                if (result.code == 0) {
+                    var hh_id = document.getElementById('Getid');
+                    var parval = parent.document.getElementById('show_SalesAttr_'+hh_id.value);
+                    parval.text = textval ;
+                    var index = parent.layer.getFrameIndex(window.name);
+                    parent.layer.close(index);
+                } else {
+                    alert('保存错误！请联系IT人员。');
+                }
+            },
+            error:function (XMLHttpRequest, textStatus, errorThrown) {
+               alert('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+           }
+        });
+    }
+</script>

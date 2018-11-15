@@ -1,0 +1,43 @@
+{#<script src="https://cdn.bootcss.com/jquery/2.0.1/jquery.min.js"></script>#}
+<script src="/static/xadmin/vendor/jquery/jquery.min.js"></script>
+<script type="text/javascript">
+    $('#id_ApplyType').attr("onchange", 'show_title()');
+    $('#id_ForceApply').attr("onchange", 'show_reason()');
+
+    var P_divdom = document.getElementById('div_id_ApplyType').parentNode.parentNode;
+    var after = '<div class="form-inline form-group"><div id="div_id_title" class="form-group col-sm-6"></div></div>';
+    var after_2 = '<div class="form-inline form-group"><div id="div_id_reason" class="form-group col-sm-6"></div></div>';
+    P_divdom.innerHTML = P_divdom.innerHTML + after;
+    P_divdom.innerHTML = P_divdom.innerHTML + after_2;
+    var divdom = document.getElementById('div_id_title');
+    var divdom_2 = document.getElementById('div_id_reason');
+
+    function show_title() {
+        var selval = $('#id_ApplyType').find('option:selected').val();
+        console.log(selval);
+        var info = '';
+        if (selval == 'GROUPSKUAPPLY'){
+            info = '<label for="id_title" class="control-label " style="float:left;width: 170px;padding-top: 22px !important;text-align: right">组合商品的名称<span class="asteriskField">*</span></label>' +
+                '<div class="controls " style="margin-left: 175px;border-left: 1px solid #EEE;">' +
+                ' <input class="text-field admintextinputwidget form-control" id="id_title" maxlength="32" name="title" type="text" value="" style="max-width: 1200px;">' +
+                '<span class="asteriskField">请输入组合商品的名称</span></div>';
+        }
+        console.log(info);
+        divdom.innerHTML = info;
+    }
+
+    function show_reason() {
+        var selval = $('#id_ForceApply').find('option:selected').val();
+        console.log(selval);
+        var info = '';
+        if (selval == 'YES'){
+            info = '<label for="id_reason" class="control-label " style="float:left;width: 170px;padding-top: 22px !important;text-align: right">强制申请原因<span class="asteriskField">*</span></label>' +
+                '<div class="controls " style="margin-left: 175px;border-left: 1px solid #EEE;">' +
+                ' <input class="text-field admintextinputwidget form-control" id="id_reason" maxlength="32" name="reason" type="text" value="" style="max-width: 1200px;">' +
+                '<span class="asteriskField">请输入强制申请原因</span></div>';
+        }
+        console.log(info);
+        divdom_2.innerHTML = info;
+    }
+
+</script>

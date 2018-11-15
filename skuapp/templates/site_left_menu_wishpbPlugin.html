@@ -1,0 +1,61 @@
+<style>
+    .col-md-14 {
+    width: 13%;
+  }
+     .col-md-15 {
+    width: 3%;
+  }
+  .col-md-10 {
+    width: 97%;
+  }
+
+</style>
+<script type="text/javascript">
+    $(function(){
+        $("#show_tree").mouseover(function(){
+            $('#left-side').show();
+            $('#show_tree').hide();
+            $('.col-md-10').width('60%');
+        });
+    })
+    function display_tree() {
+        $('#left-side').hide();
+        $('#show_tree').show();
+        $('.col-md-10').width('75%');
+    }
+    function changeColor(x) {
+        d=document.getElementsByTagName('li');
+        for(p=d.length;p--;){
+            if(d[p].id==x){
+                if(d[p].className=='active'){
+                    d[p].style.backgroundColor='#428bca';
+                }
+            }
+        }
+    }
+</script>
+<input id="sourceURL" type="hidden" value="{{ sourceURL }}">
+<input id="title_list" type="hidden" value="{{ title_list }}">
+<input id="test_list" type="hidden" value="{{ test_list }}">
+<div id="left-side" class="col-sm-1 col-md-14" style="display: none" onmouseleave="display_tree()">
+    <ul class="well nav nav-list nav-sitemenu">
+    {% for title in title_list %}
+        <li class="nav-header{% if title.selected == '1' %} active{% endif %}"><i class="fa-fw"></i>{{ title.title }}</li>
+        {% for testurl in test_list %}
+            {% if testurl.title == title.title %}
+                <li id="li_{{ forloop.counter }}" {% if testurl.selected == '1' %}
+                    class="active" style="background-color: #428bca"
+                {% endif %}>
+                    <a href="{{ testurl.url }}">
+                        <i id="i_{{ forloop.counter }}" class="fa-fw fa fa-circle-o" {% if testurl.selected == '1' %}style="color: black"{% endif %}></i>
+                        <font id="font_{{ forloop.counter }}" {% if testurl.selected == '1' %}color="black"{% endif %}>{{ testurl.value }}</font>
+                    </a>
+                </li>
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+    </ul>
+</div>
+<div id="show_tree" class="col-sm-1 col-md-15">
+    <p>菜单>></p>
+</div>

@@ -1,0 +1,59 @@
+<style>
+    .col-md-14 {
+    width: 13%;
+  }
+  .col-md-10 {
+    width: 87%;
+  }
+    img.x{
+     position:absolute;
+     left:5px;
+{#     top:30%;#}
+     z-index:99;
+     width:95%;
+     height:75%;
+ }
+    #img_left{
+        cursor: pointer;
+        transition: all 0.8s;
+    }
+    #img_left:hover{
+        transform: scale(2) translate(150px,-120px);
+    }
+</style>
+<link rel="stylesheet" type="text/css" href="/static/siteMenu/css/bootstrap.min.css"/>
+
+<link rel="stylesheet" type="text/css" href="/static/siteMenu/css/style.css"/>
+
+<script type="text/javascript" src="/static/siteMenu/js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/static/siteMenu/js/test.js"></script>
+<script type="text/javascript">
+{#    $(function () {#}
+{#            $('.tree li:has(ul)').addClass('parent_li').find(' > span').attr('title', '关闭');#}
+{#            $('.tree li.parent_li > span').on('click', function (e) {#}
+{#                var children = $(this).parent('li.parent_li').find(' > ul > li');#}
+{#                if (children.is(":visible")) {#}
+{#                    children.hide('fast');#}
+{#                    $(this).attr('title', '展开').find(' > i').addClass('icon-plus-sign').removeClass('icon-minus-sign');#}
+{#                } else {#}
+{#                    children.show('fast');#}
+{#                    $(this).attr('title', '关闭').find(' > i').addClass('icon-minus-sign').removeClass('icon-plus-sign');#}
+{#                }#}
+{#                e.stopPropagation();#}
+{#            });#}
+{#        });#}
+</script>
+{#<input id="sourceURL" type="hidden" value="{{ sourceURL }}">#}
+<input id="test_list" type="hidden" value='{{ menu_list }}'>
+<input id="attention_text" type="hidden" value='{{ attention_text }}'>
+<div  id="left-side" class="col-sm-1 col-md-14">
+    <div class="tree well">
+
+        <ul id="rootUL">
+
+        </ul>
+    </div>
+    <div class="pic" id="pic">
+
+    </div>
+</div>

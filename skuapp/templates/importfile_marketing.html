@@ -1,0 +1,28 @@
+<style>
+        .sel_btn{
+            height: 26px;
+            line-height: 26px;
+            padding: 0 11px;
+            background: #dbc59e;
+            border: 1px #26bbdb solid;
+            border-radius: 3px;
+            color: black;
+            display: inline-block;
+            text-decoration: none;
+            font-size: 12px;
+            outline: none;
+        }
+        .ch_cls{
+            background: #e4e4e4;
+        }
+</style>
+<form action = "/importfile_marketing/" method="POST" enctype="multipart/form-data">
+    <input type='file' name='myfile'>
+    <br>
+    <!--button type='submit' name='downloadmodel' value='downloadmodel0001'>下载模板</button-->
+    <a class="sel_btn ch_cls"  href="https://fancyqube-xls.oss-cn-shanghai.aliyuncs.com/updown_model_file/t_market_model.xls"
+       download="https://fancyqube-xls.oss-cn-shanghai.aliyuncs.com/updown_model_file/t_market_model.xls">下载导入数据模板</a>&nbsp;
+    <button type='submit' >上传</button>
+    {% csrf_token %}
+</form>
+

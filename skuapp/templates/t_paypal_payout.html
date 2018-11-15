@@ -1,0 +1,60 @@
+<link href="/static/xadmin/css/xadmin.widget.select-transfer.css" type="text/css" rel="stylesheet"/>
+<link href="/static/xadmin/css/xadmin.t_paypal_payout_select.css" type="text/css" rel="stylesheet"/>
+<br>
+<div class="selector-paypal">
+    <table border="0">
+        <tr>
+            <td><p style="font-size: 20px">付款账号：</p></td>
+            <td>
+                <select class="select-paypal" name="select-paypal" id="select_PaypalAccount">
+                    <option value="" selected="selected">---------- ---请选择付款账户---------------</option>
+                    {% for paypal_account in paypal_accounts %}
+                        <option value="{{ paypal_account.Paypal_Account }}">{{ paypal_account.Paypal_Account }} --余额:{{ paypal_account.balance }}</option>
+                    {% endfor %}
+                </select>
+            </td>
+            <td><p style="font-size: 20px">&nbsp;&nbsp;金额：</p></td>
+            <td>
+                <select class="select-payout" name="select-payout" id="select_PayoutAccount">
+                    {% for account in accountChoices %}
+                        <option value="{{ account }}">{{ account }}&nbsp;&nbsp;</option>
+                    {% endfor %}
+                </select>
+            </td>
+            <td>
+                <p style="font-size: 20px">&nbsp;&nbsp;&nbsp;&nbsp;已选中：<span id="selected_num">0</span>条</p>
+            </td>
+        </tr>
+    </table>
+</div>
+</br>
+<div class="control-wrap" id="id_permissions_wrap_container">
+    <div class="selector select-transfer">
+        <div class="selector-available">
+            <div class="input-group input-group-sm selector-filter">
+                <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                <input class="form-control" type="text" id="id_permissions_input">
+            </div>
+            <select multiple="multiple" id="id_permissions_form">
+                 {% for user_buyer in user_buyers %}
+                     <option class="proxy_li" value="{{ user_buyer.id }}">
+                         {{ user_buyer.BuyerAccount }}&emsp;(余额：{{ user_buyer.Balance }}$)
+                     </option>
+                 {% endfor %}
+            </select>
+                <a class="btn btn-default selector-chooseall" title="点击一次性选择全部">选择全部</a>
+        </div>
+        <ul class="selector-chooser">
+            <li> <a class="btn btn-default btn-sm selector-add" title="选择"><i class="fa fa-plus"></i></a> </li>
+            <li> <a class="btn btn-default btn-sm selector-remove" title="删除"><i class="fa fa-minus"></i></a> </li>
+        </ul>
+        <div class="selector-chosen">
+            <select multiple="multiple"  class="" id="id_permissions" name="permissions">
+            </select>
+            <a class="btn btn-default selector-clearall" title="点击一次性删除全部">删除全部</a>
+        </div>
+    </div>
+</div>
+<div class="messsub">
+    <input id="ppPayout" type="button" class="btn btn-primary" value="付款" />
+</div>

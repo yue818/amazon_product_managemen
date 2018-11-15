@@ -1,0 +1,221 @@
+
+<script type="text/javascript">
+    Date.prototype.format = function (fmt) { //author: meizz
+        var o = {
+            "M+": this.getMonth() + 1, //月份
+            "d+": this.getDate(), //日
+            "h+": this.getHours(), //小时
+            "m+": this.getMinutes(), //分
+            "s+": this.getSeconds(), //秒
+            "q+": Math.floor((this.getMonth() + 3) / 3), //季度
+            "S": this.getMilliseconds() //毫秒
+        };
+        if (/(y+)/.test(fmt)) fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+        for (var k in o)
+        if (new RegExp("(" + k + ")").test(fmt)) fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+        return fmt;
+    };
+
+    $('#t_progress_tracking_of_product_customization_table_form').attr('autocomplete', 'off');
+
+    $(document).keydown(function(event){
+      switch(event.keyCode){
+         case 13: to_seach(); return false;
+         }
+    });
+
+    var mainsku = document.getElementById('id_MainSKU');
+    mainsku.setAttribute('onchange', 'to_seach()');
+    mainsku.style.float = 'left';
+    var main_parent = mainsku.parentNode;
+    main_parent.innerHTML = main_parent.innerHTML + '<span id="mainsku_showing" style="margin-left: 10px;color:blue;">回车或光标移开查询</span>';
+
+    var afterdom = '<div class="panel panel-default fieldset unsort " id="box-1">\n' +
+        '<div class="panel-heading">\n' +
+        '<i class="icon fa fa-chevron-up chevron"></i>\n' +
+        '<h3 class="panel-title">详细信息</h3>\n' +
+        '</div>\n' +
+        '<div class="panel-body ">\n' +
+        '<table class="table table-bordered table-striped table-hover editable" id="SKU_Infos">\n' +
+        '<thead>\n' +
+        '<tr>\n' +
+        '<th>商品图</th>\n' +
+        '<th>商品SKU</th>\n' +
+        '<th>商品名称</th>\n' +
+        '<th>关键字</th>\n' +
+        '<th>调研员</th>\n' +
+        '<th>调研时间</th>\n' +
+        '<th>反向链接</th>\n' +
+        '<th>供应商链接</th>\n' +
+        '<th>供应链开发员</th>\n' +
+        '<th>计划完成时间</th>\n' +
+        '<th>操作</th>\n' +
+        '</tr>\n' +
+        '</thead>\n' +
+        '<tbody id="sku_d_infor">\n' +
+        '</tbody>\n' +
+        '</table>\n' +
+        '</div>\n' +
+        '</div>';
+
+    var P_divdom = document.getElementById('column-0');
+    P_divdom.innerHTML = P_divdom.innerHTML + afterdom;
+    var next_dom = document.getElementById('sku_d_infor');
+
+    $('#mainsku_showing').after('<button type="button" style="margin-left: 50px;" class="btn btn-primary" name="hand" onclick="add_hand()">手动增加</button><span style="margin-left: 10px;color:blue;">(计划完成时间 默认是 7天后)</span>');
+    function to_seach() {
+        var showing = document.getElementById('mainsku_showing');
+
+        var inputid = document.getElementById('id_MainSKU');
+        console.log(inputid.value);
+        if (!inputid.value){
+            next_dom.innerHTML = '';
+            showing.style.color = 'blue';
+            showing.innerText = '回车或光标移开查询';
+            return
+        }
+
+        showing.style.color = 'brown';
+        showing.innerText = '努力查询中...';
+        $.getJSON('t_sku_weight_examine/seach_sku_infor/?clothes={{ clothesflag }}&product_mainsku='+encodeURI(inputid.value), function (result) {
+            if (result.errorcode == 1){
+                var infor = '';
+                for (var i=0,j=result.datalist.length;i<j;i++){
+                    infor += '<tr id="' + i + '">\n' +
+                        '<td>\n' +
+                        '<a class="thumbnail dropdown-toggle" style="position: absolute;">\n' +
+                        '<img src="' + result.datalist[i].Image + '" id="pic_id_product_image_' + i + '" width="30" height="30" onclick="javascrip:$(\'#id_upload_'+i+'\').click();">\n' +
+                        '<input type="file" id="id_upload_'+i+'" onchange="upload_Img(this,\'' + i + '\')" accept="image/gif, image/jpeg, image/png, image/gif" style="display: none">\n' +
+                        '<input type="hidden" value="' + result.datalist[i].Image + '" name="product_image" id="id_product_image_' + i + '">\n' +
+                        '</a>\n' +
+                        '</td>\n' +
+                        '<td>\n' +
+                        '<input type="text" class="text-field admintextinputwidget form-control" value="' + result.datalist[i].product_sku + '" name="sku">\n' +
+                        '</td>\n' +
+                        '<td>\n' +
+                        '<input type="text" class="text-field admintextinputwidget form-control" value="' + result.datalist[i].Name + '" name="name">\n' +
+                        '</td>\n' +
+                        '<td>\n' +
+                        '<input type="text" class="text-field admintextinputwidget form-control" value="" name="keywords">\n' +
+                        '</td>\n' +
+                        '<td>\n' +
+                        '<input type="text" class="text-field admintextinputwidget form-control" value="' + result.datalist[i].SalerName + '" name="surveyname">\n' +
+                        '</td>\n' +
+                        '<td>\n' +
+                        '<input type="datetime-local" class="text-field admintextinputwidget form-control" value="' + result.datalist[i].DevDate + '" name="surveytime">\n' +
+                        '</td>\n' +
+                        '<td>\n' +
+                        '<input type="text" class="text-field admintextinputwidget form-control" value="' + result.datalist[i].ReverseLink + '" name="reverselink">\n' +
+                        '</td>\n' +
+                        '<td>\n' +
+                        '<input type="text" class="text-field admintextinputwidget form-control" value="' + result.datalist[i].SupplierLink + '" name="supplierlink">\n' +
+                        '</td>\n' +
+                        '<td>\n' +
+                        '<input type="text" class="text-field admintextinputwidget form-control" value="' + result.datalist[i].SalerName2 + '" name="salerName2">\n' +
+                        '</td>\n' +
+                        '<td>\n' +
+                        '<input type="datetime-local" class="text-field admintextinputwidget form-control" value="' + (new Date((new Date()).getTime() + 7*24*60*60*1000)).format("yyyy-MM-ddThh:mm") + '" name="FinishTime" >\n' +
+                        '</td>\n' +
+                        '<td>\n' +
+                        '<input type="button" class="btn btn-default" value="移除" name="delone" onclick="to_del(' + i + ')" >\n' +
+                        '</td>\n' +
+                        '</tr>';
+                }
+                next_dom.innerHTML = infor;
+                showing.style.color = 'green';
+                showing.innerText = '查询成功';
+            }else {
+                console.log('错误：' + result.errorText);
+                next_dom.innerHTML = '';
+                showing.style.color = 'red';
+                showing.innerText = '查询失败  错误:' + result.errorText;
+            }
+        });
+    }
+
+    function to_del(n) {
+        var p_dom = document.getElementById(n);
+        p_dom.parentNode.removeChild(p_dom);
+    }
+
+
+    function add_hand() {
+        var Vv_num = document.getElementsByName('sku').length;
+        var num = parseInt(Vv_num) + 1;
+
+        var tableI = document.getElementById("sku_d_infor");
+        var newTr = tableI.insertRow(-1);
+        newTr.setAttribute('id', num);
+        newTr.insertCell(0).innerHTML = '<a class="thumbnail dropdown-toggle" style="position: absolute;">' +
+            '<img src="https://fancyqube-wish.oss-cn-shanghai.aliyuncs.com/Nobackground.png" id="pic_id_product_image_' + num + '" width="30" height="30" onclick="javascrip:$(\'#id_upload_'+num+'\').click();">' +
+            '<input type="file" id="id_upload_'+num+'" onchange="upload_Img(this,' + num + ')" accept="image/gif, image/jpeg, image/png, image/gif" style="display: none">' +
+            '<input type="hidden" value="" name="product_image" id="id_product_image_' + num + '"></a>';
+        newTr.insertCell(1).innerHTML = '<input type="text" class="text-field admintextinputwidget form-control" value="" name="sku">';
+        newTr.insertCell(2).innerHTML = '<input type="text" class="text-field admintextinputwidget form-control" value="" name="name">';
+        newTr.insertCell(3).innerHTML = '<input type="text" class="text-field admintextinputwidget form-control" value="" name="keywords">';
+        newTr.insertCell(4).innerHTML = '<input type="text" class="text-field admintextinputwidget form-control" value="" name="surveyname">';
+        newTr.insertCell(5).innerHTML = '<input type="datetime-local" class="text-field admintextinputwidget form-control" value="'+ (new Date()).format("yyyy-MM-ddThh:mm") +'" name="surveytime">';
+        newTr.insertCell(6).innerHTML = '<input type="text" class="text-field admintextinputwidget form-control" value="" name="reverselink">';
+        newTr.insertCell(7).innerHTML = '<input type="text" class="text-field admintextinputwidget form-control" value="" name="supplierlink">';
+        newTr.insertCell(8).innerHTML = '<input type="text" class="text-field admintextinputwidget form-control" value="" name="salerName2">';
+        newTr.insertCell(9).innerHTML = '<input type="datetime-local" class="text-field admintextinputwidget form-control" value="' + (new Date((new Date()).getTime() + 7*24*60*60*1000)).format("yyyy-MM-ddThh:mm") + '" name="FinishTime" >';
+        newTr.insertCell(10).innerHTML = '<input type="button" class="btn btn-default" value="移除" name="delone" onclick="to_del(' + num + ')" >';
+    }
+
+    function ityzl_SHOW_LOAD_LAYER(){
+        return parent.layer.msg('努力修改中，请稍等...', {icon: 16,shade: [0.5, '#f5f5f5'],scrollbar: false,offset: '50%', time:100000}) ;
+    }
+    function ityzl_CLOSE_LOAD_LAYER(index){
+        parent.layer.close(index);
+    }
+    function ityzl_SHOW_TIP_LAYER(){
+        parent.layer.msg('修改完成！',{time: 1000,offset: '50%'});
+    }
+
+    var i = '';
+    function upload_Img(self,f_num) {
+        var formFile = new FormData();
+        var action = "/wish_pub_save_image/?imageflag="+f_num+'&f=0'+'&local_f=upload'  ;
+        formFile.append("action", action);
+
+        var fileObj = self.files[0];
+        formFile.append("PIC", fileObj); //加入文件对象
+
+        $.ajax({
+            url: action,
+            data: formFile,
+            type: "Post",
+            dataType: "json",
+            cache: false,//上传文件无需缓存
+            processData: false,//用于对data参数进行序列化处理 这里必须false
+            contentType: false, //必须
+            beforeSend: function () {
+                i = ityzl_SHOW_LOAD_LAYER();
+            },
+            success: function (result) {
+                if (result.Code == '1'){
+                    document.getElementById('pic_id_product_image_'+f_num).src = $.trim(result.PicPath);
+                    $("#id_product_image_"+f_num).val($.trim(result.PicPath));
+
+                    ityzl_CLOSE_LOAD_LAYER(i);
+                    ityzl_SHOW_TIP_LAYER();
+                    console.log(JSON.stringify(result));
+                }else {
+                    alert('错误信息：' + JSON.stringify(result));
+                    ityzl_CLOSE_LOAD_LAYER(i);
+                    console.log(JSON.stringify(result));
+                }
+            },
+            error:function (XMLHttpRequest, textStatus, errorThrown) {
+                alert('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                console.log('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                ityzl_CLOSE_LOAD_LAYER(i);
+            }
+        });
+    }
+    
+
+</script>
+
+
+

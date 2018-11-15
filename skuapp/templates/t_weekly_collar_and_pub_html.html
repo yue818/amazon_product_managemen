@@ -1,0 +1,44 @@
+
+<script src="/static/xadmin/vendor/jquery/jquery.min.js"></script>
+<link href="/static/xadmin/vendor/bootstrap-select-1.12.4/css/bootstrap-select.min.css" rel="stylesheet" />
+<script src="/static/xadmin/vendor/bootstrap-select-1.12.4/js/bootstrap-select.min.js"></script>
+<style>
+    .dropdown-toggle{
+        height: 35px
+    }
+</style>
+<select class="selectpicker" data-live-search="true" title="请输入周编号" id="cweek">
+    {% for Week in WeeKNo %}
+        {% if weekno == Week and weekno != '' %}
+            <option value="{{ Week }}" selected="selected">{{ Week }}</option>
+        {% else %}
+            <option value="{{ Week }}">{{ Week }}</option>
+        {% endif %}
+    {% endfor %}
+</select>
+<button class="btn btn-primary" onclick="to_gogogo()">搜索</button>
+<button class="btn btn-primary" onclick="javascript:window.location.href='{{ request.path }}' ">清除搜索条件</button>
+<script>
+    function to_gogogo() {
+        var week = document.getElementById('cweek');
+        var curl = '{{ request.GET.urlencode }}';
+        var urllist = curl.split('&amp;');
+        var urltmp = new Array();
+        for (var i=0;i<urllist.length;i++){
+            if (urllist[i].indexOf('_p_Week_No__contains=') == -1 && urllist[i] != ''){
+                urltmp.push(urllist[i]);
+            }
+        }
+        var url = '{{ request.path }}';
+        if (urltmp.length>=1){
+            url = url +'?'+ urltmp.join('&amp;') + '&_p_Week_No__contains='+week.value;
+        }else {
+            url = url +'?_p_Week_No__contains='+week.value;
+        }
+        window.location.href = url ;
+    }
+</script>
+
+
+
+

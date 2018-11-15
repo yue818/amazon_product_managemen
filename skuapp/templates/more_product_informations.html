@@ -1,0 +1,19 @@
+<link href="/static/xadmin/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+<table align="center" class="table table-hover">
+    <thead>
+        <tr align="center">
+            {% for title in information_title %}
+                 <th style="text-align:center"> {{ title }} </th>
+            {% endfor %}
+
+        </tr>
+    </thead>
+    <tbody>
+        <tr align="center">
+            {% for des in information_dec  %}
+                <td> {{ des }} </td>
+            {% endfor %}
+        </tr>
+        
+    </tbody>
+</table>

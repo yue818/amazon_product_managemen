@@ -1,0 +1,44 @@
+<style>
+    .col-md-14 {
+    width: 13%;
+     height: 50%;
+  }
+  .col-md-10 {
+    width: 87%;
+  }
+
+</style>
+<script type="text/javascript">
+    function changeColor(x) {
+        d=document.getElementsByTagName('li')
+        for(p=d.length;p--;){
+            if(d[p].id==x){
+                if(d[p].className=='active'){
+                    d[p].style.backgroundColor='#428bca';
+                }
+            }
+        }
+    }
+</script>
+<input id="sourceURL" type="hidden" value="{{ sourceURL }}">
+<input id="title_list" type="hidden" value="{{ title_list }}">
+<input id="test_list" type="hidden" value="{{ test_list }}">
+<div id="left-side" class="col-sm-1 col-md-14">
+    <ul class="well nav nav-list nav-sitemenu">
+    {% for title in title_list %}
+        <li class="nav-header{% if title.selected == '1' %} active{% endif %}"><i class="fa-fw"></i>{{ title.title }}</li>
+        {% for testurl in test_list %}
+            {% if testurl.title == title.title %}
+                <li id="li_{{ forloop.counter }}" {% if testurl.selected == '1' %}
+                    class="active" style="background-color: #428bca"
+                {% endif %}>
+                    <a href="{{ testurl.url }}">
+                        <i id="i_{{ forloop.counter }}" class="fa-fw fa fa-circle-o" {% if testurl.selected == '1' %}style="color: black"{% endif %}></i>
+                        <font id="font_{{ forloop.counter }}" {% if testurl.selected == '1' %}color="black"{% endif %}>{{ testurl.value }}</font>
+                    </a>
+                </li>
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+    </ul>
+</div>

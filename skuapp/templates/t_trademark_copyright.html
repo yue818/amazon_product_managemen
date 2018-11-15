@@ -1,0 +1,19 @@
+<link href="/static/js/t_online_info_wish_store_search.css?t=201803211234" rel="stylesheet" type="text/css" />
+
+<ul id="myTab" class="nav nav-tabs" style="border-bottom:2px solid rgba(16,21,31,0.21);background-color: rgba(126,160,240,0.03)">
+    <li {% if activeflag == '0' %} class="active" {% endif %}>
+        <a href="/Project/admin/skuapp/t_trademark/">
+             商标
+        </a>
+    </li>
+    <li {% if activeflag == '1' %} class="active" {% endif %}>
+        <a href="/Project/admin/skuapp/t_copyright/?datetype=1">
+             版权
+        </a>
+    </li>
+    <li {% if activeflag == '2' %} class="active" {% endif %}>
+        <a href="/Project/admin/skuapp/t_patents/?datetype=2">
+             专利
+        </a>
+    </li>
+</ul>

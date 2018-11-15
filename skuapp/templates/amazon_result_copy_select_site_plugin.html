@@ -1,0 +1,36 @@
+<br/>
+<p style="font-size: 15px;margin-left: 1%">
+    选择复制到站点：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    <select style="width: 90%; font-size:12px; padding:10px; border-radius:10px 10px 10px 10px;" id="site_select">
+        <option value="">---选择站点---</option>
+        <option value="---US/PJ">美国</option>
+        <option value="---DE/PJ">德国</option>
+        <option value="---FR/PJ">法国</option>
+        <option value="---UK/PJ">英国</option>
+        <option value="---AU/PJ">澳洲</option>
+        <option value="---IN/PJ">印度</option>
+        <option value="---JP/PJ">日本</option>
+        <option value="---CA/PJ">加拿大</option>
+        <option value="---IT/PJ">意大利</option>
+        <option value="---ES/PJ">西班牙</option>
+    </select>
+</p>
+<br>
+<span id="attention_ywp" style="font-size: 18px;color: red;"></span>
+<script>
+    $('#site_select').change(function () {
+        var site = $('#site_select').val();
+        console.log(site);
+        if(document.getElementById('copy_site')){
+            $('#copy_site').val(site);
+        }else {
+            $('#idTableFixed').after('<input type="hidden" id="copy_site" name="copy_site" value="'+site+'">');
+        }
+    });
+    $(document).ready(function () {
+        var url = $('#url').val();
+        if(url.indexOf('_p_status=UPLOAD')>0){
+            $('#attention_ywp').html('&nbsp;&nbsp;刊登时长超过两小时且还在刊登，请及时联系相关IT人员！(两小时内请耐心等候)');
+        }
+    });
+</script>

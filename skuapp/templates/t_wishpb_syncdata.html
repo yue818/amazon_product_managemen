@@ -1,0 +1,145 @@
+<link href="/static/js/t_online_info_wish_store_search.css?t=201803211234" rel="stylesheet" type="text/css" />
+
+<div>
+    <div style="font-size:15px;">
+        <div class="padatr">
+            <br>
+            <div class="satrdiv inline mRight20" style="float: left;height: 34px;width: 65.3px;">搜索店铺:</div>
+            <div class="inline" style="float: left">
+                <input id="q" class="textatr" name="shopname" style="border-radius: 10px;width:364px;"  autocomplete="off"
+                       onFocus="if(this.value=='搜索店铺...'){this.value='';}else{this.select();}this.style.color='black';"  value="{{ flag }}">
+                <input type="button" class="sybutton" value="点击搜索" onclick="searchItemEbay()">
+                <input type="button" class="sybutton" value="同步店铺数据" onclick="syndata()">
+                <div class="selectize-dropdown-content" id="div_items">
+                </div>
+            </div>
+            <input type="hidden" id="list_id" value='{{ objs|safe }}'>
+        </div>
+    </div>
+</div>
+
+<style type="text/css">
+ .remind{
+ font-size:18px;
+ position: absolute;
+ top: 45%;
+ left: 35%;
+ width: 20%;
+ height: 10%;
+ background-color: black;
+ z-index:1001;
+ -moz-opacity: 0.8;
+ opacity:.80;
+ filter: alpha(opacity=80);
+ }
+ </style>
+<div id="reminddiv" class="remind" style="display:none;"> 正在同步数据,请稍等......</div>
+
+<script>
+var info = '';
+$(document).ready(function() {
+    var divdown = document.getElementById('div_items');
+    var shopss = document.getElementById('list_id');
+
+
+    var node = divdown.nextSibling;
+    var shop_list = eval(shopss.value);
+    for (var s = 0; s < shop_list.length; s++) {
+        info += '<div class="div_item" onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" onClick="ChangeText(this);">' + shop_list[s] + '</div>';
+    }
+    divdown.innerHTML = info;
+    divdown.parentNode.insertBefore(divdown, node);
+    node = divdown.nextSibling;
+
+    if (document.getElementById('q').value == 'Wish-0000') {
+        document.getElementById('q').value = '搜索店铺...';
+    }
+    //弹出列表框
+    $("#q").click(function () {
+        $("#div_items").css('display', 'block');
+        return false;
+    });
+
+    //隐藏列表框
+    $("body").click(function () {
+        $("#div_items").css('display', 'none');
+    });
+
+    //文本框输入
+    $("#q").keyup(function () {
+        var intext = document.getElementById('q');
+        var inputtext = intext.value;
+        if (inputtext != "") {
+            var html = "";
+            for (var i = 0; i < shop_list.length; i++) {
+                if (shop_list[i].indexOf(inputtext) >= 0) {
+                    html += '<div class="div_item"onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" onClick="ChangeText(this);">'+ shop_list[i] +'</div>';
+                }
+            }
+            if (html != "") {
+                $("#div_items").show().html(html);
+            } else {
+                $("#div_items").hide().html("");
+            }
+        }else {
+            $("#div_items").show().html(info);
+        }
+    });
+
+
+});
+
+function searchItemEbay(){
+    var absoluteurl = document.location.href;
+    var oppositeurl = window.location.pathname;
+    var ShopName = $("#q").val();
+
+    if(ShopName == '' || ShopName === undefined || ShopName == '搜索店铺...' || ShopName == 'Wish-0000') {
+         window.location.href = absoluteurl;
+    }else{
+         window.location.href = oppositeurl+'?Shopname='+ShopName;
+    }
+}
+
+//移入移出效果
+function getnewcolor(obj) {
+    $(obj).css('background-color', '#1C86EE').css('color', 'white');
+}
+
+function getoldcolor(obj) {
+    $(obj).css('background-color', 'white').css('color', 'black');
+}
+//项点击
+function ChangeText(obj) {
+    var value = $(obj).text();
+    $("#q").val(value);
+    $("#div_items").show().html('<div class="div_item" onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" onClick="ChangeText(this);">'+ value +'</div>');
+}
+
+
+function syndata(){
+    var ShopName = $("#q").val();
+
+    if(ShopName == '' || ShopName === undefined || ShopName == '搜索店铺...' || ShopName == 'Wish-0000'){
+        alert('请先选择需要同步的店铺!');
+    }else{
+        $('#reminddiv').css('display','');
+
+        $.getJSON('/wishpb_syncshopdata/?ShopName='+ShopName, function(result){
+            if (result['result'] == 'OK')
+            {
+              $('#reminddiv').text(ShopName +' 店铺数据已同步成功!');
+              //alert(ShopName +' 店铺数据已同步成功!');
+              window.setTimeout("$('#reminddiv').css('display','none');", 2000);
+              window.parent.location.reload();
+            }
+            else{
+               $('#reminddiv').text(ShopName +' 店铺数据同步失败:'+result['info']);
+               window.setTimeout("$('#reminddiv').css('display','none');", 2000);
+               window.parent.location.reload();
+            }
+        });
+    }
+}
+
+</script>

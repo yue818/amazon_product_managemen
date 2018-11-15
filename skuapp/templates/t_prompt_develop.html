@@ -1,0 +1,177 @@
+<html>
+<script src="https://cdn.bootcss.com/jquery/2.0.1/jquery.min.js"></script>
+<script type="text/javascript">
+    if($("img").length < 1 ) {
+        console.log("img不存在")
+        $("#_portal_key").after("<table><tr>\n" +
+            "<td><div>\n" +
+            "<img src=\"\"  width=\"160\" height=\"160\"  alt = \"\"  title=\"调研图:\"  /> \n" +
+            "</div></td> \n" +
+            "<td><div>\n" +
+            "<img style=\"margin-left: 50px\" src=\"\"  width=\"160\" height=\"160\"  alt = \"\"  title=\"供应商图:\"  /> \n" +
+            "</div></td> \n" +
+            "</tr></table>\n" +
+            "<br>")
+    }
+    $('#id_SourcePicPath').attr("readonly",true);
+    $('#id_SourcePicPath2').attr("readonly",true);
+    $('#id_Pricerange').attr("readonly",true);
+    $('#id_OrdersLast7Days').attr("readonly",true);
+    $('#id_Keywords').attr("readonly",true);
+    $('#id_Keywords2').attr("readonly",true);
+    $('#id_SourceURL').after("&nbsp;&nbsp;&nbsp;<button id=\"fat-btn1\" class=\"btn btn-primary\" data-loading-text=\"抓取中...\" \n" +
+        "    type=\"button\"> 抓取\n" +
+        "</button>&nbsp;&nbsp;&nbsp;<span class=\"asteriskField\">此抓取按钮只支持wish.com/;amazon.com/;ebay.com/;aliexpress.com/全球站;不支持国家站，抓取时间可能比较长请耐心等待..</span>");
+    $('#id_SupplierPUrl1').after("&nbsp;&nbsp;&nbsp;<button id=\"fat-btn2\" class=\"btn btn-primary\" data-loading-text=\"抓取中...\" \n" +
+        "    type=\"button\"> 抓取\n" +
+        "</button>&nbsp;&nbsp;&nbsp;<span class=\"asteriskField\">此抓取按钮只支持detail.1688.com/，抓取时间可能比较长请耐心等待..如果供货商信息与正确供货商名不一致请手动修改</span>");
+
+    $('#fat-btn1').click(function () {
+        if($("#id_SourceURL").val() == ""){
+            alert("url为空！");
+            return false
+        }
+        $(this).button('loading').delay(1000).queue(function() {
+            {#alert("a");#}
+            var id_SourceURL = $("#id_SourceURL").serialize();
+            var id_SourceURL = id_SourceURL.substring(id_SourceURL.indexOf('=')+1);
+            id_SourceURL = decodeURIComponent(id_SourceURL,true);
+            id_SourceURL = encodeURI(encodeURI(id_SourceURL));
+            $.ajax({
+                url: "/get_survey_results_info/",
+                type: "GET",
+                contentType: "application/x-www-form-urlencoded:charset=UTF-8",
+                dataType: "json",
+                async:false,
+                data: {
+                    'url': id_SourceURL
+                },
+                success: function (dataq, textStatus, jqXHR) {
+                    console.log(dataq);
+                    if (dataq.error == 0) {
+                        $('#id_OrdersLast7Days').val(dataq.fifteenOrders);
+                        $('#id_Pricerange').val(dataq.priceRange);
+                        $('#id_Keywords').val(dataq.enTitle);
+                        $('#id_Keywords2').val(dataq.cnTitle);
+                        $('#id_SourcePicPath').val(dataq.imageUrl);
+                        $('img:eq(0)').attr("src",dataq.imageUrl);
+                    }else {
+                        alert(dataq.errmsg + "抓取失败请检查url的正确性,可以进行重试！");
+                    }
+
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert(textStatus + errorThrown + "抓取失败请检查url的正确性并重试！");
+                }
+            });
+            $(this).button('reset');
+            $(this).dequeue();
+            });
+    });
+
+{#    $("#id_SupplierID").blur(function(){#}
+{#                var tmp_SupplierName=$("#id_SupplierID").val();#}
+{#                $.ajax({#}
+{#                    url: "/search_SupplierName/",#}
+{#                    type: "GET",#}
+{#                    contentType: "application/x-www-form-urlencoded:charset=UTF-8",#}
+{#                    dataType: "json",#}
+{#                    async: false,#}
+{#                    data: {#}
+{#                        'SupplierName': tmp_SupplierName#}
+{#                    },#}
+{#                    success: function (dataq, textStatus, jqXHR) {#}
+{#                            #}
+{#                        var tmp_text = '当前供应商下商品SKU状态为正常或临时下架的总数量:' + dataq.supplierSkuCount + ',近一个月采购SKU总数:' + dataq.cgSkuCount + ',近一个月采购总金额:' + dataq.CGALLmoney;#}
+{#                        document.getElementById('sp_supplier').innerText = tmp_text;#}
+{#                    },#}
+{#                    error: function (jqXHR, textStatus, errorThrown) {#}
+{#                        document.getElementById('sp_supplier').innerText = '后台数据查询失败,未查到相应数据';#}
+{#                    }#}
+{#                })#}
+{#        });#}
+{#    $('#id_SupplierID').after("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span id='sp_supplier' class=\"asteriskField\"></span>");#}
+    $('#fat-btn2').click(function () {
+        if($("#id_SupplierPUrl1").val() == ""){
+            alert("url为空！");
+            return false
+        }
+        $(this).button('loading').delay(1000).queue(function() {
+            {#alert("a");#}
+            var id_SupplierPUrl1 = $("#id_SupplierPUrl1").serialize();
+            var id_SupplierPUrl1 = id_SupplierPUrl1.substring(id_SupplierPUrl1.indexOf('=')+1);
+            id_SupplierPUrl1 = decodeURIComponent(id_SupplierPUrl1,true);
+            id_SupplierPUrl1 = encodeURI(encodeURI(id_SupplierPUrl1));
+            $.ajax({
+                url: "/get-ali1688-page-info/",
+                type: "GET",
+                contentType: "application/x-www-form-urlencoded:charset=UTF-8",
+                dataType: "json",
+                async:false,
+                data: {
+                    'url': id_SupplierPUrl1
+                },
+                success: function (dataq, textStatus, jqXHR) {
+                    console.log(dataq);
+                    if (dataq.error == 0) {
+
+                        $('#id_SupplierPDes').val(dataq.suppliertitle);
+                        $('#id_SupplierID').val(dataq.suppliername);
+                        $('#id_SourcePicPath2').val(dataq.supplierimgurl);
+                        $('img:eq(1)').attr("src",dataq.supplierimgurl);
+                        check_supplier()
+{#                        var tmp_text = '服务器内部错误,请尝试鼠标点击输入框再移出点击界面或联系相关IT人员';#}
+{#                        if(dataq.query_code == 0)#}
+{#                            tmp_text = '当前供应商下商品SKU状态为正常或临时下架的总数量:' + dataq.supplierSkuCount + ',近一个月采购SKU总数:' + dataq.cgSkuCount + ',近一个月采购总金额:' + dataq.CGALLmoney;           #}
+{#                        document.getElementById('sp_supplier').innerText = tmp_text;    #}
+                    }else {
+                        alert(dataq.errmsg + "请直接保存或稍后再试！");
+                    }
+
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert(textStatus + errorThrown + "请重试！");
+                }
+            });
+            $(this).button('reset');
+            $(this).dequeue();
+            });
+    });
+
+
+    {#$('#id_SupplierPUrl1').blur(function (){#}
+    {#var SupplierPUrl1 = $("#id_SupplierPUrl1").serialize();#}
+    {##}
+    {#var SupplierPUrl1 = SupplierPUrl1.substring(SupplierPUrl1.indexOf('=')+1);#}
+    {#SupplierPUrl1 = decodeURIComponent(SupplierPUrl1,true);#}
+    {#SupplierPUrl1 = encodeURI(encodeURI(SupplierPUrl1));#}
+    {##}
+    {#$.ajax({ #}
+    {#            url:"/prompt_develop/", #}
+    {##}
+    {#            type: "GET",#}
+    {#            contentType:"application/x-www-form-urlencoded:charset=UTF-8",#}
+    {#            dataType: "json",#}
+    {#            data: {#}
+    {#                'a':SupplierPUrl1,#}
+    {#                'b':'qweqwe'#}
+    {#            },#}
+    {#                   #}
+    {#            success:function(dataq, textStatus, jqXHR){#}
+    {#                if(dataq=='0')#}
+        {#          {#}
+    {#                    console("该产品url已被调研过!");                    #}
+        {#          }#}
+    {##}
+    {#            }, #}
+    {#            error:function(jqXHR, textStatus, errorThrown){ #}
+    {#                alert(textStatus); #}
+    {#                alert(errorThrown); #}
+    {#            } #}
+    {#        }); #}
+    {##}
+    {# });#}
+    
+</script>
+</html>
+

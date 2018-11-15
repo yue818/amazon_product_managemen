@@ -1,0 +1,65 @@
+<script src="/static/xadmin/vendor/jquery/jquery.min.js"></script>
+<script type="text/javascript">
+    function add_config_value() {
+        var tableI = document.getElementById("config_table");
+        var newTr = tableI.insertRow(-1);
+
+        newTr.insertCell(0).innerHTML = '<input type="text" class="text-field admintextinputwidget form-control" value="" name="en_k">';
+        newTr.insertCell(1).innerHTML = '<input type="text" class="text-field admintextinputwidget form-control" value="" name="zh_v">';
+        newTr.insertCell(2).innerHTML = '<input type="button" class="btn btn-default" value="移除" name="delone" onclick="to_del_value(this)">';
+
+    }
+
+    function to_del_value(obj) {
+        var tableI = document.getElementById("config_table");//找到要删除行所在的table
+        var trI = obj.parentNode.parentNode;//我的button在tr下的td中，两次执行.parentNode操作，可以找到要删除的tr。
+
+        var index = trI.rowIndex;//要删除的tr所在table中的index
+        tableI.deleteRow(index);//执行删除
+    }
+
+
+</script>
+
+
+<!-- 配置 -->
+<div class="panel panel-default fieldset unsort ">
+    <div class="panel-heading">
+        <i class="icon fa fa-chevron-up chevron"></i>
+        <h3 class="panel-title">配置信息</h3>
+    </div>
+    <div class="panel-body ">
+        <table class="table table-bordered table-striped table-hover" cellspacing="0" cellpadding="2" id="config_table">
+            <thead>
+                <tr>
+                    <th>英文</th>
+                    <th>中文</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for en_k, zh_v in valuedict.items %}
+                <tr>
+                    <td>
+                        <input type="text" class="text-field admintextinputwidget form-control" value="{{ en_k }}" name="en_k">
+                    </td>
+                    <td>
+                        <input type="text" class="text-field admintextinputwidget form-control" value="{{ zh_v }}" name="zh_v">
+                    </td>
+                    <td>
+                        <input type="button" class="btn btn-default" value="移除" name="delone" onclick="to_del_value(this)">
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div id="div_Variant_next" class="form-group col-sm-4">
+            <div class="controls "  style="float:left;">
+                <button type="button" class="btn btn-primary" onclick="add_config_value()">
+                    <span style="color:#ffffff;">增加配置</span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+

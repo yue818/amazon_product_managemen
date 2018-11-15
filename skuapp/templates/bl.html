@@ -1,0 +1,64 @@
+﻿
+<style type="text/css">
+        .btn_1{
+            display: inline-block;
+            padding: 6px 12px;
+            margin-bottom: 0;
+            font-size: 14px;
+            font-weight: normal;
+            line-height: 1.428571429;
+            text-align: center;
+            vertical-align: middle;
+            cursor: pointer;
+            background-image: none;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            color: #ffffff;
+            background-color: #555555;
+        }
+		.btn_2{
+            display: inline-block;
+            padding: 6px 10px;
+            margin-bottom: 0;
+            font-size: 14px;
+            font-weight: normal;
+            line-height: 1.428571429;
+            text-align: center;
+            vertical-align: middle;
+            cursor: pointer;
+            background-image: none;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            color: #ffffff;
+            background-color: red;
+        }
+
+</style>
+<script type="application/javascript">
+    jQuery(function() {
+        $("#tb").click(function(){
+           $("form.exform").attr("action","/update_blacklist_Plugin/");
+           $("form.exform").submit();
+        });
+    });
+
+
+
+</script>
+<button type="hidden" id="flag" value="{{ flag }}"></button>
+    
+<div>    
+    <a class="btn_1" href="/Project/admin/skuapp/p_trade_blacklist_zip/" id="btc0">全部</a>
+    <a class="btn_1" href="{{ url }}?_p_Operate=0" id="btc1">已处理</a>
+    <a class="btn_1" href="{{ url }}?_p_Operate=1" id="btc2">未处理</a>
+    <a class="btn_1" href="{{ url }}?_p_Operate=2" id="btc3">忽略</a>
+</div>
+<br />
+<div>	
+	<span style="height: 30px;width: 180px;font-size: 15px"> 最近同步时间:<input type="text" readonly="readonly" style="height: 30px;width: 180px;font-size: 15px;border-radius: 5px;"  value="{{ show_time_obj}}"></input>&nbsp;&nbsp;<a class="btn_2" href="/black_list_Plugin/">手动同步</a></span>
+</div>
+<br/>

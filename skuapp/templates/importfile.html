@@ -1,0 +1,80 @@
+<style type="text/css">
+		.btn_1{
+			display: inline-block;
+	        padding: 6px 12px;
+	        margin-bottom: 0;
+	        font-size: 14px;
+	        font-weight: normal;
+	        line-height: 1.428571429;
+	        text-align: center;
+	        vertical-align: middle;
+	        cursor: pointer;
+	        background-image: none;
+	        border: 1px solid transparent;
+	        border-radius: 6px;
+	        -webkit-user-select: none;
+	        -moz-user-select: none;
+	        color: #ffffff;
+		    background-color: #555555;
+		}
+        .sel_btn{
+            height: 26px;
+            line-height: 26px;
+            padding: 0 11px;
+            background: #dbc59e;
+            border: 1px #26bbdb solid;
+            border-radius: 3px;
+            color: black;
+            display: inline-block;
+            text-decoration: none;
+            font-size: 12px;
+            outline: none;
+        }
+        .ch_cls{
+            background: #e4e4e4;
+        }
+</style>
+
+<script type="text/javascript">
+function disable()
+{
+document.form1.Submit.disabled=true;
+}
+</script>
+
+<form name="form1" id="id_importfileplugin" action = "/importfile_stocking_demand/?dealflag={{ dealFlag }}" method="POST" onsubmit="disable()" enctype="multipart/form-data">
+    {% if dealFlag == 'OTHER' %}
+        <a class="sel_btn ch_cls"  href="https://fancyqube-xls.oss-cn-shanghai.aliyuncs.com/updown_model_file/t_stocking_demand_model.xls"
+           download="https://fancyqube-xls.oss-cn-shanghai.aliyuncs.com/updown_model_file/t_stocking_demand_model.xls">下载导入数据模板</a>&nbsp;
+    {% elif dealFlag == 'FBA' %}
+        <a class="sel_btn ch_cls"  href="https://fancyqube-xls.oss-cn-shanghai.aliyuncs.com/updown_model_file/t_stocking_demand_fba_model.xls"
+           download="https://fancyqube-xls.oss-cn-shanghai.aliyuncs.com/updown_model_file/t_stocking_demand_fba_model.xls">下载导入数据模板</a>&nbsp;
+    {% elif dealFlag == 'FBAREJECT' %}
+    <a class="sel_btn ch_cls"  href="https://fancyqube-xls.oss-cn-shanghai.aliyuncs.com/updown_model_file/t_stocking_demand_fbareject_model.xls"
+       download="https://fancyqube-xls.oss-cn-shanghai.aliyuncs.com/updown_model_file/t_stocking_demand_fbareject_model.xls">下载导入数据模板</a>
+    {% elif dealFlag == 'FBW' %}
+        <a class="sel_btn ch_cls"  href="https://fancyqube-xls.oss-cn-shanghai.aliyuncs.com/updown_model_file/t_stocking_demand_fbw_model.xls"
+           download="https://fancyqube-xls.oss-cn-shanghai.aliyuncs.com/updown_model_file/t_stocking_demand_fbw_model.xls">下载导入数据模板</a>
+    {% elif dealFlag == 'SALERPROFITCONFIG' %}
+        <a class="sel_btn ch_cls"  href="https://fancyqube-xls.oss-cn-shanghai.aliyuncs.com/updown_model_file/t_saler_profit_config_model.xlsx"
+           download="https://fancyqube-xls.oss-cn-shanghai.aliyuncs.com/updown_model_file/t_saler_profit_config_model.xlsx">下载导入数据模板</a>&nbsp;
+    {% elif dealFlag == 'CLOTHFACTORY' %}
+        <a class="sel_btn ch_cls"  href="https://fancyqube-xls.oss-cn-shanghai.aliyuncs.com/updown_model_file/t_cloth_factory_dispatch_needpurchase_model.xls"
+           download="https://fancyqube-xls.oss-cn-shanghai.aliyuncs.com/updown_model_file/t_cloth_factory_dispatch_needpurchase_model.xls">下载导入数据模板</a>&nbsp;
+    {% elif dealFlag == 'AFFILIATE' %}
+        <a class="sel_btn ch_cls"  href="https://fancyqube-xls.oss-cn-shanghai.aliyuncs.com/updown_model_file/t_online_aliexpress_affiliate_rate_model.xlsx"
+           download="https://fancyqube-xls.oss-cn-shanghai.aliyuncs.com/updown_model_file/t_online_aliexpress_affiliate_rate_model.xlsx">下载导入数据模板</a>&nbsp;
+    {% endif %}
+    <br><br>
+    <tr>
+        <th><input type='file' name='myfile' style="width:200px;display:inline;"></th>
+
+        <th><button id='btn1' name="Submit" type='submit' style="width:40px;display:inline;">上传</button></th>
+    </tr>
+    <!--button id="btc" type='button' class="btn_1" onclick="{location.href='/Project/admin/skuapp/t_stocking_demand_list/?_p_Status__exact=notgenerated'}"><span style="color:#ffffff;">未生成采购计划</span></button>
+    <button id="btc" type='button' class="btn_1" onclick="{location.href='/Project/admin/skuapp/t_stocking_demand_list/?_p_Status__exact=notpurchased'}"><span style="color:#ffffff;">计划已生成，未采购</span></button>
+    <button id="btc" type='button' class="btn_1" onclick="{location.href='/Project/admin/skuapp/t_stocking_demand_list/?_p_Status__exact=already'}"><span style="color:#ffffff;">采购已完成</span></button>
+    <button id="btc" type='button' class="btn_1" onclick="{location.href='/Project/admin/skuapp/t_stocking_demand_list/'}"><span style="color:#ffffff;">全部</span></button-->
+    {% csrf_token %}
+</form>
+

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<table align="center" width="95%"  border="1">
+        <tr align="center">
+            <th style="text-align:center">FBA-链接</th>
+            <th style="text-align:center">FBA-库存数</th>
+            <th style="text-align:center">可售数</th>
+            <th style="text-align:center">不可售数</th>
+            <th style="text-align:center">预留数</th>
+            <th style="text-align:center">总数量</th>
+            <th style="text-align:center">单位体积</th>
+            <th style="text-align:center">待入库数</th>
+            <th style="text-align:center">在途数</th>
+            <th style="text-align:center">正在接收数</th>
+        </tr>
+
+        <tr>
+            <td nowrap>{{inventory_obj.afn_listing_exists}}</td>
+            <td nowrap>{{inventory_obj.afn_warehouse_quantity}}</td>
+            <td nowrap>{{inventory_obj.afn_fulfillable_quantity}}</td>
+            <td nowrap>{{inventory_obj.afn_unsellable_quantity}}</td>
+            <td nowrap>{{inventory_obj.afn_reserved_quantity}}</td>
+            <td nowrap>{{inventory_obj.afn_total_quantity}}</td>
+            <td nowrap>{{inventory_obj.per_unit_volume}}</td>
+            <td nowrap>{{inventory_obj.afn_inbound_working_quantity}}</td>
+            <td nowrap>{{inventory_obj.afn_inbound_shipped_quantity}}</td>
+            <td nowrap>{{inventory_obj.afn_inbound_receiving_quantity}}</td>
+        </tr>
+
+    </table>
+</body>
+</html>

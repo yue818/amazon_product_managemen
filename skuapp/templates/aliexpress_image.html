@@ -1,0 +1,88 @@
+<style type="text/css">
+    .btn{
+    color: #ffffff;
+    background-color: #428bca;
+    border-color: #357ebd;
+    display: inline-block;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1.428571429;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    }
+</style>
+
+<style>
+    table{
+        border-collapse: collapse;
+        border:0;
+    }
+    td > input{
+	    height:30px;
+        border:none;
+        margin: 0;
+        line-height:100%;
+        width: 100%;
+        text-align: center;
+	}
+
+	th{
+        border: 0.05px solid #dddddd;
+		text-align:center;
+	    font-size:15px;
+	    height:25px;
+	}
+</style>
+
+<form action="/save_aliexpress_image/" method="post">
+{% csrf_token %}
+<div align="center">采集信息ID：<input style=" border:none;font-size: large" readonly="true" type="text" value="{{ image_id }}" name="image_id"></div>
+
+        <table border="1" id="mytable" style="height:600px;width: 600px">
+            <tr>
+                <th>图片</th>
+                <th>是否作为主图</th>
+            </tr>
+
+            {% for k1, v1 in MainImage.items %}
+            <tr>
+                <td><img src="{{ v1 }}" width="200" height="200" alt="无"></td>
+                <td height="80%">
+                    <select name="status" >
+                            <option value = "1" >作为主图</option>
+                            <option value = "1">作为主图</option>
+                            <option value = "0">除去主图</option>
+                    </select>
+                </td>
+                <td style="display:none;"><input name="imageName" value="{{ k1 }}"></td>
+            </tr>
+            {% endfor %}
+
+            {% for k2, v2 in OtherImage.items %}
+            <tr>
+                <td><img src="{{ v2 }}" width="200" height="200" alt="无"></td>
+                <td height="80%">
+                    <select name="status" >
+                            <option value = "0" >除去主图</option>
+                            <option value = "1">作为主图</option>
+                            <option value = "0">除去主图</option>
+                    </select>
+                </td>
+                <td style="display:none;"><input name="imageName" value="{{ k2 }}" ></td>
+            </tr>
+            {% endfor %}
+
+        </table>
+
+        <div align="center">
+                <input type="submit" class="btn" name="submit">
+            </div>
+</form>

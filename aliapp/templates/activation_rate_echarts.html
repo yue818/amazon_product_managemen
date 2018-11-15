@@ -1,0 +1,365 @@
+<meta charset="UTF-8">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.1.0.rc2/echarts-en.common.js"></script>
+<div class="alert alert-info" style="font-size:18px;width:550px;display: none;" id="gmt_change_warn">
+  更改刊登日期查询需要在后台实时计算,需等待30秒左右
+</div>
+<br>
+<div class="btn-group" style="margin-left:30px;">
+  <button class="btn" id="btn_rate" onclick="tableswitch('btn_rate')">激活率</button>
+  <button class="btn" id="btn_count" onclick="tableswitch('btn_count')">激活数/刊登数</button>
+</div>
+<div id="submitter" style="width: 100%;height:400px;"></div>
+<br>
+<br>
+<div id="category" style="width: 100%;height:400px;"></div>
+<br>
+<ul class="nav nav-pills">
+  <li id="nav_menu1"><a  onclick="navonclick('1')">刊登人激活率</a></li>
+  <li id="nav_menu2"><a onclick="navonclick('2')">品类激活率</a></li>
+  <li id="nav_menu3"><a onclick="navonclick('3')">明细</a></li>
+</ul>
+<script type="text/javascript">
+    function navonclick(value) {
+        let current_url=window.location.href;
+        if (current_url.indexOf('t_erp_aliexpress_activation_rate_overview')!==-1){
+            var search_arg=window.location.search.replace('&type=0','').replace('&type=1','').replace('?type=1','').replace('?type=0','').replace('?','').replace('activation_rate','rate');
+        }else{
+            search_arg=''
+        }
+        if (search_arg.length>0) {
+            if (value === '1') {
+                window.location.href = current_url.split('/aliapp/')[0] + '/aliapp/t_erp_aliexpress_activation_rate_overview/?' + search_arg + '&type=0';
+            } else if (value === '2') {
+                window.location.href = current_url.split('/aliapp/')[0] + '/aliapp/t_erp_aliexpress_activation_rate_overview/?' + search_arg + '&type=1';
+            } else if (value === '3') {
+                window.location.href = current_url.split('/aliapp/')[0] + '/aliapp/t_erp_aliexpress_activation_rate/';
+            }
+        }
+        else {
+            if (value === '1') {
+                window.location.href = current_url.split('/aliapp/')[0] + '/aliapp/t_erp_aliexpress_activation_rate_overview/'+'?type=0';
+            } else if (value === '2') {
+                window.location.href = current_url.split('/aliapp/')[0] + '/aliapp/t_erp_aliexpress_activation_rate_overview/'+'?type=1';
+            } else if (value === '3') {
+                window.location.href = current_url.split('/aliapp/')[0] + '/aliapp/t_erp_aliexpress_activation_rate/';
+            }
+        }
+    }
+
+    $(function () {
+        setTimeout(1000);
+        let current_url=window.location.href;
+        if (current_url.indexOf("type=0") !== -1){
+            $('#nav_menu1').addClass('active');
+            $('#nav_menu2').removeClass('active');
+            $('#nav_menu3').removeClass('active');
+
+        }else if (current_url.indexOf("type=1") !== -1){
+            $('#nav_menu1').removeClass('active');
+            $('#nav_menu2').addClass('active');
+            $('#nav_menu3').removeClass('active');
+        }else if (current_url.indexOf("t_erp_aliexpress_activation_rate/")!== -1){
+            $('#nav_menu1').removeClass('active');
+            $('#nav_menu2').removeClass('active');
+            $('#nav_menu3').addClass('active')
+        }
+    });
+
+    $("#value21").change(function () {
+        document.getElementById("gmt_change_warn").style.display="";
+    });
+        $("#value11").change(function () {
+        document.getElementById("gmt_change_warn").style.display="";
+    });
+
+    // 基于准备好的dom，初始化echarts实例
+    var submitter = echarts.init(document.getElementById('submitter'));
+    var category = echarts.init(document.getElementById('category'));
+    var submitter_data ={{ Submitter_rate|safe }};
+    var category_data ={{ Category_rate|safe }};
+
+    var Submitter_product_count={{ Submitter_product_count|safe }};
+    var Category_product_count={{ Category_product_count|safe }};
+    var Submitter_activation_count={{ Submitter_activation_count|safe }};
+    var Category_activation_count={{ Category_activation_count|safe }};
+    // 指定图表的配置项和数据
+    var tdate={{ tdate|safe }};
+    tdate=String(tdate);
+    var strlen = tdate.length;
+    if (strlen >8){
+        tdate=tdate.substring(0,8)+'-'+tdate.substring(8);
+    }else{
+        tdate='全部商品'
+    }
+    var submitter_dateList = submitter_data.map(function (item) {
+        return item[0];
+    });
+    var submitter_valueList = submitter_data.map(function (item) {
+        return item[1];
+    });
+    var category_dateList = category_data.map(function (item) {
+        return item[0];
+    });
+    var category_valueList = category_data.map(function (item) {
+        return item[1];
+    });
+    var Submitter_product=Submitter_product_count.map(function (item) {
+        return item[1];
+    });
+    var Category_product=Category_product_count.map(function (item) {
+        return item[1];
+    });
+    var Submitter_activation=Submitter_activation_count.map(function (item) {
+        return item[1];
+    });
+    var Category_activation=Category_activation_count.map(function (item) {
+        return item[1];
+    });
+
+
+
+
+        submitter_option_count = {
+        title: [{
+            left: 'center',
+            text: '刊登人激活数/刊登数'+'('+tdate+')',
+        }],
+        color: ['#4cabce', '#e5323e'],
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+            }
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: [
+            {
+                type: 'category',
+                data: submitter_dateList,
+                axisTick: {
+                    alignWithLabel: true
+                }
+            }
+        ],
+        yAxis: [
+            {
+                type: 'value'
+            }
+        ],
+        series: [
+            {
+                name: '激活数',
+                type: 'bar',
+                data: Submitter_activation,
+            }, {
+                name: '刊登数',
+                type: 'bar',
+                data: Submitter_product,
+            }
+        ],
+        dataZoom: [
+            {   // 这个dataZoom组件，默认控制x轴。
+                type: 'slider', // 这个 dataZoom 组件是 slider 型 dataZoom 组件
+                start: 10,      // 左边在 10% 的位置。
+                end: 60         // 右边在 60% 的位置。
+            },
+            {   // 这个dataZoom组件，也控制x轴。
+                type: 'inside', // 这个 dataZoom 组件是 inside 型 dataZoom 组件
+                start: 10,      // 左边在 10% 的位置。
+                end: 60         // 右边在 60% 的位置。
+            }
+        ],
+    };
+
+
+
+    category_option_count = {
+        title: [{
+            left: 'center',
+            text: '品类激活数/刊登数'+'('+tdate+')',
+        }],
+        color: ['#4cabce', '#e5323e'],
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+            }
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: [
+            {
+                type: 'category',
+                data: category_dateList,
+                axisTick: {
+                    alignWithLabel: true
+                }
+            }
+        ],
+        yAxis: [
+            {
+                type: 'value'
+            }
+        ],
+        series: [
+            {
+                name: '激活数',
+                type: 'bar',
+                data: Category_activation,
+            }, {
+                name: '刊登数',
+                type: 'bar',
+                data: Category_product,
+            }
+        ],
+        dataZoom: [
+            {   // 这个dataZoom组件，默认控制x轴。
+                type: 'slider', // 这个 dataZoom 组件是 slider 型 dataZoom 组件
+                start: 10,      // 左边在 10% 的位置。
+                end: 60         // 右边在 60% 的位置。
+            },
+            {   // 这个dataZoom组件，也控制x轴。
+                type: 'inside', // 这个 dataZoom 组件是 inside 型 dataZoom 组件
+                start: 10,      // 左边在 10% 的位置。
+                end: 60         // 右边在 60% 的位置。
+            }
+        ],
+    };
+
+
+    submitter_option = {
+        title: [{
+            left: 'center',
+            text: '刊登人激活率'+'('+tdate+')',
+        }],
+        color: ['#3398DB'],
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+            }
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: [
+            {
+                type: 'category',
+                data: submitter_dateList,
+                axisTick: {
+                    alignWithLabel: true
+                }
+            }
+        ],
+        yAxis: [
+            {
+                type: 'value'
+            }
+        ],
+        series: [
+            {
+                name: '激活率',
+                type: 'bar',
+                barWidth: '60%',
+                data: submitter_valueList,
+            }
+        ],
+        dataZoom: [
+            {   // 这个dataZoom组件，默认控制x轴。
+                type: 'slider', // 这个 dataZoom 组件是 slider 型 dataZoom 组件
+                start: 10,      // 左边在 10% 的位置。
+                end: 60         // 右边在 60% 的位置。
+            },
+            {   // 这个dataZoom组件，也控制x轴。
+                type: 'inside', // 这个 dataZoom 组件是 inside 型 dataZoom 组件
+                start: 10,      // 左边在 10% 的位置。
+                end: 60         // 右边在 60% 的位置。
+            }
+        ],
+    };
+
+
+    category_option = {
+        title: [{
+            left: 'center',
+            text: '品类激活率'+'('+tdate+')',
+
+        }],
+        color: ['#d84138'],
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+            }
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: [
+            {
+                type: 'category',
+                data: category_dateList,
+                axisTick: {
+                    alignWithLabel: true
+                }
+            }
+        ],
+        yAxis: [
+            {
+                type: 'value'
+            }
+        ],
+        series: [
+            {
+                name: '激活率',
+                type: 'bar',
+                barWidth: '60%',
+                data: category_valueList,
+            }
+        ],
+        dataZoom: [
+            {   // 这个dataZoom组件，默认控制x轴。
+                type: 'slider', // 这个 dataZoom 组件是 slider 型 dataZoom 组件
+                start: 0,      // 左边在 0% 的位置。
+                end: 100         // 右边在 100% 的位置。
+            },
+            {   // 这个dataZoom组件，也控制x轴。
+                type: 'inside', // 这个 dataZoom 组件是 inside 型 dataZoom 组件
+                start: 0,      // 左边在 10% 的位置。
+                end: 100         // 右边在 60% 的位置。
+            }
+        ],
+    };
+    // 使用刚指定的配置项和数据显示图表。
+    submitter.setOption(submitter_option);
+    category.setOption(category_option);
+
+    function tableswitch(data) {
+        if (data==='btn_rate'){
+            submitter.clear();
+            category.clear();
+            submitter.setOption(submitter_option);
+            category.setOption(category_option);
+        }else if (data==='btn_count'){
+            submitter.clear();
+            category.clear();
+            submitter.setOption(submitter_option_count);
+            category.setOption(category_option_count);
+        }
+    }
+</script>

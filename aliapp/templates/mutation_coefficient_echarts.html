@@ -1,0 +1,524 @@
+<meta charset="UTF-8">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/4.1.0.rc2/echarts-en.common.js"></script>
+<div class="btn-group" style="margin-left:30px;">
+    <button class="btn" id="btn_rate" onclick="tableswitch('btn_sales')">周销量</button>
+    <button class="btn" id="btn_count" onclick="tableswitch('btn_rate')">周销量环比</button>
+</div>
+
+<div style="height: 450px">
+    <div id="submitter" style="width: 70%;height:400px;float:left;"></div>
+    <div id="category" style="width: 30%;height:400px;float:left;"></div>
+</div>
+
+<div>
+    <div style="width: 33%;height:450px;float:left;">
+        <div id="topsales" style="width: 100%;height:400px;"></div>
+        <button class="btn btn-primary" onclick="detail1()" style="display:block;margin:0 auto">查看详情</button>
+    </div>
+    <div style="width: 33%;height:450px;float:left;">
+        <div id="topwow_sales_data" style="width: 100%;height:400px;"></div>
+        <button class="btn btn-primary" onclick="detail2()" style="display:block;margin:0 auto">查看详情</button>
+    </div>
+    <div style="width: 33%;height:450px;float:left;">
+        <div id="topwow_rate_data" style="width: 100%;height:400px;"></div>
+        <button class="btn btn-primary" onclick="detail3()" style="display:block;margin:0 auto">查看详情</button>
+    </div>
+</div>
+<script>
+    var submitter = echarts.init(document.getElementById('submitter'));
+    var category = echarts.init(document.getElementById('category'));
+    var topsales = echarts.init(document.getElementById('topsales'));
+    var topwow_sales = echarts.init(document.getElementById('topwow_sales_data'));
+    var topwow_rate = echarts.init(document.getElementById('topwow_rate_data'));
+
+
+    var submitter_data ={{ submitter|safe }};
+    var category_data ={{ category|safe }};
+    var shopname_data ={{ shopname|safe }};
+    var topsales_data ={{ topsales|safe }};
+    var topwow_sales_data ={{ topwow_sales|safe }};
+    var topwow_rate_data ={{ topwow_rate|safe }};
+    var week ={{ week|safe }};
+
+
+    var topsales_key = topsales_data.map(function (item) {
+        return item[0];
+    });
+    var topsales_value = topsales_data.map(function (item) {
+        return item[1];
+    });
+
+
+    var topwow_sales_key = topwow_sales_data.map(function (item) {
+        return item[0];
+    });
+    var topwow_sales_value = topwow_sales_data.map(function (item) {
+        return item[1];
+    });
+
+    var topwow_rate_key = topwow_rate_data.map(function (item) {
+        return item[0];
+    });
+    var topwow_rate_value = topwow_rate_data.map(function (item) {
+        return item[1];
+    });
+
+
+    var submitter_key = [];
+    var submitter_sales = [];
+    var submitter_lastweeksales = [];
+    var submitter_rate = [];
+    for (let i in submitter_data) {
+        submitter_key.push(i);
+        submitter_sales.push(submitter_data[i].sales);
+        submitter_lastweeksales.push(submitter_data[i].lastweek_sales);
+        submitter_rate.push(submitter_data[i].wow_rate);
+    }
+
+
+    var category_key = [];
+    var category_sales = [];
+    var category_lastweeksales = [];
+    var category_rate = [];
+    for (let i in category_data) {
+        category_key.push(i);
+        category_sales.push(category_data[i].sales);
+        category_lastweeksales.push(category_data[i].lastweek_sales);
+        category_rate.push(category_data[i].wow_rate);
+    }
+
+
+    topsales_option = {
+
+        title: [{
+            left: 'center',
+            text: week + '周销量top20',
+        }],
+        color: ['#3398DB'],
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+            }
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: [
+            {
+                type: 'category',
+                data: topsales_key,
+                axisTick: {
+                    alignWithLabel: true
+                }
+            }
+        ],
+        yAxis: [
+            {
+                type: 'value'
+            }
+        ],
+        series: [
+            {
+                name: "销量",
+                type: 'bar',
+                barWidth: '100%',
+                data: topsales_value
+            }
+        ],
+        dataZoom: [
+            {   // 这个dataZoom组件，默认控制x轴。
+                type: 'slider', // 这个 dataZoom 组件是 slider 型 dataZoom 组件
+                start: 0,      // 左边在 10% 的位置。
+                end: 100         // 右边在 60% 的位置。
+            },
+            {   // 这个dataZoom组件，也控制x轴。
+                type: 'inside', // 这个 dataZoom 组件是 inside 型 dataZoom 组件
+                start: 0,      // 左边在 10% 的位置。
+                end: 100         // 右边在 60% 的位置。
+            }
+        ],
+    };
+
+
+    topwow_sales_option = {
+
+        title: [{
+            left: 'center',
+            text: week + '周增量top20',
+        }],
+        color: ['#00c7d8'],
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+            }
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: [
+            {
+                type: 'category',
+                data: topwow_sales_key,
+                axisTick: {
+                    alignWithLabel: true
+                }
+            }
+        ],
+        yAxis: [
+            {
+                type: 'value'
+            }
+        ],
+        series: [
+            {
+                name: "增量",
+                type: 'bar',
+                barWidth: '100%',
+                data: topwow_sales_value
+            }
+        ],
+        dataZoom: [
+            {   // 这个dataZoom组件，默认控制x轴。
+                type: 'slider', // 这个 dataZoom 组件是 slider 型 dataZoom 组件
+                start: 0,      // 左边在 10% 的位置。
+                end: 100         // 右边在 60% 的位置。
+            },
+            {   // 这个dataZoom组件，也控制x轴。
+                type: 'inside', // 这个 dataZoom 组件是 inside 型 dataZoom 组件
+                start: 0,      // 左边在 10% 的位置。
+                end: 100         // 右边在 60% 的位置。
+            }
+        ],
+    };
+
+
+    topwow_rate_option = {
+
+        title: [{
+            left: 'center',
+            text: week + '周飙升top20(基数>=10)',
+        }],
+        color: ['#d84138'],
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+            }
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: [
+            {
+                type: 'category',
+                data: topwow_rate_key,
+                axisTick: {
+                    alignWithLabel: true
+                }
+            }
+        ],
+        yAxis: [
+            {
+                type: 'value'
+            }
+        ],
+        series: [
+            {
+                name: "增长率",
+                type: 'bar',
+                barWidth: '100%',
+                data: topwow_rate_value
+            }
+        ],
+        dataZoom: [
+            {   // 这个dataZoom组件，默认控制x轴。
+                type: 'slider', // 这个 dataZoom 组件是 slider 型 dataZoom 组件
+                start: 0,      // 左边在 10% 的位置。
+                end: 100         // 右边在 60% 的位置。
+            },
+            {   // 这个dataZoom组件，也控制x轴。
+                type: 'inside', // 这个 dataZoom 组件是 inside 型 dataZoom 组件
+                start: 0,      // 左边在 10% 的位置。
+                end: 100         // 右边在 60% 的位置。
+            }
+        ],
+
+    };
+
+
+    submitter_option = {
+        title: [{
+            left: 'center',
+            text: week + '周/' + (week - 1) + '周销量--刊登人',
+        }],
+        color: ['#4cabce', '#e5323e'],
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+            }
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: [
+            {
+                type: 'category',
+                data: submitter_key,
+                axisTick: {
+                    alignWithLabel: true
+                }
+            }
+        ],
+        yAxis: [
+            {
+                type: 'value'
+            }
+        ],
+        series: [
+            {
+                name: week + '周销量',
+                type: 'bar',
+                data: submitter_sales,
+            }, {
+                name: (week - 1) + '周销量',
+                type: 'bar',
+                data: submitter_lastweeksales,
+            }
+        ],
+        dataZoom: [
+            {   // 这个dataZoom组件，默认控制x轴。
+                type: 'slider', // 这个 dataZoom 组件是 slider 型 dataZoom 组件
+                start: 10,      // 左边在 10% 的位置。
+                end: 60         // 右边在 60% 的位置。
+            },
+            {   // 这个dataZoom组件，也控制x轴。
+                type: 'inside', // 这个 dataZoom 组件是 inside 型 dataZoom 组件
+                start: 10,      // 左边在 10% 的位置。
+                end: 60         // 右边在 60% 的位置。
+            }
+        ],
+    };
+
+    submitter_rate_option = {
+        title: [{
+            left: 'center',
+            text: '刊登人环比增长率',
+        }],
+        color: ['#3398DB'],
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+            }
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: [
+            {
+                type: 'category',
+                data: submitter_key,
+                axisTick: {
+                    alignWithLabel: true
+                }
+            }
+        ],
+        yAxis: [
+            {
+                type: 'value'
+            }
+        ],
+        series: [
+            {
+                name: '环比增长率',
+                type: 'bar',
+                barWidth: '100%',
+                data: submitter_rate
+            }
+        ],
+
+        dataZoom: [
+            {   // 这个dataZoom组件，默认控制x轴。
+                type: 'slider', // 这个 dataZoom 组件是 slider 型 dataZoom 组件
+                start: 10,      // 左边在 10% 的位置。
+                end: 60         // 右边在 60% 的位置。
+            },
+            {   // 这个dataZoom组件，也控制x轴。
+                type: 'inside', // 这个 dataZoom 组件是 inside 型 dataZoom 组件
+                start: 10,      // 左边在 10% 的位置。
+                end: 60         // 右边在 60% 的位置。
+            }
+        ],
+    };
+
+
+    category_option = {
+        title: [{
+            left: 'center',
+            text: week + '周/' + (week - 1) + '周销量--品类',
+        }],
+        color: ['#4cabce', '#e5323e'],
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+            }
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: [
+            {
+                type: 'category',
+                data: category_key,
+                axisTick: {
+                    alignWithLabel: true
+                }
+            }
+        ],
+        yAxis: [
+            {
+                type: 'value'
+            }
+        ],
+        series: [
+            {
+                name: week + '周销量',
+                type: 'bar',
+                data: category_sales,
+            }, {
+                name: (week - 1) + '周销量',
+                type: 'bar',
+                data: category_lastweeksales,
+            }
+        ],
+        dataZoom: [
+            {   // 这个dataZoom组件，默认控制x轴。
+                type: 'slider', // 这个 dataZoom 组件是 slider 型 dataZoom 组件
+                start: 0,      // 左边在 10% 的位置。
+                end: 100         // 右边在 60% 的位置。
+            },
+            {   // 这个dataZoom组件，也控制x轴。
+                type: 'inside', // 这个 dataZoom 组件是 inside 型 dataZoom 组件
+                start: 0,      // 左边在 10% 的位置。
+                end: 100         // 右边在 60% 的位置。
+            }
+        ],
+    };
+
+    category_rate_option = {
+        title: [{
+            left: 'center',
+            text: '品类环比增长率',
+        }],
+        color: ['#3398DB'],
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {            // 坐标轴指示器，坐标轴触发有效
+                type: 'shadow'        // 默认为直线，可选为：'line' | 'shadow'
+            }
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        xAxis: [
+            {
+                type: 'category',
+                data: category_key,
+                axisTick: {
+                    alignWithLabel: true
+                }
+            }
+        ],
+        yAxis: [
+            {
+                type: 'value'
+            }
+        ],
+        series: [
+            {
+                name: '环比增长率',
+                type: 'bar',
+                barWidth: '100%',
+                data: category_rate
+            }
+        ],
+
+        dataZoom: [
+            {   // 这个dataZoom组件，默认控制x轴。
+                type: 'slider', // 这个 dataZoom 组件是 slider 型 dataZoom 组件
+                start: 0,      // 左边在 10% 的位置。
+                end: 100         // 右边在 60% 的位置。
+            },
+            {   // 这个dataZoom组件，也控制x轴。
+                type: 'inside', // 这个 dataZoom 组件是 inside 型 dataZoom 组件
+                start: 0,      // 左边在 10% 的位置。
+                end: 100         // 右边在 60% 的位置。
+            }
+        ],
+    };
+
+    submitter.setOption(submitter_option);
+    category.setOption(category_option);
+    topsales.setOption(topsales_option);
+    topwow_rate.setOption(topwow_sales_option);
+    topwow_sales.setOption(topwow_rate_option);
+
+
+    function tableswitch(data) {
+        if (data === 'btn_sales') {
+            submitter.clear();
+            category.clear();
+            submitter.setOption(submitter_option);
+            category.setOption(category_option);
+        } else if (data === 'btn_rate') {
+            submitter.clear();
+            category.clear();
+            submitter.setOption(submitter_rate_option);
+            category.setOption(category_rate_option);
+        }
+    }
+
+
+    function detail1() {
+        let current_url = window.location.href;
+        let product_ids = topsales_key.join(',');
+        window.location.href = current_url.split('/aliapp/')[0] + '/aliapp/v_erp_aliexpress_mutation_coefficient/?week='+week+'&o=-sales'+'&product_id=' + product_ids;
+    }
+
+    function detail2() {
+        let current_url = window.location.href;
+        let product_ids = topwow_rate_key.join(',');
+        window.location.href = current_url.split('/aliapp/')[0] + '/aliapp/v_erp_aliexpress_mutation_coefficient/?week='+week+'&o=-wow_rate'+'&product_id=' + product_ids;
+    }
+
+    function detail3() {
+        let current_url = window.location.href;
+        let product_ids = topwow_sales_key.join(',');
+        window.location.href = current_url.split('/aliapp/')[0] + '/aliapp/v_erp_aliexpress_mutation_coefficient/?week='+week+'&o=-wow_sales'+'&product_id=' + product_ids;
+    }
+</script>

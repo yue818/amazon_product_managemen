@@ -1,0 +1,88 @@
+<style>
+.sybutton {
+        border-radius:10px 10px 10px 10px;
+        background-color:#428BCA;
+        border: none;
+        color: white;
+        padding: 3px 20px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 15px;
+        margin: 4px 2px;
+        cursor: pointer;
+   }
+
+    option{
+        height: 300px;
+    }
+
+</style>
+
+<br>
+<div id='reverse_amazon' style=''>
+    <table>
+      <tr>
+           <td style='width:210px;text-align: right'>
+               <select style="width: 90%; font-size:12px; padding:10px; border-radius:10px 10px 10px 10px;"  id='s_site'>
+               <option value="">---选择站点---</option>
+                    {% for sites in site_list %}
+                        {% for sv, sd in sites.items %}
+                            <option value="{{ sv }}">{{ sd }}</option>
+                        {% endfor %}
+                    {% endfor %}
+                </select>
+           </td>
+           <td>
+              <input type="button" class="sybutton" value="创建产品" style="display:inline; line-height: 30px;" onclick="tocreateProduct()">
+           </td>
+           <td style='width:50px;'></td>
+           <td style='width:600px;'>
+               <input type="text" id="reverse" style="display:inline; width: 100%; line-height: 30px;border-radius:10px;" name="Reverse_url" value="" />
+           </td>
+           <td>
+               <input type="button" class="sybutton" value="开始采集" style="display:inline; line-height: 30px;" onclick="start_collection()">
+           </td>
+      </tr>
+    </table>
+</div>
+<br>
+<br>
+<script type="text/javascript" src="/static/xadmin/js/jquery-1.7.1.min.js"></script>
+<script>
+    var url_class  = window.location.pathname.match(new RegExp('/', 'g')).length; // 使用g表示整个字符串都要匹配
+    if(url_class != 5){
+        //if(window.location.pathname == '/Project/admin/skuapp/t_templet_amazon_collection_box/')
+       window.document.getElementById('reverse_amazon').setAttribute("style", "display:none");
+    }
+
+    function tocreateProduct() {
+        var s_site = $('#s_site option:selected').val()
+        if (s_site === undefined) {
+            s_site = ''
+        }
+        if (s_site == '') {
+            alert('请选择站点!')
+        }else{  
+            window.location.href='/Project/admin/skuapp/t_templet_amazon_collection_box/add/?searchSite='+s_site
+        } 
+    }
+	if(url_class == 5){
+		window.document.getElementById('add').setAttribute("style", "display:none");
+	}
+   
+   function start_collection(){
+        var s_site = $('#s_site option:selected').val()
+        if (s_site === undefined) {
+            s_site = ''
+        }
+        if (s_site == '') {
+            alert('请选择站点!')
+        }else{
+			var Reverse_url = $('#reverse').val()
+			window.location.href = "/task/get_reverse_info/?Reverse_url=" + Reverse_url +'&site='+s_site;	
+		}
+   } 
+ 
+       
+</script>

@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>计价表</title>
+		<script>
+			function cal_profit_rate() {
+				var Cost = parseFloat(document.getElementById("Cost").value)
+				var Weight = parseFloat(document.getElementById("Weight").value)
+				var ExchangeRate = parseFloat(document.getElementById("ExchangeRate").value)
+				var Dollar = parseFloat(document.getElementById("Dollar").value)
+				if(Weight > 0 && Weight < 300) {
+					document.getElementById("ProfitRate").value = (0.84 - (Weight * 0.1 * 0.85 + Cost) * 100 / ExchangeRate / Dollar) * 100;
+				} else {
+					document.getElementById("ProfitRate").value = (0.84 - ((Weight * 0.1 + 8) * 0.8 + Cost) * 100 / ExchangeRate / Dollar) * 100;
+				}
+			}
+
+			function cal_dollar() {
+				var Cost = parseFloat(document.getElementById("Cost").value)
+				var Weight = parseFloat(document.getElementById("Weight").value)
+				var ExchangeRate = parseFloat(document.getElementById("ExchangeRate").value)
+				var ProfitRate = parseFloat(document.getElementById("ProfitRate").value)
+				if(Weight > 0 && Weight < 300) {
+					document.getElementById("Dollar").value = (Weight * 0.1 * 0.85 + Cost) * 100 / ExchangeRate / (1 - ProfitRate / 100 - 0.06 - 0.1);
+				} else {
+					document.getElementById("Dollar").value = ((Weight * 0.1 + 8) * 0.8 + Cost) * 100 / ExchangeRate / (1 - ProfitRate / 100 - 0.06 - 0.1);
+				}
+			}
+            
+            function Product_cal_profit_rate() {
+				var Cost = parseFloat(document.getElementById("ProductCost").value)
+				var Weight = parseFloat(document.getElementById("ProductWeight").value)
+				var ExchangeRate = parseFloat(document.getElementById("ProductExchangeRate").value)
+				var Dollar = parseFloat(document.getElementById("ProductDollar").value)
+				if(Weight > 0 && Weight < 300) {
+					document.getElementById("ProductProfitRate").value = (0.84 - (Weight * 0.1 * 0.85 + Cost) * 100 / ExchangeRate / Dollar) * 100;
+				} else {
+					document.getElementById("ProductProfitRate").value = (0.84 - ((Weight * 0.1 + 8) * 0.8 + Cost) * 100 / ExchangeRate / Dollar) * 100;
+				}
+			}
+
+			function Product_cal_dollar() {
+				var Cost = parseFloat(document.getElementById("ProductCost").value)
+				var Weight = parseFloat(document.getElementById("ProductWeight").value)
+				var ExchangeRate = parseFloat(document.getElementById("ProductExchangeRate").value)
+				var ProfitRate = parseFloat(document.getElementById("ProductProfitRate").value)
+				if(Weight > 0 && Weight < 300) {
+					document.getElementById("ProductDollar").value = (Weight * 0.1 * 0.85 + Cost) * 100 / ExchangeRate / (1 - ProfitRate / 100 - 0.06 - 0.1);
+				} else {
+					document.getElementById("ProductDollar").value = ((Weight * 0.1 + 8) * 0.8 + Cost) * 100 / ExchangeRate / (1 - ProfitRate / 100 - 0.06 - 0.1);
+				}
+			}
+			
+			
+			function count_dollar(obj){
+	            
+		        obj.value = obj.value.replace(/[^\d.]/g,"");
+		        
+		        obj.value = obj.value.replace(/^\./g,"");
+		        
+		        obj.value = obj.value.replace(/\.{2,}/g,".");
+		        
+		        obj.value = obj.value.replace(".","$#$").replace(/\./g,"").replace("$#$",".");
+		        
+		        
+		        cal_dollar();
+			}
+			
+			function count_rate(obj){
+				 
+		        obj.value = obj.value.replace(/[^\d.]/g,"");
+		        
+		        obj.value = obj.value.replace(/^\./g,"");
+		        
+		        obj.value = obj.value.replace(/\.{2,}/g,".");
+		        
+		        obj.value = obj.value.replace(".","$#$").replace(/\./g,"").replace("$#$",".");
+		        
+		        
+		        cal_profit_rate();
+			}
+			
+			function pro_count_dollar(obj){
+				 
+		        obj.value = obj.value.replace(/[^\d.]/g,"");
+		        
+		        obj.value = obj.value.replace(/^\./g,"");
+		        
+		        obj.value = obj.value.replace(/\.{2,}/g,".");
+		        
+		        obj.value = obj.value.replace(".","$#$").replace(/\./g,"").replace("$#$",".");
+		        
+		        
+				Product_cal_dollar();
+			}
+			
+			function pro_count_rate(obj){
+				 
+		        obj.value = obj.value.replace(/[^\d.]/g,"");
+		        
+		        obj.value = obj.value.replace(/^\./g,"");
+		        
+		        obj.value = obj.value.replace(/\.{2,}/g,".");
+		        
+		        obj.value = obj.value.replace(".","$#$").replace(/\./g,"").replace("$#$",".");
+		        
+				
+				Product_cal_profit_rate();
+			}
+		</script>
+		
+		<style type="text/css">
+		   .main{ width:100%; margin:0 auto; background: #FFFAFA; height: 600px; position:relative;}
+		   	   
+		   .content{ width: 100%; margin:0 auto; background:#FFFAFA; height: 600px; position: absolute;  top: 50px; left: 0; bottom: 0; right: 0; }
+		  
+		   .top_title{width: 100%; text-align: center; clear: both; margin:25px auto;}
+		   
+		   .big_div{width:95%;overflow: hidden; margin: 5px auto;}
+		   
+		   .le_div{width: 47%; text-align: right; float: left;}
+		   .ri_div{width: 47%; float: right;}
+		   
+		   .le_btn_div{width: 49%; text-align: right; float: left;}
+		   .ri_btn_div{width: 49%; float: right;}
+		   
+		   .big_div .ri_div input{
+		   		width:230px;
+			    padding: 4px 5px;
+			    border: #ABABAB 1px solid;
+			    box-shadow: 2px 2px 3px #EDEDED inset;
+			    font-size: 14px;
+			    font-weight: bold;
+			    border-radius: 5px;
+			}
+			
+		   .big_div .ri_div select{
+		   		width:243px;
+			    padding: 4px 5px;
+			    border: #ABABAB 1px solid;
+			    box-shadow: 2px 2px 3px #EDEDED inset;
+			    font-size: 14px;
+			    font-weight: bold;
+			    border-radius: 3px;
+			}
+			
+		  .big_div .ri_btn_div input,
+		  .big_div .le_btn_div input{
+		  	width:100px;
+		  	height: 30px;
+		  	border-radius: 5px;
+		  	background: #71C671;
+		  }
+	
+		</style>
+	</head>
+
+	<body>
+		<div class="main">
+			<div class="content">
+			    <div class="top_title">
+			    	<label>包含包装规格</label>
+			    </div>
+			    
+			    <div class="big_div">
+			    	<div class="le_div"><label>总成本:</label></div>
+			    	<div class="ri_div">
+			    		<input type="text" id="Cost" value="{{AllCost}}"  />
+			    	</div>
+			    </div>
+			    <div class="big_div">
+			    	<div class="le_div"><label>总重量:</label></div>
+			    	<div class="ri_div">
+			    		<input type="text" id="Weight" value="{{AllWeight}}"  />
+			    	</div>
+			    </div>
+			    <div class="big_div">
+			    	<div class="le_div"><label>汇率:</label></div>
+			    	<div class="ri_div">
+			    		<input type="text" id="ExchangeRate" value="{{ExchangeRate}}"  />
+			    	</div>
+			    </div>
+			    <div class="big_div">
+			    	<div class="le_div"></div>
+			    	<div class="ri_div"></div>
+			    </div>
+			    <div class="big_div">
+			    	<div class="le_div"><label>计价平台:</label></div>
+			    	<div class="ri_div">
+			    		<select name="Platform">
+							<option value="1">wish</option>
+						</select>
+			    	</div>
+			    </div>
+			    <div class="big_div">
+			    	<div class="le_div"><label>利润率(%):</label></div>
+			    	<div class="ri_div">
+			    		<input type="text" id="ProfitRate" value="{{ProfitRate}}" onkeyup="count_dollar(this);">
+			    	</div>
+			    </div>
+			    <div class="big_div">
+			    	<div class="le_div"><label>总美元价:</label></div>
+			    	<div class="ri_div">
+			    		<input type="text" id="Dollar" value="{{Dollar}}" onkeyup="count_rate(this);">
+			    	</div>
+			    </div>
+			    
+<!--				<div class="big_div">
+			    	<div class="le_btn_div">
+			    		<input type="button" onclick="cal_profit_rate()" value="计算利润率"></input>
+			    	</div>
+			    	<div class="ri_btn_div">
+			    		<input type="button" onclick="cal_dollar()" value="计算总美元价"></input>
+			    	</div>
+			    </div>-->
+				
+				
+				
+				<div class="top_title">
+			    	<label>不包含包装规格</label>
+			    </div>
+			    <div class="big_div">
+			    	<div class="le_div"><label>产品成本:</label></div>
+			    	<div class="ri_div">
+			    		 <input type="text" id="ProductCost" value="{{ProductCost}}"  />
+			    	</div>
+			    </div>
+			    <div class="big_div">
+			    	<div class="le_div"><label>产品重量:</label></div>
+			    	<div class="ri_div">
+			    		 <input type="text" id="ProductWeight" value="{{ProductWeight}}"  />
+			    	</div>
+			    </div>
+			    <div class="big_div">
+			    	<div class="le_div"><label>汇率:</label></div>
+			    	<div class="ri_div">
+			    		 <input type="text" id="ProductExchangeRate" value="{{ExchangeRate}}"  />
+			    	</div>
+			    </div>
+			   <div class="big_div">
+			    	<div class="le_div"><label>计价平台:</label></div>
+			    	<div class="ri_div">
+			    		<select name="Platform">
+							<option value="1">wish</option>
+						</select> 
+			    	</div>
+			    </div>
+		        <div class="big_div">
+			    	<div class="le_div"><label>利润率(%):</label></div>
+			    	<div class="ri_div">
+			    		 <input type="text" id="ProductProfitRate" value="{{ProfitRate}}" onkeyup="pro_count_dollar(this);">
+			    	</div>
+			    </div>
+				<div class="big_div">
+			    	<div class="le_div"><label>美元价:</label></div>
+			    	<div class="ri_div">
+			    		 <input type="text" id="ProductDollar" value="{{product_Dollar}}" onkeyup="pro_count_rate(this);">
+			    	</div>
+			    </div>
+<!--			    <div class="big_div">
+			    	<div class="le_btn_div">
+			    		<input type="button" onclick="Product_cal_profit_rate()" value="计算利润率"></input>
+			    	</div>
+			    	<div class="ri_btn_div">
+			    		 <input type="button" onclick="Product_cal_dollar()" value="计算美元价"></input>
+			    	</div>
+			    </div>-->
+			</div>
+		</div>
+	</body>
+
+</html>

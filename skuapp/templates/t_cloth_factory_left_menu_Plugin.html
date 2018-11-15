@@ -1,0 +1,62 @@
+<style>
+    .col-md-14 {
+    width: 17%;
+  }
+  .col-md-10 {
+    width: 83%;
+  }
+
+</style>
+<script type="text/javascript">
+    function changeColor(x) {
+        d=document.getElementsByTagName('li')
+        for(p=d.length;p--;){
+            if(d[p].id==x){
+                if(d[p].className=='active'){
+                    d[p].style.backgroundColor='#428bca';
+                }
+            }
+        }
+    }
+</script>
+<input id="sourceURL" type="hidden" value="{{ sourceURL }}">
+<input id="title_list" type="hidden" value="{{ title_list }}">
+<input id="test_list" type="hidden" value="{{ test_list }}">
+<div id="left-side" class="col-sm-1 col-md-14">
+    <ul class="well nav nav-list nav-sitemenu">
+    {% for title in title_list %}
+        <li class="nav-header{% if title.selected == '1' %} active{% endif %}"><i class="fa-fw"></i>{{ title.title }}</li>
+        {% for testurl in test_list %}
+            {% if testurl.title == title.title %}
+                <li id="li_{{ forloop.counter }}" {% if testurl.selected == '1' %}
+                    class="active" style="background-color: #428bca"
+                {% endif %}>
+                    <a href="{{ testurl.url }}">
+                        <i id="i_{{ forloop.counter }}" class="fa-fw fa fa-circle-o" {% if testurl.selected == '1' %}style="color: black"{% endif %}></i>
+                        <font id="font_{{ forloop.counter }}" {% if testurl.selected == '1' %}color="black"{% endif %}>{{ testurl.value }}</font>
+                    </a>
+                </li>
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+    </ul>
+    <ul>
+    <li>OS901:发货时效7天(可卖天数抓取11~14天)</li><br>
+    <li>OS902:发货时效8天(可卖天数抓取16~17天)</li><br>
+    <li>OS903:发货时效10天(可卖天数抓取16~19天)</li><br>
+    <li>OS904:发货时效15天(可卖天数抓取20天)</li><br>
+    <li>OS905:发货时效8天(可卖天数抓取16~17天)</li><br>
+    <li>OS906:发货时效10天(亚马逊补单)</li><br>
+    <li>OS909:发货时效8天(可卖天数抓取20天)</li><br>
+    <li>采购未入库量=普元采购未入库+online系统采购计划审核通过采购量-采购部分完成量</li><br>
+    <li>预计可用库存=库存量-占用量+采购未入库量-缺货及未派单量</li><br>
+    <li>预计可卖天数=预计可用库存/日销量</li><br>
+    <li>建议采购数量 = <br>
+    (OS901) 3*7天销量-库存量-采购未入库量;<br>
+    (OS902|OS905) 4*7天销量-库存量-采购未入库量;<br>
+    (OS903|OS904) 5*7天销量-库存量-采购未入库量;<br>
+    (OS909) 6*7天销量-库存量-采购未入库量;<br>
+    (OS906) 亚马逊备货录入数量;<br>
+    </li><br>
+    </ul>
+</div>

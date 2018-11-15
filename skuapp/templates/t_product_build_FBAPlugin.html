@@ -1,0 +1,87 @@
+<script type="text/javascript">
+    $("#id_OldSKU").blur(function(){
+        var OldSKU = $("#id_OldSKU").val();
+        //alert(OldSKU);
+        $.ajax({ 
+                url:"/t_product_build_FBA/",
+                type: "POST",
+                contentType:"application/x-www-form-urlencoded:charset=UTF-8",
+                dataType: "json",
+                data: {
+                    'OldSKU':OldSKU,
+                },
+                       
+                success:function(dataq, textStatus, XMLHttpRequest){
+					console.log(dataq);
+					if (dataq.SKUFBA == "FBA")
+                    {
+                        alert("该SKU已做过，请勿重复做");
+                    }
+					$("#id_SKU").val(dataq.SKU);
+					$("#id_Name2").val(dataq.Name2);
+					$("#id_ReportName").val(dataq.ReportName);
+					$("#id_ReportName2").val(dataq.ReportName2);
+					$("#id_GoodsStatus").val(dataq.GoodsStatus)
+					$("#id_Purchaser").val(dataq.Purchaser);
+					$("#id_CostPrice").val(dataq.CostPrice);//
+					$("#id_Weight").val(dataq.Weight);
+					$("#id_SalerName").val(dataq.SalerName);
+					$("#id_Storehouse").val(dataq.Storehouse);
+
+                    $("#id_MainSKU").val(dataq.MainSKU);
+					$("#id_LargeCategory").val(dataq.LargeCategory);
+					$("#id_SmallCategory").val(dataq.SmallCategory);
+					$("#id_Material").val(dataq.Material);
+					$("#id_Model").val(dataq.Model);
+					$("#id_Brand").val(dataq.Brand);
+
+					$("#id_Unit").val(dataq.Unit);
+					$("#id_MinPackNum").val(dataq.MinPackNum);
+					$("#id_SupplierName").val(dataq.SupplierName);
+					$("#id_Remark").val(dataq.Remark);
+					$("#id_DeclaredValue").val(dataq.DeclaredValue);
+					$("#id_OriginCountryCode").val(dataq.OriginCountryCode);
+
+                    $("#id_OriginCountry").val(dataq.OriginCountry);
+					$("#id_MaxNum").val(dataq.MaxNum);
+					$("#id_MinNum").val(dataq.MinNum);
+					$("#id_SalerName2").val(dataq.SalerName2);
+					$("#id_PackingID").val(dataq.PackingID);
+					$("#id_DevDate").val(dataq.DevDate.substring(0,10));
+
+					$("#id_Purchaser").val(dataq.Purchaser);
+					$("#id_StockDays").val(dataq.StockDays);
+					$("#id_InnerPrice").val(dataq.InnerPrice);
+					$("#id_LinkUrl").val(dataq.LinkUrl);
+					$("#id_LinkUrl2").val(dataq.LinkUrl2);
+					$("#id_SellDays").val(dataq.SellDays);
+					$("#id_StockMinAmount").val(dataq.StockMinAmount);
+					$("#id_Electrification").val(dataq.Electrification);
+					$("#id_Powder").val(dataq.Powder);
+					$("#id_Liquid").val(dataq.Liquid);
+					$("#id_possessMan1").val(dataq.possessMan1);
+					$("#id_possessMan2").val(dataq.possessMan2);
+					$("#id_ContrabandAttribute").val(dataq.ContrabandAttribute);
+					$("#id_DegreeOfDifficulty").val(dataq.DegreeOfDifficulty);
+					$("#id_ShopName").val(dataq.ShopName);
+					$("#id_LinkUrl4").val(dataq.LinkUrl4);
+					$("#id_LinkUrl5").val(dataq.LinkUrl5);
+					$("#id_LinkUrl6").val(dataq.LinkUrl6);
+
+					$("#id_ShopFreight").val(dataq.ShopFreight);
+					$("#id_PackWeight").val(dataq.PackWeight);
+					$("#id_ExchangeRate").val(dataq.ExchangeRate);
+					$("#id_LogisticsPrice").val(dataq.LogisticsPrice);
+					$("#id_TransactionFee").val(dataq.TransactionFee);
+					$("#id_ProfitRate").val(dataq.ProfitRate);
+					$("#id_SellingPrice").val(dataq.SellingPrice);
+
+					//alert('信息获取完毕！');
+                }, 
+                error:function(XMLHttpRequest, textStatus, errorThrown){
+                    alert('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                } 
+            }); 
+
+    });
+</script>

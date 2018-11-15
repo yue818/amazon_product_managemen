@@ -1,0 +1,31 @@
+﻿<html lang="en-us" >
+<meta charset="utf-8" />
+<form id = 'Secondary_research_form' action = '/t_product_depart_get/Secondary_research_result/' method = 'POST'>
+    <table cellpadding="5" align="center">
+        <tr>
+            <th>站点</th>
+            <th>调研链接</th>
+        </tr>
+        {% for k,v in sites.items %}
+            <tr>
+                <td>{{ k }}:</td>
+                <td><input type="text" name="{{ k }}_URL_value" value="{{v}}" /></td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <td><button id='go_action' type="submit" style='length:40px;width:70px;background-color:#428bca'>提交</button></td>
+            <td><button type="reset" value="Reset" style='length:40px;width:70px;background-color:#428bca'>重置</button></td>
+        </tr>
+    </table>
+    <input name = 'id' value="{{ id }}" hidden="hidden">
+    <br>
+    
+    {% csrf_token %}
+</form>
+</html>
+
+
+
+
+
+

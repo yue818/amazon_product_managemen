@@ -1,0 +1,150 @@
+
+<style type="text/css">
+    .btn{
+    color: #ffffff;
+    background-color: #428bca;
+    border-color: #357ebd;
+    }
+
+    #select1 {
+        display: inline-block;
+        padding: 6px 12px;
+        margin-bottom: 0;
+        font-size: 14px;
+        font-weight: normal;
+        line-height: 1.428571429;
+        text-align: center;
+        vertical-align: middle;
+        cursor: pointer;
+        background-image: none;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+    }
+    #save1 {
+        display: inline-block;
+        padding: 6px 12px;
+        margin-bottom: 0;
+        font-size: 14px;
+        font-weight: normal;
+        line-height: 1.428571429;
+        text-align: center;
+        vertical-align: middle;
+        cursor: pointer;
+        background-image: none;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+    }
+</style>
+
+<style>
+    table{
+        border-collapse: collapse;
+        border:0;
+        cellspacing:0;
+        cellpadding:0;
+    }
+
+    input{
+	    height:60px;
+        border:none;
+        margin: 0;
+        line-height:100%;
+	}
+
+	th{
+        border: 0.05px solid #dddddd;
+		text-align:center;
+	    font-size:15px;
+	    height:25px;
+	}
+
+    td{
+        padding: 8px;
+        height:100px;
+        border: 0.05px solid #dddddd;
+        margin: 0;
+        white-space: nowrap;
+    }
+
+    textarea{
+        border:none;
+        overflow:hidden;
+        height:100%;
+        width:100%;
+        }
+
+</style>
+
+<script type="application/javascript">
+    window.onload = function() {
+        document.getElementById("save").style.display = "none";
+        document.getElementById("save_and_another").style.display = "none";
+        document.getElementById("save_and_editing").style.display = "none";
+        document.getElementById("delete").style.display = "none";
+    }
+    jQuery(document).ready(function(){
+        var tableI = document.getElementById("mytable");
+        var save = document.getElementById("save1");
+        if (tableI.rows.length == 1){
+            tableI.style.display = "none";
+            save.style.display = "none";
+        };
+    })
+
+
+    jQuery(function() {
+        $("#select1").click(function(){
+           $("form.exform").attr("action","/button_Plugin/");
+           $("form.exform").submit();
+        });
+    });
+
+    function del(obj) {
+        var tableI = document.getElementById("mytable");//找到要删除行所在的teble
+        var trI = obj.parentNode.parentNode;//我的button在tr下的td中，两次执行.parentNode操作，可以找到要删除的tr。
+
+        var index = trI.rowIndex;//要删除的tr所在table中的index
+        tableI.deleteRow(index);//执行删除
+    }
+
+</script>
+
+<form action="/button_save/" method="post">
+{% csrf_token %}
+<input id="select1" type="button" class="btn" value="查询">
+<input id="save1" type="submit" class="btn" value="保存">
+    <table border="1" id="mytable" width="100%">
+        <tr>
+            <th>SKU</th>
+            <th>原价</th>
+            <th>现价</th>
+            <th>原供应商</th>
+            <th>现供应商</th>
+            <th>原采购链接</th>
+            <th>现采购链接</th>
+            <th>原克重</th>
+            <th>现克重</th>
+            <th>备注</th>
+            <th>操作</th>
+        </tr>
+        {% for obj in objs %}
+        <tr>
+            <td width="100px" nowrap><input readonly="true" type="text" name="SKU" style="width:100%;" value="{{ obj.SKU }}"></td>
+            <td width="40px" nowrap><input readonly="true" type="text" name="oldprice" style="width:100%; height: 100%;" value="{{ obj.price }}"></td>
+            <td width="40px" nowrap><input type="text" name="nowprice" style="width:100%; height: 100%;" value=""></td>
+            <td width="150px" nowrap><input readonly="true" type="text" name="oldsupplier" style="width:100%; height: 100%;" value="{{ obj.supplier }}"></td>
+            <td width="150px" nowrap><input style="width:100%; height: 100%;" type="text" name="newsupplier" value=""></td>
+            <td width="250px" nowrap><textarea readonly="true" name="oldsupplierURL" style="width:100%;height:100%;" >{{ obj.URL }}</textarea></td>
+            <td width="250px" nowrap><textarea name="newsupplierURL" style="width:100%;height:100%;" ></textarea></td>
+            <td width="40px" nowrap><input readonly="true" type="text" name="oldweight" style="width:100%; height: 100%;" value="{{ obj.weight }}"></td>
+            <td width="40px" nowrap><input type="text" name="nowweight" style="width:100%; height: 100%;" value=""></td>
+            <td width="100px" nowrap><textarea name="remark" style="width:100%;height:100%;" ></textarea></td>
+            <td width="10px" nowrap><button style="width: 100%;height: 80% " onclick="del(this)">删<br>除</button> </td>
+        </tr>
+        {% endfor %}
+    </table>
+</form>

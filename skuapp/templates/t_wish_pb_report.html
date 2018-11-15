@@ -1,0 +1,89 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>统计报表</title>
+        <style type="text/css">
+        </style>
+
+    </head>
+    <body>
+        <script src="/static/highcharts/jquery-1.8.3.min.js"></script>
+	    <script src="/static/highcharts/highcharts.js"></script>
+	    <script src="/static/highcharts/modules/exporting.js"></script>
+	    <script src="/static/highcharts/highcharts-zh_CN.js"></script>
+        <div>
+            <table border="0" cellpadding="0" cellspacing="0" style="margin-left:auto; margin-right:auto;">
+                <tr>
+                    <td>
+                        <div id="container" style="width:1600px;height:400px" align="center"></div>
+                    </td>
+                </tr>
+            </table>
+            <script type="text/javascript">
+				var chart;
+				$(document).ready(function() {
+					chart = new Highcharts.Chart({
+						chart: {
+							renderTo: 'container',
+							type: 'column',
+							plotBackgroundColor: null,
+							plotBorderWidth: null,
+							plotShadow: false
+						},
+						title: {
+							text: '{{title}}'
+						},
+						subtitle: {
+							text: '{{subtitle}}'
+						},
+						xAxis: {
+							categories: {{ datelist|safe}},
+							crosshair: true
+						},
+						yAxis:  [{
+                                min: 0,
+                                title: {
+                                    text: '金额($)'
+                                }
+                            },
+                            {min: 0,
+                            title: {
+                            text: 'AS(%)'
+                            },
+                            opposite: true
+                            }
+                        ],
+						tooltip: {
+							headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+							pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+							'<td style="padding:0"><b>{point.y:.2f}</b></td></tr>',
+							footerFormat: '</table>',
+							shared: true,
+							useHTML: true
+						},
+						plotOptions: {
+							column: {
+								borderWidth: 0
+							}
+						},
+						series: [{
+							name: '花费',
+							data: {{ spend }}
+						},
+                        {
+							name: '销售额',
+							data: {{ gmv }}
+						},
+                        {
+                            type: 'spline',
+							name: 'AS',
+							data: {{ s_gmv}},
+							yAxis: 1
+						}
+						]
+					});
+				});
+            </script>
+        </div>
+    </body>
+</html>

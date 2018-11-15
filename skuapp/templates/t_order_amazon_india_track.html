@@ -1,0 +1,43 @@
+<p>申请成功</p>
+<table align="center" border="1">
+    <tbody>
+        <tr>
+            <td>收货详情:</td>
+            <td>
+            姓名：{{t_order_amazon_india_obj.shipName}}<br/>
+            电话：{{t_order_amazon_india_obj.shipPhone}}<br/>
+            地址：{{t_order_amazon_india_obj.shipCountryCode}},&nbsp;
+            {{t_order_amazon_india_obj.shipStateOrRegion}},&nbsp;
+            {{t_order_amazon_india_obj.shipCity}},&nbsp;
+            {{t_order_amazon_india_obj.shipPostalCode}},<br/>
+            {{t_order_amazon_india_obj.shipAddressLine1}},<br/>
+            {{t_order_amazon_india_obj.shipAddressLine2}}
+            </td>
+        </tr>
+        <tr>
+            <td>商品信息:</td>
+            <td>
+                <table>
+                {% for toiaio in toiaios %}
+                    <td>
+                        商品SKU：{% if toiaio.SKU != '' %}
+                                        {{toiaio.SKU}}<br/>
+                                 {% else %}
+                                        未绑定店铺SKU！！！<br/>
+                                 {% endif %}
+                        订单总数：{{toiaio.QuantityOrdered}}<br/>
+                        商品价格：{{toiaio.goods_amount}}<br/>
+                        是否带电：{{toiaio.IsCharged}}<br/>
+                        发票要求：{% if toiaio.InvoiceRequirement == 'Individual' or toiaio.InvoiceRequirement == 'Consolidated' %}
+                                        {{toiaio.InvoiceRequirement}}<br/>
+                                 {% else %}
+                                        否<br/>
+                                 {% endif %}
+                    </td>
+                {% endfor %}
+                </table>
+            </td>
+        </tr>
+    </tbody>
+
+</table>

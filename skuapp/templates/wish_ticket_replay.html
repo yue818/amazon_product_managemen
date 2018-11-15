@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>回复</title>
+</head>
+<body>
+    <p>商品id：{{ product_id }}</p>
+    <p>order_id：{{ order_id }}</p>
+    <p>商品名称：{{ product_name}}</p>
+    <p>图片:</p><img src="{{ product_image_url }}" alt="" >
+    {% for msg in msg1 %}
+        {% for i in msg %}
+           {% if 'send:' in i or 'reply:' in i%}
+                <h3>{{ i }}</h3>
+
+           {% else %}
+                <p>{{ i }}</p><br/>
+           {% endif %}
+        {% endfor %}
+    {% endfor %}
+    <textarea style=" font-size:20px;" id="text" rows="11" cols="50" onclick="reciverSubmit()"></textarea>
+    <input style="width: 80px;height: 45px;border-radius:10px;margin-left: 10px" type="button" onclick="sendSubmit()" value="发送">
+{#    <input type="button" onclick="cancelSubmit()" value="取消">#}
+    <input name="atoken" id="access_token" type="hidden" value="{{ at }}">
+    <input name="r_id" id="t_id" type="hidden" value="{{ id }}">
+    <p id="msgid" name="msgid" style="color:black;"></p>
+</body>
+<script src="/static/highcharts/jquery-1.8.3.min.js"></script>
+
+<script>
+    function reciverSubmit() {
+
+
+    }
+    function sendSubmit() {
+        var msgid=document.getElementById("msgid");
+        msgid.innerText = '请稍等......';
+        $.ajax({
+            url:'/replay/updateReply/',
+            type:'post',
+            datatype :'json',
+            data:{
+                'id':$('#t_id').val(),
+                'text':$('#text').val(),
+                'at':$('#access_token').val(),
+            },
+            success:function (data) {  // 回调函数，处理成功返回的数据
+                if (data.code == 0){
+                msgid.style.color= "green";
+                msgid.innerText = "发送成功！";
+                window.setTimeout("window.parent.location.reload();",1000); //1秒后刷新父页面
+                }else{
+                    msgid.style.color= "red";
+                    msgid.innerText = "发送失败:"+data.message;
+                }
+            },
+            error:function (error) {  // 回调函数，处理失败返回的数据
+                console.log(error);
+            },
+        })
+    }
+
+</script>
+
+</html>

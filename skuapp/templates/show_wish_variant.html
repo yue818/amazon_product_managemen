@@ -1,0 +1,290 @@
+<style type="text/css">
+    .btn{
+    color: #ffffff;
+    background-color: #428bca;
+    border-color: #357ebd;
+    display: inline-block;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1.428571429;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    }
+
+    table{
+        border-collapse: collapse;
+        background-color: #f9f9f9;
+        border: 1px solid #dddddd;
+        padding: 8px;
+        line-height: 1.428571429;
+        vertical-align: top;
+        margin: 0;
+    }
+
+    td > input{
+    display: block;
+    width: 100%;
+    height: 34px;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.428571429;
+    color: #555555;
+    vertical-align: middle;
+    background-color: #ffffff;
+    background-image: none;
+    border: 1px solid #cccccc;
+    border-radius: 4px;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    -webkit-transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+    transition: border-color ease-in-out 0.15s, box-shadow ease-in-out 0.15s;
+
+    }
+
+	th{
+        border: 0.05px solid #dddddd;
+		text-align:center;
+	    font-size:15px;
+	    height:25px;
+	}
+
+    fieldset{
+        color:#06c;
+        font-weight:800;
+        background:#fff;
+        border:0 none;
+    }
+
+    fieldset legend {
+        color:#06c;
+        font-weight: bold;
+        text-align: left;
+    }
+
+    a {
+        font-weight: 300;
+        font-size: 14px;
+        color: -webkit-link;
+        cursor: pointer;
+    }
+
+    li{
+        list-style:none;
+        line-height:15px
+    }
+
+    ul{
+        float: left;
+    }
+</style>
+<script src="/static/xadmin/js/jquery-1.7.1.min.js" type="text/javascript"></script>
+<script type="application/javascript">
+    function del_1(obj) {
+        var tableI = document.getElementById("mytable_1");//找到要删除行所在的table
+        var trI = obj.parentNode.parentNode;//我的button在tr下的td中，两次执行.parentNode操作，可以找到要删除的tr。
+        var index = trI.rowIndex;//要删除的tr所在table中的index
+        tableI.deleteRow(index);//执行删除
+    }
+
+    function del_extra(p_encode) {
+        var plateform = document.getElementsByName("plateform")[0].value;
+        var page = document.getElementsByName("page")[0].value;
+        var id = document.getElementsByName("id")[0].value;
+        var param = '?plateform=' + plateform + '&page=' + page + '&now_id=' + id + '&p_encode=' + p_encode;
+        var now_url = '/delete_wish_joom_extraimage/' + param;
+        var xhr=new XMLHttpRequest();
+        xhr.open('get',now_url);
+        xhr.send();
+
+        var div_id = 'div_' + p_encode
+        var my = document.getElementById(div_id);
+        my.parentNode.removeChild(my);
+    }
+    
+    function add() {
+        var tableI = document.getElementById("mytable_1");
+        var newTr = tableI.insertRow(-1);
+
+        var imgTD = newTr.insertCell(0);
+        imgTD.innerHTML = '<img src="" width="60" height="60" alt="无">';
+
+        var imgTD = newTr.insertCell(1);
+        imgTD.innerHTML = '<input type="text" name="sonsku" value="">';
+
+        var imgTD = newTr.insertCell(2);
+        imgTD.innerHTML = '<input type="text" name="color" value="">';
+
+        var imgTD = newTr.insertCell(3);
+        imgTD.innerHTML = '<input type="text" name="size" value="">';
+
+        var imgTD = newTr.insertCell(4);
+        imgTD.innerHTML = '<input type="text" name="shopsku" value="">';
+
+        var imgTD = newTr.insertCell(5);
+        imgTD.innerHTML = '<input type="text" name="quantity" value="">';
+
+        var imgTD = newTr.insertCell(6);
+        imgTD.innerHTML = '<input type="text" name="price" value="">';
+
+        var imgTD = newTr.insertCell(7);
+        imgTD.innerHTML = '<input type="text" name="msrp" value="">';
+
+        var imgTD = newTr.insertCell(8);
+        imgTD.innerHTML = '<input type="text" name="shipping" value="">';
+
+        var imgTD = newTr.insertCell(9);
+        imgTD.innerHTML = '<input type="text" name="time" value="">';
+
+        var imgTD = newTr.insertCell(10);
+        imgTD.innerHTML = '<select name="status"><option value = "True">上架</option><option value = "False">下架</option></select>';
+
+        var imgTD = newTr.insertCell(11);
+        imgTD.innerHTML = '<input type="text" name="goodsStatus" value="">';
+
+        var imgTD = newTr.insertCell(12);
+        imgTD.innerHTML = '<button style="width: 100%;height: 80% " onclick="del_1(this)">删<br>除</button>';
+    }
+
+    function webimgSelect(f_num) {
+        $('#vimage_id').val(f_num);
+        var eimages = document.getElementsByName('e_Pic');
+        var showInfo = '';
+        for (var i=0,j=eimages.length;i<j;i++){
+            if(eimages[i].value != ''){
+                showInfo += '<div class="col-md-2" style="float: left"><a class="thumbnail">' +
+                    '<img src="' + $.trim(eimages[i].value) + '" style="width:150px; height:150px" ondblclick="v_change(this)">' +
+                    '</a></div>'
+            }
+        }
+        document.getElementById('row_show_id').innerHTML = showInfo;
+        $('#show_image').modal({backdrop: 'static', keyboard: false});
+    }
+
+    // 变体图选择 双击事件
+    function v_change(self) {
+        var eimgid = document.getElementById('vimage_id');
+        document.getElementById('id_Pic_'+ eimgid.value +'_img').src = $.trim(self.src);
+        $("#id_Pic_" + eimgid.value + '_' + eimgid.value).val($.trim(self.src));
+        document.getElementById('model_close').click();
+    }
+</script>
+
+<link href="/static/xadmin/vendor/bootstrap/css/bootstrap.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="/static/xadmin/vendor/bootstrap/js/bootstrap.js"></script>
+
+<form action="/save_wish_variant/" method="post">
+{% csrf_token %}
+
+    <div align="center"><input style="display: none;" type="text" name="plateform" value="{{ plateform }}"></div>
+    <div align="center"><input style="display: none;" type="text" name="page" value="{{ page }}"></div>
+    <div align="center">铺货ID：<input style=" border:none;font-size: large" readonly="true" type="text" name="id" value="{{ id }}"></div>
+    <br>
+
+    <fieldset>
+        <legend>变体信息</legend>
+        <table id="mytable_1" width="100%" border="1">
+        <tr>
+            <th>变种图</th>
+            <th>子SKU</th>
+            <th>颜色</th>
+            <th>尺寸</th>
+            <th>店铺SKU</th>
+            <th>库存量</th>
+            <th>价格</th>
+            <th>标签价</th>
+            <th>运费</th>
+            <th>运输<br>时间</th>
+            <th>状态</th>
+            <th>普源<br>状态</th>
+            <th>操作</th>
+        </tr>
+
+        {% for obj in variants %}
+            <tr>
+                <td>
+                    <img src="{{ obj.Variant.main_image }}" style="width: 60px;width: 60px" onclick="webimgSelect('v_{{ forloop.counter }}')" id="id_Pic_v_{{ forloop.counter }}_img" alt="无">
+                    <input type="hidden" value="{{ obj.Variant.main_image }}" name="imgURL" id="id_Pic_v_{{ forloop.counter }}_v_{{ forloop.counter }}">
+                </td>
+                <td width="140px"><input type="text" readonly='True' name="sonsku" value="{{ obj.Variant.productSKU }}"></td>
+                <td><input type="text" name="color" value="{{ obj.Variant.color }}"></td>
+                <td><input type="text" name="size" value="{{ obj.Variant.size }}"></td>
+                <td width="200px"><input type="text" readonly='True' name="shopsku" value="{{ obj.Variant.sku }}"></td>
+                <td><input type="text" name="quantity" value="{{ obj.Variant.inventory }}"></td>
+                <td><input type="text" name="price" value="{{ obj.Variant.price }}"></td>
+                <td><input type="text" name="msrp" value="{{ obj.Variant.msrp }}"></td>
+                <td><input type="text" name="shipping" value="{{ obj.Variant.shipping }}"></td>
+                <td><input type="text" name="time" value="{{ obj.Variant.shipping_time }}"></td>
+                <td>
+                    <select name="status" >
+                            {% if  obj.Variant.enabled  == True %}
+                            <option value = "True" >上架</option>
+                            {% else %}
+                            <option value = "False">下架</option>
+                            {% endif %}
+                            <option value = "True">上架</option>
+                            <option value = "False">下架</option>
+                    </select>
+                </td>
+                <td><input type="text" name="goodsStatus" readonly='True' value="{{ obj.Variant.py_state }}"></td>
+                <td width="10px" nowrap><button style="width: 100%;height: 80% " onclick="del_1(this)">删<br>除</button> </td>
+            </tr>
+        {% endfor %}
+    </table>
+    </fieldset>
+    <br>
+
+    <div align="center">
+        <input type="submit" class="btn" name="submit">
+        {% if plateform == 'wish' %}
+            <button type="button" class="btn" onclick="add()">添加变体</button>
+        {% endif %}
+    </div>
+    <br><br><br>
+
+    <fieldset>
+        <legend>副图</legend>
+        {% for p_encode, p_url in images.items %}
+            <div class="col-md-2" style="float: left; width: 200px; height: 240px" id="div_{{ p_encode }}">
+                <div class="thumbnail">
+                    <img src="{{ p_url }}" style="width: 160px; height: 160px;">
+                    <input type="hidden" value="{{ p_url }}" name="e_Pic" id="id_Pic_e_{{ forloop.counter }}_e_{{ forloop.counter }}">
+                    <br>
+                    <div class="caption" style="text-align: center;">
+                        <a onclick="del_extra('{{ p_encode }}')" style="font-size: 12px; color: #428bca">删 除</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </fieldset>
+</form>
+
+
+<div class="modal fade" id="show_image" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="width:80%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    请选择一张作为该变体图片(双击选择)
+                </h4>
+            </div>
+            <input type="hidden" id="vimage_id" value="">
+            <div class="row" id="row_show_id">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" id="model_close">关闭
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

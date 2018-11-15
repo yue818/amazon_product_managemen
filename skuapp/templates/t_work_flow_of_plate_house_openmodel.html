@@ -1,0 +1,64 @@
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog" style="width:60%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                </h4>
+            </div>
+            <div class="modal-body" id="myModel_body">
+                <table border="1" width="100%">
+                    <tr>
+                        <th style="text-align:center;">产品信息</th>
+                        <th style="text-align:center;">产品属性</th>
+                        <th style="text-align:center;">款式资料</th>
+                    </tr>
+                    <tr>
+                        <td align="center" valign="top" width="33%" id="product_info"></td>
+                        <td align="center" valign="top" width="33%" id="product_properties"></td>
+                        <td align="center" valign="top" width="33%" id="style_info"></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal -->
+</div>
+
+
+<script>
+    function openmodel(data,flag) {
+        if (flag===1){
+            $("#myModalLabel").text("供应链款基础资料增加成功!")
+        }else{
+            $("#myModalLabel").text("供应链款基础资料信息已存在,操作忽略!")
+        }
+        $("#product_info").html(`<table border="1" width="100%" style="font-size:15px;"><tbody><tr><td>主SKU:${data.MainSKU}</td></tr><tr><td>采购员:${data.Buyer}</td></tr>
+                                <tr><td>成本单价:${data.CostPrice}</td></tr><tr><td>加工费:${data.ProcessCosts}</td></tr>
+                                <tr><td>其他:${data.Other}</td></tr><tr><td>创建时间:${data.DateTime}</td></tr>
+                                </tbody></table>`);
+        $("#product_properties").html(`<table border="1" width="100%" style="font-size:15px;"><tbody><tr><td>胶印:${data.OffsetPrinting}</td><td>数码批印:${data.DigitalPrinting}</td></tr>
+                                        <tr><td>数码裁片:${data.DigitalCuts}</td><td>水印:${data.Watermark}</td></tr>
+                                        <tr><td>拉链:${data.Zipper}</td><td>帽绳/球:${data.Cap_rope_ball}</td></tr>
+                                        <tr><td>纽扣:${data.Button}</td><td>橡筋:${data.Elastic}</td></tr>
+                                        <tr><td>鸡眼/四合扣:${data.Cornseye_SnapButton}</td><td>皮牌:${data.LeatherCard}</td></tr>
+                                        <tr><td>花边:${data.Lace}</td><td>织带:${data.Webbing}</td></tr>
+                                        <tr><td>专机:${data.ZhuanJi}</td><td>拉条:${data.LaTiao}</td></tr>
+                                        <tr><td>烧花:${data.ShaoHua}</td><td>烫图:${data.TangTu}</td></tr>
+                                        </tbody></table>`);
+
+        $("#style_info").html(`<table border="1" width="100%" style="font-size:15px;"><tbody><tr><td>A面料:${data.A_fabric}</td><td>档口地址:${data.A_address}</td></tr>
+                                        <tr><td>用量:${data.A_dosage}</td><td>色号:${data.A_color}</td></tr>
+                                        <tr><td>B面料:${data.B_fabric}</td><td>档口地址:${data.B_address}</td></tr>
+                                        <tr><td>用量:${data.B_dosage}</td><td>色号:${data.B_color}</td></tr>
+                                        <tr><td>C面料:${data.C_fabric}</td><td>档口地址:${data.C_address}</td></tr>
+                                        <tr><td>用量:${data.C_dosage}</td><td>色号:${data.C_color}</td></tr>
+                                        </tbody></table>`);
+        $("#myModal").modal();
+    }
+</script>

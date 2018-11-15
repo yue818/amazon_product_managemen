@@ -1,0 +1,31 @@
+<link href="/static/js/t_online_info_wish_store_search.css?t=201803211234" rel="stylesheet" type="text/css" />
+
+<ul id="myTab" class="nav nav-tabs" style="border-bottom:2px solid rgba(16,21,31,0.21);background-color: rgba(126,160,240,0.03)">
+    <li {% if activeflag == '0' %} class="active" {% endif %}>
+        <a href="/Project/admin/skuapp/t_product_enter_ed_all/?datetype=0">
+             所有数据
+        </a>
+    </li>
+    <li {% if activeflag == '1' %} class="active" {% endif %}>
+        <a href="/Project/admin/skuapp/t_product_enter_ed_aliex/?datetype=1">
+             Aliexpress
+        </a>
+    </li>
+    <li {% if activeflag == '2' %} class="active" {% endif %}>
+        <a href="/Project/admin/skuapp/t_product_enter_ed_wish/?datetype=2">
+            Wish
+        </a>
+    </li>
+    <li {% if activeflag == '3' %} class="active" {% endif %}>
+        <a href="/Project/admin/skuapp/t_product_enter_ed_ebay/?datetype=3">
+            eBay
+        </a>
+    </li>
+    <li {% if activeflag == '4' %} class="active" {% endif %}>
+        <a href="/Project/admin/skuapp/t_product_enter_ed_amazon/?datetype=4">
+            Amazon
+        </a>
+    </li>
+</ul>
+
+

@@ -1,0 +1,113 @@
+<style>
+    /* Table Head */
+	#table-7 thead th {
+	background-color: rgb(81, 130, 187);
+	color: #fff;
+	border-bottom-width: 0;
+	}
+
+	/* Column Style */
+	#table-7 td {
+	color: #000;
+	}
+	/* Heading and Column Style */
+	#table-7 tr, #table-7 th {
+	border-width: 1px;
+	border-style: solid;
+	border-color: rgb(81, 130, 187);
+	}
+
+	/* Padding and font style */
+	#table-7 td, #table-7 th {
+	padding: 5px 10px;
+	font-size: 12px;
+	font-family: Verdana;
+	font-weight: bold;
+	}
+	td input {
+	font-weight: bold;	
+	}
+	.btn_1 {
+	    display: inline-block;
+	    padding: 6px 12px;
+	    margin-bottom: 0;
+	    font-size: 14px;
+	    font-weight: normal;
+	    line-height: 1.428571429;
+	    text-align: center;
+	    vertical-align: middle;
+	    cursor: pointer;
+	    background-image: none;
+	    border: 1px solid transparent;
+	    border-radius: 6px;
+	    -webkit-user-select: none;
+	    -moz-user-select: none;
+	    color: #fff;
+	    background-color: rgb(81, 130, 187);
+	}
+</style>
+<script src="/static/xadmin/js/jquery-1.7.1.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+	$("document").ready(function(){
+	});
+</script>
+
+
+<center><div style="width:1450px;font-size:20px;font-weight:bold;font-color:red;background-color:orange"><marquee direction=left scrollamount=12>Aliexpress排单如下，同种线路只刷3个不同的店铺，相邻同种颜色的作为一单刷，一单刷1-3个产品，直至刷完为止！</marquee></div><br>
+<form action="/aliexpress_cc/" method="post" >
+<table border="1" id="table-7">
+	<thead>
+		<th>ID</th>
+		<th>提交日期</th>
+        <th>店铺名称</th>
+        <th>提交人</th>
+        <th>主SKU</th>
+        <th>产品ID</th>
+        <th>金额($)</th>
+        <th>数量</th>
+		<th>营销原因</th>
+        <th>备注</th>
+        <th>订单号</th>
+        <th>跟踪号</th>
+        <th>刷单人</th>
+		<th>刷单日期</th>
+        <th>截单人</th>
+        <th>营销费用($)</th>
+        <th>线路名称</th>
+        <th>IP地址</th>
+        <th>买家账号</th>
+        <th>支付卡账号</th>
+        <th>评价日期/评价人</th>
+    </thead>
+	{% for sd_obj in sd_objs %}
+    <tr>
+        <td>{{ forloop.counter }}</td>
+		<input name="type_num" type="hidden" value="{{ sd_obj.type_num }}" />
+		<td><input name="createtime" type="text" style="border: 0px;outline:none;cursor: pointer;" nowrap  value="{{ sd_obj.createtime }}" /></td>
+        <td><input name="shopname" type="text" style="border: 0px;outline:none;cursor: pointer;" nowrap value="{{ sd_obj.shopname }}" /></td>
+        <td><input name="createman" type="text" style="border: 0px;outline:none;cursor: pointer;width:80px;height:30px"  value="{{ sd_obj.createman }}" /></td>
+        <td><input name="MainSKU" type="text" style="border: 0px;outline:none;cursor: pointer;width:80px;height:30px"  value="{{ sd_obj.MainSKU }}" /></td>
+        <td><input name="productid" type="text" style="border: 0px;outline:none;cursor: pointer;width:80px;height:30px"  value="{{ sd_obj.productid }}" /></td>
+        <td><input name="money" type="text" style="border: 0px;outline:none;cursor: pointer;width:40px;height:30px"  value="{{ sd_obj.money }}" /></td>
+        <td><input name="count" type="text" style="border: 0px;outline:none;cursor: pointer;width:30px;height:30px"  value="{{ sd_obj.count }}" /></td>
+        <td><input name="reason" type="text" style="border: 0px;outline:none;cursor: pointer;width:80px;height:30px"  value="{{ sd_obj.reason }}" /></td>
+        <td><input name="remark" type="text" style="border: 0px;outline:none;cursor: pointer;width:80px;height:30px"  value="{{ sd_obj.remark }}" /></td>
+        <td><input name="ordernum" type="text" style="border: 0px;outline:none;cursor: pointer;width:80px;height:30px"  value="" /></td>
+        <td><input name="tracenum" type="text" style="border: 0px;outline:none;cursor: pointer;width:80px;height:30px" value="" /></td>
+        <td><input name="sd_man" type="text" style="border: 0px;outline:none;cursor: pointer;width:80px;height:30px" value="" /></td>
+		<td><input name="sd_time" type="date" style="border: 0px;outline:none;cursor: pointer;width:120px;height:30px" value="" /></td>
+        <td><input name="jd_man" type="text" style="border: 0px;outline:none;cursor: pointer;width:80px;height:30px" value="" /></td>
+        <td><input name="yx_fee" type="text" style="border: 0px;outline:none;cursor: pointer;width:80px;height:30px" value="" /></td>
+        <td><input name="route_name" type="text" style="border: 0px;outline:none;cursor: pointer;width:80px;height:30px" value="" /></td>
+        <td><input name="ip" type="text" style="border: 0px;outline:none;cursor: pointer;width:80px;height:30px" value="" /></td>
+        <td><input name="buyer_account" type="text" style="border: 0px;outline:none;cursor: pointer;width:80px;height:30px" value="" /></td>
+        <td><input name="pay_account" type="text" style="border: 0px;outline:none;cursor: pointer;width:80px;height:30px" value="" /></td>
+        <td><input name="pj_time_man" type="text" style="border: 0px;outline:none;cursor: pointer;width:80px;height:30px" value="" /></td>
+    </tr>
+	{% endfor %}
+	
+</table><br/>
+<button type="submit" class="btn_1">提交</button>
+{% csrf_token %}
+</form>
+</center>

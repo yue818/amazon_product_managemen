@@ -1,0 +1,168 @@
+<style type="text/css">
+    .btn{
+    color: #ffffff;
+    background-color: #428bca;
+    border-color: #357ebd;
+    }
+    #select1 {
+        display: inline-block;
+        padding: 6px 12px;
+        margin-bottom: 0;
+        font-size: 14px;
+        font-weight: normal;
+        line-height: 1.428571429;
+        text-align: center;
+        vertical-align: middle;
+        cursor: pointer;
+        background-image: none;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+    }
+    #save1 {
+        display: inline-block;
+        padding: 6px 12px;
+        margin-bottom: 0;
+        font-size: 14px;
+        font-weight: normal;
+        line-height: 1.428571429;
+        text-align: center;
+        vertical-align: middle;
+        cursor: pointer;
+        background-image: none;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+    }
+    .form-actions well well-sm clearfix{display:none;}
+</style>
+
+<style>
+    table{
+        border-collapse: collapse;
+        border:0;
+        cellspacing:0;
+        cellpadding:0;
+    }
+
+    input{
+        height:60px;
+        border:none;
+        margin: 0;
+        line-height:100%;
+    }
+
+    th{
+        border: 0.05px solid #dddddd;
+        text-align:center;
+        font-size:15px;
+        height:25px;
+    }
+
+    td{
+        padding: 8px;
+        height:100px;
+        border: 0.05px solid #dddddd;
+        margin: 0;
+        white-space: nowrap;
+    }
+
+    textarea{
+        border:none;
+        height:100%;
+        width:100%;
+        }
+        
+    .input11{border:1px solid #A0A0A0;}
+
+</style>
+
+<script type="application/javascript">
+    window.onload = function() {
+        document.getElementById("save").style.display = "none";
+        document.getElementById("save_and_another").style.display = "none";
+        document.getElementById("save_and_editing").style.display = "none";
+        document.getElementById("delete").style.display = "none";
+    }
+    jQuery(document).ready(function(){
+        var tableI = document.getElementById("mytable");
+        var save2 = document.getElementById("save1");
+        var s2 = document.getElementById("s2");
+        if (tableI.rows.length == 1){
+            tableI.style.display = "none";
+            save2.style.display = "none";
+            s2 .style.display = "none";
+        };
+    })
+
+
+    jQuery(function() {
+        $("#select1").click(function(){
+           $("form.exform").attr("action","/search_sku_Plugin/");
+           $("form.exform").submit();
+        });
+    });
+
+    function del(obj) {
+        var tableI = document.getElementById("mytable");//找到要删除行所在的teble
+        var trI = obj.parentNode.parentNode;//我的button在tr下的td中，两次执行.parentNode操作，可以找到要删除的tr。
+
+        var index = trI.rowIndex;//要删除的tr所在table中的index
+        tableI.deleteRow(index);//执行删除
+    }
+
+</script>
+
+<form action="/search_sku_save/" method="post">
+{% csrf_token %}
+<input id="select1" type="button" class="btn" value="查询">
+
+<input id="save1" type="submit" class="btn" value="保存">
+
+    <ul id="s2" style="list-style:none;">
+        <li>修改类型:
+            <select name="Select">
+                <option value="1">换图片</option>
+                <option value="2">临时下架</option>
+                <option value="3" selected="selected">更改商品信息</option>
+                <option value="4">涨价</option>
+                <option value="5">清仓下架</option>
+                <option value="6">变更业绩归属人2</option>
+                <option value="7">SKU合并</option>
+                <option value="8">重新上架</option>
+                <option value="9">售完下架</option>
+                <option value="10">处理库尾</option>
+                <option value="11">降价</option>
+                <option value="13">提前备货(需审核)</option>
+                <option value="14">备面料供应链商品(需审核)</option>
+                <option value="15">无面料供应链商品(需审核)</option>
+                <option value="16">供货不稳商品(需审核)</option>
+                <option value="17">待转供应链</option>
+                <option value="18">置回普通商品(需审核)</option>
+            </select>
+        </li>
+        <p></p>
+        <li style="border=1">修改描述:<input class="input11" type="text" name="XGcontext" style="width:80%;height:8%;" value=""></li>
+        </ul>
+    <table border="1" id="mytable" width="100%">
+        <tr>
+            <th>sku</th>
+            <th>原价</th>
+            <th>现价</th>
+            <th>操作</th>
+        </tr>
+        {% for obj in objs %}
+        <tr>
+            <td width="100px" nowrap><input readonly="true" type="text" name="MainSKU" style="width:100%;" value="{{ obj.MainSKU }}"></td>
+            <td width="40px" nowrap><input readonly="true" type="text" name="UnitPrice" style="width:100%; height: 100%;" value="{{ obj.price }}"></td>
+            <td width="40px" nowrap><input type="text" name="NowPrice" style="width:100%; height: 100%;" value=""></td>
+            <td width="10px" nowrap><button style="width: 100%;height: 80% " onclick="del(this)">删<br>除</button> </td>
+        </tr>
+        {% endfor %}
+
+    </table>
+    <input name="SalerName2" type="hidden"value="{{ SalerName2 }}">
+    <input name="CreateDate" type="hidden"value="{{ CreateDate }}">
+</form>

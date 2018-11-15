@@ -1,0 +1,233 @@
+<style type="text/css">
+    .search_sku {
+        height: 34px;
+        width: 500px;
+        padding: 6px 12px;
+        font-size: 14px;
+        color: #555555;
+        vertical-align: middle;
+        background-color: #ffffff;
+        background-image: none;
+        border: 1px solid #cccccc;
+        border-radius: 4px;
+        -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 6px 12px;
+        margin-bottom: 0;
+        font-size: 14px;
+        font-weight: normal;
+        line-height: 1.428571429;
+        text-align: center;
+        vertical-align: middle;
+        cursor: pointer;
+        background-image: none;
+        border: 1px solid transparent;
+        border-radius: 6px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        color: #ffffff;
+        background-color: #428bca;
+    }
+
+    .mySelect {
+        height: 34px;
+        padding: 6px 12px;
+        font-size: 14px;
+        color: #555555;
+        vertical-align: middle;
+        background-color: #ffffff;
+        background-image: none;
+        border: 1px solid #cccccc;
+        border-radius: 4px;
+        -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+        padding-left: 8px;
+        width: 200px;
+    }
+
+    table{
+        border-collapse: collapse;
+        border:0;
+    }
+
+    td > input,textarea{
+	    height:30px;
+        border:none;
+        margin: 0;
+        line-height:100%;
+        width: 100%;
+{#        text-align: center;#}
+	}
+
+    td{
+        text-align: center;
+    }
+
+	th{
+        border: 0.05px solid #dddddd;
+		text-align:center;
+	    font-size:15px;
+	    height:25px;
+	}
+
+    .mySpan{
+        font-size: 12px;
+        color: #555555;
+    }
+</style>
+
+<script type="text/javascript">
+    function del_1(obj) {
+        var tableI = document.getElementById("mytable_1");//找到要删除行所在的table
+        var trI = obj.parentNode.parentNode;//我的button在tr下的td中，两次执行.parentNode操作，可以找到要删除的tr。
+        var index = trI.rowIndex;//要删除的tr所在table中的index
+        tableI.deleteRow(index);//执行删除
+    }
+
+    function ApplyToAll() {
+        var all_new_warning = document.getElementsByName('all_new_warning')[0].value;
+        var all_describe = document.getElementsByName('all_describe')[0].value;
+
+        var select_items = document.getElementsByName('new_warning');
+        var input_items = document.getElementsByName('describe');
+
+        for (var i=0; i<select_items.length; i++){
+            select_items[i].value = all_new_warning;
+            input_items[i].value = all_describe;
+        }
+    }
+</script>
+
+{% if exists == 'no'%}
+    <form method="get" action="/add_warning_modify/">
+        <div align="center">
+            <input type="hidden"  name="source" value="search_warning">
+            <input class="search_sku" name="main_sku" placeholder="填写主SKU(多个主SKU请用英文逗号隔开)">
+            <br><br>
+            <input class="search_sku" name="son_sku" placeholder="填写子SKU(多个子SKU请用英文逗号隔开)">
+            <br><br>
+            <input type="submit" class="btn" value="搜索">
+        </div>
+        <br>
+        <div align="center">
+            <span style="color: red">{{ error_info }}</span>
+        </div>
+    </form>
+    <div style="left: 0; bottom: 0; position: absolute">
+        <span style="color: red; font-size: 15px; font-weight: 600">操作细则</span><br>
+        <span class="mySpan">1、该页面仅用于批量修改商品SKU的库存预警；</span><br>
+        <span class="mySpan">2、主SKU和子SKU可同时填写库存预警申请；</span><br>
+        <span class="mySpan">3、当前主SKU搜索为模糊匹配，时间稍长请耐心等待；</span><br>
+        <span class="mySpan">4、单次申请商品SKU个数不得超过200个；</span><br>
+        <span class="mySpan">5、若存在软件问题、使用问题请咨询软件开发人员。</span>
+    </div>
+{% else %}
+    <form method="post" action="/add_warning_modify/" class="myForm">
+    {% csrf_token %}
+        <div style="padding-left: 400px">
+            <input type="hidden"  name="source" value="save_warning">
+            <input type="hidden"  name="real_main_sku" value="{{ real_main_sku }}">
+            <label>主SKU</label>&nbsp;&nbsp;
+            <input class="search_sku" name="main_sku" value="{{ main_sku }}" readonly="true">
+            <br><br>
+            <label>子SKU</label>&nbsp;&nbsp;
+            <input class="search_sku" name="son_sku" value="{{ son_sku }}" readonly="true">
+            <br><br>
+            <label>新&nbsp;&nbsp;值 </label>&nbsp;&nbsp;
+            <select name="all_new_warning" class="mySelect">
+                <option value="">请选择</option>
+                <option value="wrNone">未指派</option>
+                <option value="wrPurOnRode">采购途中</option>
+                <option value="wrStopPur">永不采购</option>
+                <option value="wrSleepPur">暂不采购</option>
+                <option value="wradvanceStock">提前备货</option>
+                <option value="wrhaveFabricsupply">备面料供应链商品</option>
+                <option value="wrnoneFabricsupply">无面料供应链商品</option>
+                <option value="wrInstabilitySupply">供货不稳商品</option>
+                <option value="wrwaitsupplychain">待转供应链</option>
+                <option value="empty">置回普通商品</option>
+                <option value="factorythree">OS901-发货时效7天</option>
+                <option value="factoryfive">OS902-发货时效8天</option>
+                <option value="factoryseven">OS903-发货时效10天</option>
+                <option value="factoryfifteen">OS904-发货时效15天</option>
+                <option value="factoryfive01">OS906-发货时效10天</option>
+                <option value="factoryfive02">OS909-发货时效8天(不能缺货)</option>
+                <option value="wrIP">IP商品</option>
+                <option value="wrFollow">跟卖款商品</option>
+                <option value="wrAgency">代购款商品</option>
+                <option value="wrPromote">活动款商品</option>
+                <option value="wrNoStockout">高价值不缺货商品</option>
+            </select>
+            <br><br>
+            <label>描&nbsp;&nbsp;述 </label>&nbsp;&nbsp;
+            <textarea name="all_describe" type="text" class="mySelect" style="width: 500px"></textarea>
+        </div>
+        <br>
+        <div align="center">
+            <button type="button" class="btn" onclick="ApplyToAll()">应用全部</button>
+            &nbsp;&nbsp;
+            <input type="submit" class="btn">
+        </div>
+        <br>
+        <div align="center">
+            {% if error_main_sku_str != '' %}
+                <span style="color: red">主SKU：{{ error_main_sku_str }} 未查询到</span>
+                <br>
+            {% endif %}
+            {% if error_son_sku_str != '' %}
+                <span style="color: red">子SKU：{{ error_son_sku_str }} 未查询到</span>
+            {% endif %}
+            <br>
+        </div>
+        <br>
+        {% if sku_warning_list %}
+            <table border="1" id="mytable_1" width="100%">
+                <tr>
+                    <th>SKU</th>
+                    <th>原值</th>
+                    <th>新值</th>
+                    <th>描述</th>
+                    <th>操作</th>
+                </tr>
+                {% for sku_warning in sku_warning_list %}
+                    <tr>
+                        <td><input name="sku" type="text" readonly="true" value="{{ sku_warning.SKU }}"/></td>
+                        <td><input name="old_warning" type="text" readonly="true" value="{{ sku_warning.Warning }}"/></td>
+                        <td>
+                            <select name="new_warning" class="mySelect">
+                                <option value="">请选择</option>
+                                <option value="wrNone">未指派</option>
+                                <option value="wrPurOnRode">采购途中</option>
+                                <option value="wrStopPur">永不采购</option>
+                                <option value="wrSleepPur">暂不采购</option>
+                                <option value="wradvanceStock">提前备货</option>
+                                <option value="wrhaveFabricsupply">备面料供应链商品</option>
+                                <option value="wrnoneFabricsupply">无面料供应链商品</option>
+                                <option value="wrInstabilitySupply">供货不稳商品</option>
+                                <option value="wrwaitsupplychain">待转供应链</option>
+                                <option value="empty">置回普通商品</option>
+                                <option value="factorythree">OS901-发货时效7天</option>
+                                <option value="factoryfive">OS902-发货时效8天</option>
+                                <option value="factoryseven">OS903-发货时效10天</option>
+                                <option value="factoryfifteen">OS904-发货时效15天</option>
+                                <option value="factoryfive01">OS906-发货时效10天</option>
+								<option value="factoryfive02">OS909-发货时效8天(不能缺货)</option>
+                                <option value="wrIP">IP商品</option>
+                                <option value="wrFollow">跟卖款商品</option>
+                                <option value="wrAgency">代购款商品</option>
+                                <option value="wrPromote">活动款商品</option>
+                                <option value="wrNoStockout">高价值不缺货商品</option>
+                            </select>
+                        </td>
+                        <td><textarea name="describe" type="text"></textarea></td>
+                        <td width="10px"><button type="button" style="width: 100%;height: 80% " onclick="del_1(this)">删<br>除</button> </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
+    </form>
+{% endif %}

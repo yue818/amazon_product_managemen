@@ -1,0 +1,11 @@
+{% if flag = 1 %}
+<ul id="myTab" class="nav nav-tabs">
+	<li {% if app_name == 't_product_enter_ed' %} class="active" {% endif %}>
+		<a href="/Project/admin/skuapp/t_product_enter_ed/">按部门领用</a>
+	</li>
+	<li {% if app_name == 't_product_enter_ed_user' %} class="active" {% endif %}>
+		<a href="/Project/admin/skuapp/t_product_enter_ed_user/">按个人领用(公测版)</a>
+	</li>
+</ul>
+{% endif %}
+       

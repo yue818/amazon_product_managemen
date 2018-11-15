@@ -1,0 +1,180 @@
+<style>
+             .sybutton {
+                border-radius:10px 10px 10px 10px;
+                background-color:#428BCA;
+                border: none;
+                color: white;
+                padding: 5px 20px;
+                text-align: left;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 15px;
+                margin: 4px 2px;
+                cursor: pointer;
+             }
+
+            a.myj-aFocus {
+                display: inline-block;
+                vertical-align: middle;
+                line-height: 18px;
+            }
+
+            a.myj-aFocus:hover{
+                background-color: #428bca;
+                color: #fff;
+            }
+
+            .mRight20 {
+                margin-right: 30px;
+                margin-bottom: 5px;
+            }
+
+            .inline{
+                display: inline;
+            }
+
+            .satrdiv{
+                overflow: hidden;
+                width:180px;
+                height: 90px;
+                padding-top: 15px;
+            }
+
+            .padatr{
+                padding-top: 10px;
+                padding-bottom: 10px;
+                padding-left: 10px;
+            }
+
+            .textatr{
+                width: 550px;
+                height: 35px;
+                border-radius:10px;
+                color: grey;
+            }
+
+            .myj-active {
+                background-color: #428bca;
+                color: #fff;
+            }
+
+            .form-control{
+                width: 170px;
+                height: 35px;
+                display: inline;
+                margin-top: 5px;
+            }
+            .lefttd{
+                text-align: right;
+            }
+
+            table,table tr td {
+                //border:1px solid #0094ff;
+                padding:2px 12px;
+            }
+
+            .crumb-select-item{
+                background: #EDEAE1;
+                padding: 0px 6px 0px 5px;
+                border: #cccaca;
+
+            }
+
+            .re_echo{
+                font-size: 13px;
+                padding-bottom: 20px;
+                padding-left: 10px;
+                position: absolute;
+               // top: 80px;
+                color: grey;
+            }
+
+            select{
+                max-width: 900px;
+            }
+
+            #div_items {
+                position: absolute;
+                width: 364px;
+                height: 300px;
+                border: 1px solid #66afe9;
+                border-top: 0px;
+                overflow: auto;
+                display: none;
+                background-color: white;
+            }
+
+    #div_items01 {
+                position: absolute;
+                width: 364px;
+                height: 300px;
+                border: 1px solid #66afe9;
+                border-top: 0px;
+                overflow: auto;
+                display: none;
+                background-color: white;
+            }
+
+</style>
+
+<script type="application/javascript">
+    window.onload = function() {
+        var objSelect = document.getElementById("selmonth");
+        var date1 = new Date();
+        for (var i=1;i<=6;i++){
+            date1.setMonth(date1.getMonth());
+            var year1=date1.getFullYear();
+            var month1=date1.getMonth()-i+2;
+            month1 =(month1<10 ? "0"+month1:month1);
+            var sDate = (year1.toString()+'-'+month1.toString());
+            objSelect.options[i].value = sDate;
+            objSelect.options[i].text = sDate;
+        }
+    }
+    function deal_saler_profit(delaflag) {
+        var obj = document.getElementById("selmonth"); //定位id
+        var salerman = document.getElementById("salerman").value ; //定位id
+        var shopname = document.getElementById("shopname").value ; //定位id
+        if(delaflag=='getdata' || delaflag =='genexecl' || delaflag=='delete'){
+            if (confirm("你确定提交吗？")) {
+            }
+            else{
+                return
+            }
+        }
+        var index = obj.selectedIndex; // 选中索引
+        var text = obj.options[index].text; // 选中文本
+        var value = obj.options[index].value; // 选中值
+        var reg=new RegExp("#","g"); //创建正则RegExp对象
+        shopname = shopname.replace(reg, "~~!!");
+        
+
+        window.location.href='/deal_saler_profit?selmonth='+text+'&dealflag='+delaflag+'&salerman='+salerman+'&shopname='+shopname;
+    }
+</script>
+
+<div style="float:left">
+    <div class="padatr" style="float:left">
+        <tr>
+            <th><label style="float:left;margin-right: 10px;margin-top: 10px">业绩月份:</label>
+                <div style="float:left">
+                    <select id="selmonth" name="selmonth" style="width: 150px;height: 35px">
+                        <option value="{{ selmonth }}">{{ selmonth }}</option><option value=""></option><option value=""></option><option value=""></option><option value=""></option><option value=""></option><option value=""></option>
+                    </select>
+                </div>
+            </th>
+            <th><label style="float:left;margin-left: 10px;margin-top: 10px">业绩归属人:</label>
+                <input id="salerman" style="float:left;margin-left:5px;width: 150px;height: 35px" type="text" value="">
+            </th>
+            <th><label style="float:left;margin-left: 10px;margin-top: 10px">店铺SKU:</label>
+                <input id="shopname" style="float:left;margin-left:5px;width: 150px;height: 35px" type="text" value="">
+            </th>
+            <th><input style="float:left;margin-left:15px" type="button" class="sybutton" value="查询" id='btn1' name="Submit1" type='submit' onclick="deal_saler_profit('select');"></th>
+            <th><input style="float:left;margin-left:15px" type="button" class="sybutton" value="按月生成业绩数据" id='btn2' name="Submit2" type='submit' onclick="deal_saler_profit('getdata');"></th>
+            <th><input style="float:left;margin-left:15px" type="button" class="sybutton" value="按月导出业绩数据" id='btn3' name="Submit3" type='submit' onclick="deal_saler_profit('genexecl');"></th>
+            <th><input style="float:left;margin-left:15px" type="button" class="sybutton" value="按月删除业绩数据" id='btn3' name="Submit4" type='submit' onclick="deal_saler_profit('delete');"></th>
+        </tr>
+    </div>
+    {% csrf_token %}
+</div>
+

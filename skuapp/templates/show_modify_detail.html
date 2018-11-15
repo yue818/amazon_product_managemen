@@ -1,0 +1,224 @@
+<style>
+    table{
+        border-collapse: collapse;
+        border:0;
+    }
+    td > input{
+	    height:30px;
+        border:none;
+        margin: 0;
+        line-height:100%;
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        text-align:center;
+	}
+
+	th{
+        border: 0.05px solid #dddddd;
+		text-align:center;
+	    font-size:15px;
+	    height:25px;
+	}
+
+    td{
+        text-align: center;
+    }
+
+    select {
+        height: 34px;
+        padding: 6px 12px;
+        font-size: 14px;
+        color: #555555;
+        vertical-align: middle;
+        background-color: #ffffff;
+        background-image: none;
+        border: 1px solid #cccccc;
+        border-radius: 4px;
+        -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+        padding-left: 8px;
+        width: 200px;
+        text-align:center;
+    }
+
+    fieldset{
+        color: #ce0a06;
+        font-weight:800;
+        background:#fff;
+        border:0 none;
+    }
+
+    .btn{
+        color: #ffffff;
+        background-color: #428bca;
+        border-color: #357ebd;
+        display: inline-block;
+        padding: 6px 12px;
+        margin-bottom: 0;
+        font-size: 14px;
+        font-weight: normal;
+        line-height: 1.428571429;
+        text-align: center;
+        vertical-align: middle;
+        cursor: pointer;
+        background-image: none;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+    }
+</style>
+<script>
+    function del_row(obj) {
+        var tableI = document.getElementById("myTable");//找到要删除行所在的table
+        var trI = obj.parentNode.parentNode;//我的button在tr下的td中，两次执行.parentNode操作，可以找到要删除的tr。
+        var index = trI.rowIndex;//要删除的tr所在table中的index
+        tableI.deleteRow(index);//执行删除
+    }
+</script>
+
+<span style="color: red">注：鼠标放置在相应位置即可显示隐藏部分</span>
+<br>
+<form method="post" action="/save_modify_second/">
+{% csrf_token %}
+    <input type="hidden"  name="modify_id" value="{{ modify_id }}">
+    <input type="hidden"  name="flag" value="{{ flag }}">
+
+    {% if flag == 'modify_all' %}
+        <table border="1" id="myTable" width="100%" class="myTable">
+            <tr>
+                <th>SKU</th>
+                <th>修改项</th>
+                <th>原值</th>
+                <th>新值</th>
+                <th>描述</th>
+                <th>修改类型</th>
+                <th></th>
+                {% if page == 't_product_information_modify' %}
+                    <th>操作</th>
+                {% endif %}
+            </tr>
+            {% for k1, v1 in details.items %}
+                {% for k2, v2 in v1.items %}
+                    <tr>
+                        <td width="100px"><input type="text" readonly = 'True' value="{{ k1 }}" name="son_sku"></td>
+                        <td width="150px"><input type="text" readonly = 'True' value="{{ v2.0 }}" name="{{ k2 }}_{{ k1 }}"></td>
+                        <td width="150px"><input type="text" readonly = 'True' value="{{ v2.1 }}" name="{{ k2 }}_{{ k1 }}" onmouseover="this.title=this.value"></td>
+                        <td>
+                            {% if k2 == 'GoodsStatus' %}
+                                <select name="{{ k2 }}_{{ k1 }}">
+                                    <option value="{{ v2.2 }}">{{ v2.2 }}</option>
+                                    <option value="清仓下架(需审核)">清仓下架(需审核)</option>
+                                    <option value="售完下架(需审核)">售完下架(需审核)</option>
+                                    <option value="处理库尾(需审核)">处理库尾(需审核)</option>
+                                    <option value="临时下架">临时下架</option>
+                                    <option value="重新上架">重新上架</option>
+                                    <option value="清仓（合并）(需审核)">清仓（合并）(需审核)</option>
+                                    <option value="停售(需审核)">停售(需审核)</option>
+                                </select>
+                            {% elif k2 == 'Unit' %}
+                                <select name="{{ k2 }}_{{ k1 }}">
+                                    <option value="{{ v2.2 }}">{{ v2.2 }}</option>
+                                    {% for unit_key, unit_val in unit.items %}
+                                        <option value="{{ unit_key }}">{{ unit_val }}</option>
+                                    {% endfor %}
+                                </select>
+                            {% elif k2 == 'Season' %}
+                                <select name="{{ k2 }}_{{ k1 }}">
+                                    <option value="{{ v2.2 }}">{{ v2.2 }}</option>
+                                    <option value="春季">春季</option>
+                                    <option value="夏季">夏季</option>
+                                    <option value="秋季">秋季</option>
+                                    <option value="冬季">冬季</option>
+                                </select>
+                            {% elif k2 == 'WarningCats' %}
+                                <select name="{{ k2 }}_{{ k1 }}">
+                                    {% for kk, vv in WARNING_DICT.items %}
+                                        {% if kk == v2.2 %}
+                                            <option value="{{ kk }}">{{ vv }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                    <option value="wrNone">未指派</option>
+                                    <option value="wrPurOnRode">采购途中</option>
+                                    <option value="wrStopPur">永不采购</option>
+                                    <option value="wrSleepPur">暂不采购</option>
+                                    <option value="wradvanceStock">提前备货</option>
+                                    <option value="wrhaveFabricsupply">备面料供应链商品</option>
+                                    <option value="wrnoneFabricsupply">无面料供应链商品</option>
+                                    <option value="wrInstabilitySupply">供货不稳商品</option>
+                                    <option value="wrwaitsupplychain">待转供应链</option>
+                                    <option value="empty">置回普通商品</option>
+                                    <option value="factorythree">OS901-发货时效7天</option>
+                                    <option value="factoryfive">OS902-发货时效8天</option>
+                                    <option value="factoryseven">OS903-发货时效10天</option>
+                                    <option value="factoryfifteen">OS904-发货时效15天</option>
+                                    <option value="factoryfive01">OS906-发货时效10天</option>
+                                    <option value="factoryfive02">OS909-发货时效8天(不能缺货)</option>
+                                    <option value="wrIP">IP商品</option>
+                                    <option value="wrFollow">跟卖款商品</option>
+                                    <option value="wrAgency">代购款商品</option>
+                                    <option value="wrPromote">活动款商品</option>
+                                    <option value="wrNoStockout">高价值不缺货商品</option>
+                                </select>
+                            {% elif k2 == 'AttributeName' %}
+                                <select name="{{ k2 }}_{{ k1 }}">
+                                    <option value="{{ v2.2 }}">{{ v2.2 }}</option>
+                                    <option value="普货">普货</option>
+                                    <option value="一类特货">一类特货</option>
+                                    <option value="二类特货">二类特货</option>
+                                    <option value="三类特货">三类特货</option>
+                                    <option value="四类特货">四类特货</option>
+                                    <option value="五类特货">五类特货</option>
+                                    <option value="六类特货">六类特货</option>
+                                    <option value="七类特货">七类特货</option>
+                                </select>
+                            {% elif k2 == 'IsCharged' or k2 == 'IsPowder' or k2 == 'IsLiquid' %}
+                                <select name="{{ k2 }}_{{ k1 }}">
+                                    <option value="{{ v2.2 }}">{{ v2.2 }}</option>
+                                    <option value="1">1</option>
+                                    <option value="0">0</option>
+                                </select>
+                            {% else %}
+                                <input type="text" value="{{ v2.2 }}" name="{{ k2 }}_{{ k1 }}" onmouseover="this.title=this.value">
+                            {% endif %}
+                        </td>
+                        <td><input type="text" value="{{ v2.3 }}" name="{{ k2 }}_{{ k1 }}" onmouseover="this.title=this.value"></td>
+                        <td width="120px"><input type="text" readonly = 'True' value="{{ v2.4 }}" name="{{ k2 }}_{{ k1 }}"></td>
+                        <td width="120px">{{ v2.5 }}</td>
+                        {% if page == 't_product_information_modify' %}
+                            <td width="40px"><button style="width: 100%;height: 80% " onclick="del_row(this)" >删<br>除</button> </td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+            {% endfor %}
+        </table>
+
+
+    {% else %}
+        <table border="1" id="mytable_1" width="100%">
+            <tr>
+                <th>待合并SKU</th>
+                <th>合并到SKU</th>
+                <th>描述</th>
+                <th>修改类型</th>
+            </tr>
+            {% for each in all_result_list %}
+                <tr>
+                    <td width="150px"><input type="text" readonly = 'True' value="{{ each.delete_sku }}" name="son_sku"></td>
+                    <td width="150px"><input type="text" value="{{ each.retain_sku }}" name="{{ each.delete_sku }}"></td>
+                    <td><input type="text" value="{{ each.describe }}" onmouseover="this.title=this.value" name="{{ each.delete_sku }}"></td>
+                    <td width="150px"><input type="text" readonly = 'True' value="SKU合并(需审核)"></td>
+                    <td width="40px"><button style="width: 100%;height: 80% " class="del_row" >删<br>除</button> </td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+
+    {% if page == 't_product_information_modify' %}
+        <br><br>
+        <div align="center">
+            <input type="submit" class="btn" name="submit">
+        </div>
+    {% endif %}
+</form>

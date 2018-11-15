@@ -1,0 +1,10 @@
+<table>
+    &nbsp;&nbsp;&nbsp;
+    {% for pic in pic_list %}
+        <img src="{{ pic }}"  width="200" height="200"/>
+        {% if page == 'submit' %}
+            <a href="/del_feedback_pic/?source=submit&index={{ forloop.counter0 }}&del_id={{ now_id }}">删除</a>
+        {% endif %}
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    {% endfor %}
+</table>

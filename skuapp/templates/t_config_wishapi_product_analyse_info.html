@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <bid id="jsonurl" style="display: none">{{ jsonurl }}</bid>
+    <script>
+          window.onload = function () {
+              var jsonurl = window.document.getElementById('jsonurl').innerText
+              var strurl = JSON.parse(jsonurl)
+              var infoWindows = {}
+              var a = 1
+              for(var url in strurl) {
+                  infoWindows[url] = window.open('/Project/admin/skuapp/t_product_develop_ing/add/')
+                  if(url == a){
+                      to_introduction(url);
+                  }
+                  a += 1
+                  function to_introduction(url) {
+                     infoWindows[url].onload = function () {
+                         infoWindows[url].document.getElementById('id_SourceURL').value = 'https://www.wish.com/c/' + strurl[url][1]
+                         infoWindows[url].document.getElementById('id_OrdersLast7Days').value = strurl[url][2]
+                         infoWindows[url].document.getElementById('id_Pricerange').value = strurl[url][3]
+                         //infoWindows[url].document.getElementById('t_product_survey_ing_form').submit()
+                     }
+                  }
+              }
+              history.go(-1)
+          }
+    </script>
+</head>
+<body>
+<div id="test"></div>
+</body>
+</html>

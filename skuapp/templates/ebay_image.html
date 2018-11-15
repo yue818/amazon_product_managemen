@@ -1,0 +1,27 @@
+<form action = "/save_ebay_image/?myId={{ image_id }}" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <table>
+        {% for k,v in imageDict.items %}
+            <img src="{{ v }}"  width="100" height="100"  alt = "{{ v }}"  title="{{ v }}"  />
+            <a href = '/save_ebay_image/?myId={{ image_id }}&id={{ k }}'>删除</a>
+        {% endfor %}
+    </table>
+    <br>
+    <div>
+        <label>选择本地图片&nbsp;&nbsp;
+            <input type="file" name="image_local" value='' />
+        </label>
+    </div>
+    <br>
+    <div>
+        <label>填写图片链接&nbsp;&nbsp;
+            <input type="text" name="image_url" value='' />
+        </label>
+    </div>
+    <br>
+    <div>
+        &nbsp;&nbsp;&nbsp;<button type='submit' style="height: 30px;width: 50px;">上传</button>
+    </div>
+
+</form>

@@ -1,0 +1,7 @@
+<form action = "/importfile_Invoice_BoxPaste/?myid={{ id }}&batchnum={{ batchnum }}" method="POST" enctype="multipart/form-data">
+{#    发票:<input type='file' name='invoice'>#}
+    <br>
+    箱标:<input type='file' name='boxpaste'>
+    <button type='submit'>上传</button>
+    {% csrf_token %}
+</form>

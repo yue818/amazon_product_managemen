@@ -1,0 +1,39 @@
+<style>
+    .col-md-14 {
+    width: 14%;
+  }
+  .col-md-10 {
+    width: 86%;
+  }
+ img.x{
+     position:absolute;
+     left:12px;
+     top:420px;
+     z-index:99;
+     width:240px;
+     height:360px;
+ }
+</style>
+<link rel="stylesheet" type="text/css" href="/static/siteMenu/css/bootstrap.min.css"/>
+
+<link rel="stylesheet" type="text/css" href="/static/siteMenu/css/style.css"/>
+
+<script type="text/javascript" src="/static/siteMenu/js/jquery-1.7.2.min.js"></script>
+<script type="text/javascript" src="/static/siteMenu/js/test.js"></script>
+
+<input id="sourceURL" type="hidden" value="{{ sourceURL }}">
+<input id="test_list" type="hidden" value='{{ menu_list }}'>
+<input id="attention_text" type="hidden" value='{{ attention_text }}'>
+<div  id="left-side" class="col-sm-1 col-md-14">
+    <div class="tree well">
+
+        <ul id="rootUL">
+
+        </ul>
+
+        
+        <style>#imgx_1{cursor: pointer; transition: all 0.8s;} #imgx_1:hover{transform: scale(2) translate(100px,0);}</style>
+
+    </div>
+
+</div>

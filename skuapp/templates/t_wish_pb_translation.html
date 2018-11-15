@@ -1,0 +1,67 @@
+<form id="updateKeyword" >
+    <div>
+        选择翻译关键词内容：
+        <select id="keywords" name="keywords">
+            {% for i in l %}
+              <option value="{{ i }}">{{ i }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <br>
+    <div>
+        选择语言：
+        <select id="language" name="language">
+
+            <option value="all">全部语言</option>
+            <option value="es">西班牙语</option>
+            <option value="pt">葡萄牙语</option>
+            <option value="fr">法语</option>
+            <option value="de">德语</option>
+            <option value="it">意大利语</option>
+            <option value="sv">瑞典语</option>
+            <option value="pl">波兰语</option>
+            <option value="no">挪威语</option>
+
+        </select>
+    </div>
+    <br>
+    <div>
+        <input type="button" value="提交" onclick='update({{ id }},"{{ ll }}")'>
+        <input name="atoken" id="access_token" type="hidden" value="{{ at }}">
+        <p id="msgid" name="msgid" style="color:black;"></p>
+    </div>
+    <br>
+</form>
+<script src="/static/highcharts/jquery-1.8.3.min.js"></script>
+
+<script>
+    function update(obj_id,keywordsList) {
+        var msgid=document.getElementById("msgid");
+        msgid.innerText = '请稍等......';
+        $.ajax({
+            url:'/campaign/updateKeyword/',
+            type:'post',
+            datatype :'json',
+            data:{
+                'id':obj_id,
+                'keywordsList':keywordsList,
+                'keywords':$('#keywords').val(),
+                'language':$('#language').val(),
+                'at':$('#access_token').val(),
+            },
+            success:function (data) {
+                if (data.result == 'OK'){
+                msgid.style.color= "green";
+                msgid.innerText = "翻译成功！";
+                window.setTimeout("window.parent.location.reload();",1000);
+                }else{
+                    msgid.style.color= "red";
+                    msgid.innerText = "翻译失败:"+data.result;
+                }
+            },
+            error:function (error) {
+                console.log(error);
+            },
+        })
+    }
+</script>

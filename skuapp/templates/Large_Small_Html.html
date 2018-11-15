@@ -1,0 +1,410 @@
+<div class="panel panel-default fieldset unsort " id="box-8">
+    <div class="panel-heading">
+        <i class="icon fa fa-chevron-up chevron"></i>
+        <h3 class="panel-title">大小类</h3>
+    </div>
+    <div class="panel-body ">
+        <div class="form-inline form-group">
+            <div id="div_id_LargeCategory" class="form-group col-sm-4">
+                <label for="id_LargeCategory" class="control-label " style="float:left;width: 170px;padding-top: 22px !important;text-align: right">
+                大类名称<span class="asteriskField">*</span> </label>
+                <div class="controls "  style="float:left;">
+                    <input style="width: 300px" class="text-field admintextinputwidget form-control" id="id_LargeCategory" maxlength="32" name="LargeCategory" type="text" readonly="readonly" value="{{ Large_look }}">
+                    <input id="id_LargeCategory_copy" name="LargeCategory_copy" type="hidden" value="{{ Large_value }}">
+                </div>
+            </div>
+            <div id="div_id_SmallCategory" class="form-group col-sm-4">
+                <label for="id_SmallCategory" class="control-label "  style="float:left;width: 170px;padding-top: 22px !important;text-align: right">
+                小类名称<span class="asteriskField">*</span> </label>
+                <div class="controls "  style="float:left;">
+                    <input style="width: 300px" class="text-field admintextinputwidget form-control" id="id_SmallCategory" maxlength="32" name="SmallCategory" type="text" readonly="readonly" value="{{ Small_look }}">
+                    <input id="id_SmallCategory_copy" name="SmallCategory_copy" type="hidden" value="{{ Small_value }}">
+                </div>
+            </div>
+            <div id="div_Choice" class="form-group col-sm-4">
+                <div class="controls "  style="float:left;">
+                    <button type="button" class="btn btn-primary" onclick="to_Chioce_large_small()">
+                        <span style="color:#ffffff;">选择大小类</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+function to_Chioce_large_small() {
+    top.largevalue = '';
+    top.largelook = '';
+    top.smallvalue = '';
+    top.smalllook = '';
+    top.flag = 0;
+    layer.open({
+        type:2,
+        skin:'layui-layer-lan',
+        title:'请选择大小类',
+        fix:false,
+        shadeClose: true,
+        maxmin:true,
+        area:['500px','400px'],
+        content:'/chioce_large_small/',
+        end: function(index){
+            if (top.flag == 1){
+                document.getElementById('id_LargeCategory').value = top.largelook;
+                document.getElementById('id_LargeCategory_copy').value = top.largevalue;
+                document.getElementById('id_SmallCategory').value = top.smalllook;
+                document.getElementById('id_SmallCategory_copy').value = top.smallvalue;
+            }
+        }
+    });
+}
+
+$(document).ready(function() {
+    var saveobj = document.getElementsByName('_save');
+    for (var s=0;s<saveobj.length;s++){
+        saveobj[s].type = 'button';
+        saveobj[s].setAttribute('onclick','build_ing_to_submit("_save")');
+    }
+    var save_anotherobj = document.getElementById('save_and_another');
+    save_anotherobj.type = 'button';
+    save_anotherobj.setAttribute('onclick','build_ing_to_submit("_addanother")');
+    var save_editobj = document.getElementById('save_and_editing');
+    save_editobj.type = 'button';
+    save_editobj.setAttribute('onclick','build_ing_to_submit("_continue")');
+
+
+    if ($('#id_ReportName').length > 0){
+        var reportname = document.getElementById('id_ReportName');   //英文申报名
+        var name1_test = "value=value.replace(/[^\a-\z\A-\Z- ]/g,'')";
+        reportname.setAttribute('onkeyup', name1_test);
+        reportname.setAttribute('onpaste', name1_test);
+        reportname.setAttribute('oncontextmenu', name1_test);
+    }
+
+    if ($('#id_ReportName2').length > 0){
+        var reportname2 = document.getElementById('id_ReportName2');   // 中文申报名
+        var name1_test2 = "value=value.replace(/[^\u4E00-\u9FA5 ]/g,'')";
+        reportname2.setAttribute('onkeyup', name1_test2);
+        reportname2.setAttribute('onpaste', name1_test2);
+        reportname2.setAttribute('oncontextmenu', name1_test2);
+    }
+
+    if ($('#id_Material').length > 0){
+        var material = document.getElementById('id_Material');   // 材质
+        var material_test = "value=value.replace(/[^\a-\z\A-\Z \u4E00-\u9FA5]/g,'');";
+        material.setAttribute('onkeyup', material_test);
+        material.setAttribute('onpaste', material_test);
+        material.setAttribute('oncontextmenu', material_test);
+        material.setAttribute('onchange', 'replace_value(this);');
+    }
+
+{#    if ($('#id_LWH').length > 0){#}
+{#        $('#id_LWH').after('<span style="margin-left: 10px;" class="asteriskField" id="id_LWH_warning">* 长宽高的单位必须是：cm；格式：(长*宽*高)；服装：(NA)</span>')#}
+{#    }#}
+
+    // if ($('#div_id_YJGS2StaffName').length > 0){   // 业绩归属人不用填写
+    //     $('#div_id_YJGS2StaffName').hide();
+    // }
+
+    var text1 = '</br><a class="thumbnail" style="width: 90%;" target="_blank" href="https://fancyqube-wwwpic.oss-cn-shanghai.aliyuncs.com/building_show/%E5%95%86%E5%93%81%E5%B1%9E%E6%80%A7%E8%A7%A3%E9%87%8A.png">' +
+            '<img id="show_attrbute" width="100%"' +
+            'src="https://fancyqube-wwwpic.oss-cn-shanghai.aliyuncs.com/building_show/%E5%95%86%E5%93%81%E5%B1%9E%E6%80%A7%E8%A7%A3%E9%87%8A.png">' +
+            '</a>';
+
+    var text2 = '</br><span style="margin-left: 5px;" class="asteriskField">一类特货：航空高危产品,，武器（指虎类,弹弓类,电击棍,电击枪,枪支,管制刀具）,仿真武器（枪支/子弹外观）,烈性毒药,毒品,镁棒,打火机等。备注：原则上不允许开发,假如一定要做的话,渠道靠冲,建议少开发,子弹外观的（钥匙扣居多）,目前加锡纸已经骗不过安检。</span>' +
+        '</br><span style="margin-left: 5px;" class="asteriskField">二类特货：纯电池产品，单一电池,纽扣电池,干电池,锂电池,移动电源,太阳能电池板等产品。备注：纽扣电池顺友渠道可发，但是不建议大量开发。</span>' +
+        '</br><span style="margin-left: 5px;" class="asteriskField">三类特货：纯液产品，指甲油（胶）,香水,药水,胶水,染料,眼线液,精油,美瞳（隐形眼镜）,电子烟油,喷雾,玻尿酸,冰袋眼罩,绿植等。备注：液体含量较多,约占包装之外70%以上的商品。</span>' +
+        '</br><span style="margin-left: 5px;" class="asteriskField">四类特货：外置电池产品，电池没有安装在产品内部,和产品分开包装的产品（电池包括纽扣电池,干电池,锂电池,太阳能电池等）。备注：新邮偶尔会安检退回。</span>' +
+        '</br><span style="margin-left: 5px;" class="asteriskField">五类特货：内置电池产品，电池直接安装在产品内部,按开关即可使用的产品（电池包括纽扣电池,干电池,锂电池,太阳能电池等,部分电机类商品）。</span>' +
+        '</br><span style="margin-left: 5px;" class="asteriskField">六类特货：1、含液产品，避孕套,眼线液笔,膜类（面膜,脚模,唇膜,手膜之类）,湿纸巾,牙齿美白笔等。备注：液体含量较少,低于包装之外70%以下的商品。</span>' +
+        '</br><span style="margin-left: 80px;" class="asteriskField">2、膏状产品，牙膏,蜡（发蜡,胡子蜡等）,彩绘膏,乳膏,软膏,肥皂,护肤霜,瘦身贴,艾灸贴,蜡烛,儿童玩具（胶泥,橡皮泥）等。</span>' +
+        '</br><span style="margin-left: 80px;" class="asteriskField">3、粉末产品，遮瑕棒,牙粉,药粉,粉饼,眼影,高光粉,魔镜粉,颗粒粉,腮红,指甲贴等。</span>' +
+        '</br><span style="margin-left: 80px;" class="asteriskField">4、刀具产品，刀片,剪刀,厨房刀具等。备注：较大的刀具新加坡也容易被退回,管制刀具不建议开发。</span>' +
+        '</br><span style="margin-left: 80px;" class="asteriskField">5、磁性产品，音箱,冰箱贴,磁疗用品,大耳机,减压笔,巴克球等。</span>' +
+        '</br><span style="margin-left: 5px;" class="asteriskField">七类特货：1、唇膏产品，口红,唇膏,唇线笔,眉笔。</span>' +
+        '</br><span style="margin-left: 80px;" class="asteriskField">2、纽扣手表产品，纽扣电池类手表。备注：仅限纽扣电池手表。</span>' +
+        '</br><span style="margin-left: 5px;" class="asteriskField">递四方易退回：属性明确但易退回，部分粉末类产品，电子烟(不管是否带电或者带液），属于武器性质的指虎产品，强磁纯磁等磁性较强产品。备注：粉末类由递四方退回之后，由物流相关人员修改商品属性，电子烟开发的时候请统一改成此属性。</span>' +
+        '</br><span style="margin-left: 5px;" class="asteriskField">Joom平台易退回产品：武器和尖锐器具，钉子，订书机，剪刀，钳子，锤子，削皮刀，开瓶器等。</span>' +
+        '</br><span style="margin-left: 5px;" class="asteriskField">普货：普通产品，非敏感货。</span>';
+
+    if ($('#id_ContrabandAttribute').length > 0){   
+        $('#id_ContrabandAttribute').after(text2);
+    }
+    
+    var object_id = document.getElementsByName('object_id');
+    for (var x=0,y=object_id.length;x<y;x++){
+        var SKUATTRS = document.getElementsByName('SKUATTRS_'+x)[0];
+        var attr = "value=value.replace(/[^\a-\z\A-\Z0-9\u4E00-\u9FA5.+-（）*]/g,'')";
+        SKUATTRS.setAttribute('onkeyup', 'ValidateValue(this)');
+        SKUATTRS.setAttribute('onpaste', 'ValidateValue(this)');
+        SKUATTRS.setAttribute('oncontextmenu', 'ValidateValue(this)');
+
+        var SKU = document.getElementsByName('SKU_'+x)[0];
+        var skulimit = "value=value.replace(/[^\a-\z\A-\Z0-9-]/g,'')";
+        SKU.setAttribute('onkeyup', skulimit);
+        SKU.setAttribute('onpaste', skulimit);
+        SKU.setAttribute('oncontextmenu', skulimit);
+    }
+
+    if ($('#div_id_LWH').length > 0){  // 长宽高改造
+
+        var div_parent = document.getElementById('div_id_LWH');
+        var label = div_parent.firstElementChild;
+        label.innerHTML = '包装尺寸:';
+
+        var lwh_value = $('#id_LWH').val();
+        var lwh_detail = lwh_value.split(';');
+        var sf_cloth = '';
+        var sf_nocloth = '';
+        if (lwh_detail.length == 2 && lwh_detail[0] == 'cloth') {
+            sf_cloth = 'selected="selected"';
+        }else if(lwh_detail.length == 3 && lwh_detail[0] == 'nocloth'){
+            sf_nocloth = 'selected="selected"';
+        }
+        var select_content =
+            '<div style="width: 80px;float: left;margin-right: 10px;"><select id="clothselect" onchange="cloth_change(this)">' +
+            '<option value="nocloth" '+sf_nocloth+'>非服装</option>' +
+            '<option value="cloth" '+sf_cloth+'>服装</option>' +
+            '</select></div>';
+
+        $('#id_LWH').hide();
+
+        var input_content = div_parent.lastElementChild;
+        input_content.innerHTML += select_content + '<div id="for_LWH"></div>';
+
+        var self = document.getElementById('clothselect');
+        var f = cloth_change(self);
+
+        if (lwh_value != '' && f == 0){
+            lwh_value = '原输入值格式不正确，请按要求填写: '+lwh_value+'<br>';
+        }else {lwh_value = ''}
+        $('#for_LWH').after(lwh_value+'<span style="margin-left: 10px;" class="asteriskField" id="id_LWH_warning">* 长宽高的单位必须是：cm；格式：(长*宽*高)；服装：请填写服装尺寸备注</span>')
+    }
+
+    var is_black_list_input = '<input id="check_blacklist" type="hidden" value="0">';
+    $("#id_SupplierID").after(is_black_list_input);
+
+    var suplier_sku = '<span id="suplier_sku" class="asteriskField"></span>';
+    $("#id_SupplierID").after(suplier_sku);
+
+    var supplier_blacklist = '<span id="supplier_blacklist" class="asteriskField"></span><br>';
+    $("#id_SupplierID").after(supplier_blacklist);
+
+    var supplier_status = '<br><span id="supplier_status" class="asteriskField"></span>&nbsp;&nbsp;&nbsp;';
+    $("#id_SupplierID").after(supplier_status);
+
+    check_supplier();
+});
+
+function cloth_change(self) {
+    var old_lwh_value = $('#id_LWH').val();
+    var lwh_detail_list = old_lwh_value.split(';');
+    var text_cloth = '';
+    var text_nocloth_list = ['','',''];
+    var f = 0;
+    if (lwh_detail_list.length == 2 && lwh_detail_list[0] == 'cloth') {
+        text_cloth = lwh_detail_list[1];
+        f = 1;
+    }else if(lwh_detail_list.length == 3 && lwh_detail_list[0] == 'nocloth'){
+        var lwh_list = lwh_detail_list[1].split('*');
+        if (lwh_list.length == 3){
+            text_nocloth_list = lwh_list;
+            f = 1
+        }
+    }
+
+    var cloth_content = '<input placeholder="服装尺寸备注" class="text-field admintextinputwidget form-control" id="id_cloth" maxlength="64" name="cloth" type="text" value="'+text_cloth+'">';
+    var lwh_content = '<input placeholder="长度" style="max-width: 100px;" class="text-field admintextinputwidget form-control" id="id_l" maxlength="64" name="l" type="text" value="'+text_nocloth_list[0]+'" onkeyup="value=value.replace(/[^\\d.]/g,\'\');">' +
+        '<span style="margin-left: 5px;margin-right: 5px;">*</span>' +
+        '<input placeholder="宽度" style="max-width: 100px;" class="text-field admintextinputwidget form-control" id="id_w" maxlength="64" name="w" type="text" value="'+text_nocloth_list[1]+'" onkeyup="value=value.replace(/[^\\d.]/g,\'\');">' +
+        '<span style="margin-left: 5px;margin-right: 5px;">*</span>' +
+        '<input placeholder="高度" style="max-width: 100px;" class="text-field admintextinputwidget form-control" id="id_h" maxlength="64" name="h" type="text" value="'+text_nocloth_list[2]+'" onkeyup="value=value.replace(/[^\\d.]/g,\'\');">' +
+        '<span style="margin-left: 5px;margin-right: 5px;">cm</span>';
+    if (self.value == 'nocloth'){
+        $('#for_LWH').html(lwh_content);
+    }else {
+        $('#for_LWH').html(cloth_content);
+    }
+    return f
+}
+
+function update_lwh_value() {
+    var cf = $('#clothselect').val();
+    if (cf == 'cloth'){
+{#        if ($.trim($('#id_cloth').val()) != ''){#}
+{#            $('#id_LWH').val('cloth;'+$.trim($('#id_cloth').val()));#}
+{#        }else {#}
+{#            alert('服装尺寸备注不可以为空！');#}
+{#            return 0#}
+{#        }#}
+        $('#id_LWH').val('cloth;'+$.trim($('#id_cloth').val()));
+    }else {
+{#        if ($.trim($('#id_l').val()) != '' && $.trim($('#id_w').val()) != '' && $.trim($('#id_h').val()) != ''){#}
+{#            var value = $.trim($('#id_l').val())+'*'+$.trim($('#id_w').val())+'*'+$.trim($('#id_h').val());#}
+{#            $('#id_LWH').val('nocloth;'+value+';cm');#}
+{#        }else {#}
+{#            alert('非服装长宽高不能为空！');#}
+{#            return 0#}
+{#        }#}
+        var value = $.trim($('#id_l').val())+'*'+$.trim($('#id_w').val())+'*'+$.trim($('#id_h').val());
+        $('#id_LWH').val('nocloth;'+value+';cm');
+    }
+    return 1
+}
+
+
+function replace_value(self) {
+    console.log(self.value);
+    var sel_val = self.value.replace(' ', '');
+    var pattern = new RegExp("[\u4E00-\u9FA5]+");
+    var pattern2 = new RegExp("[A-Za-z]+");
+    if(!pattern.test(sel_val) || !pattern2.test(sel_val)){
+        alert('材质字段，必须是中英文混合！请重新填写');
+        return false
+    }
+    return true
+}
+
+function ValidateValue(textbox) {
+    var IllegalString = "[`~!#$^&=|{}':;',\\[\\]<>?~！#￥……&|{}【】‘；：”“'。，、？]‘’@";
+    var textboxvalue = textbox.value;
+    var index = textboxvalue.length - 1;
+
+    var s = textbox.value.charAt(index);
+
+    if (IllegalString.indexOf(s) >= 0) {
+        s = textboxvalue.substring(0, index);
+        textbox.value = s;
+    }
+}
+
+// 保存
+function build_ing_to_submit(subname) {
+{#    var params = [#}
+{#        {id:'id_SupplierPUrl1',name: '供货商商品URL一'},#}
+{#        {id:'id_SupplierPDes',name: '供货商商品标题'},#}
+{#        {id:'id_SupplierID',name: '供货商名称'},#}
+{#        {id:'id_UnitPrice',name: '单价'},#}
+{#        {id:'id_Weight',name: '克重'},#}
+{#        {id:'id_Name2',name: '商品名称'},#}
+{#        {id:'id_Material',name: '材质'},#}
+{#        {id:'id_Unit',name: '单位'},#}
+{#        {id:'id_MinOrder',name: '最小订货量'},#}
+{#        {id:'id_SupplierArtNO',name: '供货商货号'},#}
+{#        {id:'id_LWH',name: '长*宽*高'},#}
+{#        {id:'id_SupplierContact',name: '供货商ID'},#}
+{#        {id:'id_ReportName',name: '英文申报名'},   // 英文#}
+{#        {id:'id_ReportName2',name: '中文申报名'},   // 中文#}
+{#        {id:'id_MinPackNum',name: '最小包装数量'}#}
+{#        ];#}
+{##}
+{#    for (var i=0,j=params.length;i<j;i++){#}
+{#        if ($.trim($('#'+params[i].id).val()) == ''){#}
+{#            document.getElementById("mask").style.display = "none";#}
+{#            alert(params[i].name + ',不能为空！');#}
+{#            return null#}
+{#        }#}
+{#    }#}
+
+    if ($('#check_blacklist').val() == '1'){
+        var tmp_text = '该供应商目前被列入黑名单,不能保存';
+        alert(tmp_text);
+        document.getElementById("mask").style.display = "none";
+        return
+    }
+
+    if ($('#id_Material').length > 0){
+        if ($.trim($('#id_Material').val()) != '' && !replace_value(document.getElementById('id_Material'))){
+            document.getElementById("mask").style.display = "none";
+            return
+        }
+    }
+
+{#    if (update_lwh_value() == 0){  // 长宽高#}
+{#        document.getElementById("mask").style.display = "none";#}
+{#        return#}
+{#    }#}
+    update_lwh_value();
+
+    var myform = null;
+    if ($('#t_product_build_ing_form').length > 0){
+        myform=$('#t_product_build_ing_form'); //得到form对象
+    }else if ($('#t_product_develop_ing_form').length > 0){
+        myform=$('#t_product_develop_ing_form'); //得到form对象
+    }
+
+    if (myform){
+        var tmpInput=$("<input type='text' name='" + subname + "'/>");
+        tmpInput.attr("value", subname);
+        myform.append(tmpInput);
+        myform.submit();
+    }
+}
+
+function judge_supplier_isblacklist() {
+    var SupplierName=$("#id_SupplierID").val();
+    $.ajax({
+        url: "/judge_supplier_isblacklist/",
+        type: "GET",
+        contentType: "application/x-www-form-urlencoded:charset=UTF-8",
+        dataType: "json",
+        async: true,
+        data: {
+            'SupplierName': SupplierName
+        },
+        success: function (dataq, textStatus, jqXHR) {
+            if (dataq.sResult == '0'){
+                var tmp_text = '该供应商目前被列入黑名单,请核查后再进行开发或建资料,否则不会保存填写的信息';
+                alert(tmp_text);
+                $('#check_blacklist').val(1);
+            } else {
+                $('#check_blacklist').val(0);
+            }
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.log('错误信息：' + jqXHR.responseText);
+        }
+    })
+}
+
+
+function check_supplier() {
+    var SupplierName = $("#id_SupplierID").val().replace(/(^\s*)|(\s*$)/g,"");
+    if (SupplierName == ''){
+        return
+    }
+    $.ajax({
+        url: "/check_supplier/",
+        type: "GET",
+        contentType: "application/x-www-form-urlencoded:charset=UTF-8",
+        dataType: "json",
+        async: true,
+        data: {
+            'SupplierName': SupplierName
+        },
+        success: function (dataq, textStatus, jqXHR) {
+            if (dataq.sResult == '0') {
+                var suplier_sku = '正常或临时下架SKU总数: ' + dataq.supplierSkuCount + ', 近一月采购SKU总数: ' + dataq.cgSkuCount + ', 近一月采购总金额: ' + dataq.CGALLmoney;
+                document.getElementById('suplier_sku').innerText = suplier_sku;
+                document.getElementById('supplier_status').innerText = '供应商状态:' + dataq.supplier_status;
+                document.getElementById('supplier_blacklist').innerText = '是否黑名单: ' + dataq.is_blacklist;
+                if (dataq.is_blacklist == '是') {
+                    var tmp_text = '该供应商目前被列入黑名单,请核查后再进行开发或建资料,否则不会保存填写的信息';
+                    alert(tmp_text);
+                    $('#check_blacklist').val(1);
+                } else {
+                    $('#check_blacklist').val(0);
+                }
+            }
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.log('错误信息：' + jqXHR.responseText);
+        }
+    })
+}
+
+$("#id_SupplierID").change(function(){
+    check_supplier()
+})
+</script>

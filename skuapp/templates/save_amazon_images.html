@@ -1,0 +1,16 @@
+<script type="text/javascript">
+    var callbackdata = function () {
+        var image_ur_str = document.getElementById('image_ur_str').value;
+        var data = {
+            image_ur_str: image_ur_str
+        };
+        return data;
+    }
+</script>
+<input type="hidden" id="image_ur_str" value="{{ image_ur_str }}">
+<p>图片上传成功</p>
+{% for k,v in other_image_url_list.items|dictsort:"0.lower" %}
+    {% if v %}
+        <img src="{{ v }}"  width="100" height="100"  alt = "{{ v }}"  title="{{ v }}"  />
+    {% endif %}
+{% endfor %}

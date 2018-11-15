@@ -1,0 +1,620 @@
+
+<style type="text/css">
+    .search_sku {
+        height: 34px;
+        padding: 6px 12px;
+        font-size: 14px;
+        color: #555555;
+        vertical-align: middle;
+        background-color: #ffffff;
+        background-image: none;
+        border: 1px solid #cccccc;
+        border-radius: 4px;
+        -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    }
+
+    select {
+        height: 34px;
+        padding: 6px 12px;
+        font-size: 14px;
+        color: #555555;
+        vertical-align: middle;
+        background-color: #ffffff;
+        background-image: none;
+        border: 1px solid #cccccc;
+        border-radius: 4px;
+        -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+        padding-left: 8px;
+        width: 200px;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 6px 12px;
+        margin-bottom: 0;
+        font-size: 14px;
+        font-weight: normal;
+        line-height: 1.428571429;
+        text-align: center;
+        vertical-align: middle;
+        cursor: pointer;
+        background-image: none;
+        border: 1px solid transparent;
+        border-radius: 6px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        color: #ffffff;
+        background-color: #428bca;
+    }
+
+    table{
+        border-collapse: collapse;
+        border:0;
+    }
+
+    td > input,textarea{
+	    height:30px;
+        border:none;
+        margin: 0;
+        line-height:100%;
+        width: 100%;
+        text-align: center;
+	}
+
+    td{
+        text-align: center;
+    }
+
+	th{
+        border: 0.05px solid #dddddd;
+		text-align:center;
+	    font-size:15px;
+	    height:25px;
+	}
+
+    fieldset{
+        color:#06c;
+        font-weight:800;
+        background:#fff;
+        border:0 none;
+    }
+
+    .mySpan{
+        font-size: 12px;
+        color: #555555;
+    }
+</style>
+
+
+{% if exists == 'no'%}
+    <form method="get" action="/add_information_modify/">
+        <div align="center">
+            <input type="hidden"  name="source" value="search_modify">
+            <input class="search_sku" name="search_sku" placeholder="填写主SKU或子SKU" value="{{ sku }}">
+            <input type="submit" class="btn" value="搜索">
+        </div>
+        <br>
+        <div align="center">
+            <span style="color: red">{{ error_info }}</span>
+        </div>
+    </form>
+
+    <div style="left: 0; bottom: 0; position: absolute">
+        <span style="color: red; font-size: 15px; font-weight: 600">操作细则</span><br>
+        <span class="mySpan">1、当前搜索框仅支持单个主SKU或者单个子SKU搜索；</span><br>
+        <span class="mySpan">2、当前页面仅能搜索到online系统可查询到的商品SKU；</span><br>
+        <span class="mySpan">3、当前"合并SKU"不开放修改；</span><br>
+        <span class="mySpan">4、若存在软件问题、使用问题请咨询软件开发人员。</span>
+    </div>
+
+{% else %}
+    <meta charset="UTF-8">
+    <form method="post" action="/add_information_modify/" class="myForm">
+    {% csrf_token %}
+        <div align="center">
+            <input type="hidden"  name="source" value="save_modify">
+            <input type="hidden"  name="mainsku" value="{{ mainsku }}">
+            <textarea style="display: none;"  name="modify_dict">{{ modify_dict }}</textarea>
+            <input class="search_sku" name="search_sku" readonly="true"  value="{{ sku }}">
+            <select name="item" id="public_item" onchange="pubChangeItem()" class="item">
+                <option value="" disabled="disabled" selected="true">修改全部SKU</option>
+                {% for key in item_order_list %}
+                    {% for k,v in item_dict_1.items %}
+                        {% if k == key %}
+                            {% if key == 'GoodsName' or key == 'GoodsStatus' or key == 'CostPrice' %}
+                                <option value="{{ k }}" disabled="disabled">{{ v }}</option>
+                            {% else %}
+                                <option value="{{ k }}">{{ v }}</option>
+                            {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+            </select>
+            <select name="item" id="sku_item" onchange="skuChangeItem()" class="item">
+                <option value="" disabled="disabled" selected="true">修改子SKU</option>
+                {% for key in item_order_list %}
+                    {% for k,v in item_dict_1.items %}
+                        {% if k == key %}
+                        <option value="{{ k }}">{{ v }}</option>
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+            </select>
+            <input type="submit" class="btn">
+        </div>
+        <br>
+        <fieldset>
+            <legend><strong class="btn">删除</strong>&nbsp;&nbsp;公共属性(<span style="color: red">修改当前页面所有SKU的属性</span>)</legend>
+            <table border="1" id="myTable_public" width="100%" class="myTable_public">
+                <input type="hidden"  name="son_sku" value="public">
+                <tr>
+                    <th>修改项</th>
+                    <th>原值</th>
+                    <th>新值(<span style="color: red;">原值基础上修改</span>)</th>
+                    <th>描述</th>
+                    <th>操作</th>
+                </tr>
+            </table>
+        </fieldset>
+        <br>
+        {% for son_sku in sku_list %}
+            <fieldset>
+                <legend><strong class="btn">删除</strong>&nbsp;&nbsp;{{ son_sku }}</legend>
+                <table border="1" id="myTable_{{ son_sku }}" width="100%" class="myTable">
+                    <input type="hidden"  name="son_sku" value="{{ son_sku }}">
+                    <tr>
+                        <th>修改项</th>
+                        <th>原值</th>
+                        <th>新值(<span style="color: red;">原值基础上修改</span>)</th>
+                        <th>描述</th>
+                        <th>操作</th>
+                    </tr>
+                </table>
+                <br>
+            </fieldset>
+        {% endfor %}
+	</form>
+
+    <div style="left: 0; bottom: 0; position: relative;">
+        <span style="color: red; font-size: 15px; font-weight: 600">操作细则</span><br>
+        <span class="mySpan">1、选择"修改全部SKU"下拉框中选项，可批量修改当前页面所有SKU的属性；</span><br>
+        <span class="mySpan">2、选择"修改子SKU"下拉框选项，可分别修改当前页面子SKU的属性；</span><br>
+        <span class="mySpan">3、若不修改当前页面某个子SKU的任何属性，可点击该SKU前的"删除"按钮；</span><br>
+        <span class="mySpan">4、若不修改当前页面某个子SKU的某个属性，可点击该SKU下该属性最右侧的"删除"按钮；</span><br>
+        <span class="mySpan">5、所有新值请在原值基础上进行修改，如若覆盖请清空原值，如若追加请在原值后添加；</span><br>
+        <span class="mySpan">6、为避免重复修改某个属性，默认下拉框中的选项只可以选择一次；</span><br>
+        <span class="mySpan">7、若某个属性如"商品名称"在"修改全部SKU"和"修改子SKU"下拉框中都被选择，则以子SKU的修改内容为准；</span><br>
+        <span class="mySpan">8、若修改"供应商信息"属性，则必须修改"采购员"属性；</span><br>
+        <span class="mySpan">9、若选择"换图要求"，请将"图片备注要求"填写在"描述"一栏；</span><br>
+        <span class="mySpan">10、若修改"成本单价"，"申报价值"会根据新的"成本单价"重新计算，公式: "申报价值=成本单价/6.5"，其结果向上取整；</span><br>
+        <span class="mySpan">11、若修改"包装规格"，"内包装成本"会根据新的"包装规格"重新计算，"商品名称"如需修改请手动更正；</span><br>
+        <span class="mySpan">12、"商品名称"、"商品状态"不支持批量修改；</span><br>
+        <span class="mySpan">13、若存在软件问题、使用问题请咨询软件开发人员。</span>
+    </div>
+    <script src="/static/xadmin/js/jquery-1.7.1.min.js" type="text/javascript"></script>
+    <script src="/static/xadmin/js/jquery.bigautocomplete.js" type="text/javascript"></script>
+    <link rel="stylesheet" type="text/css" href="/static/xadmin/css/jquery.bigautocomplete.css">
+    <script src="/static/xadmin/vendor/selectize/selectize.js"></script>
+    <link href="/static/xadmin/vendor/selectize/selectize.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript">
+        var modify_dict = eval({{ modify_dict | safe }});
+        var item_dict = eval({{ item_dict | safe }});
+        var unit_dict = eval({{ unit_dict | safe }});
+        var pack_data = eval({{ pack_data | safe }});
+
+        var status_option = '<option value="">请选择</option><option value="清仓下架(需审核)">清仓下架(需审核)</option>' +
+            '<option value="售完下架(需审核)">售完下架(需审核)<option value="处理库尾(需审核)">处理库尾(需审核)</option>' +
+            '<option value="临时下架">临时下架</option><option value="重新上架">重新上架</option>' +
+            '<option value="停售(需审核)">停售(需审核)</option>';
+
+        var unit_option = '<option value="">请选择</option>';
+        for (var unit_key in unit_dict){
+            unit_option = unit_option + '<option value="' + unit_key + '">' + unit_key + '</option>'
+        };
+
+        var season_option = '<option value="">请选择</option><option value="春季">春季</option>' +
+            '<option value="夏季">夏季</option><option value="秋季">秋季</option><option value="冬季">冬季</option>';
+
+        var is_option = '<option value="">请选择</option><option value="1">1</option><option value="0">0</option>';
+
+        var warning_option = '<option value="">请选择</option><option value="wrNone">未指派</option>' +
+            '<option value="wrPurOnRode">采购途中</option><option value="wrStopPur">永不采购</option>' +
+            '<option value="wrSleepPur">暂不采购</option><option value="wradvanceStock">提前备货</option>' +
+            '<option value="wrhaveFabricsupply">备面料供应链商品</option><option value="wrnoneFabricsupply">无面料供应链商品</option>' +
+            '<option value="wrInstabilitySupply">供货不稳商品</option><option value="wrwaitsupplychain">待转供应链</option>' +
+            '<option value="empty">置回普通商品</option><option value="factorythree">OS901-发货时效7天</option>' +
+            '<option value="factoryfive">OS902-发货时效8天</option><option value="factoryseven">OS903-发货时效10天</option>' +
+            '<option value="factoryfifteen">OS904-发货时效15天</option><option value="factoryfive01">OS906-发货时效10天</option>' +
+            '<option value="factoryfive02">OS909-发货时效8天(不能缺货)</option><option value="wrIP">IP商品</option><option value="wrFollow">跟卖款商品</option>' +
+            '<option value="wrAgency">代购款商品</option><option value="wrPromote">活动款商品</option><option value="wrNoStockout">高价值不缺货商品</option>'
+
+        var attribute_name_option = '<option value="">请选择</option><option value="普货">普货</option>' +
+                '<option value="一类特货">一类特货</option><option value="二类特货">二类特货</option>' +
+                '<option value="三类特货">三类特货</option><option value="四类特货">四类特货</option>' +
+                '<option value="五类特货">五类特货</option><option value="六类特货">六类特货</option>' +
+                '<option value="七类特货">七类特货</option>'
+
+        var item_input_array = [
+            'Material', 'Class', 'Model', 'Style', 'Brand', 'PackageCount', 'Weight', 'SupplierName', 'CostPrice',
+            'BatchPrice', 'RetailPrice', 'SalePrice', 'MaxSalePrice', 'MarketPrice', 'AliasCnName', 'AliasEnName',
+            'DeclaredValue', 'OriginCountryCode', 'OriginCountry', 'MaxNum', 'MinNum', 'SalerName', 'SalerName2',
+            'BmpUrl', 'Purchaser', 'StoreID', 'StockDays', 'LinkUrl', 'LinkUrl2', 'LinkUrl3', 'MinPrice', 'HSCODE',
+            'SellDays', 'StockMinAmount', 'InLong', 'InWide', 'InHigh', 'InGrossweight', 'InNetweight', 'OutLong',
+            'OutWide', 'OutHigh', 'OutGrossweight', 'OutNetweight', 'ItemUrl', 'possessMan1', 'possessMan2', 'PackName',
+            'LinkUrl4', 'LinkUrl5', 'LinkUrl6', 'ShopCarryCost', 'PackWeight', 'ExchangeRate', 'LogisticsCost',
+            'GrossRate', 'CalSalePrice', 'TQBH', 'BMLGYLSP', 'WMLGYLSP', 'GHBWSP', 'ShopTitle', 'PackName', 'PackFee'
+        ];
+        var item_text_array = [
+            'GoodsName', 'BarCode', 'Notes', 'PackMsg',
+        ];
+        var item_select_array = [
+            'GoodsStatus', 'Unit', 'Season', 'IsCharged', 'IsPowder', 'IsLiquid', 'WarningCats', 'AttributeName'
+        ];
+        var item_time_array = [
+            'DevDate'
+        ]
+
+
+        var has_chain_item_array = ['SupplierName', 'CostPrice', 'PackName']
+
+        function skuChangeItem() {
+            $("#sku_item option").each(function (index) {
+                if( $("#sku_item option").eq(index).attr("selected") == 'selected' ){
+                   $(this).attr("disabled","disabled");
+                   $("#public_item option").eq(index).attr("disabled", "disabled");
+                }
+            });
+
+            var pub_table = document.getElementById('myTable_public');
+            var myTables = document.getElementsByClassName('myTable');
+            var myTableLength = myTables.length;
+            var skuList = document.getElementsByName('son_sku');
+            var skuItemVal = document.getElementById('sku_item');
+
+            for (var i=0; i<myTableLength; i++) {
+                var select_item = skuItemVal.value;
+                if (pub_table === null){
+                    var sku = skuList[i].value;
+                    var content = String(modify_dict[sku][select_item]);
+                    if (content == "undefined"){
+                        content = '';
+                    };
+                    var cn = String(item_dict[select_item]);
+                    var name = select_item + '_' + sku;
+                }
+                else{
+                    var sku = skuList[i+1].value;
+                    var content = String(modify_dict[sku][select_item]);
+                    if (content == "undefined"){
+                        content = '';
+                    };
+                    var cn = String(item_dict[select_item]);
+                    var name = select_item + '_' + sku;
+                }
+
+                var newTr = myTables[i].insertRow(-1);
+                var newTd1 = newTr.insertCell();
+                newTd1.innerHTML = '<td>' + cn + '</td>';
+                var newTd2 = newTr.insertCell();
+                newTd2.innerHTML = '<td><input name="' + name + '" type="text" readonly="true" onmouseover="this.title=this.value" value="' + content + '"/></td>';
+                var newTd3 = newTr.insertCell();
+                if (item_input_array.indexOf(select_item) != -1){
+                    if (select_item == 'CostPrice'){
+                        newTd3.innerHTML = '<td><input name="' + name + '" type="text" onmouseover="this.title=this.value" value="' + content + '" onkeyup="aa(this)" onchange="bb(this)"/></td>';
+                    }else if(select_item == 'PackName'){
+                        newTd3.innerHTML = '<td><select name="' + name + '" value="' + content + '" class="tt" onchange="verify_pack(this)"></select></td>';
+                    }
+                    else{
+                        newTd3.innerHTML = '<td><input name="' + name + '" type="text" onmouseover="this.title=this.value" value="' + content + '" /></td>';
+                    }
+                }
+                else if(item_text_array.indexOf(select_item) != -1){
+                    newTd3.innerHTML = '<td><textarea name="' + name + '" type="text">' + content + '</textarea></td>';
+                }
+                else if(item_select_array.indexOf(select_item) != -1){
+                    if (select_item == 'GoodsStatus') {
+                        newTd3.innerHTML = '<td><select name="' + name + '" >' + status_option + '</select></td>';
+                    }
+                    else if (select_item == 'Unit') {
+                        newTd3.innerHTML = '<td><select name="' + name + '" >' + unit_option + '</select></td>';
+                    }
+                    else if (select_item == 'Season'){
+                        newTd3.innerHTML = '<td><select name="' + name + '" >' + season_option + '</select></td>';
+                    }
+                    else if(select_item == 'WarningCats'){
+                        newTd3.innerHTML = '<td><select name="' + name + '" >' + warning_option + '</select></td>';
+                    }
+                    else if(select_item == 'AttributeName'){
+                        newTd3.innerHTML = '<td><select name="' + name + '" >' + attribute_name_option + '</select></td>';
+                    }
+                    else {
+                        newTd3.innerHTML = '<td><select name="' + name + '" >' + is_option + '</select></td>';
+                    }
+                }
+                else {
+                    newTd3.innerHTML = '<td><input name="' + name + '" type="date" /></td>';
+                };
+                var newTd4 = newTr.insertCell();
+                newTd4.innerHTML = '<td><textarea name="' + name + '" type="text"></textarea></td>';
+                var newTd5 = newTr.insertCell();
+                newTd5.innerHTML = '<td width="20px"><button style="width: 100%;height: 80% " class="del_row" >删<br>除</button> </td>';
+
+
+                if(has_chain_item_array.indexOf(select_item) != -1){
+                    if (select_item == 'SupplierName'){
+                        var chain_item = 'Purchaser';
+                        if (i == 0) {
+                            alert('您当前正在更改"供应商名称",请修改新"供应商名称"对应的"采购员"信息');
+                        }
+                    };
+                    if (select_item == 'CostPrice'){
+                        var chain_item = 'DeclaredValue';
+                        if (i == 0) {
+                            alert('您当前正在更改"成本单价",对应的申报价值会在填写"成本单价新值"后有相应改变,请校验');
+                        }
+                    };
+                    if (select_item == 'PackName'){
+                        var chain_item = 'GoodsName';
+                        if (i == 0) {
+                            alert('您当前正在更改"包装规格",如有需要请修改新"包装规格"对应的"商品名称"信息,并且对应的"内包装成本"也会改变,请校验');
+                        };
+
+                        var p_content = String(modify_dict[sku]['PackFee']);
+                        if (p_content == "undefined"){
+                            p_content = '';
+                        };
+                        var p_cn = String(item_dict['PackFee']);
+                        var p_name = 'PackFee' + '_' + sku;
+                        var newTr = myTables[i].insertRow(-1);
+                        var newTd1 = newTr.insertCell();
+                        newTd1.innerHTML = '<td>' + p_cn + '</td>';
+                        var newTd2 = newTr.insertCell();
+                        newTd2.innerHTML = '<td><input name="' + p_name + '" type="text" readonly="true" onmouseover="this.title=this.value" value="' + p_content + '"/></td>';
+                        var newTd3 = newTr.insertCell();
+                        newTd3.innerHTML = '<td><input name="' + p_name + '" type="text" onmouseover="this.title=this.value" value="' + p_content + '" /></td>';
+                        var newTd4 = newTr.insertCell();
+                        newTd4.innerHTML = '<td><textarea name="' + p_name + '" type="text"></textarea></td>';
+                        var newTd5 = newTr.insertCell();
+                        newTd5.innerHTML = '<td width="20px"></td>';
+                    };
+
+                    var chain_content = String(modify_dict[sku][chain_item]);
+                    if (chain_content == "undefined"){
+                        chain_content = '';
+                    };
+                    var chain_cn = String(item_dict[chain_item]);
+                    var chain_name = chain_item + '_' + sku;
+
+                    var newTr = myTables[i].insertRow(-1);
+                    var newTd1 = newTr.insertCell();
+                    newTd1.innerHTML = '<td>' + chain_cn + '</td>';
+                    var newTd2 = newTr.insertCell();
+                    newTd2.innerHTML = '<td><input name="' + chain_name + '" type="text" readonly="true" onmouseover="this.title=this.value" value="' + chain_content + '"/></td>';
+                    var newTd3 = newTr.insertCell();
+                    newTd3.innerHTML = '<td><input name="' + chain_name + '" type="text" onmouseover="this.title=this.value" value="' + chain_content + '" /></td>';
+                    var newTd4 = newTr.insertCell();
+                    newTd4.innerHTML = '<td><textarea name="' + chain_name + '" type="text"></textarea></td>';
+                    var newTd5 = newTr.insertCell();
+                    newTd5.innerHTML = '<td width="20px"></td>';
+                };
+            };
+
+            var tt_obj = document.getElementsByClassName('tt');
+            if (tt_obj !== null){
+                refresh_select();
+            }
+        };
+
+
+        function pubChangeItem() {
+            $("#public_item option").each(function (index) {
+                if( $("#public_item option").eq(index).attr("selected") == 'selected' ){
+                   $(this).attr("disabled","");
+                   $("#sku_item option").eq(index).attr("disabled", "disabled");
+                };
+            });
+
+            var myTable = document.getElementById('myTable_public');
+            var pubItemVal = document.getElementById('public_item');
+            var select_item = pubItemVal.value;
+            var content = String(modify_dict['public'][select_item]);
+            if (content == "undefined"){
+                content = '';
+            };
+            var cn = String(item_dict[select_item]);
+            var name = select_item + '_' + 'all';
+
+            var newTr = myTable.insertRow(-1);
+            var newTd1 = newTr.insertCell();
+            newTd1.innerHTML = '<td>' + cn + '</td>';
+            var newTd2 = newTr.insertCell();
+            newTd2.innerHTML = '<td><input name="' + name + '" type="text" readonly="true" onmouseover="this.title=this.value" value="' + content + '"/></td>';
+            var newTd3 = newTr.insertCell();
+            if (item_input_array.indexOf(select_item) != -1){
+                if (select_item == 'CostPrice'){
+                    newTd3.innerHTML = '<td><input name="' + name + '" type="text" onmouseover="this.title=this.value" value="' + content + '" onkeyup="aa(this)" onchange="bb(this)"/></td>';
+                }else if(select_item == 'PackName'){
+                    newTd3.innerHTML = '<td><select name="' + name + '" value="' + content + '" class="tt" onchange="verify_pack(this)"></select></td>';
+                }
+                else{
+                    newTd3.innerHTML = '<td><input name="' + name + '" type="text" onmouseover="this.title=this.value" value="' + content + '" /></td>';
+                }
+            }
+            else if(item_text_array.indexOf(select_item) != -1){
+                newTd3.innerHTML = '<td><textarea name="' + name + '" type="text">' + content + '</textarea></td>';
+            }
+            else if(item_select_array.indexOf(select_item) != -1){
+                if (select_item == 'GoodsStatus') {
+                        newTd3.innerHTML = '<td><select name="' + name + '" >' + status_option + '</select></td>';
+                }
+                else if (select_item == 'Unit') {
+                    newTd3.innerHTML = '<td><select name="' + name + '" >' + unit_option + '</select></td>';
+                }
+                else if (select_item == 'Season'){
+                    newTd3.innerHTML = '<td><select name="' + name + '" >' + season_option + '</select></td>';
+                }
+                else if(select_item == 'WarningCats'){
+                    newTd3.innerHTML = '<td><select name="' + name + '" >' + warning_option + '</select></td>';
+                }
+                else if(select_item == 'AttributeName'){
+                    newTd3.innerHTML = '<td><select name="' + name + '" >' + attribute_name_option + '</select></td>';
+                }
+                else {
+                    newTd3.innerHTML = '<td><select name="' + name + '" >' + is_option + '</select></td>';
+                }
+            }
+            else {
+                newTd3.innerHTML = '<td><input name="' + name + '" type="date" /></td>';
+            };
+            var newTd4 = newTr.insertCell();
+            newTd4.innerHTML = '<td><textarea name="' + name + '" type="text"></textarea></td>';
+            var newTd5 = newTr.insertCell();
+            newTd5.innerHTML = '<td width="20px"><button style="width: 100%;height: 80% " class="del_row" >删<br>除</button> </td>';
+
+            if(has_chain_item_array.indexOf(select_item) != -1){
+                if (select_item == 'SupplierName'){
+                    var chain_item = 'Purchaser';
+                    alert('您当前正在更改"供应商名称",请修改新"供应商名称"对应的"采购员"信息');
+                };
+                if (select_item == 'CostPrice'){
+                    var chain_item = 'DeclaredValue';
+                    alert('您当前正在更改"成本单价",对应的申报价值会在填写"成本单价新值"后有相应改变,请校验');
+                };
+                if (select_item == 'PackName'){
+                    var chain_item = 'GoodsName';
+                    alert('您当前正在更改"包装规格",如有需要请修改新"包装规格"对应的"商品名称"信息,并且对应的"内包装成本"也会改变,请校验');
+
+                    var p_content = String(modify_dict['public']['PackFee']);
+                    if (p_content == "undefined"){
+                        p_content = '';
+                    };
+                    var p_cn = String(item_dict['PackFee']);
+                    var p_name = 'PackFee' + '_' + 'all';
+                    var newTr =myTable.insertRow(-1);
+                    var newTd1 = newTr.insertCell();
+                    newTd1.innerHTML = '<td>' + p_cn + '</td>';
+                    var newTd2 = newTr.insertCell();
+                    newTd2.innerHTML = '<td><input name="' + p_name + '" type="text" readonly="true" onmouseover="this.title=this.value" value="' + p_content + '"/></td>';
+                    var newTd3 = newTr.insertCell();
+                    newTd3.innerHTML = '<td><input name="' + p_name + '" type="text" onmouseover="this.title=this.value" value="' + p_content + '" /></td>';
+                    var newTd4 = newTr.insertCell();
+                    newTd4.innerHTML = '<td><textarea name="' + p_name + '" type="text"></textarea></td>';
+                    var newTd5 = newTr.insertCell();
+                    newTd5.innerHTML = '<td width="20px"></td>';
+                };
+
+                var chain_content = String(modify_dict['public'][chain_item]);
+                if (chain_content == "undefined"){
+                    chain_content = '';
+                };
+                var chain_cn = String(item_dict[chain_item]);
+                var chain_name = chain_item + '_' + 'all';
+
+                var newTr = myTable.insertRow(-1);
+                var newTd1 = newTr.insertCell();
+                newTd1.innerHTML = '<td>' + chain_cn + '</td>';
+                var newTd2 = newTr.insertCell();
+                newTd2.innerHTML = '<td><input name="' + chain_name + '" type="text" readonly="true" onmouseover="this.title=this.value" value="' + chain_content + '"/></td>';
+                var newTd3 = newTr.insertCell();
+                newTd3.innerHTML = '<td><input name="' + chain_name + '" type="text" onmouseover="this.title=this.value" value="' + chain_content + '" /></td>';
+                var newTd4 = newTr.insertCell();
+                newTd4.innerHTML = '<td><textarea name="' + chain_name + '" type="text"></textarea></td>';
+                var newTd5 = newTr.insertCell();
+                newTd5.innerHTML = '<td width="20px"></td>';
+            };
+
+            var tt_obj = document.getElementsByClassName('tt');
+            if (tt_obj !== null){
+                refresh_select();
+            }
+        };
+
+
+        $("table").delegate("button","click",function(){
+            $(this).parent().parent().remove();
+                    return false;
+        });
+
+
+        $("strong").each(function () {
+          $(this).bind("click", function () {
+              if($(this).parent().index("legend") == 0){
+                  $("#public_item").attr("disabled","disabled");
+              };
+              $(this).parent().parent().remove();
+          });
+        });
+
+
+        function aa(obj){
+            var tr_index = obj.parentNode.parentNode.nextSibling;
+            var td_indexs = tr_index.getElementsByTagName('td');
+            var input_val = td_indexs[2].childNodes[0];
+            var declared_value = Math.ceil(obj.value/6.5);
+            if (isNaN(declared_value)){
+                alert('成本单价输入非法，请输入正确的数值类型!!!')
+                input_val.value = 0;
+                input_val.setAttribute('value', 0);
+            }else{
+                input_val.value = declared_value;
+                input_val.setAttribute('value', declared_value);
+            };
+        }
+
+        var oplist = new Array();
+        oplist.push({id:'',title:''});
+        for (var i=0,j=pack_data.length;i<j;i++){
+            oplist.push({id:pack_data[i]['title'], title:pack_data[i]['title']});
+        }
+
+
+        function bb(obj) {
+            var old_value = obj.parentNode.previousSibling.childNodes[0].value;
+            if (parseFloat(old_value) < parseFloat(obj.value)){
+                obj.insertAdjacentHTML('afterend', "<span style='color: green; font-size: 12px'>涨价(需审核)</span>");
+            }else{
+                if (obj.nextSibling !== null){
+                    obj.nextSibling.remove();
+                }
+            }
+        }
+
+
+        function refresh_select(){
+            $(".tt").selectize({
+                valueField: 'id',
+                labelField: 'title',
+                searchField: 'title',
+                sortField: 'title',
+                options: oplist,
+                create: false,
+                maxItems: 1,
+                dropdownParent : 'body',
+            });
+        }
+
+        function verify_pack(obj) {
+            for (var i=0; i<pack_data.length; i++){
+                if (obj.value == pack_data[i].title){
+                    var verify_flag = 1;
+                    var cost_input = obj.parentNode.parentNode.nextSibling.getElementsByTagName('td')[2].childNodes[0];
+                    console.log(pack_data[i].result.cost);
+                    console.log(cost_input);
+                    cost_input.value = pack_data[i].result.cost;
+                    cost_input.setAttribute('value', pack_data[i].result.cost);
+                    return false;
+                }else{
+                    var verify_flag = 0;
+                }
+            };
+            if (verify_flag == 0){
+                var old_cost_input = obj.parentNode.parentNode.nextSibling.getElementsByTagName('td')[1].childNodes[0];
+                var new_cost_input = obj.parentNode.parentNode.nextSibling.getElementsByTagName('td')[2].childNodes[0];
+                new_cost_input.value = old_cost_input.value;
+                new_cost_input.setAttribute('value', old_cost_input.value);
+            }
+        }
+    </script>
+{% endif %}

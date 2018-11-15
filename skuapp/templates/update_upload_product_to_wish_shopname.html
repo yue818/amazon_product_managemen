@@ -1,0 +1,19 @@
+<html lang="en-us" >
+<meta charset="utf-8" />
+<form id = 'upload_update' action = '/to_wish_store_distribution/' method = 'POST'>
+    <table cellpadding="5" align="center">
+        <tr>
+            <td><textarea name = 'shopname' rows="20%" cols="90%">{{ ShopName_all }}</textarea></td>
+        </tr>
+        <tr>
+            <td><button id='go' type="submit" style='length:40px;width:70px;background-color:#428bca'>提交</button>
+            <button type="reset" value="Reset" style='length:40px;width:70px;background-color:#428bca'>重置</button></td>
+        </tr>
+    </table>
+    <input name = 'id' value="{{ id }}" hidden="hidden">
+    <input name = 'ProductID' value="{{ ProductID }}" hidden="hidden">
+    <br>
+    
+    {% csrf_token %}
+</form>
+</html>

@@ -1,0 +1,466 @@
+<style type="text/css">
+    #div_items {
+        position: relative;
+        width: 67%;
+        height: 300px;
+        border: 1px solid #66afe9;
+        border-top: 0px;
+        overflow: auto;
+        display: none;
+        background-color: white;
+        z-index: 9999;
+    }
+
+    .div_item {
+        width: 100%;
+        height: 20px;
+        margin-top: 1px;
+        font-size: 13px;
+        line-height: 20px;
+        z-index: 9999;
+    }
+
+    img {
+        cursor: auto;
+        transition: all 0.6s;
+    }
+
+    img:hover {
+        transform: scale(3) translateX(17px);
+    }
+
+    .search_box {
+        float: left;
+        width: 520px;
+        height: 60px;
+        background: #f8f8f8;
+        padding-left: 3px;
+        display: inline;
+    }
+
+    .search a {
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    .search input {
+        float: left;
+    }
+
+    .select {
+        background: #fff;
+        border: 0;
+        border-right: solid 2px #fff;
+        width: 82px;
+        height: 34px;
+        color: #666;
+        line-height: 34px;
+        padding-left: 8px;
+        float: left;
+        position: relative;
+        font-size: 14px;
+        margin-top: 3px;
+    }
+
+    .part p {
+        overflow: hidden;
+    }
+
+    .enter {
+        border: 0;
+        width: 348px;
+        float: left;
+        height: 34px;
+        color: #999;
+        line-height: 34px;
+        padding-left: 5px;
+        margin-top: 3px;
+        font-size: 14px;
+        outline: none;
+    }
+
+    {#.demo{#}
+    {#    padding: 2em 0;#}
+    {#    background: linear-gradient(to right, #2c3b4e, #4a688a, #2c3b4e);#}
+    {#  }#}
+    .progress {
+        height: 25px;
+        background: #262626;
+        padding: 5px;
+        overflow: visible;
+        border-radius: 20px;
+        border-top: 1px solid #000;
+        border-bottom: 1px solid #7992a8;
+        margin-top: 20px;
+        width: 100%;
+    }
+
+    .progress .progress-bar {
+        border-radius: 20px;
+        position: relative;
+        animation: animate-positive 2s;
+    }
+
+    .progress .progress-value {
+        display: block;
+        padding: 3px 7px;
+        font-size: 13px;
+        color: #fff;
+        border-radius: 4px;
+        background: #191919;
+        border: 1px solid #000;
+        position: absolute;
+        top: -40px;
+        right: -10px;
+    }
+
+    .progress .progress-value:after {
+        content: "";
+        border-top: 10px solid #191919;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        position: absolute;
+        bottom: -6px;
+        left: 26%;
+    }
+
+    .progress-bar.active {
+        animation: reverse progress-bar-stripes 0.40s linear infinite, animate-positive 2s;
+    }
+
+    @-webkit-keyframes animate-positive {
+        0% {
+            width: 0;
+        }
+    }
+
+    @keyframes animate-positive {
+        0% {
+            width: 0;
+        }
+    }
+    #myModal2 span{
+    width: 100% !important;
+    float: left !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: normal !important;
+    }
+</style>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<input type="hidden" value="0" id="zy_noclose_id">
+<div class="search_box">
+    <div class="search">
+        <form>
+            <br>
+            <input id="q" class="enter" name="shopname"
+                   onFocus="if(this.value=='搜索店铺...'){this.value='';}else{this.select();}this.style.color='black';"
+                   value="{{ flag }}">
+            <input type="submit" class="btn btn-primary" value="点击搜索">
+        </form>
+        <div class="selectize-dropdown-content" id="div_items">
+        </div>
+    </div>
+</div>
+<br>
+<button id="syn_all" class="btn btn-primary" data-toggle="modal" data-target="#myModal1" onclick="change_modal_body()">
+    <span style="color:#ffffff;">单个店铺同步</span>
+</button>
+<button id="syn_some" class="btn btn-primary" data-toggle="modal" data-target="#myModal2"><span
+        style="color:#ffffff;">所有店铺同步</span></button>
+<span id="code"></span>
+<br>
+
+<!--模态框模板 -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h3 class="modal-title" id="model_title"></h3>
+            </div>
+            <div class="modal-body">
+                <span id="modal_info"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal1 单个店铺同步模态框 -->
+<div class="modal fade" id="myModal1" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h3 class="modal-title" id="myModalLabel">单个店铺同步</h3>
+            </div>
+            <div class="modal-body">
+                <span id="modal-info"></span>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" id="synShopName" onclick="synShopName()">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal2 全部店铺同步模态框 -->
+<div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h3 class="modal-title" id="myModalLabel2">所有店铺同步</h3>
+            </div>
+            <div class="modal-body">
+                <span id="modal-info2">确定要同步所有店铺吗？</span>
+                <div class="demo" id='demo' align="center" style="display: none">
+                    <div class="container" style="width: 100%">
+                        <div class="row">
+                            <div class="col-md-10" style="width: 100%">
+                                <div class="progress">
+                                    <div id='jindu' class="progress-bar progress-bar-info progress-bar-striped active"
+                                         style="width: 0%;">
+                                        <div class="progress-value"><span id="jinduzhi">0%</span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <span id="result"></span>
+{#                <br>#}
+{#                <span id="errorShopName"></span>#}
+{#                <br>#}
+{#                <br>#}
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal" >关闭</button>
+                <button type="button" id="submitId" class="btn btn-primary site-demo-active" onclick="change_progress()">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script type="text/javascript">
+    var divdown = document.getElementById('div_items');
+    var node = divdown.nextSibling;
+    var shop_list = {{ objs|safe }};
+    var info = '';
+    for (var s = 0; s < shop_list.length; s++) {
+        info += '<div class="div_item" onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" onClick="ChangeText(this);">' + shop_list[s] + '</div>';
+    }
+    divdown.innerHTML = info;
+    divdown.parentNode.insertBefore(divdown, node);
+    node = divdown.nextSibling;
+
+    if (document.getElementById('q').value == 'Wish-0000') {
+        document.getElementById('q').value = '搜索店铺...';
+    }
+    //弹出列表框
+    $("#q").click(function () {
+        $("#div_items").css('display', 'block');
+        return false;
+    });
+
+    //隐藏列表框
+    $("body").click(function () {
+        $("#div_items").css('display', 'none');
+    });
+
+    function change_modal_body() {
+        var flag = document.getElementById('q').value.toString();
+        var modal_body = "确定要同步店铺 " + flag + " 吗？";
+        document.getElementById('modal-info').innerText = modal_body;
+        if(flag.indexOf('Wish-') == -1){
+            $('#synShopName').attr('disabled', "disabled");
+        }else{
+            $('#synShopName').removeAttr('disabled');
+        }
+    }
+
+    //移入移出效果
+    function getnewcolor(obj) {
+        $(obj).css('background-color', '#1C86EE').css('color', 'white');
+    }
+
+    function getoldcolor(obj) {
+        $(obj).css('background-color', 'white').css('color', 'black');
+    }
+
+    //文本框输入
+    $("#q").keyup(function () {
+        var intext = document.getElementById('q');
+        var inputtext = intext.value;
+        if (inputtext != "") {
+            var html = "";
+            for (var i = 0; i < shop_list.length; i++) {
+                if (shop_list[i].indexOf(inputtext) >= 0) {
+                    html += '<div class="div_item"onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" onClick="ChangeText(this);">' + shop_list[i] + '</div>';
+                }
+            }
+            if (html != "") {
+                $("#div_items").show().html(html);
+            } else {
+                $("#div_items").hide().html("");
+            }
+        } else {
+            $("#div_items").show().html(info);
+        }
+    });
+
+    //项点击
+    function ChangeText(obj) {
+        var value = $(obj).text();
+        $("#q").val(value);
+        $("#div_items").show().html('<div class="div_item" onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" onClick="ChangeText(this);">' + value + '</div>');
+    }
+
+    function synShopName() {
+        var url = "/wish_ticket/syn/?type=one&shopname=";
+        var flag = document.getElementById('q').value.toString();
+        window.location.href = url + flag
+    }
+    {#var progress = 0;#}
+
+    function getCookieqq(name) {
+    var cookieValue = null;
+      if (document.cookie && document.cookie != '') {
+          var cookies = document.cookie.split(';');
+          for (var i = 0; i < cookies.length; i++) {
+              var cookie = jQuery.trim(cookies[i]);
+              // Does this cookie string begin with the name we want?
+              if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                  cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                  break;
+              }
+          }
+      }
+      return cookieValue;
+}
+
+    var process_id = '';
+    function change_progress() {
+        $('#zy_noclose_id').val('1');
+        document.getElementById('modal-info2').style.display = 'none';
+        document.getElementById('demo').style.display = "block";
+        $('#submitId').attr('disabled', "disabled");
+        $('#submitId').removeAttr('onclick');
+        var csrftoken = getCookieqq('csrftoken');
+        $.ajax({
+            url: "/wish_ticket/ajax/",
+            data: {'msg': 'all'},
+            type: "POST",
+            dataType: "json",
+            beforeSend: function(xhr, settings) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            },
+            success: function (result) {
+                if(result.sMsg == 0){
+                    process_id = setInterval('refresh_progress()', 3000);
+                }else{
+                    $('#zy_noclose_id').val('0');
+                    alert("出现异常啦！请重新同步！");
+                    document.getElementById('modal-info2').style.display = 'block';
+                    document.getElementById('demo').style.display = "none";
+                    document.getElementById('result').innerText = '';
+                    $('#submitId').removeAttr('disabled');
+                    $('#submitId').attr('onclick', 'change_progress()');
+                }
+            },
+            error:function (XMLHttpRequest, textStatus, errorThrown) {
+                $('#zy_noclose_id').val('0');
+                alert('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+            }
+        });
+
+
+        {#progress = 100;#}
+        {#document.getElementById('jinduzhi').innerText = progress.toString() + "%";#}
+        {#document.getElementById('jindu').style.width = progress.toString() + '%';#}
+    }
+
+    function refresh_progress(){
+        var csrftoken = getCookieqq('csrftoken');
+        $.ajax({
+            url: "/wish_ticket/get_syn_status/",
+            data: {'msg': 'getStatus'},
+            type: "POST",
+            dataType: "json",
+            beforeSend: function(xhr, settings) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            },
+            success: function (result) {
+                if(result.x == 100){
+                    clearInterval(process_id);
+                    document.getElementById('jinduzhi').innerText = '100%';
+                    document.getElementById('jindu').style.width = '100%';
+                    $('#submitId').removeAttr('disabled');
+                    $('#submitId').attr('onclick', "javascript:location.reload();");
+                    $('#zy_noclose_id').val('0');
+                }else {
+                    document.getElementById('jinduzhi').innerText = result.status;
+                    document.getElementById('jindu').style.width = result.status;
+                }
+                document.getElementById('result').innerText = '成功同步'+result.process+'店铺,失败'+result.error+'个，总共'+result.shopname+'个'
+                {#document.getElementById('errorShopName').innerText = '失败的店铺有：'+result.errorShopName#}
+            },
+            error:function (XMLHttpRequest, textStatus, errorThrown) {
+                {#alert('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message#}
+                clearInterval(process_id);
+                $('#zy_noclose_id').val('0');
+            }
+        });
+    }
+
+    window.onload = function () {
+        var url = location.search; //获取url中"?"符后的字串
+        {#var ele = window.document.getElementById("code");#}
+        var model_title = document.getElementById('model_title');
+        var modal_info = document.getElementById('modal_info');
+        if (url.indexOf('code') > -1) {
+            var theRequest = new Object();
+            if (url.indexOf("?") != -1) {
+                var str = url.substr(1);
+                strs = str.split("&");
+                for (var i = 0; i < strs.length; i++) {
+                    theRequest[strs[i].split("=")[0]] = unescape(strs[i].split("=")[1]);
+                }
+            }
+            if (theRequest['code'] == 0) {
+                model_title.innerText = '同步结果';
+                modal_info.innerText = '同步成功！';
+                $('#myModal').modal('show');
+                {#ele.innerHTML = "<span style='color: #1b9dec'>同步成功</span>";#}
+            } else {
+                model_title.innerText = '同步结果';
+                modal_info.innerHTML = "<span style='color:red'>同步失败！请稍后再试！</span>";
+                $('#myModal').modal('show');
+            }
+        }
+    };
+    $(function () {
+        $('#myModal2').on('hide.bs.modal', function () {
+            var brP = document.getElementById('zy_noclose_id');
+            if (brP.value == '1'){
+                alert("同步没有完成不能关闭");
+                return false
+            }
+            document.getElementById('modal-info2').style.display = 'block';
+            document.getElementById('demo').style.display = "none";
+            document.getElementById('result').innerText = '';
+            $('#submitId').removeAttr('disabled');
+            $('#submitId').attr('onclick', 'change_progress()');
+        })
+    });
+</script>
+
+
+

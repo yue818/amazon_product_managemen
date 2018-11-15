@@ -1,0 +1,65 @@
+
+<style type="text/css">
+		.btn_1{
+			display: inline-block;
+	        padding: 6px 12px;
+	        margin-bottom: 0;
+	        font-size: 14px;
+	        font-weight: normal;
+	        line-height: 1.428571429;
+	        text-align: center;
+	        vertical-align: middle;
+	        cursor: pointer;
+	        background-image: none;
+	        border: 1px solid transparent;
+	        border-radius: 6px;
+	        -webkit-user-select: none;
+	        -moz-user-select: none;
+	        color: #ffffff;
+		    background-color: #555555;
+		}
+		.btn_2{
+			display: inline-block;
+	        padding: 6px 12px;
+	        margin-bottom: 0;
+	        font-size: 14px;
+	        font-weight: normal;
+	        line-height: 1.428571429;
+	        text-align: center;
+	        vertical-align: middle;
+	        cursor: pointer;
+	        background-image: none;
+	        border: 1px solid transparent;
+	        border-radius: 6px;
+	        -webkit-user-select: none;
+	        -moz-user-select: none;
+	        color: #ffffff;
+		    background-color: red;
+		}
+</style>
+<script type="text/javascript">
+	$(document).ready(function(){
+		$('#rwtj').on('click', function(){
+			layer.open({type:2,skin:'layui-layer-lan',title:'未关闭任务:',fix:false,shadeClose: true,maxmin:true,area:['830px','840px'],content:'/t_task_trunk/rwtj/'});
+		});	
+	});
+	$(document).ready(function(){
+		$('#suanjia').on('click', function(){
+			layer.open({type:2,skin:'layui-layer-lan',title:'算价表:',fix:false,shadeClose: true,maxmin:true,area:['1300px','900px'],content:'/price_list/'});
+		});	
+	});  
+</script>
+
+<div align="left">
+    <button type="hidden" id="flag" value="{{ flag }}"></button>
+    <a class="btn_1" href=" {{ url }}status=mycreate&Flow_Status=TC,SH,CL,NYZ,YZ" id="btc1">我的创建</a>
+    <a class="btn_1" href="{{ url }}status=mytask&Flow_Status=TC,SH,CL,NYZ,YZ" id="btc2">我的任务</a>
+    <a class="btn_1" href=" {{ url }}status=myjoin&Flow_Status=TC,SH,CL,NYZ,YZ" id="btc3">我的参与</a>
+    <a class="btn_1" href="{{ url }}status=all&Flow_Status=TC,SH,CL,NYZ,YZ" id="btc5">全部任务</a>
+	<a class="btn_1" href=" {{ url }}status=taskout&Flow_Status=TC,SH,CL,NYZ,YZ" id="btc4">逾期任务</a>
+	<button id="rwtj" class="btn_1">任务统计</button>
+	<!--<button id="suanjia" class="btn_2">算价表</a>-->
+	<a class="btn_2" href="/price_list?username={{username}}" target="_blank">算价表</a>
+	<a class="btn_2" href="/mymallapp/handle_description_info" target="_blank">尺码表转化</a>
+</div>
+<br>

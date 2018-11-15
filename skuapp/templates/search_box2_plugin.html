@@ -1,0 +1,82 @@
+<script src="/static/xadmin/js/jquery-1.7.1.min.js" type="text/javascript"></script>
+
+<font color="red" size="4"><b>关联效果配置一览(立即生效):</b></font><br/><br/>
+<b size="3">大类</b><select class="adminselectwidget form-control" id="id_bigcategory" name="bigcategory">
+{% for CategoryName_obj in CategoryName_objs %}
+    <option value="{{ CategoryName_obj.id }}">{{ CategoryName_obj.CategoryName }}</option>
+{% endfor %}
+</select>
+
+<b size="3">服装一级分类</b><select class="adminselectwidget form-control" id="id_onecategory" name="onecategory">
+</select>
+
+<b size="3">服装二级分类</b><select class="adminselectwidget form-control" id="id_twocategory" name="twocategory">
+</select>
+
+
+<script type="text/javascript">
+    $("document").ready(function(){
+        var CategoryId = $("#id_bigcategory option:selected").val();
+        var one_cate = document.getElementById('id_onecategory');
+        one_cate.options.length = 0;
+        $.getJSON('/category_info/?CategoryId=' + CategoryId, function (result) {
+            if (result.resultCode == '200') {
+                var onecategory = result['PL'];
+                for (var i = 0; i < onecategory.length; i++) {
+                    $("#id_onecategory").append("<option value='" + onecategory[i]['id'] + "'>" + onecategory[i]['CategoryName'] + "</option>");
+                }
+                var CategoryId2 = $("#id_onecategory option:selected").val();
+                var two_cate = document.getElementById('id_twocategory');
+                two_cate.options.length = 0;
+                $.getJSON('/category_info/?CategoryId=' + CategoryId2, function (result) {
+                    if (result.resultCode == '200') {
+                        var onecategory = result['PL'];
+                        for (var i = 0; i < onecategory.length; i++) {
+                            $("#id_twocategory").append("<option value='" + onecategory[i]['id'] + "'>" + onecategory[i]['CategoryName'] + "</option>");
+                        }
+                    }
+                }); 
+            }
+        });
+
+            
+    
+        $("#id_bigcategory").change(function () {
+            var CategoryId = $("#id_bigcategory option:selected").val();
+            var one_cate = document.getElementById('id_onecategory');
+            one_cate.options.length = 0;
+            $.getJSON('/category_info/?CategoryId=' + CategoryId, function (result) {
+                if (result.resultCode == '200') {
+                    var onecategory = result['PL'];
+                    for (var i = 0; i < onecategory.length; i++) {
+                        $("#id_onecategory").append("<option value='" + onecategory[i]['id'] + "'>" + onecategory[i]['CategoryName'] + "</option>");
+                    }
+                var CategoryId2 = $("#id_onecategory option:selected").val();
+                var two_cate = document.getElementById('id_twocategory');
+                two_cate.options.length = 0;
+                $.getJSON('/category_info/?CategoryId=' + CategoryId2, function (result) {
+                    if (result.resultCode == '200') {
+                        var onecategory = result['PL'];
+                        for (var i = 0; i < onecategory.length; i++) {
+                            $("#id_twocategory").append("<option value='" + onecategory[i]['id'] + "'>" + onecategory[i]['CategoryName'] + "</option>");
+                        }
+                    }
+                });
+                }
+            });
+        });
+        $("#id_onecategory").change(function () {
+            var CategoryId = $("#id_onecategory option:selected").val();
+            var two_cate = document.getElementById('id_twocategory');
+            two_cate.options.length = 0;
+            $.getJSON('/category_info/?CategoryId=' + CategoryId, function (result) {
+                if (result.resultCode == '200') {
+                    var onecategory = result['PL'];
+                    for (var i = 0; i < onecategory.length; i++) {
+                        $("#id_twocategory").append("<option value='" + onecategory[i]['id'] + "'>" + onecategory[i]['CategoryName'] + "</option>");
+                    }
+                }
+            });
+        });
+    });
+</script>

@@ -1,0 +1,104 @@
+<body>
+<form id="editAmazonVariation" name="editAmazonVariation"
+       method="POST">
+<!--action="/save_amazon_image_change/?pri_id={{ pri_id }}"-->
+    <table align="center" width="95%"  border="1">
+        <tr align="center">
+            <th style="text-align:center">SKU</th>
+            <th style="text-align:center">主图</th>
+            <th>附图</th>
+        </tr>
+
+        <tr>
+            <td nowrap>{{main_obj.productSKU}}</td>
+
+            <td nowrap style="text-align:center">
+                 {% if  main_obj.main_image_url != None  and  main_obj.main_image_url != '' %}
+                    <img  src="{{ main_obj.main_image_url  }}" style="width: 65px; height: 65px">
+                 {% endif %}
+
+                <a style="text-align:right"  href="/change_amazon_image/?main_table_type={{main_table_type}}&shop_set={{main_obj.ShopSets}}&pri_id={{main_obj.id}}&variation_type=parent&image_type=main&prodcut_variation_id={{prodcut_variation_id}}">编辑</a>
+            </td>
+
+            <td nowrap style="text-align:center">
+                {% if  main_obj.other_image_url1 != None  and  main_obj.other_image_url1 != '' %}
+                    <img  src="{{ main_obj.other_image_url1  }}" style="width: 65px; height: 65px">
+                 {% endif %}
+                {% if  main_obj.other_image_url2 != None  and  main_obj.other_image_url2 != '' %}
+                    <img  src="{{ main_obj.other_image_url2  }}" style="width: 65px; height: 65px">
+                 {% endif %}
+                {% if  main_obj.other_image_url3 != None  and  main_obj.other_image_url3 != '' %}
+                    <img  src="{{ main_obj.other_image_url3  }}" style="width: 65px; height: 65px">
+                 {% endif %}
+                {% if  main_obj.other_image_url4 != None  and  main_obj.other_image_url4 != '' %}
+                    <img  src="{{ main_obj.other_image_url4  }}" style="width: 65px; height: 65px">
+                 {% endif %}
+                {% if  main_obj.other_image_url5 != None  and  main_obj.other_image_url5 != '' %}
+                    <img  src="{{ main_obj.other_image_url5  }}" style="width: 65px; height: 65px">
+                 {% endif %}
+                {% if  main_obj.other_image_url6 != None  and  main_obj.other_image_url6 != '' %}
+                    <img  src="{{ main_obj.other_image_url6  }}" style="width: 65px; height: 65px">
+                 {% endif %}
+                 {% if  main_obj.other_image_url7 != None  and  main_obj.other_image_url7 != '' %}
+                    <img  src="{{ main_obj.other_image_url7  }}" style="width: 65px; height: 65px">
+                 {% endif %}
+
+                <!--<span id="testtest">{{ main_obj.other_image_url8  }}</span>-->
+                <!--<script>-->
+                    <!--alert(window.document.getElementById("testtest").innerText != '')-->
+                <!--</script>-->
+
+                 {% if  main_obj.other_image_url8 != None  and  main_obj.other_image_url8 != '' %}
+                    <!--<div>aaa{{main_obj.other_image_url8}}fff </div>-->
+                    <img  src="{{ main_obj.other_image_url8  }}" style="width: 65px; height: 65px">
+                 {% endif %}
+
+                <a style="text-align:right"  href="/change_amazon_image/?main_table_type={{main_table_type}}&shop_set={{main_obj.ShopSets}}&pri_id={{main_obj.id}}&variation_type=parent&image_type=other&prodcut_variation_id={{prodcut_variation_id}}">编辑</a>
+
+            </td>
+        </tr>
+
+        {% for variation in variation_obj %}
+        <tr>
+            <td nowrap>{{variation.productSKU}}</td>
+
+            <td nowrap style="text-align:center">
+                {% if  variation.main_image_url != None  and  variation.main_image_url != '' %}
+                    <img  src="{{ variation.main_image_url  }}" style="width: 65px; height: 65px">
+                 {% endif %}
+
+                <a style="text-align:right"  href="/change_amazon_image/?main_table_type={{main_table_type}}&shop_set={{main_obj.ShopSets}}&pri_id={{variation.id}}&variation_type=child&image_type=main&prodcut_variation_id={{prodcut_variation_id}}">编辑</a>
+            </td>
+
+            <td nowrap style="text-align:center">
+                {% if  variation.other_image_url1 != None  and  variation.other_image_url1 != '' %}
+                    <img  src="{{ variation.other_image_url1  }}" style="width: 65px; height: 65px">
+                 {% endif %}
+                {% if  variation.other_image_url2 != None  and  variation.other_image_url2 != '' %}
+                    <img  src="{{ variation.other_image_url2  }}" style="width: 65px; height: 65px">
+                 {% endif %}
+                {% if  variation.other_image_url3 != None  and  variation.other_image_url3 != '' %}
+                    <img  src="{{ variation.other_image_url3  }}" style="width: 65px; height: 65px">
+                 {% endif %}
+                {% if  variation.other_image_url4 != None  and  variation.other_image_url4 != '' %}
+                    <img  src="{{ variation.other_image_url4  }}" style="width: 65px; height: 65px">
+                 {% endif %}
+                {% if  variation.other_image_url5 != None  and  variation.other_image_url5 != '' %}
+                    <img  src="{{ variation.other_image_url5  }}" style="width: 65px; height: 65px">
+                 {% endif %}
+                {% if  variation.other_image_url6 != None  and  variation.other_image_url6 != '' %}
+                    <img  src="{{ variation.other_image_url6  }}" style="width: 65px; height: 65px">
+                 {% endif %}
+                 {% if  variation.other_image_url7 != None  and  variation.other_image_url7 != '' %}
+                    <img  src="{{ variation.other_image_url7  }}" style="width: 65px; height: 65px">
+                 {% endif %}
+                 {% if  variation.other_image_url8 != None  and  variation.other_image_url8 != '' %}
+                    <img  src="{{ variation.other_image_url8  }}" style="width: 65px; height: 65px">
+                 {% endif %}
+                <a style="text-align:right"  href="/change_amazon_image/?main_table_type={{main_table_type}}&shop_set={{main_obj.ShopSets}}&pri_id={{variation.id}}&variation_type=child&image_type=other&prodcut_variation_id={{prodcut_variation_id}}">编辑</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</form>
+</body>

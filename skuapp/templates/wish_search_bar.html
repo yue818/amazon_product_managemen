@@ -1,0 +1,42 @@
+
+<style type="text/css">
+		.btn_1{
+			display: inline-block;
+	        padding: 6px 12px;
+	        margin-bottom: 0;
+	        font-size: 14px;
+	        font-weight: normal;
+	        line-height: 1.428571429;
+	        text-align: center;
+	        vertical-align: middle;
+	        cursor: pointer;
+	        background-image: none;
+	        border: 1px solid transparent;
+	        border-radius: 6px;
+	        -webkit-user-select: none;
+	        -moz-user-select: none;
+	        color: #ffffff;
+		    background-color: #555555;
+		}
+</style>
+
+<script type="text/javascript">
+    function searchAll() {
+        var uu = document.getElementById('searchAll').value;
+        var lastuu = uu.slice(-1);
+        if(lastuu == '&'){
+            uu = uu.slice(0,-1);
+        }
+        document.getElementById('btc0').href = uu;
+    }
+
+</script>
+<div align="left">
+    <button type="hidden" id="flag" value="{{ flag }}"></button>
+    <a class="btn_1" href=" {{ url }}status=online" id="btc1">在线</a>
+    <a class="btn_1" href="{{ url }}status=offline" id="btc2">不在线</a>
+    <!-- <a class="btn_1" href=" {{ url }}status=reject " id="btc3">拒绝</a> -->
+    <a class="btn_1" onclick="searchAll()" id="btc0">全部商品</a>
+    <input id="searchAll" type="hidden" value="{{ url }}">
+</div>
+<br>

@@ -1,0 +1,749 @@
+{% if page == 'add' %}
+    <script type="text/javascript">
+        window.onload = function() {
+            $('#id_URL').attr('placeholder', '网址不存在,请填写 "N/A"');
+            var aa = document.getElementById("id_supplierLoginId");
+            aa.onchange = function () {
+                var bb = $("#id_supplierLoginId").val();
+                if (bb == '其它'){
+                    var other_input = '<input class="text-field admintextinputwidget form-control" id="id_other" name="other" type="text" style="margin-left:20px;" placeholder="填写供应商来源(必填)">';
+                    $("#id_supplierLoginId").next().after(other_input);
+                }else {
+                    $("#id_other").remove();
+                }
+            }
+        };
+
+        function changeCategory() {
+            var category1 = document.getElementById("id_CategoryID").value;
+            var category2_dict = {{ second_category | safe }}[category1];
+            var category1_dict = {{ first_category2 | safe }};
+            var candidate_purchaser = {{ category_link_purchaser | safe }}[category1];
+            console.log(candidate_purchaser);
+
+            var selectCategory2 = $("#id_CategoryID2").selectize();
+            var category2Selectize = selectCategory2[0].selectize;
+            category2Selectize.clearOptions();
+            for (var key in category2_dict){
+                category2Selectize.addOption({value:key, text:category2_dict[key]});
+                category2Selectize.addItem(category2_dict[key]);
+            };
+            category2Selectize.addOption({value:category1, text:category1_dict[category1]});
+            category2Selectize.addItem(category1_dict[category1]);
+
+            var selectPurchaser = $("#id_SupPurchaser").selectize();
+            var purchaserSelectize = selectPurchaser[0].selectize;
+            purchaserSelectize.clearOptions();
+            for (var i=0; i < candidate_purchaser.length; i++){
+                purchaserSelectize.addOption({value:candidate_purchaser[i], text:candidate_purchaser[i]});
+                purchaserSelectize.addItem(candidate_purchaser[i]);
+            }
+        }
+    </script>
+
+    <div class="form-container row clearfix">
+        <div id="column-0" class="formColumn column form-column full col col-sm-12 form-horizontal" horizontal="True" span="12">
+            <div class="panel panel-default fieldset unsort  " id="box-1">
+                <div class="panel-heading">
+                    <i class="icon fa fa-chevron-up chevron"></i>
+                    <h3 class="panel-title">分类信息(*为必填项)</h3>
+                </div>
+                <div class="panel-body ">
+                    <div class="form-inline form-group">
+                        <div id="div_id_CategoryID" class="form-group col-sm-6">
+                            <label for="id_CategoryID" class="control-label "> 一级分类<span class="asteriskField">*</span> </label>
+                            <div class="controls ">
+                                <select class="text-field admintextinputwidget form-control" id="id_CategoryID" name="CategoryID" onchange="changeCategory()">
+                                    <option value="">---------</option>
+                                    {% for key, val in first_category.items %}
+                                        <option value="{{ key }}">{{ val }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div id="div_id_CategoryID2" class="form-group col-sm-6">
+                            <label for="id_CategoryID2" class="control-label  requiredField"> 二级分类<span class="asteriskField">*</span> </label>
+                            <div class="controls ">
+                                <select class="text-field admintextinputwidget form-control" id="id_CategoryID2" name="CategoryID2">
+                                    <option value="">请先选择一级分类</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-container row clearfix">
+        <div id="column-0" class="formColumn column form-column full col col-sm-12 form-horizontal" horizontal="True" span="12">
+            <div class="panel panel-default fieldset unsort  " id="box-2">
+                <div class="panel-heading">
+                    <i class="icon fa fa-chevron-up chevron"></i>
+                    <h3 class="panel-title">人员信息(*为必填项)</h3>
+                </div>
+                <div class="panel-body ">
+                    <div class="form-inline form-group">
+                        <div id="div_id_SupPurchaser" class="form-group col-sm-6">
+                            <label for="id_SupPurchaser" class="control-label "> 采购员<span class="asteriskField">*</span> </label>
+                            <div class="controls ">
+                                <select class="text-field admintextinputwidget form-control" id="id_SupPurchaser" name="SupPurchaser">
+{#                                    <option value="{{ username }}">{{ username }}</option>#}
+                                    <option value="">---------</option>
+{#                                    {% for each in person_data %}#}
+{#                                        <option value="{{ each.person }}">{{ each.person }}</option>#}
+{#                                    {% endfor %}#}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="div_id_SalerNameNew" class="form-group col-sm-6">
+                            <label for="id_SalerNameNew" class="control-label  requiredField"> 业绩归属人 </label>
+                            <div class="controls ">
+                                <select class="text-field admintextinputwidget form-control" id="id_SalerNameNew" name="SalerNameNew">
+{#                                    <option value="{{ username }}">{{ username }}</option>#}
+                                    <option value="">---------</option>
+                                    {% for each in person_data %}
+                                        <option value="{{ each.person }}">{{ each.person }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div id="div_id_SalerNameNew" class="form-group col-sm-6">
+                            <label for="id_SalerNameNew" class="control-label  requiredField"> 责任归属人2 </label>
+                            <div class="controls ">
+                                <input class="text-field admintextinputwidget form-control" id="id_PossessMan2" name="PossessMan2">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% else %}
+    <style type="text/css">
+        .td1{
+            height: 30px;
+            font-size: 14px;
+            padding-right: 20px;
+            text-align: right;
+            width: 150px;
+        }
+
+        .td2{
+            height: 30px;
+            font-size: 14px;
+            width: 250px;
+        }
+
+        .myTable{
+            border-spacing:40px;
+        }
+
+        .myChoice {
+            display: inline-block;
+            padding: 6px 12px;
+            font-size: 14px;
+            font-weight: normal;
+            line-height: 1.428571429;
+            cursor: pointer;
+            background-image: none;
+            border: 1px solid transparent;
+            border-radius: 4px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            color: #ffffff;
+            background-color: #428bca;
+            border-color: #357ebd;
+        }
+
+        .th1{
+            height: 25px;
+            padding-right: 10px;
+            text-align: right;
+        }
+
+        .th2{
+            height: 25px;
+        }
+
+        .p_input{
+            height: 90%;
+            width: 200px;
+        }
+
+        .s1{
+            width: 150px;
+            height: 90%;
+        }
+    </style>
+
+    <style type="text/css">
+        .part p {
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 25px;
+            background: #262626;
+            padding: 5px;
+            overflow: visible;
+            border-radius: 20px;
+            border-top: 1px solid #000;
+            border-bottom: 1px solid #7992a8;
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .progress .progress-bar {
+            border-radius: 20px;
+            position: relative;
+            animation: animate-positive 2s;
+        }
+
+        .progress .progress-value {
+            display: block;
+            padding: 3px 7px;
+            font-size: 13px;
+            color: #fff;
+            border-radius: 4px;
+            background: #191919;
+            border: 1px solid #000;
+            position: absolute;
+            top: -40px;
+            right: -10px;
+        }
+
+        .progress .progress-value:after {
+            content: "";
+            border-top: 10px solid #191919;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            position: absolute;
+            bottom: -6px;
+            left: 26%;
+        }
+
+        .progress-bar.active {
+            animation: reverse progress-bar-stripes 0.40s linear infinite, animate-positive 2s;
+        }
+
+        @-webkit-keyframes animate-positive {
+            0% {
+                width: 0;
+            }
+        }
+
+        @keyframes animate-positive {
+            0% {
+                width: 0;
+            }
+        }
+
+        #myModal2 span{
+        width: 100% !important;
+        float: left !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: normal !important;
+        }
+    </style>
+
+    <table  border="0"  class="myTable">
+        <tr>
+            <td style="width: 200px"></td>
+            <td class="td1">采购员</td>
+            <td class="td2"><select id="id_SupPurchaser" name="SupPurchaser"></select></td>
+            <td class="td1">业绩归属人</td>
+            <td class="td2"><select id="id_SalerNameNew" name="SalerNameNew"></select></td>
+            <td class="td1">创建人</td>
+            <td class="td2"><select id="id_Recorder" name="Recorder"></select></td>
+        </tr>
+        <tr>
+            <td style="height: 10px"></td>
+        </tr>
+        <tr>
+            <td style="width: 200px"></td>
+            <td class="td1">供应商</td>
+            <td class="td2"><select id="id_SupplierName" name="SupplierName"></select></td>
+            <td class="td1">一级分类</td>
+            <td class="td2"><select id="id_CategoryID" name="CategoryID" onchange="ChangeCategoryID2()"></select></td>
+            <td class="td1">二级分类</td>
+            <td class="td2"><select id="id_CategoryID2" name="CategoryID2"  disabled="true" class="text-field admintextinputwidget form-control"></select></td>
+        </tr>
+        <tr>
+            <td style="height: 15px"></td>
+        </tr>
+        <tr>
+            <td style="width: 200px"></td>
+            <td class="td1"></td>
+            <td class="td2"></td>
+            <td class="td1"></td>
+            <td class="td2"></td>
+            <td class="td1"><button class="myChoice" onclick="mySearch()">查询</button></td>
+            <td class="td2">
+                <button class="myChoice" onclick="toAll()">全部信息</button>
+                &nbsp;&nbsp;&nbsp;
+                <button class="myChoice" onclick="javascrip:$('#file_upload_1').click();">批量修改采购员</button>
+                <input type="file" id="file_upload_1" onchange="modify_purchaser_batch(this, 'purchaser')" style="display: none">
+            </td>
+            <td class="td2">
+                <button class="myChoice" onclick="javascrip:$('#file_upload_2').click();">批量修改责任归属人二</button>
+                <input type="file" id="file_upload_2" onchange="modify_purchaser_batch(this, 'possessman')" style="display: none">
+            </td>
+        </tr>
+    </table>
+
+    <input type="hidden" value="0" id="zy_noclose_id">
+    <div class="modal fade" id="myModal2" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                    </button>
+                    <h3 class="modal-title" id="myModalLabel2">批量修改进度</h3>
+                </div>
+                <div class="modal-body">
+                    <input id="schedule_name" value="" type="hidden">
+                    <span id="except_error" style="display: none;"></span>
+                    <div class="demo" id='demo' align="center">
+                        <div class="container" style="width: 100%">
+                            <div class="row">
+                                <div class="col-md-10" style="width: 100%">
+                                    <div class="progress">
+                                        <div id='jindu' class="progress-bar progress-bar-info progress-bar-striped active"
+                                             style="width: 0%;">
+                                            <div class="progress-value"><span id="jinduzhi">0%</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <span id="result"></span>
+                    <div id="error_info" style="display: none;">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal" >关闭</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/xadmin/js/jquery-1.7.1.min.js" type="text/javascript"></script>
+    <script src="/static/xadmin/vendor/selectize/selectize.js"></script>
+    <link href="/static/xadmin/vendor/selectize/selectize.css" rel="stylesheet" type="text/css" />
+    <script type="text/javascript">
+        var person_data = eval({{ person_data | safe }});
+        var supplier_data = eval({{ supplier_data | safe }});
+        var first_category = eval({{ first_category | safe }});
+        var second_category = eval({{ second_category | safe }});
+
+        var purchaser_id = '{{ purchaser_id }}';
+        var salername_id = '{{ salername_id }}';
+        var recorder_id = '{{ recorder_id }}';
+        var supplier_id = '{{ supplier_id }}';
+        var category1_id = '{{ category1_id }}';
+        var category2_id = '{{ category2_id }}';
+
+        var person_j = new Array();
+        for (var j=0; j<person_data.length; j++){
+            person_j.push({
+                id:person_data[j]['person'], title:person_data[j]['person']
+            });
+        };
+
+        var supplier_j = new Array();
+        for (var i=0; i<supplier_data.length; i++){
+            supplier_j.push({
+                id:supplier_data[i]['supplier_id'], title:supplier_data[i]['supplier']
+            });
+        };
+
+        var first_category_j = new Array();
+        for (var key in first_category){
+            first_category_j.push({
+                id: key, title: first_category[key]
+            });
+        };
+
+        $("#id_SupPurchaser").selectize({
+            valueField: 'id',
+            labelField: 'title',
+            searchField: 'title',
+            sortField: 'title',
+            options: person_j,
+            create: false,
+            maxItems: 1,
+            dropdownParent : 'body',
+        });
+
+        $("#id_SalerNameNew").selectize({
+            valueField: 'id',
+            labelField: 'title',
+            searchField: 'title',
+            sortField: 'title',
+            options: person_j,
+            create: false,
+            maxItems: 1,
+            dropdownParent : 'body',
+        });
+
+        $("#id_Recorder").selectize({
+            valueField: 'id',
+            labelField: 'title',
+            searchField: 'title',
+            sortField: 'title',
+            options: person_j,
+            create: false,
+            maxItems: 1,
+            dropdownParent : 'body',
+        });
+
+        $("#id_SupplierName").selectize({
+            valueField: 'id',
+            labelField: 'title',
+            searchField: 'title',
+            sortField: 'title',
+            options: supplier_j,
+            create: false,
+            maxItems: 1,
+            dropdownParent : 'body',
+        });
+
+        $("#id_CategoryID").selectize({
+            valueField: 'id',
+            labelField: 'title',
+            searchField: 'title',
+            sortField: 'title',
+            options: first_category_j,
+            create: false,
+            maxItems: 1,
+            dropdownParent : 'body',
+        });
+
+        function ChangeCategoryID2() {
+            var category1 = document.getElementById("id_CategoryID").value;
+            $("#id_CategoryID2").removeClass('text-field admintextinputwidget form-control');
+            var category2_dict = second_category[category1];
+            var selectCategory2 = $("#id_CategoryID2").selectize();
+            var category2Selectize = selectCategory2[0].selectize;
+            category2Selectize.enable();
+            category2Selectize.clearOptions();
+            for (var key in category2_dict){
+                category2Selectize.addOption({value:key,text:category2_dict[key]});
+                category2Selectize.addItem(category2_dict[key]);
+            };
+            category2Selectize.addOption({value:category1, text:first_category[category1]});
+            category2Selectize.addItem(first_category[category1]);
+        };
+
+        function mySearch() {
+            var purchaser = document.getElementById("id_SupPurchaser").value;
+            var salername = document.getElementById("id_SalerNameNew").value;
+            var recorder = document.getElementById("id_Recorder").value;
+            var supplier = document.getElementById("id_SupplierName").value;
+            var category1 = document.getElementById("id_CategoryID").value;
+            var category2 = document.getElementById("id_CategoryID2").value;
+
+            var url = '?';
+            if (purchaser != ''){
+                url = url + 'purchaser=' + purchaser;
+            };
+            if (salername != ''){
+                if (url == '?'){
+                    url = url + 'salername=' + salername;
+                }else{
+                    url = url + '&salername=' + salername;
+                }
+            }
+            if (recorder != ''){
+                if (url == '?'){
+                    url = url + 'recorder=' + recorder;
+                }else{
+                    url = url + '&recorder=' + recorder;
+                }
+            }
+            if (supplier != ''){
+                if (url == '?'){
+                    url = url + 'supplier=' + supplier;
+                }else{
+                    url = url + '&supplier=' + supplier;
+                }
+            }
+            if (category1 != ''){
+                if (url == '?'){
+                    url = url + 'category1=' + category1;
+                }else{
+                    url = url + '&category1=' + category1;
+                }
+            }
+            if (category2 != ''){
+                if (url == '?'){
+                    url = url + 'category2=' + category2;
+                }else{
+                    url = url + '&category2=' + category2;
+                }
+            }
+            window.location.href=url;
+        };
+
+        function toAll() {
+            window.location.href=location.href.split('?')[0];
+        };
+
+        if(purchaser_id != ''){
+            var $select = $("#id_SupPurchaser").selectize();
+            var selectize = $select[0].selectize;
+            selectize.setValue(purchaser_id);
+        };
+
+        if(salername_id != ''){
+            var $select = $("#id_SalerNameNew").selectize();
+            var selectize = $select[0].selectize;
+            selectize.setValue(salername_id);
+        };
+
+        if(recorder_id != ''){
+            var $select = $("#id_Recorder").selectize();
+            var selectize = $select[0].selectize;
+            selectize.setValue(recorder_id);
+        };
+
+        if(supplier_id != ''){
+            var $select = $("#id_SupplierName").selectize();
+            var selectize = $select[0].selectize;
+            selectize.setValue(supplier_id);
+        };
+
+        if(category1_id != ''){
+            var $select = $("#id_CategoryID").selectize();
+            var selectize = $select[0].selectize;
+            selectize.setValue(category1_id);
+        };
+
+        if(category2_id != ''){
+            var $select = $("#id_CategoryID2").selectize();
+            var selectize = $select[0].selectize;
+            selectize.setValue(category2_id);
+        };
+
+        function modify_purchaser_batch(self, people) {
+            var formFile = new FormData();
+            var action = "/modify_purchaser/?action=batch_modify&people=" + people;
+            formFile.append("action", action);
+            var fileObj = self.files[0];
+            formFile.append("modify_file", fileObj); //加入文件对象
+
+            $.ajax({
+                url: action,
+                data: formFile,
+                type: "Post",
+                dataType: "json",
+                cache: false,//上传文件无需缓存
+                processData: false,//用于对data参数进行序列化处理 这里必须false
+                contentType: false, //必须
+
+                success: function (result) {
+                    if (result.Code == '1'){
+                        document.getElementById('schedule_name').value = result.schedule_name;
+                        document.getElementById('except_error').style.display = 'none';
+                        document.getElementById('demo').style.display = "block";
+                        process_id = setInterval('refresh_progress()', 500);
+                        $('#zy_noclose_id').val('1');
+                    }else {
+                        document.getElementById('except_error').innerText = "出现异常！";
+                        document.getElementById('except_error').style.display = 'block';
+                        document.getElementById('demo').style.display = "none";
+                        $('#zy_noclose_id').val('0');
+                    }
+                },
+                error:function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                    console.log('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                }
+            });
+        };
+
+        function refresh_progress(){
+            var schedule_name = document.getElementById('schedule_name').value.toString();
+            var csrftoken = getCookieqq('csrftoken');
+            $.ajax({
+                url: "/modify_purchaser_schedule/",
+                data: {'schedule_name': schedule_name},
+                type: "POST",
+                dataType: "json",
+                beforeSend: function(xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                },
+                success: function (result) {
+                    if (result.file_error != ''){
+                        clearInterval(process_id);
+                        $('#zy_noclose_id').val('0');
+                        alert(result.file_error);
+                    }else {
+                        $('#myModal2').modal('show');
+                        if(result.end_flag == '1'){
+                            clearInterval(process_id);
+                            document.getElementById('jinduzhi').innerText = '100%';
+                            document.getElementById('jindu').style.width = '100%';
+                            $('#submitId').removeAttr('disabled');
+                            $('#submitId').attr('onclick', "javascript:location.reload();");
+                            $('#zy_noclose_id').val('0');
+                        }else{
+                            document.getElementById('jinduzhi').innerText = result.status;
+                            document.getElementById('jindu').style.width = result.status;
+                        }
+
+                        document.getElementById('result').innerText = '本次共' + result.all_num + '条供应商待修改，成功' + result.success_num + '条，失败' + result.error_num + '条';
+                        if (result.err != ''){
+                            var error_info = document.getElementById('error_info');
+                            error_info.style.display = 'block';
+                            error_info.innerHTML = '<span>错误信息:</span><br>' + result.err;
+                        }
+                    }
+                },
+                error:function (XMLHttpRequest, textStatus, errorThrown) {
+                    clearInterval(process_id);
+                    $('#zy_noclose_id').val('0');
+                }
+            });
+        };
+
+        $(function () {
+            $('#myModal2').on('hide.bs.modal', function () {
+                var brP = document.getElementById('zy_noclose_id');
+                if (brP.value == '1'){
+                    alert("同步没有完成不能关闭");
+                    return false
+                }
+                location.reload();
+            })
+        });
+        
+        function modify_supplier(self, column_nid) {
+            var column_name = column_nid.split('_')[0];
+            var nid = column_nid.split('_')[1];
+            var column_value = '';
+
+            if (column_name == 'Used'){
+                var checkbox_status = $(self).is(':checked');
+                if (checkbox_status == true){
+                    column_value = 1;
+                } else {
+                    column_value = 0;
+                }
+            } else if (column_name == 'CategoryID'){
+                var cate_1 = $(eval('CategoryID_' + nid)).val();
+                var cate_2 = $(eval('CategoryID2_' + nid)).val();
+                column_value = cate_1 + '_' + cate_2;
+            }
+            else {
+                column_value = $(self).val();
+                if (column_name == 'SupplierName'){
+                    $(eval('supplier_url_' + nid)).text(column_value);
+                } else if (column_name == 'URL'){
+                    $(eval('supplier_url_' + nid)).attr('href',column_value);
+                }
+            };
+
+            $.ajax({
+                url: "/modify_supplier/",
+                data: {
+                    'column_name': column_name,
+                    'column_value': column_value,
+                    'nid': nid
+                },
+                type: "POST",
+                dataType: "json",
+
+                success: function (result) {
+                    var remark_id = column_nid + '_remark';
+                    var remark_exists = document.getElementById(remark_id);
+                    if(remark_exists) {
+                        remark_exists.remove();
+                    };
+
+                    var success_remark = '<span style="color:#1fb922;font-size:18px" id="' + remark_id +'">&nbsp;&#10004;</span>';
+                    var fail_remark = '<span style="color:#e03232;font-size:18px" id="' + remark_id +'">&nbsp;&#10008;</span>';
+                    if(result.sMsg == '0'){
+                        if (column_name == 'Address' || column_name == 'Memo'){
+                            $(eval(column_nid)).after(success_remark);
+                        } else if (column_name != 'Used'){
+                            $(eval(column_nid)).parent().after(success_remark);
+                        }
+                    }else{
+                        if (column_name == 'Address' || column_name == 'Memo') {
+                            $(eval(column_nid)).after(fail_remark);
+                        } else if (column_name != 'Used') {
+                            $(eval(column_nid)).parent().after(fail_remark);
+                        }
+                        alert(result.sErr);
+                        console.log(result.sErr);
+                    }
+                },
+                error:function (XMLHttpRequest, textStatus, errorThrown) {
+                    $('#zy_noclose_id').val('0');
+                    alert('错误信息：' + XMLHttpRequest.responseText);
+                    console.log('错误信息：' + XMLHttpRequest.responseText);
+                }
+            });
+        };
+        
+        function cate_onfocus(cate, nid) {
+            var cate_id = cate + '_' + nid;
+            var current_val = $(eval(cate_id)).val();
+            $(eval(cate_id)).empty();
+
+            if (cate == 'CategoryID'){
+                //将当前值置为默认值
+                var current_text = first_category[current_val];
+                if (typeof(current_text) == "undefined"){
+                    current_text = ''
+                }
+                var op_current = "<option value='" + current_val + "'>" + current_text + "</option>";
+                $(eval(cate_id)).append(op_current);
+                //将所有一级分类追加到下拉框
+                for (var key in first_category){
+                    var op = "<option value='" + key + "'>" + first_category[key] + "</option>";
+                    $(eval(cate_id)).append(op);
+                }
+            } else {
+                var cate_1_id = 'CategoryID_' + nid;
+                var cate_1 = $(eval(cate_1_id)).val();
+                var second_cate_tmp = second_category[cate_1];
+                //将当前值置为默认值
+                var current_text = second_cate_tmp[current_val];
+                if (typeof(current_text) == "undefined"){
+                    current_text = ''
+                }
+                var op_current = "<option value='" + current_val + "'>" + current_text + "</option>";
+                $(eval(cate_id)).append(op_current);
+                //将当前一级分类下所有二级分类及当前一级分类追加到下拉框
+                for ( var key in second_cate_tmp){
+                    var op = "<option value='" + key + "'>" + second_cate_tmp[key] + "</option>";
+                    $(eval(cate_id)).append(op);
+                };
+                var op_last = "<option value='" + cate_1 + "'>" + first_category[cate_1] + "</option>";
+                $(eval(cate_id)).append(op_last);
+            }
+        };
+{##}
+{##}
+{#        function purchaser_onfocus(purchaser_id) {#}
+{#            $(eval(purchaser_id)).selectize({#}
+{#                valueField: 'id',#}
+{#                labelField: 'title',#}
+{#                searchField: 'title',#}
+{#                sortField: 'title',#}
+{#                options: person_j,#}
+{#                create: false,#}
+{#                maxItems: 1,#}
+{#                dropdownParent : 'body',#}
+{#            });#}
+{#        }#}
+    </script>
+{% endif %}

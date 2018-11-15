@@ -1,0 +1,25 @@
+<html lang="en-us" >
+<meta charset="utf-8" />
+<form id = 'Remarks_form' action = '/t_config_apiurl_asin_xprx/Remarks_result/' method = 'POST'>
+    <table cellpadding="5" align="center">
+        <tr>
+            <th>备注:</th>
+            <td><input type="text" name="{{ k }}_URL_value" value="{{v}}" /></td>
+        </tr>
+        <tr>
+            <td><button id='go_action' type="submit" style='length:40px;width:70px;background-color:#428bca'>提交</button></td>
+            <td><button type="reset" value="Reset" style='length:40px;width:70px;background-color:#428bca'>重置</button></td>
+        </tr>
+    </table>
+    <input name = 'id' value="{{ id }}" hidden="hidden">
+    <br>
+
+    {% csrf_token %}
+</form>
+</html>
+
+
+
+
+
+

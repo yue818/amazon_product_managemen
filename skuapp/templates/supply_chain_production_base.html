@@ -1,0 +1,191 @@
+<!-- 模态框（Modal） -->
+<script type="text/javascript">
+    {#$(function (){#}
+    {#    var html='';#}
+    {#    var pic_url='http://n.sinaimg.cn/news/transform/700/w1000h500/20180702/x4wb-hespqry6059108.jpg';#}
+    {#    var pic_num=30;#}
+    {#    var objid=1000;#}
+    {#    for(var i = 0; i < pic_num; i ++) {#}
+    {#        html +="<div class=\"col-sm-6 col-sm-6\">"+" <div class=\"thumbnail\">"#}
+    {#        +"<img src="+pic_url+">"+" <div class=\"caption\">"+"<h3>${subsku}</h3>"+#}
+    {#            "<p><a href=\"t_supply_chain_production_basic/main_pic/${objid}\" class=\"btn btn-primary\" role=\"button\">设为主图</a></p></div></div></div>";#}
+    {#      }#}
+    {#      $("#generate_pic").append(html);#}
+    {# });#}
+
+    function gen_pic(_info) {
+
+        let arrs = _info.split(' (split) ');
+        let html = '';
+        $.get("/t_supply_chain_production/subsku/", {"mainsku": arrs[0], "objid": arrs[1]}, function (data, status) {
+            let info = data['info'];
+            arrs = info.split(' (split) ');
+            $("#generate_pic").empty();
+            for (x in arrs) {
+                let arr = arrs[x];
+                arr = arr.split(',');
+                let objid = arr[0];
+                let subsku = arr[2];
+                let pic_url = arr[1];
+                let i=0;
+                if (subsku) {
+                    i=i+1;
+                    html += "<div class=\"col-sm-3\">" + " <div class=\"thumbnail\">"
+                        + "<img style=\"width:240px;height:240px\" id =\"img_*&%"+objid+"_*&%"+subsku+"\" src=" + pic_url + ">" + " <div class=\"caption\">" + "<h3>" + subsku + "</h3>" +
+                        "<p><button id=btn_*&%"+objid+"_*&%"+subsku+" type=\"button\" class=\"btn btn-primary btn-xs\" onclick=\"mainpic_change(this)\" >设为主图</button></p></div></div></div>";
+                }
+            }
+            $("#generate_pic").append(html);
+            $('#t_supply_chain_production_Modal').modal({
+                backdrop: 'static'
+            });
+        });
+        {#arrs = info.split(' (split) ');#}
+        {#console.log('args:'+arrs);#}
+        {#$("#generate_pic").empty();#}
+        {#for (x in arrs) {#}
+        {#    let arr = arrs[x];#}
+        {#    arr = arr.split(',');#}
+        {#    let objid = arr[0];#}
+        {#    let subsku = arr[2];#}
+        {#    let pic_url = arr[1];#}
+        {#    console.log(objid);#}
+        {#    console.log(subsku);#}
+        {#    console.log(pic_url);#}
+        {#    if (subsku) {#}
+        {#        html += "<div class=\"col-sm-6 col-sm-6\">" + " <div class=\"thumbnail\">"#}
+        {#            + "<img src=" + pic_url + ">" + " <div class=\"caption\">" + "<h3>" + subsku + "</h3>" +#}
+        {#            "<p><button type=\"button\" class=\"btn btn-primary btn-xs\" onclick=\"mainpic_change("+objid+")\" >"+subsku+"</button></p></div></div></div>";#}
+        {#    }#}
+        {# }#}
+        {#$("#generate_pic").append(html);#}
+        {#$('#t_supply_chain_production_Modal').modal({#}
+        {#    backdrop: 'static'#}
+        {# });#}
+    }
+
+    {#$(document).ready(function(){#}
+    {#            $('input').each(function(){#}
+    {#                alert($(this).attr('id'));#}
+    {#            });#}
+    {#        });#}
+
+
+
+
+    function mainpic_change(element) {
+        let info1 = '';
+        let btnid=element.id;
+
+        let objid=btnid.split('_*&%')[1];
+        let subsku=btnid.split('_*&%')[2];
+        $.get("/t_supply_chain_production_basic/main_pic/", {"objid": objid, "subsku": subsku }, function (data, status) {
+                info1 = data['errmsg'];
+                if (info1 !== '') {
+                    alert(info1)
+                } else {
+                    alert('修改成功！')
+                }
+            }
+        );
+
+
+    }
+
+
+    {#html += "<div class=\"col-sm-6 col-sm-6\">" + " <div class=\"thumbnail\">"#}
+    {#                + "<img src=" + pic_url + ">" + " <div class=\"caption\">" + "<h3>" + subsku + "</h3>" +#}
+    {#                "<p><a href=\"t_supply_chain_production_basic/main_pic/?objid="+objid+"&MainPic="+pic_url+" class=\"btn btn-primary\" role=\"button\">设为主图</a></p></div></div></div>";#}
+    {#$(function (){#}
+    {#    $("#edit_supply_chain_production").click(function(){#}
+    {#    var arrs = $(this).attr("myvalue");#}
+    {#    console.log(typeof(arrs));#}
+    {#    arrs=arrs.split('*&#');#}
+    {#    let html='';#}
+    {#    for (x in arrs){#}
+    {#        let arr=arrs[x];#}
+    {#        arr=arr.split(',');#}
+    {#        console.log('arr:'+arr);#}
+    {#        let id=arr[0];#}
+    {#        let subsku=arr[2];#}
+    {#        let pic_url=arr[1];#}
+    {#        console.log('subsku:'+subsku);#}
+    {#        if (subsku !=="") {#}
+    {##}
+    {#            html += "<div class=\"col-sm-6 col-sm-6\">" + " <div class=\"thumbnail\">"#}
+    {#                + "<img src=" + pic_url + ">" + " <div class=\"caption\">" + "<h3>" + subsku + "</h3>" +#}
+    {#                "<p><a href=\"t_supply_chain_production_basic/main_pic/${objid}\" class=\"btn btn-primary\" role=\"button\">设为主图</a></p></div></div></div>";#}
+    {#        }#}
+    {#    }});#}
+    {#    console.log('html:'+html);#}
+    {#      $("#generate_pic").append(html);#}
+    {# });#}
+    {##}
+
+
+
+
+
+
+    {#$("#edit_supply_chain_production").click(function(){#}
+    {#    var arrs = $(this).attr("myvalue");#}
+    {#    alert(arrs);#}
+    {# });#}
+    {##}
+
+    {#function gen_pic(arrs) {#}
+    {#    let html='';#}
+    {#    for (x in arrs){#}
+    {#        let arr=arrs[x];#}
+    {#        let id=arr[0];#}
+    {#        let subsku=arr[1];#}
+    {#        let pic_url=arr[2];#}
+    {#        console.log(id);#}
+    {#        console.log(subsku);#}
+    {#        console.log(pic_url);#}
+    {#        html +="<div class=\"col-sm-6 col-sm-6\">"+" <div class=\"thumbnail\">"#}
+    {#        +"<img src="+pic_url+">"+" <div class=\"caption\">"+"<h3>"+subsku+"</h3>"+#}
+    {#            "<p><a href=\"t_supply_chain_production_basic/main_pic/${objid}\" class=\"btn btn-primary\" role=\"button\">设为主图</a></p></div></div></div>";#}
+    {#      }#}
+    {#      $(function () {#}
+    {#          $("#generate_pic").append(html);#}
+    {#      });#}
+    {#        }#}
+</script>
+
+
+<div class="modal fade" id="t_supply_chain_production_Modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" style="width:80%">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="myModalLabel">
+                    全部图片
+                </h4>
+            </div>
+            <div class="row" id="generate_pic">
+            </div>
+            {#            <div class="row">#}
+            {#                <div class="col-sm-6 col-md-3">#}
+            {#                    <div class="thumbnail">#}
+            {#                        <img src="http://www.runoob.com/wp-content/uploads/2014/06/kittens.jpg"#}
+            {#                             alt="通用的占位符缩略图">#}
+            {#                        <div class="caption">#}
+            {#                            <h3>缩略图标签</h3>#}
+            {#                            <p>#}
+            {#                                <a href="#" class="btn btn-primary" role="button">#}
+            {#                                    设为主图#}
+            {#                                </a>#}
+            {#                            </p>#}
+            {#                        </div>#}
+            {#                    </div>#}
+            {#                </div>#}
+            {#		</div><!-- /.modal-content -->#}
+
+
+        </div><!-- /.modal -->
+    </div>
+</div>

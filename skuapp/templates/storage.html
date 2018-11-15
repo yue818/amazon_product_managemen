@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="Generator" content="EditPlus®">
+  <meta name="Author" content="chenchen">
+  <meta name="Keywords" content="生成批次一栏">
+  <meta name="Description" content="生成批次一栏">
+  <title>Document</title>
+ </head>
+ <body>
+ <style>
+        /* Table Head */
+        #table-7 thead th {
+        background-color: rgb(81, 130, 187);
+        color: #fff;
+        border-bottom-width: 0;
+        }
+
+        /* Column Style */
+        #table-7 td {
+        color: #000;
+        }
+        /* Heading and Column Style */
+        #table-7 tr, #table-7 th {
+        border-width: 1px;
+        border-style: solid;
+        border-color: rgb(81, 130, 187);
+        }
+
+        /* Padding and font style */
+        #table-7 td, #table-7 th {
+        padding: 5px 10px;
+        font-size: 12px;
+        font-family: Verdana;
+        font-weight: bold;
+        }
+        .btn_1 {
+            display: inline-block;
+            padding: 6px 12px;
+            margin-bottom: 0;
+            font-size: 14px;
+            font-weight: normal;
+            line-height: 1.428571429;
+            text-align: center;
+            vertical-align: middle;
+            cursor: pointer;
+            background-image: none;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            color: #fff;
+            background-color: #555;
+        }
+         .btn_2 {
+            display: inline-block;
+            padding: 6px 12px;
+            margin-bottom: 0;
+            font-size: 14px;
+            font-weight: normal;
+            line-height: 1.428571429;
+            text-align: center;
+            vertical-align: middle;
+            cursor: pointer;
+            background-image: none;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            color: #fff;
+            background-color: red;
+        }
+ </style>
+<script src="/static/highcharts/jquery-1.8.3.min.js"></script>
+<script type="text/javascript">
+        //全选的功能
+        function allcheck(){
+            //先得到所有的checkbox
+            var ck=document.getElementsByName("ck");//得到一组checkbox  相当于数组
+            //循环这一组checkbox让每一个checkbox选中
+            for(var i=0;i<ck.length;i++){
+                var c=ck[i];//得到一个checkbox
+                c.checked=true;//true代表选中
+            }
+        }
+
+        //全不选
+        function allnotcheck(){
+            //先得到所有的checkbox
+            var ck=document.getElementsByName("ck");//得到一组checkbox  相当于数组
+            //循环这一组checkbox让每一个checkbox选中
+            for(var i=0;i<ck.length;i++){
+                var c=ck[i];//得到一个checkbox
+                c.checked=false;//false代表不选
+            }
+        }
+        //反选
+        function backcheck(){//先得到所有的checkbox
+            var ck=document.getElementsByName("ck");//得到一组checkbox  相当于数组
+            //循环这一组checkbox让每一个checkbox选中
+            for(var i=0;i<ck.length;i++){
+                var c=ck[i];//得到一个checkbox
+                if(c.checked==true){//如果当前的checkbox是选中的则不让其选中
+                    ck[i].checked=false;
+                }else{
+                    ck[i].checked=true;
+                }
+            }
+        }
+
+		function tj(){
+		    obj = document.getElementsByName("ck");
+		    check_val = [];
+		    for(k in obj){
+		        if(obj[k].checked)
+		            check_val.push(obj[k].value);
+		    }
+		    //alert(check_val);
+			$("#request_data").val(check_val);
+			$("#cc").attr('action','/storage/').submit();
+		}
+    </script>
+    <center>
+	<div class="btn_2">请仔细核对下面信息，生成对应的发货批次!!!</div><br>
+    <input type="radio" id="allcheck" name="allcheck" onclick="allcheck();"/>全选&nbsp;&nbsp;
+    <input type="radio" id="allnotcheck" name="allcheck"  onclick="allnotcheck();"/>全不选&nbsp;&nbsp;
+    <input type="radio" id="backcheck" name="allcheck"  onclick="backcheck();"/>反选&nbsp;&nbsp;
+    <!-- <a href="javascript:void(0);" onclick="alldel();">批量删除</a> -->
+    <br/>
+		<form id="cc">
+		<input type="hidden" id="request_data" name="request_data" value="" />
+        <table border="1" id="table-7">
+            <thead>
+                <th></th>
+                <th>账号 </th>
+				<th>目的地仓库</th>
+                <th>已到货统计数</th>
+                <th>未到货统计数</th>
+            </thead>
+            {% for row in rows %}
+                <tr>
+                    <td>
+                        <input type="checkbox" name="ck" value="{{ row.0 }}"/>
+                    </td>
+                    <td>{{ row.0 }}</td>
+					<td>{{ row.3 }}</td>
+					<td>{{ row.1 }}</td>
+                    <td>{{ row.2 }}</td>
+                </tr>
+           {% endfor %}
+
+        </table>
+		<br>
+        <a class="btn_1" href="/Project/admin/skuapp/t_set_warehouse_storage_situation_list/">返回</a>
+        <input class="btn_1" type="button" onclick="tj();" value="提交"/>
+		</form>
+    </center>
+ </body>
+</html>

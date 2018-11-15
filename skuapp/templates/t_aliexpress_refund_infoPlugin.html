@@ -1,0 +1,30 @@
+<script type="text/javascript">
+    $("#id_ShopOrderNumber").blur(function(){
+        var ShopOrderNumber = $("#id_ShopOrderNumber").val();   
+        //alert(ShopOrderNumber);
+        if(ShopOrderNumber.trim() != ""){
+            $.ajax({ 
+                    url:"/aliexpress_refund_info/", 
+                    type: "POST",
+                    contentType:"application/x-www-form-urlencoded:charset=UTF-8",
+                    dataType: "json",
+                    data: {
+                        'ShopOrderNumber':ShopOrderNumber,
+                    },
+                           
+                    success:function(dataq, textStatus, XMLHttpRequest){
+    					console.log(dataq);
+    					$("#id_ProductSKU").val(dataq.ProductSKU);
+    					$("#id_ShopName").val(dataq.ShopName);
+    					$("#id_Country").val(dataq.Country);
+    					$("#id_Sale_price").val(dataq.Sale_price);
+    					$("#id_ClosingDate_0").val(dataq.ClosingDate.substring(0,10));
+    					$("#id_ClosingDate_1").val(dataq.ClosingDate.substring(10,16));
+                    }, 
+                    error:function(XMLHttpRequest, textStatus, errorThrown){
+                        alert('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                    } 
+                }); 
+        }
+    });
+</script>

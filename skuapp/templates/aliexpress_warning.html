@@ -1,0 +1,66 @@
+<style type="text/css">
+    .btn{
+    color: #ffffff;
+    background-color: #428bca;
+    border-color: #357ebd;
+    display: inline-block;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1.428571429;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    }
+</style>
+
+<style>
+    table{
+        border-collapse: collapse;
+        border:0;
+    }
+    td > input{
+	    height:30px;
+        border:none;
+        margin: 0;
+        line-height:100%;
+        width: 100%;
+        text-align: center;
+	}
+
+	th{
+        border: 0.05px solid #dddddd;
+		text-align:center;
+	    font-size:15px;
+	    height:25px;
+	}
+</style>
+
+<form action="/save_aliexpress_warning/" method="post">
+{% csrf_token %}
+<div align="center">采集信息ID：<input style=" border:none;font-size: large" readonly="true" type="text" value="{{ warning_id }}" name="warning_id"></div>
+
+        <table border="1" id="mytable" width="100%">
+            <tr>
+                <th>副图</th>
+                <th>自定义属性</th>
+            </tr>
+            {% for each in result %}
+            <tr>
+                <td><img src="{{ each.image }}" width="200" height="200" alt="无"></td>
+                <td height="80%"><input type="text" name="property" value="{{ each.sku }}"></td>
+            </tr>
+            {% endfor %}
+
+        </table>
+
+        <div align="center">
+                <input type="submit" class="btn" name="submit">
+            </div>
+</form>

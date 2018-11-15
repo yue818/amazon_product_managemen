@@ -1,0 +1,15 @@
+
+<table align="center" border="1">
+    <tbody>
+    {% for ti in track_info %}
+        <tr>
+            <td>{{ ti.DateTime }}</td>
+            <td>
+                WHERE:&nbsp;&nbsp;&nbsp;{{ ti.Place }}<br/>
+                ACTION:&nbsp;&nbsp;{{ ti.Info }}
+            </td>
+        </tr>
+    {% endfor %}
+    </tbody>
+
+</table>

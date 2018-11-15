@@ -1,0 +1,53 @@
+<style>
+    .col-md-14 {
+    width: 13%;
+  }
+  .col-md-10 {
+    width: 87%;
+  }
+
+</style>
+<script type="text/javascript">
+    function changeColor(x) {
+        d=document.getElementsByTagName('li');
+        for(p=d.length;p--;){
+            if(d[p].id==x){
+                if(d[p].className=='active'){
+                    d[p].style.backgroundColor='#428bca';
+                }
+            }
+        }
+    }
+</script>
+<input id="sourceURL" type="hidden" value="{{ sourceURL }}">
+<input id="title_list" type="hidden" value="{{ title_list }}">
+<input id="test_list" type="hidden" value="{{ test_list }}">
+<div id="left-side" class="col-sm-1 col-md-14">
+    <ul class="well nav nav-list nav-sitemenu">
+    {% for title in title_list %}
+        <li class="nav-header{% if title.selected == '1' %} active{% endif %}"><i class="fa-fw"></i>{{ title.title }}</li>
+        {% for testurl in test_list %}
+            {% if testurl.title == title.title %}
+                <li id="li_{{ forloop.counter }}" {% if testurl.selected == '1' %}
+                    class="active" style="background-color: #428bca"
+                {% endif %}>
+                    <a href="{{ testurl.url }}">
+                        <i id="i_{{ forloop.counter }}" class="fa-fw fa fa-circle-o" {% if testurl.selected == '1' %}style="color: black"{% endif %}></i>
+                        <font id="font_{{ forloop.counter }}" {% if testurl.selected == '1' %}color="black"{% endif %}>{{ testurl.value }}</font>
+                    </a>
+                </li>
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+    </ul>
+
+    <ul>
+        <li><span style="font-weight:bold;">可比价</span>:<br><span style="color:red;">根据MainSKU去重商品, 取7天Order数大的商品显示</span></li><br>
+        <li><span style="font-weight:bold;">正在比价</span>:<br><span style="color:red;">将可比价中的商品放到正在比价中, 正在比价中可以获取对手商品信息和修改我方商品价格</span></li><br>
+        <li><span style="font-weight:bold;">待比价执行</span>:<br><span style="color:red;">将正在比价中的, 已经修改好价格的商品放到待比价执行中, 这里可以进行review, 检查调后价是否有问题, 目前没有对应的速卖通API, 无法实现实时修改的商品信息的功能, 只能到店铺里面修改好商品信息之后, 再将修改价格完成的商品放到执行完成中。</span></li><br>
+        <li><span style="font-weight:bold;">执行完成</span>:<br><span style="color:red;">已经在店铺后台修改好的商品, 这里的商品可以进行二次比价, 需要将商品再放回正在比价中进行修改价格</span></li><br>
+        <li><span style="font-weight:bold;">无需比价</span>:<br><span style="color:red;">我方价格有优势等原因, 无需进行比价的商品, 可以直接放到这里, 建议给出备注, 说明无需比价的原因</span></li><br>
+        <li><span style="font-weight:bold;">对手商品信息</span>:<br><span style="color:red;">对手商品信息的价格和7天销量需要手动填入，而在填好对手id之后，需要将对手的图片等信息刷出来之后，才可以填写价格和销量信息</span></li><br>
+        <!-- <li><span style="font-weight:bold;">填写价格信息</span>:<br><span style="color:red;">填写价格信息，只需填写整数或者小数！只需填写整数或者小数！只需填写整数或者小数！</span></li><br> -->
+    </ul>
+</div>

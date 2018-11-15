@@ -1,0 +1,31 @@
+
+<style type="text/css">
+		.btn_1{
+			display: inline-block;
+	        padding: 6px 12px;
+	        margin-bottom: 0;
+	        font-size: 14px;
+	        font-weight: normal;
+	        line-height: 1.428571429;
+	        text-align: center;
+	        vertical-align: middle;
+	        cursor: pointer;
+	        background-image: none;
+	        border: 1px solid transparent;
+	        border-radius: 6px;
+	        -webkit-user-select: none;
+	        -moz-user-select: none;
+	        color: #ffffff;
+		    background-color: #555555;
+		}
+</style>
+
+<div align="left">
+    <button type="hidden" id="flag" value="{{ flag }}"></button>
+    <a class="btn_1" href=" {{ url }}status=down" id="btc1">临时下架</a>
+    <a class="btn_1" href="{{ url }}status=up" id="btc2">重新上架</a>
+	<a class="btn_1" href="{{ url }}status=cleardown" id="btc3">清仓下架</a>
+	<a class="btn_1" href="{{ url }}status=selldown" id="btc4">售完下架</a>
+    <a class="btn_1" href="/Project/admin/skuapp/t_product_up_down" id="btc0">全部商品</a>
+</div>
+<br>

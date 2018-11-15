@@ -1,0 +1,152 @@
+<html lang="en">
+<link href="/static/xadmin/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+{#<link href="/static/xadmin/vendor/bootstrap-select-1.12.4/css/bootstrap-select.min.css" rel="stylesheet" />#}
+<script src="/static/xadmin/js/jquery-1.7.1.min.js"></script>
+<script src="/static/xadmin/vendor/bootstrap/js/bootstrap.min.js"></script>
+{#<script src="/static/xadmin/vendor/bootstrap-select-1.12.4/js/bootstrap-select.min.js"></script>#}
+<form id="updateshopskuform" name="updateshopskuform" action="" method="">
+{% csrf_token %}
+    <table align="center" class="table table-hover">
+        <thead>
+            <tr align="center">
+                <th style="text-align:center">商品SKU</th>
+                <th style="text-align:center">采购未入库</th>
+                <th style="text-align:center">商品状态</th>
+                <th style="text-align:center">库存</th>
+                <th style="text-align:center">占用</th>
+                <th style="text-align:center">可用数量</th>
+                <th style="text-align:center">可售天数</th>
+                <th style="text-align:center">店铺SKU</th>
+                <th style="text-align:center">库存量</th>
+                <th style="text-align:center">价格</th>
+                <th style="text-align:center">利润率(%)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for my in all_sku_info %}
+            <tr align="center">
+                <td>{{ my.SKU }}</td>
+                <td>{{ my.CGWRK }}</td>
+                <td>{{ my.goods_status }}</td>
+                <td>{{ my.KC }}</td>
+                <td>{{ my.ZY }}</td>
+                <td>{{ my.can_use_num }}</td>
+                <td>{{ my.can_selling_day }}</td>
+                <td>{{ my.shopSKU }}</td>
+                <td><input style="width: 120px;" type="text" name="sku_stocks"
+                           onkeypress="return event.keyCode>=48&&event.keyCode<=57" ng-pattern="/[^a-zA-Z]/"
+                           onkeyup="if(this.value == ''){this.value = 0;}this.value=parseInt(this.value)"
+                           value="{{ my.sku_stocks }}" /></td>
+                <td><input style="width: 120px;" type="text" name="sku_price"
+                           onkeyup="javascript:CheckInputIntFloat(this);"
+                           onblur="if(this.value.replace(/0/g,'').replace('.','') == '') {this.value = 0;}"
+                           value="{{ my.sku_price }}" /></td>
+                <td>{{ my.profitrate }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <table align="center">
+        <tr>
+            <td>
+                <input type="button" class="button" onclick="to_submit()" value="确定保存">
+            </td>
+        </tr>
+    </table>
+</form>
+<input type="hidden" id="sku_size" value="{{ sku_size }}">
+<input type="hidden" id="all_shopSKU_list" value="{{ all_shopSKU_list }}">
+<input type="hidden" id="all_shopSKU_id_list" value="{{ all_shopSKU_id_list }}">
+<script>
+    function CheckInputIntFloat(oInput)
+    {
+        if('' != oInput.value.replace(/\d{1,}\.{0,1}\d{0,}/,''))
+        {
+            oInput.value = oInput.value.match(/\d{1,}\.{0,1}\d{0,}/) == null ? '' :oInput.value.match(/\d{1,}\.{0,1}\d{0,}/);
+        }
+    }
+    function to_submit() {
+        parent.layer.confirm('确定提交变更吗？', {
+            skin: 'layui-layer-lan',
+            title:'变更提示。。',
+            btn: ['确定','算了'], //按钮
+            btn1:function(){
+                // 所有ShopSKU
+                shopskulist = {{ all_shopSKU_list|safe }};
+                shopskuidlist = {{ all_shopSKU_id_list|safe }};
+                var sku_size = document.getElementById('sku_size').value;
+                // 循环提取所有被修改的过的数据
+                var datadict = {};
+                for (var s=0;s<sku_size;s++){
+                    var tmpdict = {};
+                    var namelist = ['sku_stocks','sku_price'];
+                    for (var n=0;n<namelist.length;n++){
+                        var nametmp = document.getElementsByName(namelist[n])[s];
+                        var nowvalue = '';
+                        var oldvalue = '';
+                        oldvalue = nametmp.defaultValue;
+                        nowvalue = nametmp.value;
+                        if(nowvalue != oldvalue){
+                            tmpdict[namelist[n]] = nametmp.value;
+                        }
+                    }
+                    var a = JSON.stringify(tmpdict);
+                    if (a != '{}'){
+                        tmpdict['skuid'] = shopskuidlist[s];
+                        datadict[shopskulist[s]] = JSON.stringify(tmpdict); // 这里提取了所有变化的值 {shopsku:{color:value,}}
+                    }
+                }
+                var b = JSON.stringify(datadict);
+                if (b != '{}'){
+                    start_ajax(b);
+                    console.log('b = ' + b);
+                }else {
+                    alert('没有修改的信息');
+                }
+            }
+        });
+    }
+
+    function ityzl_SHOW_LOAD_LAYER(){
+        return parent.layer.msg('努力修改中...', {icon: 16,shade: [0.5, '#f5f5f5'],scrollbar: false,offset: '50%', time:100000}) ;
+    }
+    function ityzl_CLOSE_LOAD_LAYER(index){
+        parent.layer.close(index);
+    }
+    function ityzl_SHOW_TIP_LAYER(){
+        parent.layer.msg('修改完成！',{time: 1000,offset: '50%'});
+    }
+
+    function start_ajax(a) {
+        var i;
+        // 这里开始调取api
+        //t_erp_aliexpress_online_info/ShopSKU/?product_id=%s
+        $.ajax({
+            url: "/t_erp_aliexpress_online_info/ShopSKU/?product_id={{ ProductID }}&accountName={{ accountName }}&id={{ id }}",
+            type: "POST",
+            dataType: "json",
+            data: {
+                csrfmiddlewaretoken: '{{ csrf_token }}',
+                alldata: a
+            },
+            beforeSend: function () {
+                i = ityzl_SHOW_LOAD_LAYER();
+            },
+            success: function (result) {
+                if (result.resultCode == 1) {
+                    alert(result.info);
+                    ityzl_CLOSE_LOAD_LAYER(i);
+                    ityzl_SHOW_TIP_LAYER();
+                } else {
+                    alert(result.errorinfo);
+                    ityzl_CLOSE_LOAD_LAYER(i);
+                }
+                window.location.href = "/t_erp_aliexpress_online_info/ShopSKU/?product_id={{ ProductID }}";
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                ityzl_CLOSE_LOAD_LAYER(i);
+                console.log('错误信息：' + XMLHttpRequest.responseText);
+            }
+        });
+    }
+</script>

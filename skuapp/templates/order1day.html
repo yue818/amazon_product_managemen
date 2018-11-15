@@ -1,0 +1,77 @@
+<html><head>
+	<meta charset="utf-8">
+	<title>基础柱形图</title>
+	<script src="/static/highcharts/jquery-1.8.3.min.js"></script>
+	<script src="/static/highcharts/highcharts.js"></script>
+	<script src="/static/highcharts/exporting.js"></script>
+	<script src="/static/highcharts/highcharts-zh_CN.js"></script>
+</head>
+<body>
+
+<div id="container" style="min-width:400px;height:400px"></div>
+{{ rt|safe }}
+{% if idx != -1 %}
+    <span style="color: red">***</span>红色标记线日期为 “广告最新日期” ({{ mdate }})
+{% endif %}
+<script>
+$(function () {
+    $('#container').highcharts({
+        credits: {
+            enabled: false
+        },
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Wish'
+        },
+        subtitle: {
+            text: '日销量柱状图'
+        },
+        xAxis: {
+            categories: {{ categories }},
+            crosshair: true,
+            plotLines:[
+                {
+                    color:'red',
+                    dashStyle:'Dot',
+                    value: {{ idx }},
+                    width:2,
+                    label:{
+                        text:'',
+                        align:'right',
+                        x:10
+                    }
+                }
+            ]
+        },
+        yAxis: {
+            min: 0,
+            title: {
+                text: '日销量(个)'
+            }
+        },
+        tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+            '<td style="padding:0"><b>{point.y:.1f} (个)</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+        },
+        plotOptions: {
+            column: {
+                pointPadding: 0.2,
+                borderWidth: 0
+            }
+        },
+        series: [{
+            name: 'Order数',
+            data: {{ series }}
+        }]
+    });
+});
+
+</script>
+
+</body></html>

@@ -1,0 +1,28 @@
+<form id="updateBudget" action="/campaign/updateBudget/" method="get" target="hidden_frame">
+	<h3>当前设定的预算：{{ currBudget }}</h3>
+	<h3>当前可用的最大预算：{{ maxBudget }}</h3>
+    <input name="id" type="hidden" value="{{ id }}">
+    <input name="access_token" type="hidden" value="{{ access_token }}">
+	您本次预加预算: <input type="text" name="amount" />
+  <input type="submit" value="Submit" />
+    <p id="msgid" name="msgid" style="color:black;">每次预算最少加0.01!</p>
+</form>
+<iframe name="hidden_frame" id="hidden_frame" style="display: none"></iframe>
+<script src="/static/highcharts/jquery-1.8.3.min.js"></script>
+<script>
+
+    $('#hidden_frame').load(function(){
+      var text=$("#hidden_frame").contents().find("body").text();
+      var data=$.parseJSON(text);
+      var msgid=document.getElementById("msgid");
+      if(data.result=="OK"){
+          msgid.style.color= "green";
+          msgid.innerText = "预算增加成功！";
+          window.setTimeout("window.parent.location.reload();", 1000);
+      }
+      else {
+          msgid.style.color= "red";
+          msgid.innerText = "失败:"+data.result;
+      }
+    });
+</script>

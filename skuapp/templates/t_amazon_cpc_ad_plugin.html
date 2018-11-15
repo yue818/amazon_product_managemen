@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+        <style>
+
+            #add {display:none}
+
+            .button {
+                border-radius:10px 10px 10px 10px;
+                background-color: #4CAF50;
+                border: none;
+                color: white;
+                padding: 5px 20px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 12px;
+                margin: 4px 2px;
+                cursor: pointer;
+            }
+
+             .sybutton {
+                border-radius:10px 10px 10px 10px;
+                background-color:#428BCA;
+                border: none;
+                color: white;
+                padding: 5px 20px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                font-size: 15px;
+                margin: 4px 2px;
+                cursor: pointer;
+             }
+
+            a.myj-aFocus {
+                display: inline-block;
+                vertical-align: middle;
+                line-height: 18px;
+            }
+
+            a.myj-aFocus:hover{
+                background-color: #428bca;
+                color: #fff;
+            }
+
+            .mRight20 {
+                margin-right: 30px;
+                margin-bottom: 5px;
+            }
+
+            .mLeft20 {
+                margin-right: 50px;
+                margin-left: 50px;
+                width: 80px;
+                height: 30px;
+            }
+
+            .inline{
+                display: inline;
+            }
+
+            .satrdiv{
+                overflow: hidden;
+                width:100px;
+                height: 90px;
+                padding-top: 15px;
+            }
+
+            .padatr{
+                padding-top: 10px;
+                padding-bottom: 10px;
+                padding-left: 10px;
+            }
+
+            .textatr{
+                width: 450px;
+                height: 35px;
+                border-radius:10px;
+                color: grey;
+            }
+
+            .black_overlay{
+                display: none;
+                position: absolute;
+                top: 0%;
+                left: 0%;
+                width: 100%;
+                height: 1000px;
+                background-color: #edeae1;
+                z-index:1001;
+                -moz-opacity: 0.3;
+                opacity:.5;
+                filter: alpha(opacity=88);
+            }
+            .white_content {
+                display: none;
+                position: absolute;
+                top: 75px;
+                left: 3%;
+                width: 1400px;
+                height:350px;
+                //padding: 20px;
+                //border: 10px solid orange;
+                background-color: white;
+                z-index:1002;
+                overflow: auto;
+            }
+
+
+             #shop_title{
+                 position: absolute;
+                 display: none;
+                 top: 35px;
+                 left: 3%;
+                 width: 1400px;
+                 height:40px;
+                 padding-top: 5px;
+                 padding-left: 10px;
+                 font-size: 20px;
+                 color:white;
+                 text-align: center;
+                 background: #428BCA;
+                 z-index:1002;
+            }
+
+
+            #shop_close{
+                display: none;
+                position: absolute;
+                 top: 420px;
+                 left: 3%;
+                 width: 1400px;
+                 height:40px;
+                 padding-top: 5px;
+                 padding-left: 10px;
+                 font-size: 20px;
+                 color:white;
+                 text-align: center;
+                 background: #428BCA;
+                 z-index:1002;
+            }
+            #s_title{
+                height:15%;
+                width:100%;
+                padding-left: 10px;
+                padding-top: 10px;
+                text-align: center;
+                font-size: 20px;
+                color:white;
+                background: #ccccc6;
+            }
+
+             #isclose{
+                 position: absolute;
+                 bottom: 0px;
+                 height:20%;
+                 width:100%;
+                 padding-right:30px;
+                 padding-top: 5px;
+                 text-align: right;
+                 font-size: 20px;
+                 color:white;
+                 border-top: 1px solid #e5e5e5;
+                 //background: #428BCA;
+            }
+
+            .myj-active {
+                background-color: #428bca;
+                color: #fff;
+            }
+
+            .form-control{
+                width: 170px;
+                height: 35px;
+                display: inline;
+                margin-top: 5px;
+            }
+            .lefttd{
+                text-align: right;
+            }
+
+            table,table tr td {
+                //border:1px solid #0094ff;
+                padding:2px 12px;
+            }
+
+            .crumb-select-item{
+                background: #EDEAE1;
+                padding: 0px 6px 0px 5px;
+                border: #cccaca;
+
+            }
+
+            .re_echo{
+                font-size: 13px;
+                padding-bottom: 20px;
+                padding-left: 10px;
+            }
+
+            select{
+                max-width: 900px;
+            }
+
+            .white_bar{
+                display: none;
+                position: absolute;
+                top:60px;
+                left: 33%;
+                width: 700px;
+                height: 260px;
+                background-color: white;
+                z-index:1002;
+                overflow: auto;
+                border:1px solid #e5e5e5;
+                border-radius: 4px;
+            }
+            #reverse_title{
+                height:25%;
+                width:100%;
+                padding-left: 10px;
+                padding-top: 10px;
+                //text-align: center;
+                font-size: 20px;
+                color:white;
+                background:#428BCA;
+            }
+
+            .white_reverse{
+                display: none;
+                position: absolute;
+                top:60px;
+                left: 33%;
+                width: 400px;
+                height: 200px;
+                background-color: white;
+                z-index:1002;
+                overflow: auto;
+                border:1px solid #e5e5e5;
+                border-radius: 4px;
+            }
+        </style>
+
+</head>
+<body>
+
+    <!--<div class="re_echo">-->
+        <!--搜索内容 &gt;-->
+        <!--{% for k, v in navigation.items %}-->
+            <!--&gt;<span class="crumb-select-item">{{ k }}:{{ v }}</span>-->
+        <!--{% endfor %}-->
+    <!--</div>-->
+
+    <div style="font-size:15px; border:1px solid #cccaca;">
+
+        <div>
+            <div class="padatr">
+                {% if current_shop != '' and current_shop != 'undefined' %}
+                    <div class="satrdiv inline mRight20">当前店铺:</div>
+                    <div class="inline">
+                        <input type="button" id="current_shop" class="myj-aFocus mRight20 sybutton" value="{{ current_shop }}" id="cur_shop"/>
+                    </div>
+                 {% endif %}
+            </div>
+
+            <div class="padatr">
+                <div class="satrdiv inline mRight20">选择店铺:</div>
+                <div class="inline">
+                     {% for Some_SN in Some_SNS %}
+                        <a class="myj-aFocus mRight20" href="javascript:;" onclick="findShopName(this.id)" id="{{ Some_SN }}" value="{{ Some_SN }}">{{ Some_SN}}</a>
+                     {% endfor %}
+                    <a class="myj-aFocus mRight20" href="javascript:;" onclick="openDialog()">更多</a>
+                </div>
+            </div>
+        </div>
+         {% if current_shop == '全部' %}
+                <div style="display:none;">
+                    <div class="padatr" style="display: {{ isHideSite }};">
+                    <div class="satrdiv inline mRight20" style="width: 9000px;">站点:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                    <div class="inline">
+                        <a id="searchSite_id" style="display: none">{{ searchSite_id }}</a>
+                        {% for k,v in Siteconfiguration.items %}
+                            <a class="myj-aFocus mRight20" href="javascript:;" id="{{ k }}" name="setSite" onclick="setSiteSearch(this.id)">{% for a,b in v.items %} <li style="display: none">{{ a }}</li>{{ b }}{% endfor %}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+                </div>
+         {% else %}
+            <div style="border-top: 1px solid #cccaca;">
+                <div class="padatr" style="display: {{ isHideSite }};">
+                    <div class="satrdiv inline mRight20" style="width: 9000px;">站点:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+                    <div class="inline">
+                        <a id="searchSite_id" style="display: none">{{ searchSite_id }}</a>
+                        {% for k,v in Siteconfiguration.items %}
+                            <a class="myj-aFocus mRight20" href="javascript:;" id="{{ k }}" name="setSite" onclick="setSiteSearch(this.id)">{% for a,b in v.items %} <li style="display: none">{{ a }}</li>{{ b }}{% endfor %}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+                {% endif %}
+
+
+        <div id="shop_title">选择运营店铺</div>
+            <div id="light" class="white_content">
+                <!--<div id="shop_title">选择运营店铺</div>-->
+
+                {% for ShopName in ShopNames %}
+                    <input class="button" type="button" onclick="findShopName(this.id)" id="{{ ShopName }}" value="{{ ShopName }}"/>
+                {% endfor %}
+                <br><br>
+            </div>
+			 <div id="shop_close">
+                   <input type="button" class="button mRight20 mLeft20" value="关闭" onclick = "closeDialog()"/>
+             </div>
+            <div id="fade" class="black_overlay"></div>
+
+        </div>
+        </br>
+
+        <!--<select id="synPro" class="sybutton" style="display: inline;float: right; width: 125px;text-align:center;" onchange="syndata(this.options[this.selectedIndex])">-->
+            <!--<option value="syn" style="display: none">广告同步</option>-->
+            <!--{% for k,v in synTypeDict.items %}-->
+                <!--{% for a, b in v.items %}-->
+                    <!--<option value="{{ a }}">{{ b }}</option>-->
+                <!--{% endfor %}-->
+            <!--{% endfor %}-->
+        <!--</select>-->
+
+          <!--<div id="bar_light" class="white_bar" >-->
+            <!--<div id="s_title">广告同步</div>-->
+            <!--<p style="text-align:center; padding-top: 35px;">-->
+                <!--<progress max="100" value="0" id="pg" style="width:600px; height: 25px; color: #5cb85c;" class="inline"></progress>-->
+                <!--<div style="width: 600px; height: 60px; margin-left: 50px;">-->
+                    <!--</br>-->
+                    <!--<span>状态:&nbsp;<em style="color: #d58512" id="p_status">进行中...</em></span></br>-->
+                    <!--<span>详情:</span></br>-->
+                    <!--<span id="n_time" style="margin-left:35px"></span></td>-->
+                <!--</div>-->
+            <!--</p>-->
+            <!--<div id="isclose" style="">-->
+                <!--<input type="button" class="sybutton" style="height: 30px" value="后台执行" onclick = "closeDialog_bar()"/>-->
+            <!--</div>-->
+        <!--</div>-->
+        <div id="bar_fade" class="black_overlay"></div>
+
+    </div>
+
+</body>
+
+<script type="text/javascript" src="/static/xadmin/js/jquery-1.7.1.min.js"></script>
+<script>
+    var url_str = '/Project/admin/skuapp/t_amazon_cpc_ad/'
+
+    window.onload = function(){
+        var searchSite_id = $("#searchSite_id")[0].innerText
+        var setSite = document.getElementsByName("setSite")
+
+        selectAttribute(searchSite_id, setSite)
+    }
+
+    function syndata(data){
+        var pg_rate = ''
+        $("#synPro").val('syn'); // 保持默认值
+        //alert(data.value)
+        if(confirm('确定'+data.innerText+'数据?') == true && data != 'syn') {
+            var ShopName = $("#current_shop").val()
+            if (ShopName == '' || ShopName === undefined) {
+                alert(ShopName)
+                alert('请选中店铺。。。。。')
+                return
+            }
+            var searchSite = $(" .myj-active")[0].getElementsByTagName('li')[0].innerText
+            if (searchSite == '' || searchSite === undefined) {
+                alert(searchSite)
+                alert('请选中站点。。。。。')
+                return
+            }
+
+            var syn_num
+            openDialog_bar();
+            var pg = document.getElementById('pg');
+            pg.value = 0;
+            var timenum = 300000
+            var syn_progress = pg.value
+            $('#p_status').text('正在提交报告!')
+            $('#n_time').text('')
+
+            var uuid = tosynamazon('/syn_amazon_cpc_ad/', {'ShopName': ShopName, 'searchSite': searchSite})
+            is_syn = setInterval(function (e) {
+                pg_rate = tosynamazon('/syn_amazon_cpc_ad_progress/', {
+                    'ShopName': ShopName,
+                    'searchSite': searchSite,
+                    'uuid': uuid
+                })
+            }, 1000)
+
+            timertask = setInterval(function (e) {
+                timenum = timenum - 3
+
+                if (pg_rate == 'submit') {
+                    $('#p_status').text('正在提交报告!')
+                    if (pg.value < 10) {
+                        pg.value += 0.01;
+                    }
+                    $('#n_time').text('已完成' + pg.value.toFixed(1) + '%')
+                    syn_progress = pg.value
+                } else if (pg_rate == 'progress') {
+                    //亚马逊处理中 30%
+                    $('#p_status').text('亚马逊处理中!')
+                    if (pg.value < 30) {
+                        pg.value += 0.01;
+                    }
+                    $('#n_time').text('已完成' + pg.value.toFixed(1) + '%')
+                    syn_progress = pg.value
+                } else if (pg_rate == 'done') {
+                    //亚马逊处理完成 50%
+                    $('#p_status').text('亚马逊处理完成!')
+                    if (pg.value < 50) {
+                        pg.value += 0.01;
+                    }
+                    $('#n_time').text('已完成' + pg.value.toFixed(1) + '%')
+                    syn_progress = pg.value
+                } else if (pg_rate == 'getdata') {
+                    //获取亚马逊处理结果 65%
+                    $('#p_status').text('获取亚马逊处理结果!')
+                    if (pg.value < 65) {
+                        pg.value += 0.01;
+                    }
+                    $('#n_time').text('已完成' + pg.value.toFixed(1) + '%')
+                    syn_progress = pg.value
+                } else if (pg_rate.indexOf('backfill') != -1) {
+                    //更新本地数据库 80%
+                    $('#p_status').text('更新本地数据库!')
+                    syn_num = pg_rate.substring(9, pg_rate.length)
+                    //alert(syn_num)
+                    if (pg.value < 99) {
+                        pg.value += (98 - syn_progress) / (syn_num * 1000);
+                    }
+                    if (now_num < syn_num * 1000) {
+                        now_num += 1
+                    }
+                    $('#n_time').text('已完成' + pg.value.toFixed(1) + '%' + '  已同步数据' + Math.ceil(now_num / 1000) + '/' + syn_num)
+                } else if (pg_rate == 'success') {
+                    //处理完成 100%
+                    $('#p_status').text('处理完成!')
+                    if (pg.value == 100 || pg.value > 100) {
+                        clearInterval(timertask)
+                        pg.value = 100
+                        $('#n_time').text('已完成' + pg.value + '%' + '  同步数据' + syn_num + '条')
+                    }
+                    if (pg.value < 100) {
+                        pg.value += (99 - syn_progress) / (syn_num * 100);
+                        now_num +=1
+                        $('#n_time').text('已完成' + pg.value.toFixed(1) + '%' + '  已同步数据' + Math.ceil(now_num / 100) + '/' + syn_num)
+                    }
+                } else if (pg_rate == 'fail') {
+                    //处理失败 停住
+                    //window.document.getElementById('pg').setAttribute("style", "width:600px; height: 25px; color: #D53351;");
+                    //alert('sss')
+                    clearInterval(timertask)
+                    clearInterval(is_syn)
+                    $('#p_status').text('处理失败!')
+                } else if (pg_rate == 'cancel') {
+                    //请求被亚马逊取消  停住
+                    clearInterval(timertask)
+                    clearInterval(is_syn)
+                    $('#p_status').text('请求被亚马逊取消!')
+                } else if (pg_rate == 'timeout') {
+                    //请求超时 停住
+                    clearInterval(timertask)
+                    clearInterval(is_syn)
+                    $('#p_status').text('请求超时!')
+                }
+            }, 3)
+        }
+    }
+
+	 function tosynamazon(url,params){
+        //alert(url)
+        //alert('sagdhagsd---------->'+params)
+        var uuid = ''
+        //alert(syntype)
+        $.ajax({
+            url:url,
+            type:'GET',
+            //datatype:'json',
+            async: false,
+            data:params,
+            success:function(data){
+                //alert('我先返回复命  tasks.delay任务还在后台执行.... ')
+                //alert(data)
+                uuid = data
+            },
+            //traditional:true,
+            error:function () {
+                alert('未知异常,请重试！')
+            }
+        })
+        return uuid
+    }
+
+
+
+    function openDialog(){
+        document.getElementById('light').style.display='block';
+        document.getElementById('fade').style.display='block';
+        document.getElementById('shop_title').style.display='block';
+        document.getElementById('shop_close').style.display='block';
+    }
+    function closeDialog(){
+        document.getElementById('light').style.display='none';
+        document.getElementById('fade').style.display='none'
+		document.getElementById('shop_title').style.display='none';
+        document.getElementById('shop_close').style.display='none';
+    }
+
+    function setSiteSearch(index){
+        var setSite = document.getElementsByName("setSite")
+        selectAttribute(index, setSite)
+        searchItemAmazon()
+    }
+
+    function selectAttribute(index, setSite){
+         for(var i=0; i<setSite.length; i++){
+            if(i == index){
+                setSite[i].setAttribute("class", "myj-aFocus mRight20 myj-active");
+            }else{
+                setSite[i].setAttribute("class", "myj-aFocus mRight20");
+            }
+        }
+    }
+    //选择店铺
+    function findShopName(id) {
+        window.location.href = url_str+'?ShopName='+id;
+    }
+
+    //搜索条目
+    function searchItemAmazon() {
+        var s_item = ''
+
+        var searchSite = $(" .myj-active")[0].getElementsByTagName('li')[0].innerText
+
+        var ShopName = $("#current_shop").val()
+        if(ShopName === undefined){
+            ShopName = ''
+        }
+        if(searchSite != ''){s_item += '&searchSite='+ searchSite;}
+        if(ShopName != undefined){s_item += '&ShopName='+ ShopName;}
+        if(s_item != ''){
+           s_item = '?'+s_item.substring(1,s_item.length)
+        }
+        window.location.href = url_str+s_item;
+    }
+
+
+     function openDialog_bar(){
+        document.getElementById('bar_light').style.display='block';
+        document.getElementById('bar_fade').style.display='block'
+    }
+    function closeDialog_bar(){
+        //if(confirm('确定关闭？') == true){
+        document.getElementById('bar_light').style.display='none';
+        document.getElementById('bar_fade').style.display='none'
+        clearInterval(is_syn)
+        clearInterval(timertask)
+       // }
+    }
+</script>
+
+</html>

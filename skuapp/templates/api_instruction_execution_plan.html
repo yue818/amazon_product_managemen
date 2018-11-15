@@ -1,0 +1,45 @@
+<script type="text/javascript"  
+    src="/static/xadmin/js/jquery-1.7.1.min.js"></script>  
+<script type="application/javascript">
+    var isAll = false;  
+    function yCheck() {  
+        if (isAll) {  
+            $("input[type='checkbox']").each(function() {  
+                this.checked = false;  
+            });  
+            isAll = false;  
+        } else {  
+            $("input[type='checkbox']").each(function() {  
+                this.checked = true;  
+            });  
+            isAll = true;  
+        }  
+    }  
+</script>
+
+<form action="/t_distribution_product_to_store/upload_Implementation_plan/?getapiingid={{ id }}" method="post">
+{% csrf_token %}
+    <table border="1" id="mytable" width="100%">
+        <tr>
+            <th><label><input name="ID" type="checkbox" value="ID" onclick="yCheck()" />ID</label></th>
+            <th>店铺名</th>
+            <th>计划执行时间</th>
+            <th>结果表ID</th>
+        </tr>
+        {% for obj in objs %}
+        <tr>
+            <td><label><input name="smell_ID" type="checkbox" value="{{ obj.id }}" />{{ obj.id }}</label></td>
+            <td>{{ obj.ShopName }}</td>
+            <td>{{ obj.ScheduleTime }}</td>
+            <td>{{ obj.resultid }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <table id="mytable2" width="100%">
+        <tr>
+        <th align="center">
+            <button id='go_action' type="submit" >删除</button>
+        </th>
+        </tr>
+    </table>
+</form>

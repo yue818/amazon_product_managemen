@@ -1,0 +1,143 @@
+<!DOCTYPE>
+<html>
+<head>
+<meta name="Author" content="chenchen">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<script type="text/javascript" src="/static/xadmin/js/jquery-1.7.1.min.js"></script>  
+<style type="text/css">
+#container {
+position: absolute;
+left: 50%;
+top: 40%;
+}
+#content {
+float: left;
+position: relative;
+right: 52%;
+}
+input {
+border: 0;
+width: 288px;
+height: 30px;
+font-size: 16px;
+padding: 0 5px;
+line-height: 30px;
+}
+.item {
+padding: 3px 5px;
+cursor: pointer;
+}
+.addbg {
+background: #87A900;
+}
+.first {
+border: solid #87A900 2px;
+width: 300px;
+}
+#append {
+border: solid #87A900 2px;
+border-top: 0;
+display: none;
+}
+</style>
+</head>
+<body>
+<form action="/task/trunk">
+<input type="hidden" name="Task_id" value="{{ Task_id }}" />
+<div id="container">
+<div id="content">
+<div class="first">
+<input id="kw" name="Task_handler" onKeyup="getContent(this);" />
+</div>
+<div id="append"></div>
+</div>
+<input id="content" class="ss" type="submit" value="提交" />
+<input type="hidden" name="cl_man" value="{{ cl_man }}" />
+    
+</div>
+    
+</form>
+<script type="text/javascript">
+var data={{ list_list|safe }}
+$(document).ready(function() {
+$(document).keydown(function(e) {
+e = e || window.event;
+var keycode = e.which ? e.which : e.keyCode;
+if (keycode == 38) {
+if (jQuery.trim($("#append").html()) == "") {
+return;
+}
+movePrev();
+} else if (keycode == 40) {
+if (jQuery.trim($("#append").html()) == "") {
+return;
+}
+$("#kw").blur();
+if ($(".item").hasClass("addbg")) {
+moveNext();
+} else {
+$(".item").removeClass('addbg').eq(0).addClass('addbg');
+}
+} else if (keycode == 13) {
+dojob();
+}
+});
+var movePrev = function() {
+$("#kw").blur();
+var index = $(".addbg").prevAll().length;
+if (index == 0) {
+$(".item").removeClass('addbg').eq($(".item").length - 1).addClass('addbg');
+} else {
+$(".item").removeClass('addbg').eq(index - 1).addClass('addbg');
+}
+}
+var moveNext = function() {
+var index = $(".addbg").prevAll().length;
+if (index == $(".item").length - 1) {
+$(".item").removeClass('addbg').eq(0).addClass('addbg');
+} else {
+$(".item").removeClass('addbg').eq(index + 1).addClass('addbg');
+}
+}
+var dojob = function() {
+$("#kw").blur();
+var value = $(".addbg").text();
+$("#kw").val(value);
+$("#append").hide().html("");
+}
+});
+function getContent(obj) {
+var kw = jQuery.trim($(obj).val());
+if (kw == "") {
+$("#append").hide().html("");
+return false;
+}
+var html = "";
+for (var i = 0; i < data.length; i++) {
+if (data[i].indexOf(kw) >= 0) {
+html = html + "<div class='item' onmouseenter='getFocus(this)' onClick='getCon(this);'>" + data[i] + "</div>"
+}
+}
+if (html != "") {
+$("#append").show().html(html);
+} else {
+$("#append").hide().html("");
+}
+}
+function getFocus(obj) {
+$(".item").removeClass("addbg");
+$(obj).addClass("addbg");
+}
+function getCon(obj) {
+var value = $(obj).text();
+$("#kw").val(value);
+$("#append").hide().html("");
+}
+</script>
+</body>
+</html>
+
+
+
+
+

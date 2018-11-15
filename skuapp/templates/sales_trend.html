@@ -1,0 +1,105 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>商品日订单量趋势图</title>
+    <script src="/static/highcharts/jquery-1.8.3.min.js"></script>
+    <script src="/static/highcharts/highcharts.js"></script>
+    <script src="/static/highcharts/exporting.js"></script>
+    <script src="/static/highcharts/highcharts-zh_CN.js"></script>
+</head>
+<body>
+<div id="conaaa" style="width:1100px;margin:0 auto;height:700px"></div>
+<br>
+{{ rt|safe }}
+
+<script>
+$(function () {
+
+	function ss(element,title,daylist,saleslist,MarketingTime,ReviewTime,index1,index2,MarketingList,ReviewList,salesCountlist){
+	  element.highcharts({
+        credits: {
+            enabled: false
+        },
+        chart: {
+            type: 'spline'
+        },
+        title: {
+            text: title
+        },
+        subtitle: {
+            text: '趋势图'
+        },
+      legend:{
+                itemStyle: { cursor: 'pointer', color: 'red' }
+              },
+        xAxis: {
+            categories: daylist,
+            crosshair: true,
+            plotLines:[{
+                color:'black',            //线的颜色，定义为红色
+                dashStyle:'longdashdot',//标示线的样式，默认是solid（实线），这里定义为长虚线
+                value:index1-1,                //定义在哪个值上显示标示线，这里是在x轴上刻度为3的值处垂直化一条线
+                width:3                 //标示线的宽度，2px
+            },{
+                color:'#90EE90 ',            //线的颜色，定义为红色
+                dashStyle:'longdashdot',//标示线的样式，默认是solid（实线），这里定义为长虚线
+                value:index2-1,                //定义在哪个值上显示标示线，这里是在x轴上刻度为3的值处垂直化一条线
+                width:3                 //标示线的宽度，2px
+            }]
+        },
+        yAxis: [{
+            min: 0,
+            allowDecimals:false,
+            title: {
+                text: '日订单量'
+            },
+        }
+        ],
+        tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+            '<td style="padding:0"><b>{point.y:.0f}(笔订单)</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+        },
+        plotOptions: {
+            column: {
+                pointPadding: 0.2,
+                borderWidth: 0
+            }
+            ,
+            spline: {
+                marker: {
+                    enabled: true,//是否显示点
+                    radius: 3,//点的半径
+                    fillColor: "#00FF00",
+                    lineColor: "#32CD32"
+                },
+            lineWidth:2//线条粗细
+            }
+        },
+        series: [{
+            name: '日订单量',
+            data: {{ salesCountlist }}
+        },{
+            type: 'column',
+            name: '营销日期('+MarketingTime+')',
+            data:  0
+        } ,{
+            type: 'column',
+            name: '留评日期('+ReviewTime+')',
+            data:  0
+        },]
+    });
+
+}
+
+
+ss( $('#conaaa'),'{{title}}',{{daylist|safe}},{{saleslist|safe}},'{{MarketingTime}}','{{ReviewTime}}','{{index1}}','{{index2}}',{{MarketingList}},{{ReviewList}},{{ salesCountlist|safe}})
+
+});
+</script>
+
+</body>
+</html>

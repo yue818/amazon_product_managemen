@@ -1,0 +1,147 @@
+<style type="text/css">
+    #dd{
+        width:15%;
+    }
+
+    #txt1 {
+        width: 99%;
+    }
+
+    #div_items {
+        position: relative;
+        width: 100%;
+        height: 500px;
+        border: 1px solid #66afe9;
+        border-top: 0px;
+        overflow: auto;
+        display: none;
+    }
+
+    .div_item {
+        width: 100%;
+        height: 20px;
+        margin-top: 1px;
+        font-size: 13px;
+        line-height: 20px;
+    }
+</style>
+<div class="panel panel-default fieldset">
+
+    <div class="panel-body ">
+        <div class="form-inline form-group">
+            <div id="div_id_ShopName" class="form-group col-sm-12">
+
+                <div class="controls ">
+                    <div class="selectize-input items not-full has-options" id="dd" >
+
+                        
+                       <span style=" font-size:18px">搜索店铺(上次刷新时间:{{retime}})
+                            <span><input type="text" id="txt1" name="txt1" placeholder="当前店铺:&nbsp;wish-{{flag}}" autocomplete="off"/></span>
+                            </span>
+                                                
+                        <!--模糊匹配窗口-->
+                        <div class="selectize-dropdown-content" id="div_items">
+                            {% for shop in objs_name %}                                                 
+                            <div class="div_item">{{ shop}}&nbsp;&nbsp;&nbsp;&nbsp; <button type="button" onclick="{location.href='?shopname={{shop}}'}">搜索店铺</button></div>
+
+            
+                            
+                            {% endfor %}
+                            
+                        </div>
+                    </div>
+                </div>
+
+                            {% for synk,synv in syndict.items %}
+                                {% if synk != '0' %}
+                                    <span style='display:none' id='synv' >{{ synv }}</span>
+                                    <button id="syn" class="btn_1" onclick="upall()"><span style="color:#ffffff;">同步店铺数据(全量)</span></button>
+                                    
+                                    <button id="flag" class="btn_1" onclick="upadd()"><span style="color:#ffffff;">同步店铺数据(增量)</span></button>
+                                {% endif %}
+                            {% endfor %}
+
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    //弹出列表框
+    $("#txt1").click(function () {
+        $("#div_items").css('display', 'block');
+        return false;
+    });
+
+    //隐藏列表框
+    $("body").click(function () {
+        $("#div_items").css('display', 'none');
+    });
+
+    //移入移出效果
+    $(".div_item").hover(function () {
+        $(this).css('background-color', '#1C86EE').css('color', 'white');
+    }, function () {
+        $(this).css('background-color', 'white').css('color', 'black');
+    });
+
+    //文本框输入
+    $("#txt1").keyup(function () {
+        $("#div_items").css('display', 'block');//只要输入就显示列表框
+
+        if ($("#txt1").val().length <= 0) {
+            $(".div_item").css('display', 'block');//如果什么都没填，跳出，保持全部显示状态
+            return;
+        }
+
+        $(".div_item").css('display', 'none');//如果填了，先将所有的选项隐藏
+
+        for (var i = 0; i < $(".div_item").length; i++) {
+            //模糊匹配，将所有匹配项显示
+            if ($(".div_item").eq(i).text().substr(0, $("#txt1").val().length) == $("#txt1").val()) {
+                $(".div_item").eq(i).css('display', 'block');
+            }
+        }
+    });
+
+    //项点击
+    $(".div_item").click(function () {
+        $("#txt1").val($(this).text());
+    });
+    
+    function upall(){
+    
+        alert("正在执行全量更新，移到后台执行");
+        var a = window.document.getElementById('synv').innerText;
+        window.location.href=a;
+
+    };
+    
+    function upadd(){
+    
+        alert("正在执行增量更新，移到后台执行");
+        var a = window.document.getElementById('synv').innerText;
+        window.location.href=a;
+
+    };
+
+    function shop(){
+        var a = window.document.getElementById('shop').innerText;
+        window.location.href='?shopname='+a;
+        alert(a);
+
+    };
+
+
+        
+
+
+
+
+
+
+</script>
+
+

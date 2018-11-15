@@ -1,0 +1,119 @@
+<style>
+    fieldset {
+        background: #fff;
+        border-style: solid;
+        border-width: 1px;
+        -moz-border-radius: 5px;
+        -webkit-border-radius: 5px;
+        -khtml-border-radius: 5px;
+        border-radius: 5px;
+        line-height: 30px;
+        list-style: none;
+        padding: 5px 10px;
+        margin-bottom: 2px;
+    }
+
+    fieldset legend {
+        color:#06c;
+        font-weight: bold;
+        text-align: left;
+    }
+
+    .menus{
+		 position: relative;
+	}
+
+	.menus span{
+{#        background:url("http://img.china.alibaba.com/cms/upload/2013/201/298/892102_1573916616.png");#}
+        background:url("https://fancyqube-xls.oss-cn-shanghai.aliyuncs.com/sku_apply_change/new.png");
+{#        background:url("http://www.iconpng.com/png/splashyicons/new_1.png");#}
+{#        background:url("http://www.iconpng.com/png/fatcow/new.png");#}
+        width:20px;
+        height:20px;
+        position: absolute;
+		top: -88px;
+		margin-left: -10px;
+	}
+
+    li{
+        list-style:none;
+        line-height:15px
+    }
+
+    ul{
+        float: left;
+    }
+</style>
+
+
+
+<form action = "/t_product_image_modify/all_image/?code={{ MainSKU }}&plateform={{ plateform }}" method="POST" enctype="multipart/form-data">
+{% csrf_token %}
+    <fieldset>
+        <legend>候选主图</legend>
+        {% for main_pic_dict in main_pic_list %}
+            <div  style="display:inline">
+                <ul>
+                    <li>
+                        {% if main_pic_dict.new == 0 %}
+                            <div class="menus" style="display:inline">
+                                <img src="{{ main_pic_dict.pic }}"  width="160" height="160"/><span></span>
+                            </div>
+                        {% else %}
+                            <img src="{{ main_pic_dict.pic }}"  width="160" height="160"/>
+                        {% endif %}
+                    </li>
+                    <li>
+                        <a href='/t_product_image_modify/all_image_del/?code={{ MainSKU }}&id={{ main_pic_dict.id }}&source=remove&plateform={{ plateform }}' style="text-decoration:none">剔除主图</a>
+                    </li>
+                </ul>
+            </div>
+        {% endfor %}
+    </fieldset>
+
+    <br><br>
+
+    <fieldset>
+        <legend>其它图片</legend>
+        {% for other_pic_dict in other_pic_list %}
+            <div style="display:inline">
+                <ul>
+                    <li>
+                        {% if other_pic_dict.new == 0 %}
+                            <div class="menus" style="display:inline">
+                                <img src="{{ other_pic_dict.pic }}"  width="160" height="160"/><span></span>
+                            </div>
+                        {% else %}
+                            <img src="{{ other_pic_dict.pic }}"  width="160" height="160"/>
+                        {% endif %}
+                    </li>
+                    <li>
+                        <a href='/t_product_image_modify/all_image_del/?code={{ MainSKU }}&id={{ other_pic_dict.id }}&source=select&plateform={{ plateform }}' style="text-decoration:none">作为主图</a>
+                    </li>
+                </ul>
+            </div>
+        {% endfor %}
+    </fieldset>
+
+    <br><br>
+
+    <fieldset>
+        <legend>上传主图</legend>
+{#        <div>#}
+{#            <label>选择本地图片&nbsp;&nbsp;#}
+{#                <input type="file" name="image_local" value='' />#}
+{#            </label>#}
+{#        </div>#}
+{#        <br>#}
+        <div>
+            <label>输入图片链接&nbsp;&nbsp;
+                <input type="text" name="image_web" value='' />
+            </label>
+        </div>
+        <br>
+        <div>
+            &nbsp;&nbsp;&nbsp;<button type='submit' style="height: 30px;width: 50px;">上传</button>
+        </div>
+    </fieldset>
+
+</form>

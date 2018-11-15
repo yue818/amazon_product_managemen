@@ -1,0 +1,16 @@
+<div class="content-list">
+    <div class="row">
+        {% for model_list_obj in model_list_objs %}
+        <div class="col-md-3">
+            <div class="content">
+               <div class="w70 right-title pull-right">
+                   <div class="title-content">
+                       <button class="btn btn-default" style="width:100px;height:100px;" onclick="{location.href='/Project/admin/{{ model_list_obj.app_label }}/{{ model_list_obj.model }}/'}"><span style="color:#428bca;">{{ model_list_obj.model_name }}</span></button>
+                   </div>
+               </div>
+               <div class="clearfix"></div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>

@@ -1,0 +1,108 @@
+{#<script src="https://cdn.bootcss.com/jquery/2.0.1/jquery.min.js"></script>#}
+<script src="/static/xadmin/vendor/jquery/jquery.min.js"></script>
+<script type="text/javascript">
+    $('#div_id_image').attr("style", 'display: none');
+
+    var parent_dom = document.getElementById('div_id_urllink').parentNode;
+    $(parent_dom).before('<div class="form-inline form-group" style="height: 150px;"> <div id="div_id_urllink" class="form-group col-sm-4"> <label for="id_image_show" class="control-label">图片</label> ' +
+        '<div class="controls "> <a class="thumbnail dropdown-toggle" style="position: absolute;">' +
+        '<img src="https://fancyqube-wish.oss-cn-shanghai.aliyuncs.com/Nobackground.png" id="id_image_show" width="120" height="120" onclick="javascrip:$(\'#id_up_image\').click();">' +
+        '<input type="file" id="id_up_image" onchange="to_upload_image(this)" accept="image/gif, image/jpeg, image/png, image/gif" style="display: none">');
+
+    $('#id_urllink').after("<button id=\"fat-btn1\" style=\"margin-left: 15px;\" class=\"btn btn-primary\" data-loading-text=\"抓取中...\" \n" +
+        "    type=\"button\"> 抓取售价和图片\n" +
+        "</button><span class=\"asteriskField\">此抓取按钮只支持wish.com/;amazon.com/;ebay.com/;aliexpress.com/全球站;不支持国家站，抓取时间可能比较长请耐心等待..</span>");
+
+    $('#fat-btn1').click(function () {
+        if($("#id_urllink").val() == ""){
+            alert("url为空！");
+            return false
+        }
+        $(this).button('loading').delay(1000).queue(function() {
+            var id_urllink = $("#id_urllink").serialize();
+            var id_urllink = id_urllink.substring(id_urllink.indexOf('=')+1);
+	        id_urllink = decodeURIComponent(id_urllink,true);
+	        id_urllink = encodeURI(encodeURI(id_urllink));
+            $.ajax({
+                url: "/get_survey_results_info/?flag=1",
+                type: "GET",
+                contentType: "application/x-www-form-urlencoded:charset=UTF-8",
+                dataType: "json",
+                async:false,
+                data: {
+                    'url': id_urllink
+                },
+                success: function (dataq, textStatus, jqXHR) {
+                    console.log(dataq);
+                    if (dataq.error == 0) {
+                        $('#id_normalprice').val(dataq.priceRange);
+                        document.getElementById('id_image_show').src = $.trim(dataq.imageUrl);
+                        $('#id_image').val(dataq.imageUrl);
+                    }else {
+                        alert("抓取失败请检查url的正确性,可以进行重试！错误信息:"+ dataq.errmsg);
+                    }
+
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                    alert("抓取失败请检查url的正确性并重试！错误信息:"+ textStatus + errorThrown);
+                }
+            });
+            $(this).button('reset');
+            $(this).dequeue();
+            });
+    });
+    
+    function ityzl_SHOW_LOAD_LAYER(){
+        return parent.layer.msg('努力修改中，请稍等...', {icon: 16,shade: [0.5, '#f5f5f5'],scrollbar: false,offset: '50%', time:100000}) ;
+    }
+    function ityzl_CLOSE_LOAD_LAYER(index){
+        parent.layer.close(index);
+    }
+    function ityzl_SHOW_TIP_LAYER(){
+        parent.layer.msg('修改完成！',{time: 1000,offset: '50%'});
+    }
+
+    var i = '';
+    function to_upload_image(self) {
+        var formFile = new FormData();
+        var action = "/wish_pub_save_image/?imageflag="+0+'&f=0'+'&local_f=upload' ;
+        formFile.append("action", action);
+
+        var fileObj = self.files[0];
+        formFile.append("PIC", fileObj); //加入文件对象
+
+        $.ajax({
+            url: action,
+            data: formFile,
+            type: "Post",
+            dataType: "json",
+            cache: false,//上传文件无需缓存
+            processData: false,//用于对data参数进行序列化处理 这里必须false
+            contentType: false, //必须
+            beforeSend: function () {
+                i = ityzl_SHOW_LOAD_LAYER();
+            },
+            success: function (result) {
+                if (result.Code == '1'){
+                    document.getElementById('id_image_show').src = $.trim(result.PicPath);
+                    $("#id_image").val($.trim(result.PicPath));
+
+                    ityzl_CLOSE_LOAD_LAYER(i);
+                    ityzl_SHOW_TIP_LAYER();
+                    console.log(JSON.stringify(result));
+                }else {
+                    alert('错误信息：' + JSON.stringify(result));
+                    ityzl_CLOSE_LOAD_LAYER(i);
+                    console.log(JSON.stringify(result));
+                }
+            },
+            error:function (XMLHttpRequest, textStatus, errorThrown) {
+                alert('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                console.log('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                ityzl_CLOSE_LOAD_LAYER(i);
+            }
+        });
+    }
+
+</script>
+

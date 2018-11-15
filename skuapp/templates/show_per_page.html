@@ -1,0 +1,51 @@
+<script>
+    function setParam(param, value) {
+           var allparam = "{{ request.GET.urlencode }}";
+{#           console.log('-------------'+allparam);#}
+           if (allparam == ''){
+               return '?' + param + '=' + value;
+           }else {
+               var paramlist = allparam.split('&amp;');
+{#               console.log('---paramlist----------'+paramlist);#}
+               var newparam = new Array();
+               for (var i=0;i<paramlist.length;i++){
+                   if (paramlist[i].split('=')[0] != 'p' && paramlist[i].split('=')[0] != 'showperpage'){
+                        newparam.push(paramlist[i]);
+                   }
+               }
+               if (newparam){
+                   return '?' + newparam.join('&') + '&' + param + '=' + value;
+               }else {
+                   return '?' + param + '=' + value;
+               }
+           }
+    }
+
+    function gotopage(page) {
+{#         var param = setParam("showperpage", page);#}
+{#         console.log(param);#}
+        window.location.href= "{{ request.path }}" + setParam("showperpage", page);
+    }
+
+    function goto() {
+        {#javascript:window.location.href='./?'+'showperpage='+$('#per_page_id').val()#}
+        inputpage = $('#per_page_id').val();
+        if (inputpage > 0 && inputpage <= 200){
+
+        }
+        else{
+            alert('输入不合法！！！');
+            return false;
+        }
+        gotopage(inputpage);
+    }
+        {#window.location.href='./?'+'showperpage='+inputpage#}
+</script>
+每页显示:
+<input type="text" name="per_page" style="width: 30px" id="per_page_id" value="{{ perpage }}"/>条
+{#==<input type="text" name="test" value="{{ request.path }}?{{ request.GET.urlencode }}"/>==#}
+<button type="button" onclick=goto()>确定</button>
+
+
+
+

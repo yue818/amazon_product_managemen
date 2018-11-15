@@ -1,0 +1,104 @@
+<html>
+    <head>
+        <meta charset="utf-8"><link rel="icon" href="https://static.jianshukeji.com/highcharts/images/favicon.ico">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+        </style>
+        <script src="/static/highcharts/jquery-1.8.3.min.js"></script>
+        <script src="/static/highcharts/highcharts.js"></script>
+        <script src="/static/highcharts/exporting.js"></script>
+        <script src="/static/highcharts/highcharts-zh_CN.js"></script>
+    </head>
+    <body>
+        <div id="container" style="min-width:400px;height:400px"></div>
+            <script>
+                $(function () {
+                    $('#container').highcharts({
+                        "xAxis": [
+                            {
+                                "type": "category",
+                                "categories": {{ date_data|safe }},
+                                "index": 0,
+                                "isX": true
+                            }
+                            ],
+
+                        "series": [
+                            {
+                                "name": "{{ text }}",
+                                "data": {{ rating_list }},
+                                "animation": true,
+                                "connectEnds": true,
+                                "enableMouseTracking": true,
+                                "_colorIndex": 0,
+                                "_symbolIndex": 0
+                            }
+                            ],
+
+                        "yAxis": [
+                            {
+                                "title": {
+                                    "text": "{{ text }}"
+                                },
+                                "index": 0
+                            }
+                            ],
+
+                        "chart": {
+                            "style": {
+                                "fontFamily": "\"微软雅黑\", Arial, Helvetica, sans-serif",
+                                "color": "#333",
+                                "fontSize": "12px",
+                                "fontWeight": "normal",
+                                "fontStyle": "normal"
+                            },
+                            "type": "spline"
+                        },
+
+                        "title": {
+                            "text": "{{ title }}",
+                            "margin": 50
+                        },
+
+                        "subtitle": {
+                            "text": "店铺名称: {{ shop_name }}"
+                        },
+
+                        "plotOptions": {
+                            "line": {
+                                "animation": true,
+                                "allowPointSelect": true
+                            },
+                            "series": {
+                                "dataLabels": {
+                                    "enabled": true
+                                },
+                                "animation": true
+                            }
+                        },
+
+                        "exporting": {
+                            "enabled": true,
+                            "sourceWidth": 1000
+                        },
+
+                        "credits": {
+                            "enabled": true,
+                            "position": {
+                                "align": 'left',
+                                "x": 1500
+                            },
+                            "text": "fancyqube",
+                            "style":{
+                                "cursor": 'pointer',
+                                "color": '#999999',
+                                "fontSize": '12px'
+                            },
+                            "href": 'http://online.fancyqube.net',
+                        },
+
+                    })
+                });
+        </script>
+    </body>
+</html>

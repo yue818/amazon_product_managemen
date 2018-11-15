@@ -1,0 +1,112 @@
+<style type="text/css">
+    #dd{
+        width:300px;
+    }
+
+    #txt1 {
+        width: 99%;
+    }
+
+    #div_items {
+        position: relative;
+        width: 100%;
+        height: 500px;
+        border: 1px solid #66afe9;
+        border-top: 0px;
+        overflow: auto;
+        display: none;
+    }
+
+    .div_item {
+        width: 100%;
+        height: 20px;
+        margin-top: 1px;
+        font-size: 13px;
+        line-height: 20px;
+    }
+</style>
+<div class="panel panel-default fieldset">
+    <div class="panel-heading">
+        <i class="icon fa fa-chevron-up chevron"></i>
+        <h3 class="panel-title">请认真填写申请</h3>
+    </div>
+    <div class="panel-body ">
+        <div class="form-inline form-group">
+            <div id="div_id_ShopName" class="form-group col-sm-12">
+                <label for="id_ShopName" class="control-label ">
+                卖家简称
+                </label>
+                <div class="controls ">
+                    <div class="selectize-input items not-full has-options" id="dd" >
+                        <input type="text" id="txt1" name="txt1" autocomplete="off"/>
+                        <!--模糊匹配窗口-->
+                        <div class="selectize-dropdown-content" id="div_items">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    var divdown = document.getElementById('div_items');
+    var node=divdown.nextSibling;
+    var shop_list = {{ shoplist|safe }};
+    var info = '';
+    for (var a=0;a<shop_list.length;a++){
+        info += '<div class="div_item" onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" onClick="getCon(this);">'+ shop_list[a] +'</div>';
+    }
+    divdown.innerHTML = info;
+    divdown.parentNode.insertBefore(divdown, node);
+    node=divdown.nextSibling;
+
+    //弹出列表框
+    $("#txt1").click(function () {
+        $("#div_items").css('display', 'block');
+        return false;
+    });
+
+    //隐藏列表框
+    $("body").click(function () {
+        $("#div_items").css('display', 'none');
+    });
+
+    //移入移出效果
+    function getnewcolor(obj) {
+        $(obj).css('background-color', '#1C86EE').css('color', 'white');
+    }
+
+    function getoldcolor(obj) {
+        $(obj).css('background-color', 'white').css('color', 'black');
+    }
+
+    //文本框输入
+    $("#txt1").keyup(function () {
+        var intext = document.getElementById('txt1');
+        var inputtext = intext.value;
+        if (inputtext != "") {
+            var html = "";
+            for (var i = 0; i < shop_list.length; i++) {
+                if (shop_list[i].indexOf(inputtext) >= 0) {
+                    html += '<div class="div_item" onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" onClick="getCon(this);">'+ shop_list[i] +'</div>';
+                }
+            }
+            if (html != "") {
+                $("#div_items").show().html(html);
+            } else {
+                $("#div_items").hide().html("");
+            }
+        }else {
+            $("#div_items").show().html(info);
+        }
+    });
+
+    //项点击
+    function getCon(obj) {
+        var value = $(obj).text();
+        $("#txt1").val(value);
+        $("#div_items").show().html('<div class="div_item" onmousemove="getnewcolor(this)" onmouseout="getoldcolor(this)" onClick="getCon(this);">'+ value +'</div>');
+    }
+
+</script>

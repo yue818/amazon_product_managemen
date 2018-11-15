@@ -1,0 +1,111 @@
+<style type="text/css">
+		.btn_1{
+			display: inline-block;
+	        padding: 6px 12px;
+	        margin-bottom: 0;
+	        font-size: 14px;
+	        font-weight: normal;
+	        line-height: 1.428571429;
+	        text-align: center;
+	        vertical-align: middle;
+	        cursor: pointer;
+	        background-image: none;
+	        border: 1px solid transparent;
+	        border-radius: 6px;
+	        -webkit-user-select: none;
+	        -moz-user-select: none;
+	        color: #ffffff;
+		    background-color: #555555;
+		}
+</style>
+<br>
+<div class="messsub" >
+
+
+<span>店铺管理:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+
+
+
+{#	<select id="sect" name="Identifier">#}
+{#					<option value="" selected="selected">---------</option>#}
+{#	    			{% for k,v in objs.items %}#}
+{##}
+{##}
+{#						<option value="{{k}}">{{k}}</option>#}
+{##}
+{#					｛% if k%｝#}
+{#						<button type="button" onclick="{location.href='?{{v}}'}">搜索店铺</button>#}
+{#					{% endif %}#}
+{#					{% endfor %}#}
+{#					<option value="zll"></option>#}
+{##}
+{#	</select>#}
+
+
+
+
+
+
+
+
+
+
+
+
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+
+    {% for synk,synv in syndict.items %}
+        {% if synk != '0' %}
+            <button id="syn" class="btn_1" onclick="{location.href='{{ synv }}'}"><span style="color:#ffffff;">同步店铺数据(全量)</span></button>
+        {% endif %}
+    {% endfor %}
+
+
+	{% for synk,synv in syndict.items %}
+        {% if synk != '0' %}
+            <button id="flag" class="btn_1" onclick="{location.href='{{ synv }}'}"><span style="color:#ffffff;">同步店铺数据(增量)</span></button>
+        {% endif %}
+    {% endfor %}
+
+
+</span>
+
+</div>
+<br>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

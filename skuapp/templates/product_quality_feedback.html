@@ -1,0 +1,35 @@
+<style type="text/css">
+		.btn_1{
+			display: inline-block;
+	        padding: 6px 12px;
+	        margin-bottom: 0;
+	        font-size: 14px;
+	        font-weight: normal;
+	        line-height: 1.428571429;
+	        text-align: center;
+	        vertical-align: middle;
+	        cursor: pointer;
+	        background-image: none;
+	        border: 1px solid transparent;
+	        border-radius: 6px;
+	        -webkit-user-select: none;
+	        -moz-user-select: none;
+	        color: #ffffff;
+		    background-color: #555555;
+		}
+
+        a{
+			text-decoration: none;
+		}
+</style>
+
+<div>
+    <button type="hidden" id="flag" value="{{ flag }}"></button>
+    {% for each in button_list %}
+        {% for k, v in each.items %}
+            {% if k != 'num' and k != 'quantity' %}
+                <a class="btn_1" href="{{ now_url }}?cate={{ k }}" id="btc{{ each.num }}">{{ v }} ( {{ each.quantity }} )</a>
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+</div>

@@ -1,0 +1,92 @@
+<style type="text/css">
+    input[type=checkbox]:after  {
+        content: "";
+        display:block;
+        width: 14px;
+        height: 14px;
+        text-align: center;
+        line-height: 25px;
+        font-size: 18px;
+        color: #fff;
+        border: 1px solid #ddd;
+        background-color: #fff;
+        box-sizing:border-box; 
+    }
+    input[type=checkbox]:checked:after  {
+        border: 1px solid #ddd;
+        background-color: #37AF6E;
+    }
+</style>
+<html lang="en-us" >
+<meta charset="utf-8" />
+<form id = 'research_form' action = '/t_goods_shelves/search_Plugin/' method = 'POST'>
+    <div>
+        <table cellpadding="5" align="left" width="100%">
+            <tr style="height: 35px">
+            {% for search in searchs %}
+                <td width="8.5%" align="right" style="font-size: 15px">{{ search.descri }}:</td>
+                <td width="180px"><input name="{{ search.id }}" value="{{ search.values }}" style="height:25px;width:170px;font-size: 15px;" /></td>
+            {% endfor %}
+                <td></td>
+            </tr>
+        </table>
+    </div>
+    <div>
+        <table cellpadding="5" align="left" width="100%">
+            <tr style="height: 35px">
+                {% for select in selects %}
+                    <td width="8.5%" align="right" style="font-size: 15px">{{ select.descri }}</td>
+                    <td width="90%">
+                    {% for k,v in select.defultvalue.items %}
+                        {% if v in select.values %}
+                        <label><input name="{{ select.id }}" type="radio" value="{{ v }}" style="font-size: 8px;" checked="checked"/>{{ k }}</label>
+                        {% else %}
+                        <label><input name="{{ select.id }}" type="radio" value="{{ v }}" style="font-size: 8px;" />{{ k }}</label>
+                        {% endif %}
+                    {% endfor %}
+                    </td>
+                {% endfor %}
+            </tr>
+            <tr style="height: 35px">
+                {% for select_one in selects_one %}
+                <td width="8.5%" align="right" style="font-size: 15px">{{ select_one.descri }}:</td>
+                <td width="90%">
+                    {% for k,v in select_one.defultvalue.items %}
+                        {% if select_one.values == v %}
+                        <label><input name="{{ select_one.id }}" type="radio" value="{{ v }}" style="font-size: 8px;" checked="checked"/>{{ k }}</label> 
+                        {% else %}
+                        <label><input name="{{ select_one.id }}" type="radio" value="{{ v }}" style="font-size: 8px;" />{{ k }}</label> 
+                        {% endif %}
+                    {% endfor %}
+                </td>
+                {% endfor %}
+            </tr>
+        </table>
+    </div>
+    <div>
+        <table cellpadding="5" align="left" width="80%">    
+            <tr style="height: 35px">
+            {% for search_r in search_range %}
+                <td width="10.5%" align="right" style="font-size: 15px">{{ search_r.descri }}:</td>
+                <td width="400px">
+                    <input name="{{ search_r.id }}_gte" value="{{ search_r.values_Start }}" style="height:25px;width:170px;font-size: 15px;" />
+                    ---
+                    <input name="{{ search_r.id }}_lt" value="{{ search_r.values_End }}" style="height:25px;width:170px;font-size: 15px;" />
+                </td>
+            {% endfor %}
+            </tr>
+            <tr>
+                <td></td>
+                <td>
+                    <button id='go_action' type="submit" class="btn btn-primary">提交</button>
+                    <button type="reset" value="Reset" class="btn btn-primary">重置</button>
+                    <button id='go_home' type="button" class="btn btn-primary" onclick="window.location.href='{{ URL_list }}'">清除所有条件</button>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <input name = 'url' value="{{ URL_list }}" hidden="hidden">
+    <br>
+    {% csrf_token %}
+</form>
+</html>

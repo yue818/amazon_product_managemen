@@ -1,0 +1,29 @@
+<style type="text/css">
+        .btn_1{
+            display: inline-block;
+            padding: 6px 12px;
+            margin-bottom: 0;
+            font-size: 18px;
+            font-weight: normal;
+            line-height: 1.428571429;
+            text-align: center;
+            vertical-align: middle;
+            cursor: pointer;
+            background-image: none;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            color: #ffffff;
+            background-color: #555555;
+        }
+</style>
+<div class="messsub">
+    <input type="hidden" id="flag" value="{{ flag }}" />
+    <button id="btc1" class="btn_1" onclick="{location.href='{{ strUrl }}'}"><span style="color:#ffffff;">全部</span></button>
+    <button id="btc2" class="btn_1" onclick="{location.href='{{ strUrl }}handleResults=Y'}"><span style="color:#ffffff;">已处理</span></button>
+    <button id="btc3" class="btn_1" onclick="{location.href='{{ strUrl }}handleResults=W'}"><span style="color:#ffffff;">未处理</span></button>
+    <button id="btc4" class="btn_1" onclick="{location.href='{{ strUrl }}handleResults=H'}"><span style="color:#ffffff;">忽略</span></button>
+</div>
+
+

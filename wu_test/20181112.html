@@ -1,0 +1,41 @@
+
+
+  <br>
+  <a href = "/syndata_by_amazon_api/?operation_type=change&ShopName=%s&seller_sku=%s" style=" padding-top: 10px;">修改</a>
+  <br />
+  <a onclick="enable_id_%s(\'%s\', \'%s\')">上架</a>
+  <script>
+    function enable_id_%s(ShopName, seller_sku) {
+        to_lock(1);
+        layer.confirm(seller_sku + '  请问确定要进行上架吗？',
+            {
+                btn: ['确定','取消'],
+                btn1:function(){
+                    static_refresh('/syndata_by_amazon_api/?operation_type=load&ShopName='+ShopName + '&seller_sku=' + seller_sku)
+                },
+                end:function(){
+                    to_lock(0);
+                }
+            }
+        );
+    }
+  </script>
+
+  <br />
+  <a onclick="disable_id_%s(\'%s\', \'%s\')">下架</a>
+  <script>
+    function disable_id_%s(ShopName, seller_sku) {
+        to_lock(1);
+        layer.confirm(seller_sku + '  请问确定要进行下架吗？',
+            {
+                btn: ['确定','取消'],
+                btn1:function(){
+                    static_refresh('/syndata_by_amazon_api/?operation_type=unload&ShopName='+ShopName + '&seller_sku=' + seller_sku)
+                },
+                end:function(){
+                    to_lock(0);
+                }
+            }
+        );
+    }
+  </script>

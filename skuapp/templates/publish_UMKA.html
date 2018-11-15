@@ -1,0 +1,78 @@
+﻿<style type="text/css">
+        .btn_1{
+            display: inline-block;
+            padding: 6px 12px;
+            margin-bottom: 0;
+            font-size: 14px;
+            font-weight: normal;
+            line-height: 1.428571429;
+            text-align: center;
+            vertical-align: middle;
+            cursor: pointer;
+            background-image: none;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            color: #ffffff;
+            background-color: #555555;
+        }
+		
+		.btn_2 {
+				width:90px;
+				display: inline-block;
+				padding: 6px 8px;
+				margin-bottom: 0;
+				margin-top:5px;
+				margin-left:5px;
+				font-size: 12px;
+				font-weight: normal;
+				line-height: 1.428571429;
+				text-align: center;
+				vertical-align: middle;
+				cursor: pointer;
+				background-image: none;
+				border: 1px solid transparent;
+				border-radius: 6px;
+				-webkit-user-select: none;
+				-moz-user-select: none;
+				color: #ffffff;
+				background-color: #555555;
+			
+			}
+
+        .myInput {
+            line-height: 30px;
+        }
+</style>
+<script type="text/javascript">
+	var btc17 = document.getElementsByName("btc17");	
+	function mytest(){
+	    for(var i = 0;i<btc17.length;i++){
+	         if (btc17[i].style.display == "none"){
+	         		btc17[i].style.display = "inline-block"; 
+	       	 } else {
+	         		btc17[i].style.display = "none";
+	         }
+		}
+	}
+
+</script>
+    <button type="hidden" id="flag" value="{{ flag }}"></button>
+	
+<div>    
+    <a class="btn_1" href="/Project/admin/skuapp/t_online_info_wait_publish_UMKA/" id="btc0">全部商品</a>&nbsp;&nbsp;<button class="btn_1" onclick="mytest()">显示/隐藏</button>
+</div>
+<ul>
+	<li>
+	{% for key,value in countsdict.items %}
+   		<a class="btn_2" style="display:none" href=" {{ url }}?_p_FL__exact={{ key }}&_p_ispublished__exact=未刊登" name="btc17">{{key}}({{ value }})</a>
+	{% endfor %}
+	<li>	
+</ul>
+<br>
+<div>
+    <a class="btn_1" href="{{ url }}?st=yy" id="btc15">已刊登的商品</a>
+    <a class="btn_1" href="{{ url }}?st=nn" id="btc16">未刊登的商品</a>
+</div>
+

@@ -1,0 +1,754 @@
+<html>
+<style>
+    .well-sm {
+        display:none;
+    }
+    .nav-tabs > li.active > a, .nav-tabs > li.active > a:hover, .nav-tabs > li.active > a:focus {
+         color:white;
+         background-color:#428bca;
+    }
+	
+	/* Table Head */
+	#table-7 thead th {
+	background-color: rgb(81, 130, 187);
+	color: #fff;
+	border-bottom-width: 0;
+	}
+
+	/* Column Style */
+	#table-7 td {
+	color: #000;
+	}
+	/* Heading and Column Style */
+	#table-7 tr, #table-7 th {
+	border-width: 1px;
+	border-style: solid;
+	border-color: rgb(81, 130, 187);
+	}
+
+	/* Padding and font style */
+	#table-7 td, #table-7 th {
+	padding: 5px 10px;
+	font-size: 12px;
+	font-family: Verdana;
+	font-weight: bold;
+	}
+	.btn_1 {
+	    display: inline-block;
+	    padding: 6px 12px;
+	    margin-bottom: 0;
+	    font-size: 14px;
+	    font-weight: normal;
+	    line-height: 1.428571429;
+	    text-align: center;
+	    vertical-align: middle;
+	    cursor: pointer;
+	    background-image: none;
+	    border: 1px solid transparent;
+	    border-radius: 6px;
+	    -webkit-user-select: none;
+	    -moz-user-select: none;
+	    color: #fff;
+	    background-color: #555;
+	}
+	.btn_2 {
+	    display: inline-block;
+	    padding: 6px 12px;
+	    margin-bottom: 0;
+	    font-size: 14px;
+	    font-weight: normal;
+	    line-height: 1.428571429;
+	    text-align: center;
+	    vertical-align: middle;
+	    cursor: pointer;
+	    background-image: none;
+	    border: 1px solid transparent;
+	    border-radius: 6px;
+	    -webkit-user-select: none;
+	    -moz-user-select: none;
+	    color: #fff;
+	    background-color: #555;
+	}
+	#container {
+        margin: 20px auto;
+    }
+             
+    #container span {
+        position: relative;
+    }
+             
+    #container .input_check {
+        position: absolute;
+        visibility: hidden;
+    }
+             
+    #container .input_check+label {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        border: 1px solid red;
+    }
+             
+    #container .input_check:checked+label:after {
+        content: "";
+        position: absolute;
+        left: 2px;
+        bottom: 12px;
+        width: 9px;
+        height: 4px;
+        border: 2px solid green;
+        border-top-color: transparent;
+        border-right-color: transparent;
+        -ms-transform: rotate(-60deg);
+        -moz-transform: rotate(-60deg);
+        -webkit-transform: rotate(-60deg);
+        transform: rotate(-45deg);
+    }
+
+</style>
+<script type="text/javascript" src="/static/xadmin/js/kindeditor/kindeditor-all-min.js"></script>  
+<script type="text/javascript" src="/static/xadmin/js/kindeditor/lang/zh-CN.js"></script>  
+<script type="text/javascript" src="/static/xadmin/js/kindeditor/config.js"></script>
+<script>
+function addtab(){
+ var tcount=$("#table-7 tr").length;
+ var tpl='<tr id="s'+tcount+'"><td>'+tcount+'</td><td><textarea rows="2" cols="20" id="Test_sight" name="Test_sight" class="Test_sight" /></td>'+
+         '<td><textarea rows="2" cols="20" id="Test_case" name="Test_case" class="Test_case" /></td>'+
+         '<td><textarea rows="2" cols="20" id="Test_hope_result" name="Test_hope_result" class="Test_hope_result" /></td>'+
+         '<td><select id="Test_result" name="Test_result" disabled="disabled" class="Test_result" style="width:1000px;height:38px"><option value="default" selected="selected">----请选择----</option><option value="yes"><b>通过</b></option><option value="no"><b>不通过</b></option></select></td>'+
+         '<td><textarea rows="2" cols="20" id="Test_developer" class="Test_developer" disabled="disabled" name="Test_developer" /></td>'+
+         '<td><textarea rows="2" cols="20" id="Test_verifier" class="Test_verifier" disabled="disabled" name="Test_verifier" /></td>'+
+         '<td><input type="date" id="Test_verifier_time" class="Test_verifier_time" disabled="disabled" name="Test_verifier_time" /></td>'+
+         '<td><span class="btn_1" onclick="deltab('+tcount+')">删除</span></td></tr>';   
+ $("#table-7").append(tpl);
+}
+function deltab(x){
+$("#s"+x).remove();
+}
+</script>
+
+{% if flag == True %}
+<div style="font-size:20px;font-weight:bold;font-color:red;background-color:orange"><marquee direction=left scrollamount=12>请大家处理自己手中的需求单/问题单,软件需求对接人要时刻清楚自己需求的整体进度,处理人尽快按照计划落实,验证人严格把控好需求偏差度!</marquee></div>
+<center>
+<table border="1" id="table-7">
+	<thead>
+		<th>ID</th>
+		<th width="170px">当前责任人</th>
+		<th width="150px">相关业务对接人</th>
+		<th width="100px">未关闭数量</th>
+	</thead>
+	{% for obj in list_obj %}
+	<tr>
+		<td>{{ forloop.counter }}</td>		
+		<td>{{ obj.username }}/{{ obj.first_name }}</td>
+		<td>{{ obj.xgr }}</td>
+		<td align="center">{{ obj.count }}</td>
+	</tr>
+	{% endfor %}
+	<tr>
+		<td>对接人统计</td>
+		<td colspan = '3'>
+			{% for b in big_list %}
+				{% if usingname == b  %}
+					<font color="red">{{ b }}</font>
+				{% else %}
+					{{ b }}
+				{% endif %}
+			{% endfor %}
+		</td>
+	</tr>
+</table>
+</center>
+{% else %}
+<script type="text/javascript">
+    //下一步
+    function nextStep() {
+        var currIndex = $('.tab-nav nav-tabs li').index($('.tab-pane active'));
+        var nextIndex = currIndex + 1 > divNum-1 ? divNum-1: currIndex + 1;
+        $('.tab-pane li').eq(currIndex).removeClass('tab-pane active');
+        $('.tab-pane li').eq(nextIndex).addClass('tab-pane active');
+        $('.layui-tab-item').eq(currIndex).removeClass('layui-show');
+        $('.layui-tab-item').eq(nextIndex).addClass('layui-show');
+    }
+    //上一步
+    function prevStep(){
+        var currIndex = $('.tab-pane li').index($('.tab-pane active'));
+        var prevIndex = currIndex - 1 < 0 ? 0: currIndex - 1;
+        $('.tab-pane li').eq(currIndex).removeClass('tab-pane active');
+        $('.tab-pane li').eq(prevIndex).addClass('tab-pane active');
+        $('.layui-tab-item').eq(currIndex).removeClass('layui-show');
+        $('.layui-tab-item').eq(prevIndex).addClass('layui-show');
+    }
+    
+    window.onload=function(){
+		fs_obj = document.getElementById("fs").value;
+		tc_man = document.getElementById("tc_man").value;
+		sh_man = document.getElementById("sh_man").value;
+		cl_man = document.getElementById("cl_man").value;
+		yz_man = document.getElementById("yz_man").value;
+		nyz_man = document.getElementById("nyz_man").value;
+		user_obj = document.getElementById("user_obj").value;
+		if(fs_obj == 'TC' & user_obj == tc_man | fs_obj == ''){
+	        $(".nav-tabs li").removeClass( 'active' );
+	    	$(".nav-tabs li").eq(0).addClass( 'active' );
+			document.getElementById("sh").setAttribute("disabled", true);
+			document.getElementById("sh").style.background="gray"; 
+			document.getElementById("cl").setAttribute("disabled", true);
+			document.getElementById("cl").style.background="gray";
+			document.getElementById("nyz").setAttribute("disabled", true);
+			document.getElementById("nyz").style.background="gray";
+			document.getElementById("yz").setAttribute("disabled", true);
+			document.getElementById("yz").style.background="gray";
+			document.getElementById("zf").setAttribute("disabled", true);
+			document.getElementById("zf").style.background="gray";
+			document.getElementById("bhtc").setAttribute("disabled", true);
+			document.getElementById("bhtc").style.background="gray";
+				
+			
+			
+			document.getElementById("sh_bccg").setAttribute("disabled", true);
+			document.getElementById("sh_bccg").style.background="gray";
+			document.getElementById("cl_bccg").setAttribute("disabled", true);
+			document.getElementById("cl_bccg").style.background="gray";
+			document.getElementById("yz_bccg").setAttribute("disabled", true);
+			document.getElementById("yz_bccg").style.background="gray";
+			$("#test_case").insertAfter($("#div_id_Demand_description"));
+			
+		}
+
+		else if(fs_obj == 'SH' & user_obj == sh_man){
+	        $(".nav-tabs li").removeClass( 'active' );
+	    	$(".nav-tabs li").eq(1).addClass( 'active' );
+			$("#a").removeClass( 'active' );
+			$("#b").addClass( 'active' );
+	        document.getElementById("tc").setAttribute("disabled", true);
+			document.getElementById("tc").style.background="gray"; 
+			document.getElementById("cl").setAttribute("disabled", true);
+			document.getElementById("cl").style.background="gray"; 
+			document.getElementById("nyz").setAttribute("disabled", true);
+			document.getElementById("nyz").style.background="gray"; 
+			document.getElementById("yz").setAttribute("disabled", true);
+			document.getElementById("yz").style.background="gray"; 
+			document.getElementById("zf").setAttribute("disabled", true);
+			document.getElementById("zf").style.background="gray";
+			document.getElementById("bhtc").setAttribute("disabled", true);
+			document.getElementById("bhtc").style.background="gray";
+			document.getElementById("wtqx").setAttribute("disabled", true);
+			document.getElementById("wtqx").style.background="gray";
+
+			
+			document.getElementById("tc_bccg").setAttribute("disabled", true);
+			document.getElementById("tc_bccg").style.background="gray";
+			document.getElementById("cl_bccg").setAttribute("disabled", true);
+			document.getElementById("cl_bccg").style.background="gray";
+			document.getElementById("yz_bccg").setAttribute("disabled", true);
+			document.getElementById("yz_bccg").style.background="gray";
+			$("#test_case").insertAfter($("#div_id_Check_info"));
+
+			$('#table-7').find('.Test_result').attr("disabled","disabled");
+			$('#table-7').find('.Test_developer').attr("disabled","disabled");
+			$('#table-7').find('.Test_verifier').attr("disabled","disabled");
+			$('#table-7').find('.Test_verifier_time').attr("disabled","disabled");
+		}
+		else if(fs_obj == 'SH' & user_obj != sh_man){
+	        $(".nav-tabs li").removeClass( 'active' );
+	    	$(".nav-tabs li").eq(1).addClass( 'active' );
+			$("#a").removeClass( 'active' );
+			$("#b").addClass( 'active' );
+			document.getElementById("tc").setAttribute("disabled", true);
+			document.getElementById("tc").style.background="gray"; 
+			document.getElementById("sh").setAttribute("disabled", true);
+			document.getElementById("sh").style.background="gray"; 
+			document.getElementById("cl").setAttribute("disabled", true);
+			document.getElementById("cl").style.background="gray";
+			document.getElementById("nyz").setAttribute("disabled", true);
+			document.getElementById("nyz").style.background="gray"; 
+			document.getElementById("yz").setAttribute("disabled", true);
+			document.getElementById("yz").style.background="gray";	
+			document.getElementById("zf").setAttribute("disabled", true);
+			document.getElementById("zf").style.background="gray";
+			document.getElementById("bhtc").setAttribute("disabled", true);
+			document.getElementById("bhtc").style.background="gray";
+			document.getElementById("wtqx").setAttribute("disabled", true);
+			document.getElementById("wtqx").style.background="gray";
+			
+	
+			document.getElementById("tc_bccg").setAttribute("disabled", true);
+			document.getElementById("tc_bccg").style.background="gray";
+			document.getElementById("sh_bccg").setAttribute("disabled", true);
+			document.getElementById("sh_bccg").style.background="gray";
+			document.getElementById("cl_bccg").setAttribute("disabled", true);
+			document.getElementById("cl_bccg").style.background="gray";
+			document.getElementById("yz_bccg").setAttribute("disabled", true);
+			document.getElementById("yz_bccg").style.background="gray";
+			$("#test_case").insertAfter($("#div_id_Check_info"));
+
+			$('#table-7').find('.Test_sight').attr("disabled","disabled");
+			$('#table-7').find('.Test_case').attr("disabled","disabled");
+			$('#table-7').find('.Test_hope_result').attr("disabled","disabled");
+			$('#table-7').find('.Test_result').attr("disabled","disabled");
+			$('#table-7').find('.Test_developer').attr("disabled","disabled");
+			$('#table-7').find('.Test_verifier').attr("disabled","disabled");
+			$('#table-7').find('.Test_verifier_time').attr("disabled","disabled");
+		}
+
+		else if(fs_obj == 'CL' & user_obj == cl_man){
+	        $(".nav-tabs li").removeClass( 'active' );
+	    	$(".nav-tabs li").eq(2).addClass( 'active' );
+			$("#a").removeClass( 'active' );
+			$("#c").addClass( 'active' );
+			
+			document.getElementById("tc").setAttribute("disabled", true);
+			document.getElementById("tc").style.background="gray"; 
+			document.getElementById("sh").setAttribute("disabled", true);
+			document.getElementById("sh").style.background="gray"; 
+			document.getElementById("nyz").setAttribute("disabled", true);
+			document.getElementById("nyz").style.background="gray"; 
+			document.getElementById("yz").setAttribute("disabled", true);
+			document.getElementById("yz").style.background="gray";
+			document.getElementById("wtqx").setAttribute("disabled", true);
+			document.getElementById("wtqx").style.background="gray";
+			
+			document.getElementById("tc_bccg").setAttribute("disabled", true);
+			document.getElementById("tc_bccg").style.background="gray";
+			document.getElementById("sh_bccg").setAttribute("disabled", true);
+			document.getElementById("sh_bccg").style.background="gray";
+			document.getElementById("yz_bccg").setAttribute("disabled", true);
+			document.getElementById("yz_bccg").style.background="gray";
+			$("#test_case").insertAfter($("#div_id_Task_info"));
+
+			$('#table-7').find('.Test_result').attr("disabled","disabled");
+			$('#table-7').find('.Test_developer').attr("disabled","disabled");
+			$('#table-7').find('.Test_verifier').attr("disabled","disabled");
+			$('#table-7').find('.Test_verifier_time').attr("disabled","disabled");
+		}
+		else if(fs_obj == 'CL' & user_obj != cl_man){
+	        $(".nav-tabs li").removeClass( 'active' );
+	    	$(".nav-tabs li").eq(2).addClass( 'active' );
+			$("#a").removeClass( 'active' );
+			$("#c").addClass( 'active' );
+			document.getElementById("tc").setAttribute("disabled", true);
+			document.getElementById("tc").style.background="gray"; 
+			document.getElementById("sh").setAttribute("disabled", true);
+			document.getElementById("sh").style.background="gray"; 
+			document.getElementById("cl").setAttribute("disabled", true);
+			document.getElementById("cl").style.background="gray";
+			document.getElementById("nyz").setAttribute("disabled", true);
+			document.getElementById("nyz").style.background="gray"; 
+			document.getElementById("yz").setAttribute("disabled", true);
+			document.getElementById("yz").style.background="gray";	
+			document.getElementById("zf").setAttribute("disabled", true);
+			document.getElementById("zf").style.background="gray";
+			document.getElementById("bhtc").setAttribute("disabled", true);
+			document.getElementById("bhtc").style.background="gray";
+			document.getElementById("wtqx").setAttribute("disabled", true);
+			document.getElementById("wtqx").style.background="gray";
+			
+	
+			document.getElementById("tc_bccg").setAttribute("disabled", true);
+			document.getElementById("tc_bccg").style.background="gray";
+			document.getElementById("sh_bccg").setAttribute("disabled", true);
+			document.getElementById("sh_bccg").style.background="gray";
+			document.getElementById("cl_bccg").setAttribute("disabled", true);
+			document.getElementById("cl_bccg").style.background="gray";
+			document.getElementById("yz_bccg").setAttribute("disabled", true);
+			document.getElementById("yz_bccg").style.background="gray";
+			$("#test_case").insertAfter($("#div_id_Task_info"));
+			
+			$('#table-7').find('.Test_sight').attr("disabled","disabled");
+			$('#table-7').find('.Test_case').attr("disabled","disabled");
+			$('#table-7').find('.Test_hope_result').attr("disabled","disabled");
+			$('#table-7').find('.Test_result').attr("disabled","disabled");
+			$('#table-7').find('.Test_developer').attr("disabled","disabled");
+			$('#table-7').find('.Test_verifier').attr("disabled","disabled");
+			$('#table-7').find('.Test_verifier_time').attr("disabled","disabled");
+		}
+
+		else if(fs_obj == 'NYZ' & user_obj == nyz_man){
+	        $(".nav-tabs li").removeClass( 'active' );
+	    	$(".nav-tabs li").eq(3).addClass( 'active' );
+			$("#a").removeClass( 'active' );
+			$("#dit").addClass( 'active' );
+			$("#add_tab").css("display", "none");
+	        document.getElementById("tc").setAttribute("disabled", true);
+			document.getElementById("tc").style.background="gray"; 
+			document.getElementById("sh").setAttribute("disabled", true);
+			document.getElementById("sh").style.background="gray"; 
+			document.getElementById("cl").setAttribute("disabled", true);
+			document.getElementById("cl").style.background="gray"; 
+			document.getElementById("zf").setAttribute("disabled", true);
+			document.getElementById("zf").style.background="gray";
+			document.getElementById("bhtc").setAttribute("disabled", true);
+			document.getElementById("bhtc").style.background="gray";
+			document.getElementById("wtqx").setAttribute("disabled", true);
+			document.getElementById("wtqx").style.background="gray";
+			
+			document.getElementById("tc_bccg").setAttribute("disabled", true);
+			document.getElementById("tc_bccg").style.background="gray";
+			document.getElementById("sh_bccg").setAttribute("disabled", true);
+			document.getElementById("sh_bccg").style.background="gray";
+			document.getElementById("cl_bccg").setAttribute("disabled", true);
+			document.getElementById("cl_bccg").style.background="gray";
+			$("#test_case").insertAfter($("#div_id_Identifier"));
+
+			$('#table-7').find('.Test_sight').attr("disabled","disabled");
+			$('#table-7').find('.Test_case').attr("disabled","disabled");
+			$('#table-7').find('.Test_hope_result').attr("disabled","disabled");						
+			$('#table-7').find('.Test_result').removeAttr("disabled");
+			$('#table-7').find('.Test_developer').removeAttr("disabled");
+			$('#table-7').find('.Test_verifier').removeAttr("disabled");
+		 	$('#table-7').find('.Test_verifier_time').removeAttr("disabled");
+		}
+		else if(fs_obj == 'NYZ' & user_obj != nyz_man){
+	        $(".nav-tabs li").removeClass( 'active' );
+	    	$(".nav-tabs li").eq(3).addClass( 'active' );
+			$("#a").removeClass( 'active' );
+			$("#dit").addClass( 'active' );
+			$("#add_tab").css("display", "none");
+			document.getElementById("tc").setAttribute("disabled", true);
+			document.getElementById("tc").style.background="gray"; 
+			document.getElementById("sh").setAttribute("disabled", true);
+			document.getElementById("sh").style.background="gray"; 
+			document.getElementById("cl").setAttribute("disabled", true);
+			document.getElementById("cl").style.background="gray";
+			document.getElementById("nyz").setAttribute("disabled", true);
+			document.getElementById("nyz").style.background="gray"; 
+			document.getElementById("yz").setAttribute("disabled", true);
+			document.getElementById("yz").style.background="gray";	
+			document.getElementById("zf").setAttribute("disabled", true);
+			document.getElementById("zf").style.background="gray";
+			document.getElementById("bhtc").setAttribute("disabled", true);
+			document.getElementById("bhtc").style.background="gray";
+			document.getElementById("wtqx").setAttribute("disabled", true);
+			document.getElementById("wtqx").style.background="gray";
+			
+	
+			document.getElementById("tc_bccg").setAttribute("disabled", true);
+			document.getElementById("tc_bccg").style.background="gray";
+			document.getElementById("sh_bccg").setAttribute("disabled", true);
+			document.getElementById("sh_bccg").style.background="gray";
+			document.getElementById("cl_bccg").setAttribute("disabled", true);
+			document.getElementById("cl_bccg").style.background="gray";
+			document.getElementById("yz_bccg").setAttribute("disabled", true);
+			document.getElementById("yz_bccg").style.background="gray";
+			$("#test_case").insertAfter($("#div_id_Identifier"));
+			
+			$('#table-7').find('.Test_sight').attr("disabled","disabled");
+			$('#table-7').find('.Test_case').attr("disabled","disabled");
+			$('#table-7').find('.Test_hope_result').attr("disabled","disabled");
+			$('#table-7').find('.Test_result').attr("disabled","disabled");
+			$('#table-7').find('.Test_developer').attr("disabled","disabled");
+			$('#table-7').find('.Test_verifier').attr("disabled","disabled");
+			$('#table-7').find('.Test_verifier_time').attr("disabled","disabled");
+		}
+		else if(fs_obj == 'YZ' & user_obj == yz_man){
+	        $(".nav-tabs li").removeClass( 'active' );
+	    	$(".nav-tabs li").eq(4).addClass( 'active' );
+			$("#a").removeClass( 'active' );
+			$("#e").addClass( 'active' );
+			$("#add_tab").css("display", "none");
+	        document.getElementById("tc").setAttribute("disabled", true);
+			document.getElementById("tc").style.background="gray"; 
+			document.getElementById("sh").setAttribute("disabled", true);
+			document.getElementById("sh").style.background="gray"; 
+			document.getElementById("cl").setAttribute("disabled", true);
+			document.getElementById("cl").style.background="gray"; 
+			document.getElementById("nyz").setAttribute("disabled", true);
+			document.getElementById("nyz").style.background="gray"; 
+			document.getElementById("zf").setAttribute("disabled", true);
+			document.getElementById("zf").style.background="gray";
+			document.getElementById("bhtc").setAttribute("disabled", true);
+			document.getElementById("bhtc").style.background="gray";
+			document.getElementById("wtqx").setAttribute("disabled", true);
+			document.getElementById("wtqx").style.background="gray";
+			
+			document.getElementById("tc_bccg").setAttribute("disabled", true);
+			document.getElementById("tc_bccg").style.background="gray";
+			document.getElementById("sh_bccg").setAttribute("disabled", true);
+			document.getElementById("sh_bccg").style.background="gray";
+			document.getElementById("cl_bccg").setAttribute("disabled", true);
+			document.getElementById("cl_bccg").style.background="gray";
+			$("#test_case").insertAfter($("#div_Identifier"));
+			
+			$('#table-7').find('.Test_sight').attr("disabled","disabled");
+			$('#table-7').find('.Test_case').attr("disabled","disabled");
+			$('#table-7').find('.Test_hope_result').attr("disabled","disabled");
+			$('#table-7').find('.Test_result').attr("disabled","disabled");
+			$('#table-7').find('.Test_developer').attr("disabled","disabled");
+			$('#table-7').find('.Test_verifier').attr("disabled","disabled");
+			$('#table-7').find('.Test_verifier_time').attr("disabled","disabled");
+		}
+		else if(fs_obj == 'YZ' & user_obj != yz_man){
+	        $(".nav-tabs li").removeClass( 'active' );
+	    	$(".nav-tabs li").eq(4).addClass( 'active' );
+			$("#a").removeClass( 'active' );
+			$("#e").addClass( 'active' );
+			$("#add_tab").css("display", "none");
+			document.getElementById("tc").setAttribute("disabled", true);
+			document.getElementById("tc").style.background="gray"; 
+			document.getElementById("sh").setAttribute("disabled", true);
+			document.getElementById("sh").style.background="gray"; 
+			document.getElementById("cl").setAttribute("disabled", true);
+			document.getElementById("cl").style.background="gray";
+			document.getElementById("nyz").setAttribute("disabled", true);
+			document.getElementById("nyz").style.background="gray"; 
+			document.getElementById("yz").setAttribute("disabled", true);
+			document.getElementById("yz").style.background="gray";	
+			document.getElementById("zf").setAttribute("disabled", true);
+			document.getElementById("zf").style.background="gray";
+			document.getElementById("bhtc").setAttribute("disabled", true);
+			document.getElementById("bhtc").style.background="gray";
+			document.getElementById("wtqx").setAttribute("disabled", true);
+			document.getElementById("wtqx").style.background="gray";
+			
+	
+			document.getElementById("tc_bccg").setAttribute("disabled", true);
+			document.getElementById("tc_bccg").style.background="gray";
+			document.getElementById("sh_bccg").setAttribute("disabled", true);
+			document.getElementById("sh_bccg").style.background="gray";
+			document.getElementById("cl_bccg").setAttribute("disabled", true);
+			document.getElementById("cl_bccg").style.background="gray";
+			document.getElementById("yz_bccg").setAttribute("disabled", true);
+			document.getElementById("yz_bccg").style.background="gray";
+			$("#test_case").insertAfter($("#div_Identifier"));
+			
+			$('#table-7').find('.Test_sight').attr("disabled","disabled");
+			$('#table-7').find('.Test_case').attr("disabled","disabled");
+			$('#table-7').find('.Test_hope_result').attr("disabled","disabled");
+			$('#table-7').find('.Test_result').attr("disabled","disabled");
+			$('#table-7').find('.Test_developer').attr("disabled","disabled");
+			$('#table-7').find('.Test_verifier').attr("disabled","disabled");
+			$('#table-7').find('.Test_verifier_time').attr("disabled","disabled");
+		}
+		else if(fs_obj == 'GB'){
+	        $(".nav-tabs li").removeClass( 'active' );
+	    	$(".nav-tabs li").eq(5).addClass( 'active' );
+			$("#a").removeClass( 'active' );
+			$("#f").addClass( 'active' );
+			$("#add_tab").css("display", "none");
+	        document.getElementById("tc").setAttribute("disabled", true);
+			document.getElementById("tc").style.background="gray"; 
+			document.getElementById("sh").setAttribute("disabled", true);
+			document.getElementById("sh").style.background="gray"; 
+			document.getElementById("cl").setAttribute("disabled", true);
+			document.getElementById("cl").style.background="gray";
+			document.getElementById("nyz").setAttribute("disabled", true);
+			document.getElementById("nyz").style.background="gray"; 
+			document.getElementById("yz").setAttribute("disabled", true);
+			document.getElementById("yz").style.background="gray";
+			document.getElementById("zf").setAttribute("disabled", true);
+			document.getElementById("zf").style.background="gray";
+			document.getElementById("bhtc").setAttribute("disabled", true);
+			document.getElementById("bhtc").style.background="gray";
+			document.getElementById("wtqx").setAttribute("disabled", true);
+			document.getElementById("wtqx").style.background="gray";
+			
+			document.getElementById("tc_bccg").setAttribute("disabled", true);
+			document.getElementById("tc_bccg").style.background="gray";
+			document.getElementById("sh_bccg").setAttribute("disabled", true);
+			document.getElementById("sh_bccg").style.background="gray";
+			document.getElementById("cl_bccg").setAttribute("disabled", true);
+			document.getElementById("cl_bccg").style.background="gray";
+			document.getElementById("yz_bccg").setAttribute("disabled", true);
+			document.getElementById("yz_bccg").style.background="gray";
+			$("#test_case").insertAfter($("#div_Identifier"));
+			
+			$('#table-7').find('.Test_sight').attr("disabled","disabled");
+			$('#table-7').find('.Test_case').attr("disabled","disabled");
+			$('#table-7').find('.Test_hope_result').attr("disabled","disabled");
+			$('#table-7').find('.Test_result').attr("disabled","disabled");
+			$('#table-7').find('.Test_developer').attr("disabled","disabled");
+			$('#table-7').find('.Test_verifier').attr("disabled","disabled");
+			$('#table-7').find('.Test_verifier_time').attr("disabled","disabled");
+		}
+		else{
+			$("#add_tab").css("display", "none");
+			document.getElementById("tc").setAttribute("disabled", true);
+			document.getElementById("tc").style.background="gray"; 
+			document.getElementById("sh").setAttribute("disabled", true);
+			document.getElementById("sh").style.background="gray"; 
+			document.getElementById("cl").setAttribute("disabled", true);
+			document.getElementById("cl").style.background="gray";
+			document.getElementById("nyz").setAttribute("disabled", true);
+			document.getElementById("nyz").style.background="gray"; 
+			document.getElementById("yz").setAttribute("disabled", true);
+			document.getElementById("yz").style.background="gray";	
+			document.getElementById("zf").setAttribute("disabled", true);
+			document.getElementById("zf").style.background="gray";
+			document.getElementById("bhtc").setAttribute("disabled", true);
+			document.getElementById("bhtc").style.background="gray";
+			document.getElementById("wtqx").setAttribute("disabled", true);
+			document.getElementById("wtqx").style.background="gray";
+			
+	
+			document.getElementById("tc_bccg").setAttribute("disabled", true);
+			document.getElementById("tc_bccg").style.background="gray";
+			document.getElementById("sh_bccg").setAttribute("disabled", true);
+			document.getElementById("sh_bccg").style.background="gray";
+			document.getElementById("cl_bccg").setAttribute("disabled", true);
+			document.getElementById("cl_bccg").style.background="gray";
+			document.getElementById("yz_bccg").setAttribute("disabled", true);
+			document.getElementById("yz_bccg").style.background="gray";
+
+			$("#test_case").insertAfter($("#div_id_Demand_description"));
+			$('#table-7').find('.Test_sight').attr("disabled","disabled");
+			$('#table-7').find('.Test_case').attr("disabled","disabled");
+			$('#table-7').find('.Test_hope_result').attr("disabled","disabled");
+			$('#table-7').find('.Test_result').attr("disabled","disabled");
+			$('#table-7').find('.Test_developer').attr("disabled","disabled");
+			$('#table-7').find('.Test_verifier').attr("disabled","disabled");
+			$('#table-7').find('.Test_verifier_time').attr("disabled","disabled");
+
+		}	
+    }
+	
+	$(document).ready(function(){  
+		$("#add_log").insertAfter($("#log"));
+		var ts_id = $("#ts_id").val();
+		//alert(ts_id);
+		var cl_man = $("#cl_man").val();
+		$('#zf').on('click',function(){layer.open({type:2,skin:'layui-layer-lan',title:'指定任务转发:',fix:false,shadeClose: true,maxmin:true,area:['700px','500px'],content:'/t_task_trunk/trunk/?cc='+ts_id+'&dd='+cl_man,});});		
+		$('#cl_bccg').on('click', function(){ 
+			var Task_status = $("#id_Task_status").serialize();
+			var Task_status = Task_status.substring(Task_status.indexOf('=')+1);
+			var Task_info = $("#id_Task_info").serialize();
+			var Task_info = Task_info.substring(Task_info.indexOf('=')+1);			
+			var Identifier = $("#id_Identifier").serialize();
+			var Identifier = Identifier.substring(Identifier.indexOf('=')+1);						
+			$("#t_task_trunk_form").attr("action",'/t_task_trunk/trunk_form/?Task_status='+Task_status+'&Task_info='+Task_info+'&Identifier='+Identifier+'&ts_id='+ts_id+'&fs_obj='+fs_obj).submit();
+		});
+		
+		$('#sh_bccg').on('click', function(){ 
+			var Check_result = $("#id_Check_result").serialize();
+			var Check_result = Check_result.substring(Check_result.indexOf('=')+1);
+			var Check_info = $("#id_Check_info").serialize();
+			var Check_info = Check_info.substring(Check_info.indexOf('=')+1);			
+			var Task_handler = $("#id_Task_handler").serialize();
+			var Task_handler = Task_handler.substring(Task_handler.indexOf('=')+1);
+			var Ask_time = $("#id_Ask_time").serialize();
+			//alert(Ask_time);
+			var Ask_time = Ask_time.substring(Ask_time.indexOf('=')+1);			
+								
+			$("#t_task_trunk_form").attr("action",'/t_task_trunk/trunk_form/?Check_result='+Check_result+'&Check_info='+Check_info+'&Task_handler='+Task_handler+'&ts_id='+ts_id+'&fs_obj='+fs_obj).submit();
+		});
+
+		$('#yz_bccg').on('click', function(){ 
+			var Identifier_result = $("#id_Identifier_result").serialize();
+			var Identifier_result = Identifier_result.substring(Identifier_result.indexOf('=')+1);
+			var Identifier_info = $("#id_Identifier_info").serialize();
+			var Identifier_info = Identifier_info.substring(Identifier_info.indexOf('=')+1);									
+			$("#t_task_trunk_form").attr("action",'/t_task_trunk/trunk_form/?Identifier_result='+Identifier_result+'&Identifier_info='+Identifier_info+'&ts_id='+ts_id+'&fs_obj='+fs_obj).submit();
+		});		
+		
+		
+		$('#tc_bccg').on('click', function(){ 
+			var Flow_type = $("#id_Flow_type").serialize();
+			var Flow_type = Flow_type.substring(Flow_type.indexOf('=')+1);
+			var Demand_name = $("#id_Demand_name").serialize();
+			var Demand_name = Demand_name.substring(Demand_name.indexOf('=')+1);			
+			var Demand_description = $("#id_Demand_description").serialize();
+			var Demand_description = Demand_description.substring(Demand_description.indexOf('=')+1);
+			
+			var Check_man = $("#id_Check_man").serialize();
+			var Check_man = Check_man.substring(Check_man.indexOf('=')+1);	
+			
+			var Pre_Identifier = $("#id_Pre_Identifier").serialize();
+			var Pre_Identifier = Pre_Identifier.substring(Pre_Identifier.indexOf('=')+1);
+	
+			var Hope_time = $("#id_Hope_time").serialize();
+			var Hope_time = Hope_time.substring(Hope_time.indexOf('=')+1);
+													
+			$("#t_task_trunk_form").attr("action",'/t_task_trunk/trunk_form/?Flow_type='+Flow_type+'&Demand_name='+Demand_name+'&Demand_description='+Demand_description+'&Check_man='+Check_man+'&Pre_Identifier='+Pre_Identifier+'&ts_id='+ts_id+'&fs_obj='+fs_obj).submit();
+		});
+		
+		$('#bhtc').on('click', function(){
+			var Task_info = $("#id_Task_info").serialize();
+			var Task_info = Task_info.substring(Task_info.indexOf('=')+1);			
+			var Task_handler = $("#id_Task_handler").serialize();
+			var Task_handler = Task_handler.substring(Task_handler.indexOf('=')+1);
+			var Create_man = $("#tc_man").val();
+			var r=confirm("确定驳回到问题提交处?可以在处理备注中添加驳回原因,方便在日志中查看！");
+			if(r){  								
+				$("#t_task_trunk_form").attr("action",'/t_task_trunk/bhtc/?ts_id='+ts_id+'&Task_info='+Task_info+'&Task_handler='+Task_handler+'&Create_man='+Create_man).submit();
+			}
+		});
+		
+		$('#wtqx').on('click', function(){
+			var Create_man = $("#tc_man").val();
+			var r=confirm("确定取消问题单?");
+			if(r){  								
+				$("#t_task_trunk_form").attr("action",'/t_task_trunk/wtqx/?ts_id='+ts_id+'&Create_man='+Create_man).submit();
+			}
+		});	
+	});  
+    
+</script>
+<input id="fs" name="fs" type="hidden" value="{{ fs }}" />
+<input id="user_obj" type="hidden" value="{{ user_obj }}" />
+<input id="ts_id" name="ts_id" type="hidden" value="{{ task_id }}" />
+<input id="tc_man" type="hidden" value="{{ t_task_trunk_obj.Create_man }}" />
+<input id="sh_man" type="hidden" value="{{ t_task_trunk_obj.Check_man }}" />
+<input id="cl_man" type="hidden" value="{{ t_task_trunk_obj.Task_handler }}" />
+<input id="yz_man" type="hidden" value="{{ t_task_trunk_obj.Identifier }}" />
+<input id="nyz_man" type="hidden" value="{{ t_task_trunk_obj.In_Identifier }}" />
+<center><div class="btn btn-primary" style="font-size:x-large;font-weight:bolder">当前流程进度：<font color="orange">{{ flow_status }}</font>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp当前责任人：<font color="orange">{{ Current_chargeman }}</font>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp最后更新时间:{{ last_update_time }}</div></center>
+
+
+<div id="test_case">
+<label for="cc" class="control-label">
+                测试用例:<br><span id="add_tab" class="btn_2" onclick="addtab()">增加</span>
+            </label>
+
+&nbsp;<table id="table-7" class="selectize-control adminselectwidget form-control single">
+  <thead>
+    <th>ID</th>
+	<th>测试场景</th>
+	<th>测试用例</th>
+	<th>期望结果</th>
+	<th>测试结果</th>		
+	<th>开发人</th>
+	<th>验证人</th>
+	<th>验证时间</th>
+	<th>操作</th>
+ </thead>
+ 	{% for t_task_trunk_case_obj in t_task_trunk_case_objs %}
+	<tr>
+		<td><font color="red"><b>✓</b></font></td>
+		<td><textarea rows="2" cols="20" id="Test_sight" class="Test_sight" name="Test_sight">{{ t_task_trunk_case_obj.Test_sight|default:'' }}</textarea></td>
+		<td><textarea rows="2" cols="20" id="Test_case" class="Test_case" name="Test_case">{{ t_task_trunk_case_obj.Test_case|default:'' }}</textarea></td>
+		<td><textarea rows="2" cols="20" id="Test_hope_result" class="Test_hope_result" name="Test_hope_result">{{ t_task_trunk_case_obj.Test_hope_result|default:'' }}</textarea></td>
+		<td><select id="Test_result"  name="Test_result" class="Test_result" style="width:1000px;height:38px"><option value="default" selected="selected">----请选择----</option><option value="yes"><b>通过</b></option><option value="no"><b>不通过</b></option></select></td>
+		<td><textarea rows="2" cols="20" disabled="disabled" id="Test_developer" class="Test_developer" name="Test_developer">{{ t_task_trunk_case_obj.Test_developer|default:'' }}</textarea></td>
+		<td><textarea rows="2" cols="20" disabled="disabled" id="Test_verifier" class="Test_verifier" name="Test_verifier">{{ t_task_trunk_case_obj.Test_verifier|default:'' }}</textarea></td>
+		<td><input id="Test_verifier_time" disabled="disabled" name="Test_verifier_time" class="Test_verifier_time" type="text" value="{{ t_task_trunk_case_obj.Test_verifier_time|default:'' }}" /></td>
+		<td><span class="btn_1" onclick="deltab('+tcount+')">删除</span></td>
+	</tr>
+	{% endfor %}
+</table>
+</div>
+
+
+<div id="add_log">
+<table border="1" id="table-7">
+	<thead>
+		<th>ID</th>
+		<th>流程处理</th>
+		<th>处理结果</th>
+		<th>处理备注</th>
+		<th>处理人</th>
+		<th>处理时间</th>
+	</thead>
+	{% for t_task_operation_log_obj in t_task_operation_log_objs %}
+	<tr>
+		<td>{{ forloop.revcounter }}</td>
+		<td>{{ t_task_operation_log_obj.Flow_way_status }}</td>
+		<td>{{ t_task_operation_log_obj.Flow_handle_result }}</td>
+		<td>{{ t_task_operation_log_obj.Flow_handle_remark }}</td>
+		<td>{{ t_task_operation_log_obj.Flow_handle_man }}</td>
+		<td>{{ t_task_operation_log_obj.Flow_handle_time }}</td>
+	</tr>
+	{% endfor %}
+</table>
+</div>
+{% endif %}
+</html>

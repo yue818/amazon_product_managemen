@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>更新订单最大购买数量</title>
+</head>
+<link href="https://cdn.bootcss.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://cdn.bootcss.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<style>
+    {% if data %}
+    #xxform{
+        display: none;
+    }
+    {% else %}
+    .container{
+        display: none;
+    }
+    {% endif %}
+</style>
+<body>
+<br><br><br><br><br><br><br><br>
+&nbsp;&nbsp;&nbsp;&nbsp;
+<div class="btn-group" role="group" aria-label="...">
+  <button type="button" class="btn btn-default" onclick="location='/Project/admin/skuapp/t_task_trunk/?status=mytask&Flow_Status=TC,SH,CL,YZ'">返回主页</button>
+</div>
+<div id="xxform" align="center">
+    <form action="" method="post" class="form-inline">
+        {% csrf_token %}
+        <div class="form-group" >
+        <label style="font-size: large">请输入天数:&nbsp;&nbsp;</label>
+        <input type="text" name="num" class="form-control">
+        </div>
+        <button type="submit" class="btn btn-default" >提交</button>
+    </form>
+</div>
+<br><br>
+<div class="container">
+<div class="jumbotron" align="center">
+    <h1>{{ data }}</h1>
+</div>
+</div>
+
+</body>
+</html>

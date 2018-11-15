@@ -1,0 +1,49 @@
+<!--内容部分开始-->
+<div class="main" id="main">
+    <!-- link rel="stylesheet" href="/static/searchnav/css/search.nav.daterangepicker.css"-->
+    <link href="/static/searchnav/css/search.nav.index.css" type="text/css" rel="stylesheet">
+    <!--script src="/static/searchnav/js/jquery.min-2.1.1.js"></script>
+    <script src="/static/searchnav/js/search.nav.moment.min.js"></script>
+    <script src="/static/searchnav/js/search.nav.daterangepicker.js"></script>
+    <script src="/static/searchnav/js/search.nav.vue.js"></script-->
+    <!--右边开始-->
+    <div class="right">
+        <div class="big">
+            <ul>                
+                  <li  class="none_bottom">
+                      <div class="title">产品类目标识 ：</div>
+                      <div class="rightmost1">
+                              <ul class="table-responsive" style="border:0;height: 46px;">
+                                 <div style="float: left">
+                                      &nbsp;&nbsp;
+                                      一级类目：&nbsp;
+                                      <select id="p1cname" class="select_input" onchange="changeCatagory1();"><option value="All"  selected>All</option></select>
+                                      &nbsp; &nbsp;
+                                      二级类目：
+                                      <select id="p2cname" class="select_input" onchange="changeCatagory2();"><option value="All"  selected>All</option></select>
+                                      &nbsp;&nbsp;
+                                      三级类目：&nbsp;
+                                      <select id="p3cname" class="select_input" onchange="changeCatagory3();"><option value="All"  selected>All</option></select>
+                                      &nbsp;&nbsp;
+                                      四级类目：&nbsp;
+                                      <select id="p4cname" class="select_input" onchange="changeCatagory4();"><option value="All"  selected>All</option></select>
+                                      &nbsp;&nbsp;
+                                      五级类目：&nbsp;
+                                      <select id="p5cname" class="select_input"></select>
+                                  </div>
+                              </ul>
+                      </div>
+                      &nbsp;&nbsp;    
+                      <span class="search">
+                        <a onclick="getSearch()">搜&nbsp;&nbsp;&nbsp;索</a>
+                        &nbsp;&nbsp;
+                        <a onclick="cleared()">重&nbsp;&nbsp;&nbsp;置</a>
+                        
+                        <a onclick="refreshCatagory()" style="display:none;">刷新类目信息</a>
+                      </span>
+                </li>                         
+            </ul>
+        </div>
+    </div>
+</div>
+<div id="cata_department_desc" style="display:none;" cata_department_desc="{{cata_department_desc}}" cata_of_platform="{{cata_of_platform}}" ></div>

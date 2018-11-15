@@ -1,0 +1,92 @@
+@charset "utf-8";
+/* CSS Document */
+
+*{padding:0; margin:0; outline:none;}
+.main{font-family:"微软雅黑"; font-size:14px;}
+ul,li{list-style:none;}
+input{font-family:"微软雅黑"}
+a{ text-decoration:none;}
+.exit:hover{cursor: pointer;}
+
+.look_button:hover{  cursor: pointer;  }
+.demo_4:hover{  cursor: pointer;  }
+.img-table:hover{  cursor: pointer;  }
+.merchant:hover{  cursor: pointer;  }
+
+.main{margin:0 auto; padding:15px 0 0 0;}
+.main .right{padding:0 0 0 0;float: left;}
+.main .right .big{padding:5px 0 0 0;}
+.main .right .big ul li{  overflow:hidden;}
+.main .right .big ul li .title{ float: left;  width: 120px;  text-align: center;  font-weight: bold;  color: #19191a;}
+.main .right .big ul li .rightmost{ float: left;  display: inline-block;  width: 200px;  margin-top: 2px;}
+
+
+.main .right .big ul li .rightmost ul{border:0}
+.main .right .big ul li .rightmost ul li{ float:left;}
+.main .right .big ul li .rightmost ul li.style_li_1{ padding:0px 5px;}
+.main .right .big ul li .rightmost ul li.style_li_2{ width:60px; text-align:center;}
+.main .right .big ul li .rightmost ul li.style_li_3{width:65px;}
+.main .right .big ul li .rightmost ul li.style_li_4{width:65px;}
+.main .right .big ul li .rightmost ul li.style_li_5{width:65px;}
+.main .right .big ul li .rightmost ul li.style_li_6{width:85px;}
+
+.main .right .big ul li .rightmost ul li a{     color: #1a1a1a;
+    padding: 0px 3px;
+    border-radius: 2px;
+    display: inline-block;
+    height: 22px;
+    line-height: 22px;}
+.main .right .big ul li .rightmost ul li a:hover{cursor: pointer;}
+.main .right .big ul li .rightmost ul li a.style_a_1{}
+.main .right .big ul li .rightmost ul li a.style_a_2{}
+.main .right .big ul li .rightmost ul li a.style_a_3{}
+.main .right .big ul li .rightmost ul li a.style_a_4{}
+.main .right .big ul li .rightmost ul li a.style_a_5{}
+.main .right .big ul li .rightmost ul li a.style_a_6{}
+
+.main .right .big ul li .rightmost ul li a.style_a_7{}
+.main .right .big ul li .rightmost ul li a.on, .main .right .big ul li .rightmost a:hover{ background:#4891d5; color:#fff;}
+.main .right .big ul li .input_box{color:#666; float:left; display:inline-block; }
+.main .right .big ul li .input_box p{float:left; height:31px; overflow:hidden; line-height:40px;line-height:14px;}
+.main .right .big ul li .input_box p.input_box_p01{ margin: 6px 5px 0 5px; }
+.main .right .big ul li .input_box p.input_box_p02{margin:15px 5px 0 0;}
+.main .right .big ul li .input_box p.input_box_p03{margin: 6px 5px 0 5px;}
+.main .right .big ul li .rightmost1{ float:left; display:inline-block;padding: 0 5px 0 5px;}
+.main .right .big ul li .rightmost1 ul li a.on, .main .right .big ul li .rightmost a:hover{ background:#4891d5; color:#fff;}
+.main .right .big ul li .rightmost1 ul li a{ color:#1a1a1a;padding:0px 5px; border-radius:2px; display:inline-block; height:22px; line-height:22px;}
+.main .right .big ul li .rightmost1 ul li a{  height:22px; line-height:22px;}
+
+
+.select_input{
+    font-family: 微软雅黑;
+    -moz-appearance:none;
+    -webkit-appearance:none;
+    background:url(/static/searchnav/image/arrow.png) no-repeat scroll right center transparent;
+    padding:3px 25px 2px 10px;
+    padding-right:10px;
+    margin:4px 0 0 0;
+    font-family: auto;
+    font-size: inherit;
+    line-height: 18px;
+    width: 100px;
+}
+.select_input:hover{cursor: pointer}
+.main .right .big ul li.none_bottom{border-bottom:0px solid #000;height:43px; line-height:42px; overflow:hidden; position:relative; padding: 0 0 5px 0;}
+
+.main .right .big ul li.none_bottom.border{
+    border-bottom: 1px;
+    border-bottom:none;
+}
+
+.search {height:22px; line-height:22px;}
+.search:hover{  cursor: pointer;  }
+.search a{ background-color:#f77a78;color:#fff; font-size:14px;text-decoration:none; padding:5px 20px 5px 20px;border-radius:2px; }
+
+.right ul li{background:url(../image/dotted.jpg) 0 bottom repeat-x;height: 46px; line-height: 46px;}
+.right ul li.height{height: 50px; line-height: 50px;}
+
+
+.nav{height:28px;line-height:28px;margin:8px 10px 0 5px; padding:0px;display: inline-block; float: left;}
+.nav a{font-size:14px; color:#19191a; padding:0 10px; display:inline-block; float:left;text-decoration:none;}
+.nav a.none{border:none;}
+.nav a.on, .nav a:hover{background-color:#1da6f2; color:#fff;border:none;}

@@ -1,0 +1,137 @@
+
+<br>
+<div>
+
+{% load skuapp_tags %}
+{% if t_product_mainsku_sku_objs_count == 0 %}
+
+    <div style="display:none;">
+            <table border="1"  id="table_t_product_mainsku_sku" style="display:none;">
+            <tr id ="tr_t_product_mainsku_sku">
+
+                    <th>子SKU编号(不包括主SKU编号)</th>
+                    <th>商品SKU属性</th>
+                    <th>单价(¥元)</th>
+                    <th>克重(g)</th>
+                    <th>包装规格</th>
+                    <th>最小包装数</th>
+                    <th>服装类信息</th>
+                    <th>供应商链接</th>
+                </tr>
+
+                {% for t_product_mainsku_sku_obj in t_product_mainsku_sku_objs %}
+                    <div id="div2" style="display:none;">
+                    <input type="text" name="object_id" value="{{t_product_mainsku_sku_obj.pid}}" />
+                    </div>
+
+                    <tr>
+
+                        <td>
+                             <input type="text" name="SKU_{{ forloop.counter0 }}" value= "{{t_product_mainsku_sku_obj.SKU}}" >
+                        </td>
+                        <td>
+                            <input type="text" name="SKUATTRS_{{ forloop.counter0 }}" value= "{{t_product_mainsku_sku_obj.SKUATTRS}}" >
+                        </td>
+                        <td>
+                            <input type="text" name="UnitPrice_{{ forloop.counter0 }}" value= "{{t_product_mainsku_sku_obj.UnitPrice}}" >
+                        </td>
+                        <td>
+                            <input type="text" name="Weight_{{ forloop.counter0 }}" value= "{{t_product_mainsku_sku_obj.Weight}}" >
+                        </td>
+                         <td>
+                             <select name = "select_{{ forloop.counter0 }}" id="id_select" class="selectpicker bla bla bli"  data-live-search="true">
+
+                                 {% if t_product_mainsku_sku_obj.pid %}{%  display_packing2  t_product_mainsku_sku_obj.PackNID  %}{% endif %}
+                               </select>
+                        </td>
+                        <td>
+                            <input type="text" name="MinPackNum_{{ forloop.counter0 }}" value= "{{t_product_mainsku_sku_obj.MinPackNum}}" >
+                        </td>
+                        <td>
+                            <textarea type="text" name="DressInfo_{{ forloop.counter0 }}" >{{t_product_mainsku_sku_obj.DressInfo}} </textarea>
+                        </td>
+                        <td>
+                            <input type="text" name="SupplierLink_{{ forloop.counter0 }}" value= "{{t_product_mainsku_sku_obj.SupplierLink|default:''}}" >
+                        </td>
+                    </tr>
+                {% endfor %}
+
+                </table>
+
+                <div style="display:none;" >
+                    <br>
+                        <label >子SKU数量:</label>
+                        <input type="text" name="mainsku_sku_num" value= "1" >
+                        <input id="bntaddmainsku_sku" type="button"  value="增加子SKU" />
+                    <br>
+                </div>
+    </div>
+{% else %}
+
+    <div >
+        <table border="1"  id="table_t_product_mainsku_sku">
+        <tr id ="tr_t_product_mainsku_sku">
+
+            <th>子SKU编号(不包括主SKU编号)</th>
+            <th>商品SKU属性</th>
+            <th>单价(¥元)</th>
+            <th>克重(g)</th>
+            <th>包装规格</th>
+            <th>最小包装数</th>
+            <th>服装类信息</th>
+			<th>供应商链接</th>
+        </tr>
+
+        {% for t_product_mainsku_sku_obj in t_product_mainsku_sku_objs %}
+            <div id="div2" style="display:none;">
+            <input type="text" name="object_id" value="{{t_product_mainsku_sku_obj.pid}}" />
+            </div>
+
+            <tr>
+
+                <td>
+                     <input type="text" name="SKU_{{ forloop.counter0 }}" value= "{{t_product_mainsku_sku_obj.SKU}}" >
+                </td>
+                <td>
+                    <input type="text" name="SKUATTRS_{{ forloop.counter0 }}" value= "{{t_product_mainsku_sku_obj.SKUATTRS}}" >
+                </td>
+                <td>
+                    <input type="text" name="UnitPrice_{{ forloop.counter0 }}" value= "{{t_product_mainsku_sku_obj.UnitPrice}}" >
+                </td>
+                <td>
+                    <input type="text" name="Weight_{{ forloop.counter0 }}" value= "{{t_product_mainsku_sku_obj.Weight}}" >
+                </td>
+                 <td>
+                     <select name = "select_{{ forloop.counter0 }}" id="id_select" class="selectpicker bla bla bli"  data-live-search="true">
+
+                         {% if t_product_mainsku_sku_obj.pid %}{%  display_packing2  t_product_mainsku_sku_obj.PackNID  %}{% endif %}
+                       </select>
+                </td>
+                <td>
+                    <input type="text" name="MinPackNum_{{ forloop.counter0 }}" value= "{{t_product_mainsku_sku_obj.MinPackNum}}" >
+                </td>
+                <td>
+                    <textarea type="text" name="DressInfo_{{ forloop.counter0 }}" >{{t_product_mainsku_sku_obj.DressInfo}} </textarea>
+                </td>
+                <td>
+                    <input type="text" name="SupplierLink_{{ forloop.counter0 }}" value= "{{t_product_mainsku_sku_obj.SupplierLink|default:''}}" >
+                </td>
+            </tr>
+        {% endfor %}
+
+        </table>
+        <div >
+            <br>
+                <label >子SKU数量:</label>
+                <input type="text" name="mainsku_sku_num" value= "1" >
+                <input id="bntaddmainsku_sku" type="button"  value="增加子SKU" />
+            <br>
+        </div>
+    </div>
+{% endif %}
+
+
+
+</div>
+<br>
+

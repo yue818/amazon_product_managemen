@@ -1,0 +1,58 @@
+<script src="/static/xadmin/js/jquery-1.7.1.min.js" type="text/javascript"></script>
+<script type="text/javascript" src="/Project/admin/jsi18n/"></script>
+<script type="text/javascript">
+
+$(document).ready(function(){
+var url_location=window.location.href;
+len=url_location.split('/').length;
+var url_location=url_location.split('/')[len-3];
+$("#div_id_MainSKU").append('<font size="4px"><b id="hint" style="color:red"></b></font>');
+
+$("#id_MainSKU").on('input',function(){
+ 
+var id_MainSKU = $(this).val().trim();
+
+
+
+
+$.ajax({
+    url: "/repeat_sku/",
+    type: "POST",
+    contentType: "application/x-www-form-urlencoded:charset=UTF-8",
+    dataType: "json",
+    data:{
+         'url_location':url_location,
+         'id_MainSKU': id_MainSKU,
+    },
+    success: function(MainSKU){
+   
+        hello=String(MainSKU.SKU);
+        
+        if (hello=="repeat_yes"){
+            $("#hint").text("主/组合sku重复存在");
+            $("#hint").css("color","red");
+        }
+        else {
+            $("#hint").text("主/组合sku未重复");
+            $("#hint").css("color","green");
+        }
+           
+            if(id_MainSKU.length==0){
+             $("#hint").text("");
+        }
+      
+       console.log(len);
+        console.log(url_location);
+
+    },
+    error: function(){
+        
+
+    }
+  });
+
+
+});
+
+});
+</script>

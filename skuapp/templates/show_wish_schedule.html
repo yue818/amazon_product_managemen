@@ -1,0 +1,105 @@
+<style>
+		.basic-grey h1>span {
+			display: block;
+			font-size: 11px;
+		}
+		.basic-grey label {
+			display: block;
+			margin: 0px;
+		}
+		.basic-grey label>span {
+			float: left;
+			width: 20%;
+			text-align: right;
+			padding-right: 10px;
+			margin-top: 10px;
+			color: #000000;
+            font-weight: 600;
+		}
+		.basic-grey input[type="text"], .basic-grey input[type="email"], .basic-grey textarea, .basic-grey select {
+			border: 1px solid #DADADA;
+			color: #000000;
+			height: 50px;
+			margin-bottom: 16px;
+			margin-right: 6px;
+			margin-top: 2px;
+			outline: 0 none;
+			padding: 3px 3px 3px 5px;
+			font-size: 12px;
+			line-height:15px;
+			box-shadow: inset 0px 1px 4px #ECECEC;
+			-moz-box-shadow: inset 0px 1px 4px #ECECEC;
+			-webkit-box-shadow: inset 0px 1px 4px #ECECEC;
+		}
+		.basic-grey textarea{
+			padding: 5px 3px 3px 5px;
+		}
+		.basic-grey textarea{
+			height:100px;
+		}
+		.basic-grey .button {
+			background: #E27575;
+			border: none;
+			padding: 10px 25px 10px 25px;
+			color: #FFF;
+			box-shadow: 1px 1px 5px #B6B6B6;
+			border-radius: 3px;
+			text-shadow: 1px 1px 1px #9E3F3F;
+			cursor: pointer;
+		}
+		.basic-grey .button:hover {
+			background: #CF7A7A
+		}
+	</style>
+
+<form action="/save_wish_schedule/" method="post" class="basic-grey">
+    {% csrf_token %}
+    <label>
+        <span>铺货ID：</span>
+        {% if id_flag == 1 %}
+            <input id="myId" type="text" name="myId" readonly="True" value="{{ myId }}"/>
+        {% else %}
+            <textarea id="myId" name="myId" readonly="True" style="width: 70%;" >{{ myId }}</textarea>
+        {% endif %}
+    </label>
+
+    <label>
+        <span>店铺数量：</span>
+        <input id="number" type="text" name="number" value="" placeholder="上限50"/>
+    </label>
+
+    <label>
+        <span>目标店铺：</span>
+        <textarea id="shops" name="shops" style="width: 70%;" >{{ schedule.shops }}</textarea>
+    </label>
+
+    <label>
+        <span>开始时间：</span>
+        {% if flag == 1 %}
+            <input id="start" type="text" name="start" value="{{ schedule.start }}"/>
+        {% else %}
+            <input id="start_read_only" type="text" name="start" readonly="True" value="{{ schedule.start }}"/>
+        {% endif %}
+    </label>
+
+    <label>
+        <span>时间间隔：</span>
+        <input id="interval" type="text" name="interval" placeholder="单位：分钟" value="{{ schedule.interval }}" />
+    </label>
+
+    <textarea id="param" name="param" style="display:none" >{{ param }}</textarea>
+
+
+    <label>
+        <span>&nbsp;</span>
+        <input type="submit" class="button" value="提交" />
+    </label>
+</form>
+
+<script src="/static/xadmin/laydate/laydate.js"></script>
+<script>
+    laydate.render({
+		  elem: '#start'
+		  ,type: 'datetime'
+		});
+</script>

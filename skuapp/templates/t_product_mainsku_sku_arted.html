@@ -1,0 +1,48 @@
+
+
+<div>
+
+
+{% load skuapp_tags %}
+<table border="1"  id="table_t_product_mainsku_sku">
+    <tr id ="tr_t_product_mainsku_sku">
+
+        <th>子SKU编号(不包括主SKU编号)</th>
+        <th>商品SKU属性</th>
+        <th>单价(¥元)</th>
+        <th>克重(g)</th>
+        <th>包装规格</th>
+    </tr>
+
+    {% for t_product_mainsku_sku_obj in t_product_mainsku_sku_objs %}
+        <tr>
+
+            <td>
+                 <input type="text" name="SKU_{{ forloop.counter0 }}" value= "{{t_product_mainsku_sku_obj.SKU}}" >
+            </td>
+            <td>
+                <input type="text" name="SKUATTRS_{{ forloop.counter0 }}" value= "{{t_product_mainsku_sku_obj.SKUATTRS}}" >
+            </td>
+            <td>
+                <input type="text" name="UnitPrice_{{ forloop.counter0 }}" value= "{{t_product_mainsku_sku_obj.UnitPrice}}" >
+            </td>
+            <td>
+                <input type="text" name="Weight_{{ forloop.counter0 }}" value= "{{t_product_mainsku_sku_obj.Weight}}" >
+            </td>
+             <td>
+                 <select name = "select_{{ forloop.counter0 }}" id="id_select" class="selectpicker bla bla bli"  data-live-search="true">
+
+                     {% if t_product_mainsku_sku_obj.pid %}{%  display_packing2  t_product_mainsku_sku_obj.PackNID  %}{% endif %}
+                   </select>
+            </td>
+        </tr>
+    {% endfor %}
+
+</table>
+
+
+
+
+</div>
+
+

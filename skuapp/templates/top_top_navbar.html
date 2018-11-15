@@ -1,0 +1,93 @@
+{% load set_val %}
+<div class="navbar-header">
+    <div  class="navigation-up">
+        <div class="navigation-inner">
+            <div class="navigation-v3">
+                <ul>
+                    {% for all_group2_obj in all_group2_objs %}
+                    <li class="" _t_nav="{{ all_group2_obj.group2 }}">
+                        <h2>
+                            <a>{{ all_group2_obj.group2 }}</a>
+                        </h2>
+                    </li>
+                    {% endfor %}
+                    <!--超链接到以图搜图功能(本地ip)-->
+                    <!--<li _t_nav="imagesearch">
+                        <h2>
+                            <a href="http://192.168.105.223/imageSearch" target="_blank">搜图</a>
+                        </h2>
+                    </li>-->
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div style="z-index: 10000;" class="navigation-down">
+        {% for all_group2_obj in all_group2_objs %}
+            <div id="{{ all_group2_obj.group2 }}" class="nav-down-menu menu-1" style="display: none;" _t_nav="{{ all_group2_obj.group2 }}">
+                <div class="navigation-down-inner" style="margin-left: 8%;">
+{#                <table align="center" valign="center">#}
+                <table>
+                    <tr>
+                    {% set count = 0 %}
+                    {% for all_group1_obj in all_group1_objs %}
+                        {% if all_group1_obj.group2 == all_group2_obj.group2 %}
+                            {% set count++ %}
+                            <td valign="top">
+                                <dl style="margin-left: 20px;margin-right: 20px;">
+                                    <dt>{{ all_group1_obj.group1 }}</dt>
+                                    {% for all_model_obj in all_model_objs %}
+                                        {% if all_model_obj.group1 == all_group1_obj.group1 %}
+                                        <dd>                                            
+                                            {% if all_model_obj.model == 't_factory_on_ordered' or all_model_obj.model == 't_factory_on_ordered?_cols=OriginalNID' %}
+                                                <a hotrep="hp.header.{{ all_group2_obj.group2 }}.computez1" href="http://47.101.48.145/Project/admin/factory_app/t_factory_on_ordered/" >{{ all_model_obj.model_name }}</a>
+                                            {% else %}
+                                                <a hotrep="hp.header.{{ all_group2_obj.group2 }}.compute1" href="/Project/admin/{{ all_model_obj.app_label }}/{{ all_model_obj.model }}" >{{ all_model_obj.model_name }}</a>
+                                            {% endif %}
+                                        </dd>
+                                        {% endif %}
+                                    {% endfor %}
+                                </dl>
+                            </td>
+                                {% if count|divisibleby:8 %}
+                                    </tr><tr>
+                                {% endif %}
+                        {% endif %}
+                    {% endfor %}
+                    </tr>
+                </table>
+                </div>
+            </div>
+        {% endfor %}
+        <div id="help" class="nav-down-menu menu-3 menu-1" style="word-wrap:break-word;word-break:break- all;display: none;position: absolute;top: 0px;float:right;right:10px;width:20%;height:500px;color:#FFFFFF;font-size:20px;" _t_nav="help">
+            <div class="navigation-down-inner;margin:10px 10px 10px 10px;padding:10px 10px 10px 10px;">
+                <dl style="margin-left: 20px;margin-right: 20px;">
+                {% for help_obj in help_objs %}
+                    {{ help_obj.HelpContent|safe }}
+                {% endfor %}
+                </dl>
+            </div>
+        </div>
+        <div id="history" class="nav-down-menu menu-3 menu-1"
+             style="word-wrap:break-word;word-break:break-all;display: none;position: absolute;top: 14px;float:right;right:0px;width:13%;height:390px;color:#FFFFFF;font-size:20px;"
+             _t_nav="history">
+            <div class="navigation-down-inner0" style="width: 100%;height:390px;">
+                <dl style="width: 100%;">
+
+                    <dl style="margin-left: 10%;width: 90%">
+                        <ul style="overflow-y: scroll;height: 310px;width: 100%">
+                            {% for help_obj in history %}
+                                <li style="font-size: 14px;width: 94%;padding-left: 2%">
+                                    <a  style="color: #fff;font-weight: 600;height: 34px;line-height: 34px;white-space: nowrap; overflow: hidden; text-overflow: ellipsis" href={{ help_obj.user_urls }}>{{ help_obj.url_names }}</a>  <br/>
+                                    <span style="font-size: 14px;color: #868686;"> {{ help_obj.url_time }} </span>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </dl>
+
+
+                </dl>
+            </div>
+        </div>
+    </div>
+
+</div>>

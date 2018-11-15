@@ -1,0 +1,23 @@
+<center>
+    {% if is_done == 0 %}
+        广告名称：<input id="new_title" type="text" value="{{ title }}">
+        <input id="click_bt" type="button" value="确认修改" onclick="edit_title()"><br/>
+        <input id="test_ywp" type="hidden">
+    {% else %}
+        修改后广告名称：<input type="text" readonly value="{{ title }}">
+    {% endif %}
+    <input type="hidden" id="ad_b_id" value="{{ ad_b_id }}">
+    <input type="hidden" id="shopname" value="{{ shopname }}">
+</center>
+<script>
+    function edit_title() {
+        var ad_b_id = document.getElementById('ad_b_id').value;
+        var new_title = document.getElementById('new_title').value;
+        var shopname = document.getElementById('shopname').value;
+        document.getElementById('click_bt').style.display = 'none';
+        document.getElementById('test_ywp').after('正在修改中，请稍后...');
+        var url = '/Project/admin/skuapp/t_template_amazon_advertising_business_count_report' +
+            '/change_ad_title/?is_show=0&ad_b_id='+ad_b_id+'&shopname='+shopname+'&title_name='+new_title;
+        window.location.href = url;
+    }
+</script>

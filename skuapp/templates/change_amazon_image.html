@@ -1,0 +1,35 @@
+<form action = "/save_amazon_image_change/?main_table_type={{main_table_type}}&shop_set={{shop_set}}&pri_id={{ pri_id }}&variation_type={{variation_type}}&image_type={{image_type}}&parent_sku={{parent_sku}}&child_sku={{child_sku}}&prodcut_variation_id={{prodcut_variation_id}}" method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <table>
+        {% for k,v in imageDict.items %}
+            <img src="{{ v }}"  width="100" height="100"  alt = "{{ v }}"  title="{{ v }}"  />
+            <a id ='delete_image' href = '/save_amazon_image_change/?main_table_type={{main_table_type}}&shop_set={{shop_set}}&pri_id={{ pri_id }}&variation_type={{variation_type}}&image_type={{image_type}}&parent_sku={{parent_sku}}&child_sku={{child_sku}}&id={{ k }}&prodcut_variation_id={{prodcut_variation_id}}'>删除</a>
+            <!--<Button id="delete_image">删除</Button>-->
+        {% endfor %}
+    </table>
+    <br>
+
+    <div>
+    {% if product_sku  != '' and  product_sku != 'undefined' %}
+    <div>
+        <label>选择本地图片&nbsp;&nbsp;
+            <input type="file" name="image_local" value='' />
+        </label>
+    </div>
+    {% endif %}
+    </div>
+    <br>
+
+    <div>
+        <label>填写图片链接&nbsp;&nbsp;
+            <input type="text" name="image_url" value='' />
+        </label>
+    </div>
+    <br>
+    <div>
+        &nbsp;&nbsp;&nbsp;<button type='submit' style="height: 30px;width: 50px;">上传</button>
+          <a style="height: 30px;width: 50px" href="/show_amazon_pictures/?prodcut_variation_id={{prodcut_variation_id}}"> 返回</a>
+    </div>
+
+</form>

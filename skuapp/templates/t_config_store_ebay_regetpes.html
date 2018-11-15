@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <aid id="paramtest" style="display: none;">{{ testparam }}</aid>
+    <bid id="regType" style="display: none;" >{{ regType }}</bid>
+
+    <input type="text" id="code_mess" value=""/>
+    <input type="button" onclick="sub_mes_code()" value="提交"/>
+    <script>
+          var infoWindow;
+          window.onload = function () {
+              paramtest = window.document.getElementById('paramtest').innerText;
+              var regType = window.document.getElementById('regType').innerText;
+              if (paramtest == 'markparameters') {
+                  if (regType == 'Auth') {
+                      var itop = (window.screen.availheight - 510) / 2; //获得窗口的垂直位置;
+                      var ileft = (window.screen.availwidth - 650) / 2; //获得窗口的水平位置;
+                      infoWindow = window.open('https://signin.ebay.com/ws/eBayISAPI.dll?SignIn&runame={{ runame }}&SessID= {{ sessionid }}&pUserId={{ accountID }}', '', 'height=510px, width=650px, top=' + itop + ',left=' + ileft + ', toolbar=no,menubar=no, scrollbars=yes, resizable=no,location=no, status=no');
+                      //var childwindow = window.open('/t_config_store_ebay_regetpes_tips/','newwindow', 'height=400, width=400, top=50, left=800, toolbar=no, menubar=no, scrollbars=no, resizable=no, location=no, status=no')
+                      //关闭此空白父窗口
+                      //window.opener=null;
+                      //window.open("","_self");
+                      //window.close();
+                      var date1 = new Date();  //开始时间
+                      timerID = window.setInterval(IfWindowClosed, 1000);
+
+                      function IfWindowClosed() {
+                          if (infoWindow.closed == true) {
+                              window.clearInterval(timerID)
+                              window.location.href = '/t_config_store_ebay_regetpes_torken/?id= {{ id }}&appID={{ appID }}&sessionid={{ sessionid }}&regType={{ regType }}'
+                          } else {
+                              var date2 = new Date();    //结束时间
+                              var date3 = date2.getTime() - date1.getTime();
+                              if (date3 >= 600000) {
+                                  infoWindow.close()
+                              }
+                          }
+                      }
+                  } else if (regType == 'OAuth') {
+                      
+                      var itop = (window.screen.availheight - 510) / 2; //获得窗口的垂直位置;
+                      var ileft = (window.screen.availwidth - 650) / 2; //获得窗口的水平位置;
+                      infoWindow = window.open('https://signin.ebay.com/authorize?client_id={{ appID }}&redirect_uri={{ runame }}&response_type=code&scope=https://api.ebay.com/oauth/api_scope/sell.marketing', '', 'height=510px, width=650px, top=' + itop + ',left=' + ileft + ', toolbar=no,menubar=no, scrollbars=yes, resizable=no,location=no, status=no');
+
+{#                      var date1 = new Date();  //开始时间#}
+{#                      timerID = window.setInterval(IfWindowClosed, 1000);#}
+
+{#                      function IfWindowClosed() {#}
+{#                          if (infoWindow.closed == true) {#}
+{#                              window.clearInterval(timerID);#}
+{#                              window.location.href = '/t_config_store_ebay_regetpes_torken/?id= {{ id }}&appID={{ appID }}&sessionid={{ sessionid }}&regType={{ regType }}'#}
+{#                          } else {#}
+{#                              var date2 = new Date();    //结束时间#}
+{#                              var date3 = date2.getTime() - date1.getTime();#}
+{#                              if (date3 >= 600000) {#}
+{#                                  infoWindow.close()#}
+{#                              }#}
+{#                          }#}
+{#                      }#}
+                  }
+              }
+          };
+          function sub_mes_code(){
+              var code_mess =  $('#code_mess').val();
+              var regType = window.document.getElementById('regType').innerText;
+{#              alert(regType)#}
+{#              alert(code_mess);#}
+              $.ajax({ 
+                 url:'/t_config_store_ebay_regetpes_oauth/', 
+                 type:'GET', 
+                 data:{'id':'{{ id }}','code_mess':code_mess,'appID':'{{ appID }}','regType':regType}, 
+                 async : false, //默认为true 异步 
+                  success:function(data){
+                      alert(data);
+                      if (infoWindow.closed == true) {
+                          //DO NOTHING
+                      }else{
+                          infoWindow.close();
+                      }
+                        window.location.href = '/Project/admin/skuapp/t_config_store_ebay/'
+                    },
+                    error:function (e) {
+                        alert('未知异常,请重试！'+e)
+                    }
+              });
+          }
+
+
+    </script>
+</head>
+<body>
+<div id="test"></div>
+</body>
+</html>
+
+

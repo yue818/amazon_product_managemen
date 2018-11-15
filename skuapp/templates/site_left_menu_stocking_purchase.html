@@ -1,0 +1,32 @@
+<style>
+    .col-md-14 {
+    width: 13%;
+  }
+  .col-md-10 {
+    width: 87%;
+  }
+
+</style>
+<input id="sourceURL" type="hidden" value="{{ sourceURL }}">
+<input id="title_list" type="hidden" value="{{ title_list }}">
+<input id="test_list" type="hidden" value="{{ test_list }}">
+<div id="left-side" class="col-sm-1 col-md-14">
+    <ul class="well nav nav-list nav-sitemenu">
+    {% for title in title_list %}
+        <li class="list-group-item " style="{% if title.selected == '1' %} backgroundColor:#428bca;{% endif %}">
+            <i class="fa-fw"></i>{{ title.title }}
+        </li>
+        {% for testurl in test_list %}
+            {% if testurl.title == title.title %}
+                <li id="li_{{ forloop.counter }}" class="list-group-item "style = "cursor:pointer;{% if testurl.selected == '1' %} background-color: #1b9dec; {% endif %}>"                                         
+                        <i class="fa-fw fa fa-circle-o" {% if testurl.selected == '1' %}style="color:white"{% endif %}></i>
+                        <a style="color:black" href='{{ testurl.url }}'>{{ testurl.value }}</a>
+                        <font {% if testurl.selected == '1' %}color="black"{% endif %}</font>                       
+                </li>
+            {% endif %}
+        {% endfor %}
+    {% endfor %}
+	</ul>
+</div>
+
+

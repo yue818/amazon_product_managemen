@@ -1,0 +1,111 @@
+
+<script type="text/javascript">
+    $(document).keydown(function(event){
+      switch(event.keyCode){
+         case 13: to_seach(); return false;
+         }
+    });
+
+    var mainsku = document.getElementById('id_product_mainsku');
+    mainsku.setAttribute('onchange', 'to_seach()');
+    mainsku.style.float = 'left';
+    var main_parent = mainsku.parentNode;
+    main_parent.innerHTML = main_parent.innerHTML + '<span id="mainsku_showing" style="margin-left: 10px;color:blue;">回车或光标移开查询</span>';
+
+    var afterdom = '<div class="panel panel-default fieldset unsort " id="box-1">\n' +
+        '<div class="panel-heading">\n' +
+        '<i class="icon fa fa-chevron-up chevron"></i>\n' +
+        '<h3 class="panel-title">详细信息</h3>\n' +
+        '</div>\n' +
+        '<div class="panel-body ">\n' +
+        '<table class="table table-bordered table-striped table-hover editable" id="SKU_Infos">\n' +
+        '<thead>\n' +
+        '<tr>\n' +
+        '<th>商品图</th>\n' +
+        '<th>商品SKU</th>\n' +
+        '<th>商品名称</th>\n' +
+        '<th>调研克重(g)</th>\n' +
+        '<th>包装克重(g)</th>\n' +
+        '<th>价格</th>\n' +
+        '<th>供应商</th>\n' +
+        '<th>操作</th>\n' +
+        '</tr>\n' +
+        '</thead>\n' +
+        '<tbody id="sku_d_infor">\n' +
+        '</tbody>\n' +
+        '</table>\n' +
+        '</div>\n' +
+        '</div>';
+
+    var P_divdom = document.getElementById('column-0');
+    P_divdom.innerHTML = P_divdom.innerHTML + afterdom;
+    var next_dom = document.getElementById('sku_d_infor');
+
+    function to_seach() {
+        var showing = document.getElementById('mainsku_showing');
+
+        var inputid = document.getElementById('id_product_mainsku');
+        console.log(inputid.value);
+        if (!inputid.value){
+            next_dom.innerHTML = '';
+            showing.style.color = 'blue';
+            showing.innerText = '回车或光标移开查询';
+            return
+        }
+
+        showing.style.color = 'brown';
+        showing.innerText = '努力查询中...';
+        $.getJSON('t_sku_weight_examine/seach_sku_infor/?product_mainsku='+encodeURI(inputid.value), function (result) {
+            if (result.errorcode == 1){
+                var infor = '';
+                for (var i=0,j=result.datalist.length;i<j;i++){
+                    infor += '<tr id="' + i + '">\n' +
+                        '<td>\n' +
+                        '<a class="thumbnail dropdown-toggle" style="position: absolute;">\n' +
+                        '<img src="' + result.datalist[i].Image + '" id="pic_id_product_image_' + i + '" width="30" height="30">\n' +
+                        '<input type="hidden" value="' + result.datalist[i].Image + '" name="product_image" id="id_product_image_' + i + '">\n' +
+                        '</a>\n' +
+                        '</td>\n' +
+                        '<td>\n' +
+                        '<input type="text" class="text-field admintextinputwidget form-control" value="' + result.datalist[i].product_sku + '" name="product_sku" readonly>\n' +
+                        '</td>\n' +
+                        '<td>\n' +
+                        '<input type="text" class="text-field admintextinputwidget form-control" value="' + result.datalist[i].Name + '" name="product_name" readonly>\n' +
+                        '</td>\n' +
+                        '<td>\n' +
+                        '<input type="text" class="text-field admintextinputwidget form-control" value="' + Math.round(result.datalist[i].Weight) + '" name="survey_weight" readonly>\n' +
+                        '</td>\n' +
+                        '<td>\n' +
+                        '<input type="text" class="text-field admintextinputwidget form-control" value="' + Math.round(result.datalist[i].pack_Weight) + '" name="packinfo_weight" readonly>\n' +
+                        '</td>\n' +
+                        '<td>\n' +
+                        '<input type="text" class="text-field admintextinputwidget form-control" value="' + result.datalist[i].Price + '" name="product_price" readonly>\n' +
+                        '</td>\n' +
+                        '<td>\n' +
+                        '<input type="text" class="text-field admintextinputwidget form-control" value="' + result.datalist[i].Supplier + '" name="supplier_name" readonly>\n' +
+                        '</td>\n' +
+                        '<td>\n' +
+                        '<input type="button" class="btn btn-default" value="移除" name="delone" onclick="to_del(' + i + ')" >\n' +
+                        '</td>\n' +
+                        '</tr>';
+                }
+                next_dom.innerHTML = infor;
+                showing.style.color = 'green';
+                showing.innerText = '查询成功';
+            }else {
+                console.log('错误：' + result.errorText);
+                next_dom.innerHTML = '';
+                showing.style.color = 'red';
+                showing.innerText = '查询失败  错误:' + result.errorText;
+            }
+        });
+    }
+
+    function to_del(n) {
+        var p_dom = document.getElementById(n);
+        p_dom.parentNode.removeChild(p_dom);
+    }
+</script>
+
+
+

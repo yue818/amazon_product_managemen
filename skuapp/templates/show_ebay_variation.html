@@ -1,0 +1,123 @@
+<style type="text/css">
+    .btn{
+    color: #ffffff;
+    background-color: #428bca;
+    border-color: #357ebd;
+    display: inline-block;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1.428571429;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    }
+
+    table{
+        border-collapse: collapse;
+        border:0;
+    }
+    td > input{
+        height:30px;
+        border:none;
+        margin: 0;
+        line-height:100%;
+        width: 100%;
+        text-align: center;
+    }
+
+    th{
+        border: 0.05px solid #dddddd;
+        text-align:center;
+        font-size:15px;
+        height:25px;
+    }
+</style>
+
+<script type="application/javascript">
+    function del(obj) {
+        var tableI = document.getElementById("mytable");//找到要删除行所在的teble
+        var trI = obj.parentNode.parentNode;//我的button在tr下的td中，两次执行.parentNode操作，可以找到要删除的tr。
+
+        var index = trI.rowIndex;//要删除的tr所在table中的index
+        tableI.deleteRow(index);//执行删除
+    }
+
+    function change_all_price(obj) {
+        var change_all_ele = document.getElementById("change_all_price_flag");
+        if (change_all_ele.checked == true) {
+            new_price = obj.value;
+            var price_eles = document.getElementsByName("price");
+            for (var i=0; i<price_eles.length; i++) {
+                price_eles[i].value = new_price;
+            }
+        }
+    }
+
+    function change_all_quantity(obj) {
+        var change_all_ele = document.getElementById("change_all_quantity_flag");
+        if (change_all_ele.checked == true) {
+            new_quantity = obj.value;
+            var quantity_eles = document.getElementsByName("quantity");
+            for (var i=0; i<quantity_eles.length; i++) {
+                quantity_eles[i].value = new_quantity;
+            }
+        }
+    }
+
+</script>
+
+<form action="/save_ebay_variation/" method="post">
+{% csrf_token %}
+{% for k, v in ebay_title.items %}
+    <div align="center">铺货ID：<input style=" border:none;font-size: large" readonly="true" type="text" name="{{ k }}" value="{{ v }}"></div>
+    <br>
+    <table border="1" id="mytable" width="100%">
+        <tr>
+            <th>SKU</th>
+            <th>
+                价格
+                {% if k == 'upload_id' %}
+                <input type="checkbox" id='change_all_price_flag' value=""><span>全部修改</span>
+                {% endif %}
+            </th>
+            <th>
+                数量
+                {% if k == 'upload_id' %}
+                <input type="checkbox" id='change_all_quantity_flag' value=""><span>全部修改</span>
+                {% endif %}
+            </th>
+            <th>颜色</th>
+            <th>尺寸</th>
+            {% if k == 'upload_id' %}
+            <th>操作</th>
+            {% endif %}
+
+        </tr>
+        {% for obj in result %}
+        <tr>
+            <td width="200px"><input type="text" readonly = 'True' name="sku" readonly="true" value="{{ obj.sku }}"></td>
+            <td><input type="text" name="price" value="{{ obj.price }}" onchange="change_all_price(this)"></td>
+            <td><input type="text" name="quantity" value="{{ obj.quantity }}" onchange="change_all_quantity(this)"></td>
+            <td><input type="text" name="color" value="{{ obj.color }}"></td>
+            <td><input type="text" name="size" value="{{ obj.size }}"></td>
+            {% if k == 'upload_id' %}
+            <td width="10px" nowrap><button style="width: 100%;height: 80% " onclick="del(this)">删<br>除</button> </td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </table>
+    <br>
+    {% if k == 'upload_id' %}
+    <div align="center">
+        <input type="submit" class="btn" name="submit">
+    </div>
+    {% endif %}
+{% endfor %}
+</form>

@@ -1,0 +1,137 @@
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>基础柱形图</title>
+        <style type="text/css">
+                .btn_1{
+                    display: inline-block;
+                    padding: 6px 12px;
+                    margin-bottom: 0;
+                    font-size: 14px;
+                    font-weight: normal;
+                    line-height: 1.428571429;
+                    text-align: center;
+                    vertical-align: middle;
+                    cursor: pointer;
+                    background-image: none;
+                    border: 1px solid transparent;
+                    border-radius: 6px;
+                    -webkit-user-select: none;
+                    -moz-user-select: none;
+                    color: #ffffff;
+                    background-color: #555555;
+                }
+
+                a{
+                    text-decoration: none;
+                }
+        </style>
+        <script src="/static/highcharts/jquery-1.8.3.min.js"></script>
+        <script src="/static/highcharts/highcharts.js"></script>
+        <script src="/static/highcharts/exporting.js"></script>
+        <script src="/static/highcharts/highcharts-zh_CN.js"></script>
+    </head>
+    <body>
+        <div>
+            <table border="0" cellpadding="0" cellspacing="0" style="margin-left:auto; margin-right:auto;">
+                <tr>
+                    <td>
+                        <div id="container" style="width:1400px;height:500px" align="center"></div>
+                    </td>
+                </tr>
+            </table>
+            <script>
+                            $(function () {
+                                $('#container').highcharts({
+                                    chart: {
+                                        zoomType: 'xy'
+                                    },
+                                    title: {
+                                        text: '{{ title }}'
+                                    },
+                                    subtitle: {
+                                        text: '数据来源: online'
+                                    },
+                                    xAxis: [{
+                                        categories: {{ date_data }},
+                                        crosshair: true
+                                    }],
+                                    yAxis: [{ // Primary yAxis
+                                        labels: {
+                                            format: '{value} $',
+                                            style: {
+                                                color: Highcharts.getOptions().colors[1]
+                                            }
+                                        },
+                                        title: {
+                                            text: '销售额',
+                                            style: {
+                                                color: Highcharts.getOptions().colors[1]
+                                            }
+                                        }
+                                    }, { // Secondary yAxis
+                                        title: {
+                                            text: '出单数',
+                                            style: {
+                                                color: Highcharts.getOptions().colors[0]
+                                            }
+                                        },
+                                        labels: {
+                                            format: '{value} 个',
+                                            style: {
+                                                color: Highcharts.getOptions().colors[0]
+                                            }
+                                        },
+                                        opposite: true
+                                    }, { // Third yAxis
+                                        title: {
+                                            text: '审核通过数',
+                                            style: {
+                                                color: Highcharts.getOptions().colors[2]
+                                            }
+                                        },
+                                        labels: {
+                                            format: '{value} 个',
+                                            style: {
+                                                color: Highcharts.getOptions().colors[2]
+                                            }
+                                        },
+                                        opposite: true
+                                    }],
+                                    tooltip: {
+                                        shared: true
+                                    },
+                                    series: [{
+                                        name: '订单数',
+                                        type: 'column',
+                                        yAxis: 1,
+                                        data: {{ order_data }},
+                                        tooltip: {
+                                            valueSuffix: ' 个'
+                                        }
+                                    }, {
+                                        name: '销售额',
+                                        type: 'spline',
+										//yAxis: 1,
+                                        data: {{ sales_data }},
+                                        tooltip: {
+                                            valueSuffix: ' $'
+                                        }
+                                    }, {
+                                        name: '审核通过数',
+                                        type: 'column',
+                                        yAxis: 1,
+                                        data: {{ approved_data }},
+                                        tooltip: {
+                                            valueSuffix: ' 个'
+                                        }
+                                    }]
+                                });
+                            });
+                        </script>
+
+            <button type="hidden" id="flag" value="{{ flag }}"></button>
+        </div>
+    </body>
+</html>

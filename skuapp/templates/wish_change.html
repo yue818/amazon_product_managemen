@@ -1,0 +1,184 @@
+<style type="text/css">
+    .btn{
+    color: #ffffff;
+    background-color: #428bca;
+    border-color: #357ebd;
+    display: inline-block;
+    padding: 6px 12px;
+    margin-bottom: 0;
+    font-size: 14px;
+    font-weight: normal;
+    line-height: 1.428571429;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    }
+</style>
+
+<style>
+    table{
+        border-collapse: collapse;
+        border:0;
+    }
+    td > input{
+	    height:30px;
+        border:none;
+        margin: 0;
+        line-height:100%;
+        width: 100%;
+        text-align: center;
+	}
+
+	th{
+        border: 0.05px solid #dddddd;
+		text-align:center;
+	    font-size:15px;
+	    height:25px;
+	}
+</style>
+
+<script type="application/javascript">
+    function del(obj) {
+        var tableI = document.getElementById("mytable");//找到要删除行所在的teble
+        var trI = obj.parentNode.parentNode;//我的button在tr下的td中，两次执行.parentNode操作，可以找到要删除的tr。
+
+        var index = trI.rowIndex;//要删除的tr所在table中的index
+        tableI.deleteRow(index);//执行删除
+    }
+    
+    function add() {
+        var tableI = document.getElementById("mytable");
+        var newTr = tableI.insertRow(-1);
+
+        var imgTD = newTr.insertCell(0);
+        imgTD.innerHTML = '<img src="" width="60" height="60" alt="无">';
+
+        var imgTD = newTr.insertCell(1);
+        imgTD.innerHTML = '<input type="text" name="imgURL" value="">';
+
+        var imgTD = newTr.insertCell(2);
+        imgTD.innerHTML = '<input type="text" name="sonsku" value="">';
+
+        var imgTD = newTr.insertCell(3);
+        imgTD.innerHTML = '<input type="text" name="color" value="">';
+
+        var imgTD = newTr.insertCell(4);
+        imgTD.innerHTML = '<input type="text" name="size" value="">';
+
+        var imgTD = newTr.insertCell(5);
+        imgTD.innerHTML = '<input type="text" name="sonST" value="">';
+
+        var imgTD = newTr.insertCell(6);
+        imgTD.innerHTML = '<input type="text" readonly = "True" name="shopsku" value="">';
+
+        var imgTD = newTr.insertCell(7);
+        imgTD.innerHTML = '<input type="text" name="number" value="">';
+        
+        var imgTD = newTr.insertCell(8);
+        imgTD.innerHTML = '<input type="text" name="quantity" value="">';
+
+        var imgTD = newTr.insertCell(9);
+        imgTD.innerHTML = '<input type="text" name="price" value="">';
+
+        var imgTD = newTr.insertCell(10);
+        imgTD.innerHTML = '<input type="text" name="oldprice" value="">';
+
+        var imgTD = newTr.insertCell(11);
+        imgTD.innerHTML = '<input type="text" name="msrp" value="">';
+
+        var imgTD = newTr.insertCell(12);
+        imgTD.innerHTML = '<input type="text" name="shipping" value="">';
+
+        var imgTD = newTr.insertCell(13);
+        imgTD.innerHTML = '<input type="text" name="time" value="">';
+
+        var imgTD = newTr.insertCell(14);
+        imgTD.innerHTML = '<select name="status"><option value = "Enabled">上架</option><option value = "Disabled">下架</option></select>';
+
+        var imgTD = newTr.insertCell(15);
+        imgTD.innerHTML = '<button style="width: 100%;height: 80% " onclick="del(this)">删<br>除</button>';
+    }
+
+</script>
+
+<form action="/wish_save/" method="post">
+{% csrf_token %}
+<div align="center">铺货ID：<input style=" border:none;font-size: large" readonly="true" type="text" name="nid" value="{{ nid }}"></div>
+<br>
+		<table border="1" id="mytable" width="100%">
+			<tr>
+                <th>变种图</th>
+                <th>变种图<br>链接</th>
+	            <th>子SKU</th>
+                <th>颜色</th>
+                <th>尺寸</th>
+                <th>子SKU<br>状态</th>
+	            <th>店铺SKU</th>
+                <th>绑定数量</th>
+	            <th>库存量</th>
+	            <th>参考<br>价格</th>
+                <th>原价格</th>
+	            <th>标签价</th>
+                <th>运费</th>
+	            <th>运输<br>时间</th>
+                <th>状态</th>
+                <th>操作</th>
+	        </tr>
+            {% for obj in result %}
+	        <tr>
+                <td><img src="{{ obj.VariationImage }}" width="60" height="60" alt="无"></td>
+                <td><input type="text" name="imgURL" value="{{ obj.VariationImage }}"></td>
+				<td width="140px"><input type="text" name="sonsku" value="{{ obj.SKU }}"></td>
+                <td><input type="text" name="color" value="{{ obj.color }}"></td>
+				<td><input type="text" name="size" value="{{ obj.size }}"></td>
+                <td width="60px"><input type="text" readonly = "True" name="sonST" value="{{ obj.sonStatus }}"></td>
+				<td width="200px"><input type="text" readonly = 'True' name="shopsku" value="{{ obj.ShopSKU }}"></td>
+				<td><input type="text" name="number" value="{{ obj.number }}"></td>
+                <td><input type="text" name="quantity" value="{{ obj.Quantity }}"></td>
+				<td><input type="text" name="price" value="{{ obj.Price }}"></td>
+                <td><input type="text" name="oldprice" value="{{ obj.oldPrice }}"></td>
+				<td><input type="text" name="msrp" value="{{ obj.msrp }}"></td>
+                <td><input type="text" name="shipping" value="{{ obj.Shipping }}"></td>
+				<td><input type="text" name="time" value="{{ obj.ShippingTime }}"></td>
+                <td>
+                    <select name="status">
+                            {% if  obj.Status  == 'Enabled' %}
+                            <option value = "Enabled">上架</option>
+                            {% else %}
+                            <option value = "Disabled">下架</option>
+                            {% endif %}
+                            <option value = "Enabled">上架</option>
+                            <option value = "Disabled">下架</option>
+                    </select>
+                </td>
+                <td width="10px" nowrap><button style="width: 100%;height: 80% " onclick="del(this)">删<br>除</button> </td>
+	        </tr>
+            {% endfor %}
+	       </table>
+	       <br>
+	    <div align="center">
+            <input type="submit" class="btn" name="submit">
+            <button type="button" class="btn" onclick="add()">添加</button>
+        </div>
+
+
+        <br><br><br>
+
+        <table border="1" id="mytable" width="100%">
+            <tr>
+                <th>副图</th>
+                <th>链接</th>
+            </tr>
+            {% for obj in imageList %}
+            <tr>
+                <td width="60px"><img src="{{ obj }}" width="60" height="60" alt="无"></td>
+                <td><input readonly="true" type="text" name="img" value="{{ obj }}"></td>
+            </tr>
+            {% endfor %}
+        </table>
+</form>

@@ -1,0 +1,14 @@
+<div class="row clearfix">
+    <div class="col-md-1 column">
+    </div>
+    <div class="col-md-7 column">
+        <form class="navbar-form navbar-left" role="search" method="get" action="/ali_compare_price/" name="input">
+            {% csrf_token%}
+            我方速卖通网址：<input type="text" class="form-control" name="wf"/>
+            对方速卖通网址：<input type="text" class="form-control" name="df"/>
+            <input type="submit" class="btn btn-default" value="开始比价">
+        </form>
+    </div>
+    <div class="col-md-4 column">
+    </div>
+</div>

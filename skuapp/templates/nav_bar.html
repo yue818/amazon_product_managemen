@@ -1,0 +1,24 @@
+{% block navigation-up %}
+<div class="navigation-up">
+	<div class="navigation-inner">
+		<div class="navigation-v3">
+			<ul>
+				<li class="nav-up-selected-inpage" _t_nav="home">
+					<h2>
+						<a href="{% url 'xadmin:index' %}">首页</a>
+					</h2>
+				</li>
+				{% for v_app_names_obj in v_app_names_objs %}
+
+				<li class="" _t_nav="{{ v_app_names_obj.app_label }}">
+					<h2>
+						<a class="section">{{ v_app_names_obj.apps_name }}</a>
+					</h2>
+				</li>
+				{% endfor %}
+				
+			</ul>
+		</div>
+	</div>
+</div>
+{% endblock %}

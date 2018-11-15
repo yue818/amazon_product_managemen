@@ -1,0 +1,107 @@
+.sybutton {
+    border-radius:10px 10px 10px 10px;
+    background-color:#428BCA;
+    border: none;
+    color: white;
+    padding: 5px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 15px;
+    margin: 4px 2px;
+    cursor: pointer;
+ }
+
+a.myj-aFocus {
+    display: inline-block;
+    vertical-align: middle;
+    line-height: 18px;
+}
+
+a.myj-aFocus:hover{
+    background-color: #428bca;
+    color: #fff;
+}
+
+.mRight20 {
+    margin-right: 30px;
+    margin-bottom: 5px;
+}
+
+.inline{
+    display: inline;
+}
+
+.satrdiv{
+    overflow: hidden;
+    width:100px;
+    height: 90px;
+    padding-top: 15px;
+}
+
+.padatr{
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 10px;
+}
+
+.textatr{
+    width: 550px;
+    height: 35px;
+    border-radius:10px;
+    color: grey;
+}
+
+.myj-active {
+    background-color: #428bca;
+    color: #fff;
+}
+
+.form-control{
+    width: 170px;
+    height: 35px;
+    display: inline;
+    margin-top: 5px;
+}
+.lefttd{
+    text-align: right;
+}
+
+table,table tr td {
+    //border:1px solid #0094ff;
+    padding:2px 12px;
+}
+
+.crumb-select-item{
+    background: #EDEAE1;
+    padding: 0px 6px 0px 5px;
+    border: #cccaca;
+
+}
+
+.re_echo{
+    font-size: 13px;
+    padding-bottom: 20px;
+    padding-left: 10px;
+    position: absolute;
+   // top: 80px;
+    color: grey;
+}
+
+select{
+    max-width: 900px;
+}
+
+#div_items {
+    position: absolute;
+    width: 364px;
+    height: 300px;
+    border: 1px solid #66afe9;
+    border-top: 0px;
+    overflow: auto;
+    display: none;
+    background-color: white;
+    z-index: 999;
+}
+
+

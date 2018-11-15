@@ -1,0 +1,136 @@
+<style type="text/css">
+        .btn_1{
+            display: inline-block;
+            padding: 6px 12px;
+            margin-bottom: 0;
+            font-size: 14px;
+            font-weight: normal;
+            line-height: 1.428571429;
+            text-align: center;
+            vertical-align: middle;
+            cursor: pointer;
+            background-image: none;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            color: #ffffff;
+            background-color: #555555;
+        }
+        .btn_2{
+			display: inline-block;
+	        padding: 6px 12px;
+	        margin-bottom: 0;
+	        font-size: 14px;
+	        font-weight: normal;
+	        line-height: 1.428571429;
+	        text-align: center;
+	        vertical-align: middle;
+	        cursor: pointer;
+	        background-image: none;
+	        border: 1px solid transparent;
+	        border-radius: 6px;
+	        -webkit-user-select: none;
+	        -moz-user-select: none;
+	        color: #ffffff;
+		    background-color: #428bca;
+		}
+</style>
+<script src="/static/xadmin/js/jquery-1.7.1.min.js" type="text/javascript"></script>
+
+<div class="messsub">
+    <input type="hidden" id="flag" value="{{ flag }}" />
+    <button id="btc1" class="btn_1" onclick="{location.href='{{ strUrl }}classCloth=1'}"><span style="color:#ffffff;">服装</span></button>
+    <button id="btc2" class="btn_1" onclick="{location.href='{{ strUrl }}classCloth=2'}"><span style="color:#ffffff;">非服装</span></button>
+    <button id="btc3" class="btn_1" onclick="{location.href='{{ strUrl }}classCloth=3'}"><span style="color:#ffffff;">全部</span></button>
+    {% if page == 'information_modify' %}
+        <div style="position:absolute;right:10px;top:20px;z-index:999;">
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <a id="add_modify" class="btn_2" style="text-decoration:none;">商品信息修改</a>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <a id="add_warning" class="btn_2" style="text-decoration:none">库存预警批量修改</a>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <a id="add_merge_sku" class="btn_2" style="text-decoration:none">SKU合并</a>
+        </div>
+    {% endif %}<br><br>
+	<button id="btc4" class="btn_1" onclick="{location.href='/Project/admin/skuapp/t_product_enter_ed/?dep=1'}"><span style="color:#ffffff;">本部门未刊登</span></button>
+	<button id="btc5" class="btn_1" onclick="{location.href='/Project/admin/skuapp/t_product_enter_ed/?dep=2'}"><span style="color:#ffffff;">本部门已刊登</span></button>
+	<button id="btc6" class="btn_1" onclick="{location.href='/Project/admin/skuapp/t_product_enter_ed/?dep=3'}"><span style="color:#ffffff;">本部门已弃用</span></button>
+</div>
+
+{% if page == 'information_modify' %}
+    <script>
+        $(document).ready(function (){
+            var add = document.getElementById('add');
+            if (add !== null){
+                add.style.display = 'none';
+            }
+        });
+    </script>
+{% endif %}
+
+
+<script>
+    $("document").ready(function(){
+        $("#dep").change(function () {
+            var dep_value = $(this).val();
+            //$.getJSON('/Project/admin/skuapp/t_product_enter_ed/?dep=' + dep_value, function (result) {                       
+            window.location.href='/Project/admin/skuapp/t_product_enter_ed/?dep=' + dep_value;
+            //});
+        });
+    });
+	
+	$('#add_modify').on('click',function() {
+        layer.open(
+                {
+                    type:2,
+                    skin:'layui-layer-lan',
+                    title:'商品信息修改',
+                    fix:false,
+                    offset: 'auto',
+                    shadeClose: true,
+                    maxmin:true,
+                    area:['1200px','700px'],
+                    content:'/add_information_modify/?source=add_modify',
+                    btn:['关闭页面'],
+                    end:function(){location.reload();}
+                }
+            );
+    });
+
+    $('#add_warning').on('click',function() {
+        layer.open(
+                {
+                    type:2,
+                    skin:'layui-layer-lan',
+                    title:'库存预警批量修改',
+                    fix:false,
+                    offset: 'auto',
+                    shadeClose: true,
+                    maxmin:true,
+                    area:['1200px','700px'],
+                    content:'/add_warning_modify/?source=add_warning',
+                    btn:['关闭页面'],
+                    end:function(){location.reload();}
+                }
+            );
+    });
+
+    $('#add_merge_sku').on('click',function() {
+        layer.open(
+                {
+                    type:2,
+                    skin:'layui-layer-lan',
+                    title:'SKU合并',
+                    fix:false,
+                    offset: 'auto',
+                    shadeClose: true,
+                    maxmin:true,
+                    area:['1200px','700px'],
+                    content:'/add_merge_sku/?source=add_merge',
+                    btn:['关闭页面'],
+                    end:function(){location.reload();}
+                }
+            );
+    });
+</script>

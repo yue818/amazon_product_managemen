@@ -1,0 +1,26 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+import xadmin
+from xadmin.views import ListAdminView, BaseAdminView
+
+from aliexpress_app.table.t_aliexpress_online_info import t_aliexpress_online_info
+from aliexpress_app.table.t_aliexpress_price_parity import t_aliexpress_price_parity
+from aliexpress_app.table.t_aliexpress_upload_product_info import t_aliexpress_upload_product_info
+
+from aliexpress_app.modelsadminx.t_aliexpress_online_info_Admin import t_aliexpress_online_info_Admin
+from aliexpress_app.modelsadminx.t_aliexpress_price_parity_Admin import t_aliexpress_price_parity_Admin
+from aliexpress_app.modelsadminx.t_aliexpress_upload_product_info_Admin import t_aliexpress_upload_product_info_Admin
+
+from aliexpress_app.plugin.aliexpress_price_parity_search_plugin import aliexpress_price_parity_search_plugin
+from aliexpress_app.plugin.aliexpress_upload_product_info_search_plugin import aliexpress_upload_product_info_search_plugin
+from aliexpress_app.plugin.site_left_menu_Plugin_price_parity_aliexpress import site_left_menu_Plugin_price_parity_aliexpress
+
+
+xadmin.site.register(t_aliexpress_online_info, t_aliexpress_online_info_Admin)
+xadmin.site.register(t_aliexpress_price_parity, t_aliexpress_price_parity_Admin)
+xadmin.site.register(t_aliexpress_upload_product_info, t_aliexpress_upload_product_info_Admin)
+
+xadmin.site.register_plugin(site_left_menu_Plugin_price_parity_aliexpress, BaseAdminView)
+xadmin.site.register_plugin(aliexpress_upload_product_info_search_plugin, ListAdminView)
+xadmin.site.register_plugin(aliexpress_price_parity_search_plugin, ListAdminView)

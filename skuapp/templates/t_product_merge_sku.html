@@ -1,0 +1,201 @@
+<style type="text/css">
+    .search_sku {
+        height: 34px;
+        padding: 6px 12px;
+        font-size: 14px;
+        color: #555555;
+        vertical-align: middle;
+        background-color: #ffffff;
+        background-image: none;
+        border: 1px solid #cccccc;
+        border-radius: 4px;
+        -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 6px 12px;
+        margin-bottom: 0;
+        font-size: 14px;
+        font-weight: normal;
+        line-height: 1.428571429;
+        text-align: center;
+        vertical-align: middle;
+        cursor: pointer;
+        background-image: none;
+        border: 1px solid transparent;
+        border-radius: 6px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        color: #ffffff;
+        background-color: #428bca;
+    }
+
+    .mySelect {
+        height: 34px;
+        padding: 6px 12px;
+        font-size: 14px;
+        color: #555555;
+        vertical-align: middle;
+        background-color: #ffffff;
+        background-image: none;
+        border: 1px solid #cccccc;
+        border-radius: 4px;
+        -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+        box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
+        padding-left: 8px;
+        width: 200px;
+    }
+
+    table{
+        border-collapse: collapse;
+        border:0;
+    }
+
+    td > input,textarea{
+	    height:30px;
+        border:none;
+        margin: 0;
+        line-height:100%;
+        width: 100%;
+	}
+
+    td{
+        text-align: center;
+    }
+
+	th{
+        border: 0.05px solid #dddddd;
+		text-align:center;
+	    font-size:15px;
+	    height:25px;
+	}
+
+    .mySpan{
+        font-size: 12px;
+        color: #555555;
+    }
+</style>
+
+
+{% if exists == 'no'%}
+    <form method="get" action="/add_merge_sku/">
+        <div align="center">
+            <input type="hidden"  name="source" value="search_merge">
+            <input class="search_sku" name="search_sku" placeholder="填写主SKU或子SKU" value="{{ sku }}">
+            <input type="submit" class="btn" value="搜索待合并SKU">
+        </div>
+        <br>
+        <div align="center">
+            <span style="color: red">{{ error_info }}</span>
+        </div>
+    </form>
+
+    <div style="left: 0; bottom: 0; position: absolute">
+        <span style="color: red; font-size: 15px; font-weight: 600">操作细则</span><br>
+        <span class="mySpan">1、该页面仅用于合并SKU；</span><br>
+        <span class="mySpan">2、输入框内请搜索待合并(清仓)的SKU；</span><br>
+        <span class="mySpan">3、若存在软件问题、使用问题请咨询软件开发人员。</span>
+    </div>
+
+{% else %}
+    <form method="POST" action="/add_merge_sku/" onsubmit="return verify_sku()">
+    {% csrf_token %}
+        <div align="center">
+            <input type="hidden"  name="source" value="save_merge">
+            <input type="hidden"  name="main_sku" value="{{ main_sku }}">
+            <input class="search_sku" name="search_sku" value="{{ sku }}">
+            &nbsp;&nbsp;
+            <input type="submit" class="btn">
+        </div>
+        <br>
+        <table border="1" id="mytable_1" width="100%">
+            <tr>
+                <th>待合并SKU</th>
+                <th>合并到SKU</th>
+                <th>描述</th>
+                <th>操作</th>
+            </tr>
+            {% for sku in sku_list %}
+                <tr>
+                    <td width="15%"><input name="delete_sku" type="text" readonly="true" value="{{ sku }}"/></td>
+                    <td width="15%"><input name="retain_sku" type="text" value=""/></td>
+                    <td><textarea name="describe" type="text"></textarea></td>
+                    <td width="5%"><button type="button" style="width: 100%;height: 80% " onclick="del_1(this)">删<br>除</button> </td>
+                </tr>
+            {% endfor %}
+        </table>
+    </form>
+    <script src="/static/xadmin/js/jquery-1.7.1.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        function del_1(obj) {
+            var tableI = document.getElementById("mytable_1");//找到要删除行所在的table
+            var trI = obj.parentNode.parentNode;//我的button在tr下的td中，两次执行.parentNode操作，可以找到要删除的tr。
+            var index = trI.rowIndex;//要删除的tr所在table中的index
+            tableI.deleteRow(index);//执行删除
+        }
+
+        function getCookieqq(name) {
+            var cookieValue = null;
+            if (document.cookie && document.cookie != '') {
+                var cookies = document.cookie.split(';');
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = jQuery.trim(cookies[i]);
+                    if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        function verify_sku() {
+            var flag = false;
+            var retain_sku = document.getElementsByName('retain_sku');
+            var sku_str = '';
+            if (retain_sku.length == 0){
+                alert('没有任何内容可提交！！！');
+                return flag
+            }
+
+            for (var i=0; i<retain_sku.length; i++){
+                var sku = retain_sku[i].value;
+                if (sku == ''){
+                    alert('合并到SKU不能为空！！！');
+                    return flag;
+                }else{
+                    sku_str = sku_str + retain_sku[i].value + ',';
+                }
+            };
+
+            var csrftoken = getCookieqq('csrftoken');
+
+            $.ajax({
+                url: "/verify_merge_sku/",
+                data: {
+                    'sku_str': sku_str,
+                },
+                type: "POST",
+                dataType: "json",
+                async: false,
+                beforeSend: function(xhr, settings) {
+                    xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                },
+                success: function (result) {
+                    if(result.sMsg == '0'){
+                        flag = true;
+                    }else{
+                        alert(result.sError);
+                        flag = false;
+                    }
+                },
+                error:function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert('错误信息：' + XMLHttpRequest.responseText);
+                }
+            });
+            return flag;
+        }
+    </script>
+{% endif %}

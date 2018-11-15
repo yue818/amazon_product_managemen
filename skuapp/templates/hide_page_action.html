@@ -1,0 +1,134 @@
+
+{% if page == 'giveup' %}
+    <script type="application/javascript">
+        window.onload = function(){
+            var actions = document.getElementsByClassName('tasks');
+            actions[0].parentNode.style.display = "none";
+            actions[1].parentNode.style.display = "none";
+            actions[2].parentNode.style.display = "none";
+            actions[4].parentNode.style.display = "none";
+            document.getElementById("id_importfileplugin").style.display = "none";
+            document.getElementById("add").style.display = "none";
+        }
+    </script>
+{% elif page == 'notgenpurchase' %}
+    <script type="application/javascript">
+        window.onload = function() {
+            var actions = document.getElementsByClassName('tasks');
+            actions[3].parentNode.style.display = "none";
+        }
+    </script>
+{% elif page == 'notpurchase' %}
+    <script type="application/javascript">
+        window.onload = function(){
+            var actions = document.getElementsByClassName('tasks');
+            actions[0].parentNode.style.display = "none";
+            actions[1].parentNode.style.display = "none";
+            actions[4].parentNode.style.display = "none";
+            document.getElementById("id_update_stocking_purchase").style.display = "none";
+        }
+    </script>
+{% elif page == 'purchasing' %}
+    <script type="application/javascript">
+        window.onload = function(){
+            var actions = document.getElementsByClassName('tasks');
+            actions[0].parentNode.style.display = "none";
+            actions[2].parentNode.style.display = "none";
+            actions[4].parentNode.style.display = "none";
+        }
+    </script>
+{% elif page == 'completepurchase' %}
+    <script type="application/javascript">
+        window.onload = function(){
+            var actions = document.getElementsByClassName('tasks');
+            actions[0].parentNode.style.display = "none";
+            actions[1].parentNode.style.display = "none";
+            actions[2].parentNode.style.display = "none";
+            actions[3].parentNode.style.display = "none";
+            actions[4].parentNode.style.display = "none";
+            document.getElementById("id_update_stocking_purchase").style.display = "none";
+        }
+    </script>
+{% elif page == 'abnormalpurchase' %}
+    <script type="application/javascript">
+        window.onload = function(){
+            var actions = document.getElementsByClassName('tasks');
+            actions[1].parentNode.style.display = "none";
+            actions[2].parentNode.style.display = "none";
+            actions[3].parentNode.style.display = "none";
+            document.getElementById("id_update_stocking_purchase").style.display = "none";
+        }
+    </script>
+{% elif page == 'check' %}
+    <script type="application/javascript">
+        window.onload = function(){
+            var actions = document.getElementsByClassName('tasks');
+            actions[2].parentNode.style.display = "none";
+            actions[4].parentNode.style.display = "none";
+            actions[5].parentNode.style.display = "none";
+        }
+    </script>
+{% elif page == 'completecheck' %}
+    <script type="application/javascript">
+        window.onload = function(){
+            var actions = document.getElementsByClassName('tasks');
+            actions[0].parentNode.style.display = "none";
+            actions[1].parentNode.style.display = "none";
+            actions[2].parentNode.style.display = "none";
+            actions[4].parentNode.style.display = "none";
+            actions[5].parentNode.style.display = "none";
+        }
+    </script>
+{% elif page == 'abnormalcheck' %}
+    <script type="application/javascript">
+        window.onload = function(){
+            var actions = document.getElementsByClassName('tasks');
+            actions[0].parentNode.style.display = "none";
+            actions[1].parentNode.style.display = "none";
+        }
+    </script>
+{% elif page == 'completegenbatch' %}
+    <script type="application/javascript">
+        window.onload = function(){
+            var actions = document.getElementsByClassName('tasks');
+            actions[0].parentNode.style.display = "none";
+            actions[1].parentNode.style.display = "none";
+        }
+    </script>
+{% elif page == 'completereject' %}
+    <script type="application/javascript">
+        window.onload = function(){
+            var actions = document.getElementsByClassName('tasks');
+            actions[0].parentNode.style.display = "none";
+            actions[1].parentNode.style.display = "none";
+        }
+    </script>
+{% elif page == 'fbw_nodemand' %}
+    <script type="application/javascript">
+        window.onload = function(){
+            document.getElementById("id_importfileplugin").style.display = "none";
+            document.getElementById("add").style.display = "none";
+            var actions = document.getElementsByClassName('tasks');
+            actions[0].parentNode.style.display = "none";
+            actions[1].parentNode.style.display = "none";
+            actions[2].parentNode.style.display = "none";
+        }
+    </script>
+{% elif page == 'fbw_deliver' %}
+    <script type="application/javascript">
+        window.onload = function(){
+            document.getElementById("add").style.display = "none";
+            var actions = document.getElementsByClassName('tasks');
+            actions[0].parentNode.style.display = "none";
+            actions[1].parentNode.style.display = "none";
+        }
+    </script>
+{% elif page == 'cloth_currentState' %}
+    <script type="application/javascript">
+        window.onload = function(){
+            var actions = document.getElementsByClassName('tasks');
+            actions[0].parentNode.style.display = "none";
+            actions[1].parentNode.style.display = "none";
+        }
+    </script>
+{% endif %}

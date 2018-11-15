@@ -1,0 +1,48 @@
+
+.thumbnail {
+    display: inline-block;
+    position: relative;
+}
+
+.thumbnail .delete {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 15px;
+    height: 15px;
+    display: none;
+    cursor: pointer;
+}
+
+.thumbnail .img{
+    cursor: pointer;
+    /*transition: all 0.4s; !*---越小越快--->	*!*/
+}
+
+/*.thumbnail .img:hover{*/
+    /*transform: scale(3) translateX(500px);!*-----鼠标经过时候图片放大多少倍---->	*!*/
+/*}*/
+
+
+.hasBeenSelected{border-top:#ddd 1px solid;padding:2px;overflow:hidden;background:#f5f9fa;padding-left:10px;position:relative;}
+.hasBeenSelected dl{overflow:hidden;}
+.hasBeenSelected dl dt{float:left;}
+.hasBeenSelected dl dd{float:left;}
+.hasBeenSelected dl dt{text-align:right;line-height:30px;width:108px;height:30px;}
+.hasBeenSelected dl dd{padding-bottom:4px;padding-left:0px;width:100%;padding-right:0px;padding-top:0px;}
+.selectedInfor{border-bottom:#f60 1px solid;position:relative;border-left:#f60 1px solid;padding-bottom:1px;margin:4px 10px 0px 0px;padding-left:5px;padding-right:25px;display:block;white-space:nowrap;background:#fff;float:left;height:25px;border-top:#f60 1px solid;border-right:#f60 1px solid;padding-top:1px;}
+.selectedInfor label{color:#f60;}
+.eliminateCriteria{line-height:21px;margin-top:4px;width:120px;float:left;color:#118ecc;cursor:pointer;}
+.selectedInfor em{background:url("/static/js/close.gif") no-repeat;cursor:pointer;display:block;height:13px;overflow:hidden;position:absolute;right:2px;top:3px;width:13px;}
+
+.div_Color {
+    position: absolute;
+    width: 364px;
+    height: 300px;
+    border: 1px solid #66afe9;
+    border-top: 0px;
+    overflow: auto;
+    display: none;
+    background-color: white;
+    z-index: 9999;
+}

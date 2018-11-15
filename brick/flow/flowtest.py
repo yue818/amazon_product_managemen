@@ -1,0 +1,8 @@
+# -*- coding: utf-8 -*-
+# params  是一个字典
+# result 也是一个字典
+def run(params):
+    print 'flowtest.py:%s'%params
+    #TODO...
+    result =  {'errorcode':1,'errortext':'aaaaaaaaaaaaaaaaaaaa','params':params}
+    return result

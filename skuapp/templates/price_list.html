@@ -1,0 +1,2792 @@
+<link href="/static/xadmin/vendor/bootstrap/css/bootstrap.css" type="text/css" media="screen" rel="stylesheet"/>
+
+<link rel="stylesheet" type="text/css" href="/static/xadmin/css/themes/bootstrap-xadmin.css"/>
+
+<link href="/static/xadmin/vendor/font-awesome/css/font-awesome.min.css" type="text/css" media="screen"
+      rel="stylesheet"/>
+<link href="/static/xadmin/css/xadmin.main.css" type="text/css" media="screen" rel="stylesheet"/>
+<link href="/static/xadmin/css/xadmin.plugins.css" type="text/css" media="screen" rel="stylesheet"/>
+<link href="/static/xadmin/css/xadmin.responsive.css" type="text/css" media="screen" rel="stylesheet"/>
+<link href="/static/xadmin/vendor/bootstrap-datepicker/css/datepicker.css" type="text/css" media="screen"
+      rel="stylesheet"/>
+<link href="/static/xadmin/vendor/bootstrap-clockpicker/bootstrap-clockpicker.min.css" type="text/css" media="screen"
+      rel="stylesheet"/>
+<link href="/static/xadmin/vendor/select2/select2.css" type="text/css" media="screen" rel="stylesheet"/>
+<link href="/static/xadmin/vendor/selectize/selectize.css" type="text/css" media="screen" rel="stylesheet"/>
+<link href="/static/xadmin/vendor/selectize/selectize.bootstrap3.css" type="text/css" media="screen" rel="stylesheet"/>
+<link href="/static/xadmin/css/xadmin.form.css" type="text/css" media="screen" rel="stylesheet"/>
+
+<script src="/static/xadmin/js/jquery-1.7.1.min.js" type="text/javascript"></script>
+<script src="/static/xadmin/layer/layer.js"></script>
+
+<script type="text/javascript">
+    window.__admin_media_prefix__ = "/static/xadmin/";
+    window.__admin_path_prefix__ = "/Project/admin/";
+    window.__admin_language_code__ = "";
+</script>
+<script type="text/javascript" src="/Project/admin/jsi18n/"></script>
+<link media="screen" rel="stylesheet" href="/static/xadmin/css/demo.css"/>
+<style>
+    .btn_1 {
+        display: inline-block;
+        padding: 6px 12px;
+        margin-bottom: 0;
+        font-size: 14px;
+        font-weight: normal;
+        line-height: 1.428571429;
+        text-align: center;
+        vertical-align: middle;
+        cursor: pointer;
+        background-image: none;
+        border: 1px solid transparent;
+        border-radius: 6px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        color: #fff;
+        background-color: #428bca;
+    }
+    .btn_2 {
+        display: inline-block;
+        padding: 6px 8px;
+        margin-bottom: 0;
+        font-size: 8px;
+        font-weight: normal;
+        line-height: 1;
+        text-align: center;
+        vertical-align: middle;
+        cursor: pointer;
+        background-image: none;
+        border: 1px solid transparent;
+        border-radius: 6px;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        color: #fff;
+        background-color: #428bca;
+    }
+	.btn_3{
+			display: unset;
+	        padding: 3.1px 1px;
+	        margin-bottom: 0;
+	        font-size: 14px;
+	        font-weight: normal;
+	        line-height: 1.428571429;
+	        text-align: center;
+	        vertical-align: middle;
+	        cursor: pointer;
+	        background-image: none;
+	        border: 1px solid transparent;
+	        border-radius: 6px;
+	        -webkit-user-select: none;
+	        -moz-user-select: none;
+	        color: #ffffff;
+		    background-color: #555555;
+		}
+	.btn_4{
+			display: inline-block;
+	        padding: 6px 12px;
+	        margin-bottom: 0;
+	        font-size: 14px;
+	        font-weight: normal;
+	        line-height: 1.428571429;
+	        text-align: center;
+	        vertical-align: middle;
+	        cursor: pointer;
+	        background-image: none;
+	        border: 1px solid transparent;
+	        border-radius: 6px;
+	        -webkit-user-select: none;
+	        -moz-user-select: none;
+	        color: #ffffff;
+		    background-color: #3276b1;
+		}
+	input[type="file"] {
+    		display: unset;
+		}
+</style>
+
+<input type='hidden' name='csrfmiddlewaretoken' value='nbAMU04bt4Nx4ZUWtW4EzinC7Dudm2nK'/>
+<input type="hidden" id="platform_his" value="{{platform_his}}" />  
+<input type="hidden" id="country_his" value="{{country_his}}" /> 
+<div
+        class="form-container row clearfix">
+    <div id="column-0"
+         class="formColumn column form-column full col col-sm-12 form-horizontal" span="12" horizontal>
+        <div class="panel panel-default fieldset unsort " id="box-0">
+            <div class="panel-heading">
+                <h3 class="panel-title"><b><font color="green">查询条件:<a href="http://fancyqube-download.oss-cn-shanghai.aliyuncs.com/suanjia/{{ username }}.csv" download="">======>点击我下载批量算价文件</></a></font><font color="red" style="float:right"><a href="http://fancyqube-download.oss-cn-shanghai.aliyuncs.com/suanjia/批量算价模板.csv" class="btn_2">批量算价模板</a>&nbsp;&nbsp;<button id="gxrz" class="btn_2">更新日志</button>&nbsp;&nbsp;<button id="xgwj" class="btn_2">依据文件</button></font></b></h3></div>
+            <div class="panel-body ">
+                <div
+                        class="form-inline form-group">
+                    <div id="div_id_SKU" class="form-group col-sm-12"><label for="id_SKU"
+                                                                             class="control-label ">
+                        SKU
+                    </label>
+                        <div class="controls ">
+                            <input class="text-field admintextinputwidget form-control" id="id_SKU" maxlength="32"
+                                   name="SKU" type="text" value="{{ SKU_info|default:'' }}"/>
+							<form id="batch_suanjia"  style="margin:0px;display:inline;" action = "/batch_suanjia/" method="POST" enctype="multipart/form-data">
+								<input type="file" name="batch_suanjia" class="btn_3"/>&nbsp;&nbsp;<button type="submit" class="btn_4" >批量算价</button>
+								{% csrf_token %}
+                            <span id="success_flag" style="display:none;color:#5cb85c"><font
+                                    size="4px"><b>数据计算成功✓</b></font></span><span id="error_flag"
+                                                                                 style="color:red"></span>
+							
+                        </div>
+                    </div>
+                    <div id="div_id_category" class="form-group col-sm-6" style="display:none"><label for="id_category" class="control-label "><b><font color="#007979">品类</font></b></label><div class="controls ">
+                        <select class="adminselectwidget form-control" id="id_category" name="category">
+                        </select></div></div>
+                </div>
+                <div
+                        class="form-inline form-group" id = "sc">
+
+
+                    <div id="div_id_Weight" class="form-group col-sm-6"><label for="id_Weight"
+                                                                               class="control-label ">
+                        克重(g)
+                    </label>
+                        <div class="controls "><input class="text-field admintextinputwidget form-control"
+                                                      id="id_Weight" maxlength="100" name="Weight" type="text"
+                                                      /><span id="error_flag3" style="color:red"></span>
+                        </div>
+                    </div>
+                    <div id="div_id_CostPrice" class="form-group col-sm-6"><label for="id_CostPrice"
+                                                                                  class="control-label ">
+                        商品成本价(￥)
+                    </label>
+                        <div class="controls "><input class="text-field admintextinputwidget form-control"
+                                                      id="id_CostPrice" maxlength="100" name="CostPrice" type="text"
+                                                      /><span id="error_flag4" style="color:red"></span><b><font color="green">注：如有内包装成本,请累加!</font></b>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-default fieldset unsort " id="box-1">
+            <div class="panel-heading">
+                <h3 class="panel-title"><b><font color="green">参数详情:</font></b></h3></div>
+            <div class="panel-body ">
+                <div
+                        class="form-inline form-group">
+                    <div id="div_id_Platform" class="form-group col-sm-6"><label for="id_Platform"
+                                                                                 class="control-label ">
+                        平台-国家
+                    </label>
+                        <div class="controls "><select class="adminselectwidget form-control" id="id_Platform"
+                                                       name="Platform">
+                            {% for t_cfg_platform_country_obj in t_cfg_platform_country_objs %}
+                                <option value="{{ t_cfg_platform_country_obj.platform_country_code }}" text="{{ t_cfg_platform_country_obj.platform_country_code }}" >{{ t_cfg_platform_country_obj.platform_country_name }}</option>
+                            {% endfor %}
+
+                        </select></div>
+                    </div>
+                    <div id="div_id_Country" class="form-group col-sm-6"><label for="id_Country" class="control-label ">
+                        目的地国家
+                    </label>
+                        <div class="controls "><select class="adminselectwidget form-control" id="id_Country"
+                                                       name="Country">
+
+                        </select></div>
+                    </div>
+                </div>
+				</form>
+                <div
+                        class="form-inline form-group">
+                    <div id="div_id_Logistic_way" class="form-group col-sm-6"><label for="id_Logistic_way"
+                                                                                     class="control-label ">
+                        物流方式
+                    </label>
+                        <div class="controls "><input class="text-field admintextinputwidget form-control"
+                                                      id="id_Logistic_way" maxlength="32" name="Logistic_way"
+                                                      type="text" readonly="readonly"/></div>
+                    </div>
+                    <div id="div_id_Discount" class="form-group col-sm-6"><label for="id_Discount"
+                                                                                 class="control-label ">
+                        物流折扣(%)
+                    </label>
+                        <div class="controls "><input class="text-field admintextinputwidget form-control"
+                                                      id="id_Discount" maxlength="32" name="Discount"
+                                                      type="text" readonly="readonly"/></div>
+                    </div>
+                </div>
+
+                <div
+                        class="form-inline form-group">
+                    <div id="div_id_rate" class="form-group col-sm-6"><label for="id_rate" class="control-label ">
+                        汇率
+                    </label>
+                        <div class="controls "><input class="text-field admintextinputwidget form-control"
+                                                      id="id_rate" maxlength="32" name="rate" type="text"
+                                                      readonly="readonly"/><input type="hidden" id="hl" /></div>
+                    </div>
+                    <div id="div_id_Platform_kd" class="form-group col-sm-6"><label for="id_Platform_kd"
+                                                                                    class="control-label ">
+                        平台扣点(%)
+                    </label>
+                        <div class="controls "><input class="text-field admintextinputwidget form-control"
+                                                      id="id_Platform_kd"
+                                                      name="Platform_kd" type="text" value="" />&nbsp;&nbsp;&nbsp;<button id="PL" class="btn_1">品类详情(含papal扣点)</button></div>
+                    </div>
+                </div>
+				
+
+            </div>
+        </div>
+		
+        <div class="panel panel-default fieldset unsort " id="box-2">
+            <div class="panel-heading">
+                <h3 class="panel-title"><b><font color="green">利润率售价换算:</font></b></h3></div>
+            <div class="panel-body ">
+                <div
+                        class="form-inline form-group">
+                    <div id="div_id_Profit_rate" class="form-group col-sm-6"><label for="id_Profit_rate"
+                                                                                    class="control-label ">
+                        利润率(%)
+                    </label>
+                        <div class="controls "><input class="text-field admintextinputwidget form-control"
+                                                      id="id_Profit_rate" maxlength="100" name="Profit_rate" type="text"
+                                                      value="0"/>
+                        </div>
+                    </div>
+                    <div id="div_id_SellPrice2" class="form-group col-sm-6"><label for="id_SellPrice2"
+                                                                                   class="control-label ">
+                        售价($)
+                    </label>
+                        <div class="controls "><input class="text-field admintextinputwidget form-control"
+                                                      id="id_SellPrice2" maxlength="100" name="SellPrice2" type="text"
+                                                      value="{{SellingPrice_info|default:''}}"/><span id="error_flag2" style="color:red"></span>
+                        </div>
+                    </div>
+                </div>
+                <div
+                        class="form-inline form-group">
+                    <div id="div_id_SellPrice1" class="form-group col-sm-6"><label for="id_SellPrice1"
+                                                                                   class="control-label ">
+                        售价(￥)
+                    </label>
+                        <div class="controls "><input class="text-field admintextinputwidget form-control"
+                                                      id="id_SellPrice1" maxlength="100" name="SellPrice1" type="text"
+                                                      readonly="readonly" value=""/>
+                        </div>
+                    </div>
+                    <div id="div_id_SellPrice3" class="form-group col-sm-6"><label for="id_SellPrice3"
+                                                                                   class="control-label ">
+                        售价(<span id="id_CURRENCYCODE">待定</span>)
+                    </label>
+                        <div class="controls "><input class="text-field admintextinputwidget form-control"
+                                                      id="id_SellPrice3" maxlength="100" name="SellPrice3" type="text"
+                                                      value="{{ price_des }}"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+			<div class="panel panel-default fieldset unsort " id="box-3">
+				<div class="panel-heading">
+                    <h3 class="panel-title"><b><font color="green">运费详情:</font></b></h3></div>
+                <div>
+	                <table border="1" class="table table-bordered table-striped table-hover" style="text-align:center;margin:0 auto;font-weight:bold;font-size:12px">
+						<tr class="grid-item">
+							<td class="nowrap">物流基本运费(￥)</td>
+							<td class="nowrap">物流分档运费(￥)</td>
+							<td class="nowrap">物流总运费(折扣后的总价￥)</td>
+							<td class="nowrap">物流规则</td>
+						</tr>
+						<tr bgcolor="#eeeeee">
+							<td class="nowrap"><span id="jbyf">&nbsp;</span></td>
+							<td class="nowrap"><span id="fdyf">&nbsp;</span></td>
+							<td class="nowrap"><span id="zyf">&nbsp;</span></td>
+							<td class="nowrap"><span id="wlgz">&nbsp;</span></td>
+						</tr>
+					</table>
+                </div>				
+			</div>
+            <div class="panel panel-default fieldset unsort " id="box-4">
+                <div class="panel-heading">
+                    <h3 class="panel-title"><b><font color="red">计算详情:</font></b></h3></div>
+                <div>
+                    <div id="div_id_details"><font color="#2a6496" size="3px"><b><span
+                            id="id_details">
+                    </span></b></font></div>
+                </div>
+            </div>
+            <input type="hidden" id="platformCountryCode" value={{ platformCountryCode_info }}>
+            <input type="hidden" id="DestinationCountryCode" value={{ DestinationCountryCode_info }}>
+            <input type="hidden" id="ali_category" value={{ category }}>
+            <input type="hidden" id="country_name" value={{ country_name }}>
+            <script type="text/javascript" src="/static/xadmin/vendor/bootstrap/js/bootstrap.min.js"></script>
+            <div id='rz' style ="display:none">
+            <ul id="myTab">
+                @chenchen
+            </div>
+
+            <script type="text/javascript">
+
+                $("#PL").click(function(){
+                    //layer.open({type:1,skin:'layui-layer-lan',title:'各品类的扣点:',fix:false,shadeClose: true,maxmin:true,area:['500px','600px'],content:$("#price_plkd").html()});
+                    layer.open({type:2,skin:'layui-layer-lan',title:'品类扣点显示',fix:false,shadeClose: true,maxmin:true,area:['500px','500px'],content:'/price_list_tab/'});
+                });
+                $("#gxrz").click(function(){
+                    layer.open({type:2,skin:'layui-layer-lan',title:'更新日志',fix:false,shadeClose: true,maxmin:true,area:['850px','600px'],content:'/price_list_rz/'});
+                });
+                $("#xgwj").click(function(){
+                    layer.open({type:2,skin:'layui-layer-lan',title:'依据文件',fix:false,shadeClose: true,maxmin:true,area:['790px','600px'],content:'/price_list_file/'});
+                });
+                $("document").ready(function(){
+                    var SKU = $("#id_SKU").val();
+                    var SellPrice = $("#id_SellPrice2").val();
+                    var platformCountryCode = $("#platformCountryCode").val();
+                    if (platformCountryCode.indexOf("EBAY") < 0){
+                        $("#PL").hide();
+                    }
+                    var DestinationCountryCode = $("#DestinationCountryCode").val();
+                    var country_name = $("#country_name").val();
+                    if (platformCountryCode != 'None' & DestinationCountryCode != 'None'){
+                        $("#id_Platform").find("option[text='"+platformCountryCode+"']").attr("selected",true);
+                        //$("#id_Country").find("option[text='"+DestinationCountryCode+"']").attr("selected",true); 没加载数据,so没用
+                        $("#id_Country").html("<option value='"+ DestinationCountryCode +"' text='RUS'>"+ country_name +"</option>");
+                    }else{
+                        $("#id_Country").html("<option value='RUS' text='RUS'>俄罗斯</option>");
+                        $("#id_Platform").find("option[text='JOOM-RUS']").attr("selected",true);
+                    }
+                    var Platform = $("#id_Platform option:selected").val();
+                    var Country = $("#id_Country option:selected").val();
+                    var category = $("#ali_category").val();
+                    var currencycode = $("#id_CURRENCYCODE").val();
+					var price_des = $("#id_SellPrice3").val();
+                    var data = {'SKU': SKU,
+                                'SellPrice': SellPrice,
+                                'platformCountryCode': Platform,
+                                'DestinationCountryCode': Country,};
+                    if(category) {
+                        data = {'SKU': SKU,
+                                'SellPrice': SellPrice,
+                                'platformCountryCode': Platform,
+                                'DestinationCountryCode': Country,
+                                'category':category,};
+                        $.getJSON('/price_list2/?Platform=' + Platform, function (result) {
+                            if (result.resultCode == '200') {
+                                var Category = document.getElementById('id_category');
+                                Category.options.length = 0;
+                                if (result['PL_flag'] == 1){
+                                    var PL = result['PL'];
+                                    for (var i = 0; i < PL.length; i++) {
+                                        $("#id_category").append("<option value='" + PL[i]['category_code'] + "' text='" + PL[i]['category_code'] + "'>" + PL[i]['category_name'] + "</option>");
+                                    }
+                                    $("#div_id_SKU").attr("class","form-group col-sm-6");
+                                    $("#div_id_category").show();
+                                }else{
+                                    $("#div_id_SKU").attr("class","form-group col-sm-12");
+                                    $("#div_id_category").hide();
+                                }
+                            }
+                        });
+                    }
+                    if (SellPrice.trim() != ''& SellPrice.trim() != '0') { 
+                        $.ajax({
+                            url: "/suanjia2/",
+                            type: "POST",
+                            contentType: "application/x-www-form-urlencoded:charset=UTF-8",
+                            dataType: "json",
+                            data: data,
+
+                            success: function (dataq, textStatus, XMLHttpRequest) {
+                                $("#id_category").show();
+                                $("#id_category").find("option[text='"+ category +"']").attr("selected",true);
+                                console.log(dataq);
+                                if (Platform.indexOf("EBAY") >= 0 ){
+                                    $("#error_flag2").html('<font size="2px"><b>此售价：建议只做8美金以下的产品！</b></font>');
+                                }else{
+                                    $("#error_flag2").html('');
+                                }
+                                $("#id_Weight").val(dataq.Weight);
+                                $("#id_CostPrice").val(dataq.CostPrice);
+                                $("#id_Logistic_way").val(dataq.logisticName);
+                                $("#id_rate").val(dataq.ExchangeRate);
+                                $("#id_Platform_kd").val(dataq.kickback);
+                                $("#id_CURRENCYCODE").html(dataq.CURRENCYCODE);
+                                $("#id_Discount").val(dataq.Discount);
+                                $("#id_details").html(dataq.html_info);
+                                $("#id_SellPrice1").val(dataq.sellingPrice_china);
+                                $("#id_Profit_rate").val(dataq.profitRate);
+                                $("#id_SellPrice3").val(dataq.sellingPrice_destination);
+                                $("#success_flag").css('display', '');
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                $("#id_Logistic_way").val('');
+                                $("#id_rate").val('');
+                                $("#id_Platform_kd").val('');
+                                $("#id_Discount").val('');
+                                $("#id_CURRENCYCODE").html('待定');
+                                $("#id_details").html('');
+                                $("#id_SellPrice1").val('');
+                                $("#id_SellPrice3").val('');
+                                $("#success_flag").css('display', 'none');
+                                console.log('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                            }
+                        });
+                    } else {
+                        $("#id_Weight").val('');
+                        $("#id_CostPrice").val('');
+                        $("#id_Logistic_way").val('');
+                        $("#id_rate").val('');
+                        $("#id_Platform_kd").val('');
+                        $("#id_Discount").val('');
+                        $("#id_CURRENCYCODE").html('待定');
+                        $("#id_details").html('');
+                        $("#id_SellPrice1").val('');
+                        $("#id_SellPrice2").val('');
+                        $("#id_SellPrice3").val('');
+                        $("#success_flag").css('display', 'none');
+                    }
+
+                    if (SellPrice.trim() == '0') {
+						var currencycode = "{{ currencycode }}";
+                        $.ajax({
+                            url: "/suanjia2/",
+                            type: "POST",
+                            contentType: "application/x-www-form-urlencoded:charset=UTF-8",
+                            dataType: "json",
+                            data: {'SKU': SKU,
+                                'SellPrice': SellPrice,
+                                'currencycode':currencycode,
+								'price_des':price_des,
+                                'platformCountryCode': Platform,
+                                'DestinationCountryCode': Country,
+                                'category':category},
+
+                            success: function (dataq, textStatus, XMLHttpRequest) {
+                                $("#id_category").show();
+                                $("#id_category").find("option[text='"+ category +"']").attr("selected",true);
+                                console.log(dataq);
+                                if (Platform.indexOf("EBAY") >= 0 ){
+                                    $("#error_flag2").html('<font size="2px"><b>此售价：建议只做8美金以下的产品！</b></font>');
+                                }else{
+                                    $("#error_flag2").html('');
+                                }
+                                $("#id_Weight").val(dataq.Weight);
+                                $("#id_CostPrice").val(dataq.CostPrice);
+                                $("#id_Logistic_way").val(dataq.logisticName);
+                                $("#id_rate").val(dataq.ExchangeRate);
+                                $("#id_Platform_kd").val(dataq.kickback);
+                                $("#id_CURRENCYCODE").html(dataq.CURRENCYCODE);
+                                $("#id_Discount").val(dataq.Discount);
+                                $("#id_details").html(dataq.html_info);
+                                $("#id_SellPrice1").val(dataq.sellingPrice_china);
+                                $("#id_Profit_rate").val(dataq.profitRate);
+                                $("#id_SellPrice3").val(dataq.sellingPrice_destination);
+                                $("#success_flag").css('display', '');
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                $("#id_Logistic_way").val('');
+                                $("#id_rate").val('');
+                                $("#id_Platform_kd").val('');
+                                $("#id_Discount").val('');
+                                $("#id_CURRENCYCODE").html('待定');
+                                $("#id_details").html('');
+                                $("#id_SellPrice1").val('');
+                                $("#id_SellPrice3").val('');
+                                $("#success_flag").css('display', 'none');
+                                console.log('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                            }
+                        });
+                    } else {
+                        $("#id_Weight").val('');
+                        $("#id_CostPrice").val('');
+                        $("#id_Logistic_way").val('');
+                        $("#id_rate").val('');
+                        $("#id_Platform_kd").val('');
+                        $("#id_Discount").val('');
+                        $("#id_CURRENCYCODE").html('待定');
+                        $("#id_details").html('');
+                        $("#id_SellPrice1").val('');
+                        $("#id_SellPrice2").val('');
+                        $("#id_SellPrice3").val('');
+                        $("#success_flag").css('display', 'none');
+                    }
+                    var platform_his = $("#platform_his").val();
+                    var country_his = $("#country_his").val();
+                    $.getJSON('/price_list2/?Platform=' + platform_his + '&Country=' + country_his, function (result) {
+                        if (result.resultCode == '200') {
+                            var s_country = result['s_country'];
+                            for (var i = 0; i < s_country.length; i++) {
+                                $("#id_Country").append("<option text='" + s_country[i]['countrycode'] + "' value='" + s_country[i]['countrycode'] + "'>" + s_country[i]['countryname'] + "</option>");
+                            }
+                        }
+                        
+                        $("#id_Country").find("option[text='"+country_his+"']").attr("selected",true);
+                    });
+                    $("#id_Platform").find("option[text='"+platform_his+"']").attr("selected",true);
+                    var Platform = $("#id_Platform option:selected").val();
+                    
+                    $.getJSON('/price_list2/?Platform=' + Platform +'&Country='+country_his, function (result) {
+                            if (result.resultCode == '200') {
+                                var Category = document.getElementById('id_category');
+                                Category.options.length = 0;
+                                if (result['PL_flag'] == 1){
+                                    var PL = result['PL'];
+                                    for (var i = 0; i < PL.length; i++) {
+                                        $("#id_category").append("<option value='" + PL[i]['category_code'] + "' text='" + PL[i]['category_code'] + "'>" + PL[i]['category_name'] + "</option>");
+                                    }
+                                    $("#div_id_SKU").attr("class","form-group col-sm-6");
+                                    $("#div_id_category").show();
+                                }else{
+                                    $("#div_id_SKU").attr("class","form-group col-sm-6");
+                                    $("#div_id_category").hide();
+                                }
+                            }
+                            var ex1 = result['ex1'];
+                            var ex2 = result['ex2'];
+                            var t1 = result['t1'];
+                            var t2 = result['t2'];
+                            $("#ex").remove();
+                            if(ex1 > ex2){
+                                htm = '<span id="ex"><font color="red" size="5">&#8593;&nbsp;&nbsp;</font>'+'<b><font color="red" size="3">'+ex2+'('+t2+')'+'~'+ex1+'('+t1+')'+'</font></b></span>';
+                                $("#hl").after(htm);
+                            }else if(ex1 < ex2) {
+                                htm = '<span id="ex"><font color="red" size="5">&#8595;&nbsp;&nbsp;</font>'+'<b><font color="red" size="3">'+ex1+'('+t1+')'+'~'+ex2+'('+t2+')'+'</font></b></span>';
+                                $("#hl").after(htm);
+                            }else{
+                                html = ''
+                                $("#ex").remove();
+                            }
+                        });             
+                    
+                    if(Platform.indexOf("AMAZON-IN-FBA") >= 0 ){
+                        html = '<div class="form-inline form-group">\
+                        <div id="div_id_sb_discount" class="form-group col-sm-6"><label for="id_sb_discount"\
+                                                                                         class="control-label ">\
+                            申报折扣(%)\
+                        </label>\
+                            <div class="controls "><input class="text-field admintextinputwidget form-control"\
+                                                          id="id_sb_discount" maxlength="32" name="sb_discount"\
+                                                          type="text" /></div>\
+                        </div>\
+                        <div id="div_id_bcd_rate" class="form-group col-sm-6"><label for="id_bcd_rate"\
+                                                                                     class="control-label ">\
+                            bcd汇率(%)\
+                        </label>\
+                            <div class="controls "><input class="text-field admintextinputwidget form-control"\
+                                                          id="id_bcd_rate" maxlength="32" name="bcd_rate"\
+                                                          type="text" /></div>\
+                        </div>\
+                        <div id="div_id_yj_rate" class="form-group col-sm-6"><label for="id_yj_rate"\
+                                                                                         class="control-label ">\
+                            佣金比例(%)\
+                        </label>\
+                            <div class="controls "><input class="text-field admintextinputwidget form-control"\
+                                                          id="id_yj_rate" maxlength="32" name="yj_rate"\
+                                                          type="text" /></div>\
+                        </div>\
+                        <div id="div_id_xss_rate" class="form-group col-sm-6"><label for="id_xss_rate"\
+                                                                                     class="control-label ">\
+                            销售税比例(%)\
+                        </label>\
+                            <div class="controls "><input class="text-field admintextinputwidget form-control"\
+                                                          id="id_xss_rate" maxlength="32" name="xss_rate"\
+                                                          type="text" /></div>\
+                        </div>\
+                        </div>';
+                        html2 = '<span id="warning"><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font size="3" color="#E47833">友情提示：仅支持根据售价得出利润率，不支持正算！</font></b></span>';
+                        $("#success_flag").after(html2);
+                        $("#sc").after(html);
+                    }else{
+                        $("#div_id_sb_discount").remove();
+                        $("#div_id_bcd_rate").remove();
+                        $("#div_id_yj_rate").remove();
+                        $("#div_id_xss_rate").remove();
+                        $("#warning").remove();
+                    }
+                    if(Platform.indexOf("AMAZON-FBA") >= 0 ){
+                        $("#div_id_category").hide();
+                        $("#div_id_SKU").attr("class","form-group col-sm-6");
+                        var Country = $("#id_Country option:selected").val();
+                        html = '<div id="div_id_bigflag" class="form-group col-sm-6"><label for="id_bigflag" class="control-label "><b><font color="#007979">大规格</font></b></label><div class="controls "><select class="adminselectwidget form-control" id="id_bigflag" name="bigflag">\
+                         {% for t_cfg_standard_large_obj in t_cfg_standard_large_objs %}\
+                            <option value="{{ t_cfg_standard_large_obj.standard_large_code }}" text="{{ t_cfg_standard_large_obj.standard_large_code }}" >{{ t_cfg_standard_large_obj.standard_large_name }}</option>\
+                         {% endfor %}</select></div></div>\
+                        <div id="div_id_smallflag" class="form-group col-sm-6"><label for="id_smallflag" class="control-label "><b><font color="#007979">小规格</font></b></label><div class="controls "><select class="adminselectwidget form-control" id="id_smallflag" name="smallflag">\
+                        </select><font color="red" size="2px"><b>注：1磅等于0.454kg</b></font></div></div>';
+                        html2 = '<div id="div_id_kg" class="form-group col-sm-6"><label for="id_kg" class="control-label "><font color="#007979">包裹重量(kg)</font></label><div class="controls "><input class="text-field admintextinputwidget form-control" id="id_kg" name="kg" type="text" value="20"/><font color="red" size="2px"><b>注：请按实际需要规格填写,超出范围则算价失败!!!</b></font></div></div>';
+                        $("#div_id_SKU").attr("class","form-group col-sm-6");
+                        $("#div_id_SKU").after(html2);
+                        $("#div_id_CostPrice").after(html);
+
+                        $("#id_Country").change(function () {
+                            var Country = $(this).val();
+                            var Platform = 'AMAZON-FBA';
+                            //if(Country == 'UK'){
+                             //   $("#id_kg").val('0.1');
+                            //}else{
+                            //    $("#id_kg").val('20');
+                            //}
+                            $.getJSON('/price_list4/?Platform=' + Platform + '&Country=' + Country, function (result) {
+                                var bigflag = document.getElementById('id_bigflag');
+                                bigflag.options.length = 0;
+                                var smallflag = document.getElementById('id_smallflag');
+                                smallflag.options.length = 0;
+                                $("#div_id_SKU").attr("class","form-group col-sm-6");
+                                if (result.resultCode == '200') {
+                                    var big = result['big'];
+                                    for (var i = 0; i < big.length; i++) {
+                                        $("#id_bigflag").append("<option value='" + big[i]['large_code'] + "'>" + big[i]['large_name'] + "</option>");
+                                    }
+                                    var small = result['small'];
+                                    for (var i = 0; i < small.length; i++) {
+                                        $("#id_smallflag").append("<option value='" + small[i]['small_code'] + "'>" + small[i]['small_name'] + "</option>");
+                                    }
+                                }
+                                var SKU = $("#id_SKU").val();
+                                var CostPrice = $("#id_CostPrice").val();
+                                var Weight = $("#id_Weight").val();
+                                var Platform = $("#id_Platform option:selected").val();
+                                var Country = $("#id_Country option:selected").val();
+                                var Profit_rate = $("#id_Profit_rate").val();
+                                var bigflag = $("#id_bigflag option:selected").val();
+                                var SmallCode = $("#id_smallflag option:selected").val();
+                                var PackWeight =$("#id_kg").val();
+                                $.ajax({
+                                    url: "/suanjia1/",
+                                    type: "POST",
+                                    contentType: "application/x-www-form-urlencoded:charset=UTF-8",
+                                    dataType: "json",
+                                    data: {
+                                        'SKU': SKU,
+                                        'platformCountryCode': Platform,
+                                        'DestinationCountryCode': Country,
+                                        'profitRate': Profit_rate,
+                                        'SmallCode':SmallCode,
+                                        'LargeCode':bigflag,
+                                        'PackWeight':PackWeight,
+                                        'Weight': Weight,
+                                        'CostPrice':CostPrice,
+                                    },
+
+                                    success: function (dataq, textStatus, XMLHttpRequest) {
+                                        console.log(dataq);
+                                        $("#error_flag3").html('');
+                                        $("#error_flag4").html('');
+                                        if (Platform.indexOf("EBAY") >= 0 ){
+                                            $("#error_flag2").html('<font size="2px"><b>此售价：建议只做8美金以下的产品！</b></font>');
+                                        }else{
+                                            $("#error_flag2").html('');
+                                        }
+                                        $("#id_Weight").val(dataq.Weight);
+                                        $("#id_CostPrice").val(dataq.CostPrice);
+                                        $("#id_Logistic_way").val(dataq.logisticName);
+                                        $("#id_rate").val(dataq.ExchangeRate);
+                                        $("#id_Platform_kd").val(dataq.kickback);
+                                        $("#id_CURRENCYCODE").html(dataq.CURRENCYCODE);
+                                        $("#id_Discount").val(dataq.Discount);
+                                        $("#id_SellPrice1").val(dataq.sellingPrice_china);
+                                        $("#id_SellPrice2").val(dataq.sellingPrice_us);
+                                        $("#id_SellPrice3").val(dataq.sellingPrice_destination);
+                                        $("#id_details").html(dataq.html_info);
+                                        $("#error_flag").html('');
+                                        $("#success_flag").css('display', '');
+
+                                    },
+                                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                        $("#id_Logistic_way").val('');
+                                        $("#id_rate").val('');
+                                        $("#id_Platform_kd").val('');
+                                        $("#id_Discount").val('');
+                                        $("#id_CURRENCYCODE").html('待定');
+                                        $("#id_details").html('');
+                                        $("#id_SellPrice1").val('');
+                                        $("#id_SellPrice2").val('');
+                                        $("#id_SellPrice3").val('');
+                                        $("#error_flag").html('<font size="4px"><b>未查询到该SKU相关信息,可以清空SKU,手动输入克重和成本价查询！</b></font>');
+                                        $("#success_flag").css('display', 'none');
+                                        console.log('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                                    }
+                                });
+                            });
+                        });
+
+                        var bigflag = $("#id_bigflag option:selected").val();
+                        var PackWeight =$("#id_kg").val();
+                        var smallflag = document.getElementById('id_smallflag');
+                        smallflag.options.length = 0;
+                        $.getJSON('/price_list3/?bigflag='+bigflag, function(result){
+                            if (result.resultCode == '200'){
+                                var guige = result['guige'];
+                                for (var i=0;i<guige.length;i++){
+                                    $("#id_smallflag").append("<option value='"+guige[i]['smallcode']+"'>"+guige[i]['smallname']+"</option>");
+                                }
+                                var SmallCode = $("#id_smallflag option:selected").val();
+                                var SKU = $("#id_SKU").val();
+                                var Weight = $("#id_Weight").val();
+                                var CostPrice = $("#id_CostPrice").val();
+                                var Country = $("#id_Country option:selected").val();
+                                var Profit_rate = $("#id_Profit_rate").val();
+                                $.ajax({
+                                    url: "/suanjia1/",
+                                    type: "POST",
+                                    contentType: "application/x-www-form-urlencoded:charset=UTF-8",
+                                    dataType: "json",
+                                    data: {
+                                        'SKU': SKU,
+                                        'Weight':Weight,
+                                        'CostPrice':CostPrice,
+                                        'platformCountryCode': Platform,
+                                        'DestinationCountryCode': Country,
+                                        'profitRate': Profit_rate,
+                                        'SmallCode':SmallCode,
+                                        'LargeCode':bigflag,
+                                        'PackWeight':PackWeight,
+                                    },
+
+                                    success: function (dataq, textStatus, XMLHttpRequest) {
+                                        $("#error_flag3").html('');
+                                        $("#error_flag4").html('');
+                                        $("#id_Weight").val(dataq.Weight);
+                                        $("#id_CostPrice").val(dataq.CostPrice);
+                                        $("#id_Logistic_way").val(dataq.logisticName);
+                                        $("#id_rate").val(dataq.ExchangeRate);
+                                        $("#id_CURRENCYCODE").html(dataq.CURRENCYCODE);
+                                        $("#id_details").html(dataq.html_info);
+                                        $("#id_Platform_kd").val(dataq.kickback);
+                                        $("#id_Discount").val(dataq.Discount);
+                                        $("#error_flag").html('');
+                                        $("#id_SellPrice1").val(dataq.sellingPrice_china);
+                                        $("#id_SellPrice2").val(dataq.sellingPrice_us);
+                                        $("#id_SellPrice3").val(dataq.sellingPrice_destination);
+                                        $("#success_flag").css('display', '');
+                                    },
+                                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                        $("#id_Logistic_way").val('');
+                                        $("#id_rate").val('');
+                                        $("#id_Platform_kd").val('');
+                                        $("#id_Discount").val('');
+                                        $("#id_CURRENCYCODE").html('待定');
+                                        $("#id_details").html('');
+                                        $("#id_SellPrice1").val('');
+                                        $("#id_SellPrice2").val('');
+                                        $("#id_SellPrice3").val('');
+                                        $("#success_flag").css('display', 'none');
+                                        console.log('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                                    }
+                                });
+                            } else {
+                                console.log('错误信息：' + XMLHttpRequest.responseText);
+                            }
+                        });
+                        $("#id_bigflag").change(function () {
+                            var bigflag = $("#id_bigflag option:selected").val();
+                            var smallflag = document.getElementById('id_smallflag');
+                            var PackWeight =$("#id_kg").val();
+                            smallflag.options.length = 0;
+                            var Country = $("#id_Country option:selected").val();
+                            $.getJSON('/price_list3/?bigflag=' + bigflag +'&Country=' + Country, function (result) {
+                                if (result.resultCode == '200') {
+                                    var guige = result['guige'];
+                                    for (var i = 0; i < guige.length; i++) {
+                                        $("#id_smallflag").append("<option value='" + guige[i]['smallcode'] + "'>" + guige[i]['smallname'] + "</option>");
+                                    }
+                                    var SKU = $("#id_SKU").val();
+                                    var Weight = $("#id_Weight").val();
+                                    var CostPrice = $("#id_CostPrice").val();
+                                    var Country = $("#id_Country option:selected").val();
+                                    var Profit_rate = $("#id_Profit_rate").val();
+                                    var SmallCode = $("#id_smallflag option:selected").val();
+                                    $.ajax({
+                                        url: "/suanjia1/",
+                                        type: "POST",
+                                        contentType: "application/x-www-form-urlencoded:charset=UTF-8",
+                                        dataType: "json",
+                                        data: {
+                                            'SKU': SKU,
+                                            'Weight': Weight,
+                                            'CostPrice': CostPrice,
+                                            'platformCountryCode': Platform,
+                                            'DestinationCountryCode': Country,
+                                            'profitRate': Profit_rate,
+                                            'SmallCode': SmallCode,
+                                            'LargeCode': bigflag,
+                                            'PackWeight':PackWeight,
+                                        },
+
+                                        success: function (dataq, textStatus, XMLHttpRequest) {
+                                            $("#error_flag3").html('');
+                                            $("#error_flag4").html('');
+                                            $("#id_Weight").val(dataq.Weight);
+                                            $("#id_CostPrice").val(dataq.CostPrice);
+                                            $("#id_Logistic_way").val(dataq.logisticName);
+                                            $("#id_rate").val(dataq.ExchangeRate);
+                                            $("#id_CURRENCYCODE").html(dataq.CURRENCYCODE);
+                                            $("#id_details").html(dataq.html_info);
+                                            $("#id_Platform_kd").val(dataq.kickback);
+                                            $("#id_Discount").val(dataq.Discount);
+                                            $("#error_flag").html('');
+                                            $("#id_SellPrice1").val(dataq.sellingPrice_china);
+                                            $("#id_SellPrice2").val(dataq.sellingPrice_us);
+                                            $("#id_SellPrice3").val(dataq.sellingPrice_destination);
+                                            $("#success_flag").css('display', '');
+                                        },
+                                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                            $("#id_Logistic_way").val('');
+                                            $("#id_rate").val('');
+                                            $("#id_Platform_kd").val('');
+                                            $("#id_Discount").val('');
+                                            $("#id_CURRENCYCODE").html('待定');
+                                            $("#id_details").html('');
+                                            $("#id_SellPrice1").val('');
+                                            $("#id_SellPrice2").val('');
+                                            $("#id_SellPrice3").val('');
+                                            $("#success_flag").css('display', 'none');
+                                            console.log('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                                        }
+                                    });
+                                }else {
+                                    console.log('错误信息：' + XMLHttpRequest.responseText);
+                                }
+                            });
+                        });
+
+                        $("#id_kg").on('input',function(e){
+                            var SKU = $("#id_SKU").val();
+                            var CostPrice = $("#id_CostPrice").val();
+                            var Weight = $("#id_Weight").val();
+                            var Platform = $("#id_Platform option:selected").val();
+                            var Country = $("#id_Country option:selected").val();
+                            var Profit_rate = $("#id_Profit_rate").val();
+                            var bigflag = $("#id_bigflag option:selected").val();
+                            var SmallCode = $("#id_smallflag option:selected").val();
+                            var PackWeight =$("#id_kg").val();
+                            $.ajax({
+                                url: "/suanjia1/",
+                                type: "POST",
+                                contentType: "application/x-www-form-urlencoded:charset=UTF-8",
+                                dataType: "json",
+                                data: {
+                                    'SKU': SKU,
+                                    'platformCountryCode': Platform,
+                                    'DestinationCountryCode': Country,
+                                    'profitRate': Profit_rate,
+                                    'SmallCode':SmallCode,
+                                    'LargeCode':bigflag,
+                                    'PackWeight':PackWeight,
+                                    'Weight': Weight,
+                                    'CostPrice':CostPrice,
+                                },
+
+                                success: function (dataq, textStatus, XMLHttpRequest) {
+                                    console.log(dataq);
+                                    $("#error_flag3").html('');
+                                    $("#error_flag4").html('');
+                                    if (Platform.indexOf("EBAY") >= 0 ){
+                                        $("#error_flag2").html('<font size="2px"><b>此售价：建议只做8美金以下的产品！</b></font>');
+                                    }else{
+                                        $("#error_flag2").html('');
+                                    }
+                                    $("#id_Weight").val(dataq.Weight);
+                                    $("#id_CostPrice").val(dataq.CostPrice);
+                                    $("#id_Logistic_way").val(dataq.logisticName);
+                                    $("#id_rate").val(dataq.ExchangeRate);
+                                    $("#id_Platform_kd").val(dataq.kickback);
+                                    $("#id_CURRENCYCODE").html(dataq.CURRENCYCODE);
+                                    $("#id_Discount").val(dataq.Discount);
+                                    $("#id_SellPrice1").val(dataq.sellingPrice_china);
+                                    $("#id_SellPrice2").val(dataq.sellingPrice_us);
+                                    $("#id_SellPrice3").val(dataq.sellingPrice_destination);
+                                    $("#id_details").html(dataq.html_info);
+                                    $("#error_flag").html('');
+                                    $("#success_flag").css('display', '');
+                                },
+                                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                    $("#id_Logistic_way").val('');
+                                    $("#id_rate").val('');
+                                    $("#id_Platform_kd").val('');
+                                    $("#id_Discount").val('');
+                                    $("#id_CURRENCYCODE").html('待定');
+                                    $("#id_details").html('');
+                                    $("#id_SellPrice1").val('');
+                                    $("#id_SellPrice2").val('');
+                                    $("#id_SellPrice3").val('');
+                                    $("#error_flag").html('<font size="4px"><b>未查询到该SKU相关信息,可以清空SKU,手动输入克重和成本价查询！</b></font>');
+                                    $("#success_flag").css('display', 'none');
+                                    console.log('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                                }
+                            });
+                        });
+                        $("#id_smallflag").change(function () {
+                            var bigflag = $("#id_bigflag option:selected").val();
+                            var SKU = $("#id_SKU").val();
+                            var Weight = $("#id_Weight").val();
+                            var CostPrice = $("#id_CostPrice").val();
+                            var Country = $("#id_Country option:selected").val();
+                            var Profit_rate = $("#id_Profit_rate").val();
+                            var SmallCode = $("#id_smallflag option:selected").val();
+                            var PackWeight =$("#id_kg").val();
+                            $.ajax({
+                                url: "/suanjia1/",
+                                type: "POST",
+                                contentType: "application/x-www-form-urlencoded:charset=UTF-8",
+                                dataType: "json",
+                                data: {
+                                    'SKU': SKU,
+                                    'Weight':Weight,
+                                    'CostPrice':CostPrice,
+                                    'platformCountryCode': Platform,
+                                    'DestinationCountryCode': Country,
+                                    'profitRate': Profit_rate,
+                                    'SmallCode':SmallCode,
+                                    'LargeCode':bigflag,
+                                    'PackWeight':PackWeight,
+                                },
+
+                                success: function (dataq, textStatus, XMLHttpRequest) {
+                                    $("#error_flag3").html('');
+                                    $("#error_flag4").html('');
+                                    $("#id_Weight").val(dataq.Weight);
+                                    $("#id_CostPrice").val(dataq.CostPrice);
+                                    $("#id_Logistic_way").val(dataq.logisticName);
+                                    $("#id_rate").val(dataq.ExchangeRate);
+                                    $("#id_CURRENCYCODE").html(dataq.CURRENCYCODE);
+                                    $("#id_details").html(dataq.html_info);
+                                    $("#id_Platform_kd").val(dataq.kickback);
+                                    $("#id_Discount").val(dataq.Discount);
+                                    $("#error_flag").html('');
+                                    $("#id_SellPrice1").val(dataq.sellingPrice_china);
+                                    $("#id_SellPrice2").val(dataq.sellingPrice_us);
+                                    $("#id_SellPrice3").val(dataq.sellingPrice_destination);
+                                    $("#success_flag").css('display', '');
+                                },
+                                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                    $("#id_Logistic_way").val('');
+                                    $("#id_rate").val('');
+                                    $("#id_Platform_kd").val('');
+                                    $("#id_Discount").val('');
+                                    $("#id_CURRENCYCODE").html('待定');
+                                    $("#id_details").html('');
+                                    $("#id_SellPrice1").val('');
+                                    $("#id_SellPrice2").val('');
+                                    $("#id_SellPrice3").val('');
+                                    $("#success_flag").css('display', 'none');
+                                    console.log('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                                }
+                            });
+                        });
+                    }
+                });
+                //自动清空
+                $("#id_SKU").on('input',function(e){
+                    var SKU = $("#id_SKU").val();
+                    if(SKU.trim() == ''){
+                        $("#id_CostPrice").attr("readonly",false);
+                        $("#id_Weight").attr("readonly",false);
+                        $("#id_Weight").val('');
+                        $("#id_CostPrice").val('');
+                        $("#id_Logistic_way").val('');
+                        $("#id_rate").val('');
+                        $("#id_Platform_kd").val('');
+                        $("#id_Discount").val('');
+                        $("#id_CURRENCYCODE").html('待定');
+                        $("#id_details").html('');
+                        $("#error_flag").html('');
+                        $("#id_SellPrice1").val('');
+                        $("#id_SellPrice2").val('');
+                        $("#id_SellPrice3").val('');
+                        $("#success_flag").css('display', 'none');
+						$("#jbyf").html('');
+						$("#fdyf").html('');
+						$("#zyf").html('');
+						$("#wlgz").html('');
+
+                    }
+               });
+                $("#id_SKU").on('input',function(e){
+                    var SKU = $("#id_SKU").val();
+                    var Platform = $("#id_Platform option:selected").val();
+                    var Country = $("#id_Country option:selected").val();
+                    var Profit_rate = $("#id_Profit_rate").val();
+                    var bigflag = $("#id_bigflag option:selected").val();
+                    var SmallCode = $("#id_smallflag option:selected").val();
+                    var c_category = $("#id_category option:selected").val();
+                    var sb_discount = $("#id_sb_discount").val();
+                    var bcd_rate = $("#id_bcd_rate").val();
+                    var yj_rate = $("#id_yj_rate").val();
+                    var xss_rate = $("#id_xss_rate").val();
+                    if (SKU.trim() != '') {
+                        $("#id_CostPrice").attr("readonly",true);
+                        $("#id_Weight").attr("readonly",true);
+                        $.ajax({
+                            url: "/suanjia1/",
+                            type: "POST",
+                            contentType: "application/x-www-form-urlencoded:charset=UTF-8",
+                            dataType: "json",
+                            data: {
+                                'SKU': SKU,
+                                'platformCountryCode': Platform,
+                                'DestinationCountryCode': Country,
+                                'profitRate': Profit_rate,
+                                'SmallCode':SmallCode,
+                                'LargeCode':bigflag,
+                                'category':c_category,
+                                'sb_discount':sb_discount,
+                                'bcd_rate':bcd_rate,
+                                'yj_rate':yj_rate,
+                                'xss_rate':xss_rate,
+                            },
+
+                            success: function (dataq, textStatus, XMLHttpRequest) {
+                                console.log(dataq);
+                                $("#error_flag3").html('');
+                                $("#error_flag4").html('');
+                                if (Platform.indexOf("EBAY") >= 0 ){
+                                    $("#error_flag2").html('<font size="2px"><b>此售价：建议只做8美金以下的产品！</b></font>');
+                                }else{
+                                    $("#error_flag2").html('');
+                                }
+                                $("#id_Weight").val(dataq.Weight);
+                                $("#id_CostPrice").val(dataq.CostPrice);
+                                $("#id_Logistic_way").val(dataq.logisticName);
+                                $("#id_rate").val(dataq.ExchangeRate);
+                                $("#id_Platform_kd").val(dataq.kickback);
+                                $("#id_CURRENCYCODE").html(dataq.CURRENCYCODE);
+                                $("#id_Discount").val(dataq.Discount);
+                                $("#id_SellPrice1").val(dataq.sellingPrice_china);
+                                $("#id_SellPrice2").val(dataq.sellingPrice_us);
+                                $("#id_SellPrice3").val(dataq.sellingPrice_destination);
+                                $("#id_details").html(dataq.html_info);
+                                $("#error_flag").html('');
+                                $("#success_flag").css('display', '');
+                                $("#id_sb_discount").val(dataq.sb_discount);
+                                $("#id_bcd_rate").val(dataq.bcd_rate);
+                                $("#id_yj_rate").val(dataq.yj_rate);
+                                $("#id_xss_rate").val(dataq.xss_rate);
+								$("#jbyf").html(dataq.price_yf);
+								$("#fdyf").html(dataq.fd_money);
+								$("#zyf").html(dataq.zyf);
+								$("#wlgz").html(dataq.logisticwaycode_desc);
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                $("#id_Logistic_way").val('');
+                                $("#id_rate").val('');
+                                $("#id_Platform_kd").val('');
+                                $("#id_Discount").val('');
+                                $("#id_CURRENCYCODE").html('待定');
+                                $("#id_details").html('');
+                                $("#id_SellPrice1").val('');
+                                $("#id_SellPrice2").val('');
+                                $("#id_SellPrice3").val('');
+                                $("#error_flag").html('<font size="4px"><b>未查询到该SKU相关信息,可以清空SKU,手动输入克重和成本价查询！</b></font>');
+                                $("#success_flag").css('display', 'none');
+								$("#jbyf").html('');
+								$("#fdyf").html('');
+								$("#zyf").html('');
+								$("#wlgz").html('');
+                                console.log('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                            }
+                        });
+                    }
+
+                });
+
+                $("#id_Platform_kd").on('input',function(e){
+                    var SKU = $("#id_SKU").val();
+                    var Platform = $("#id_Platform option:selected").val();
+                    var Country = $("#id_Country option:selected").val();
+                    var Profit_rate = $("#id_Profit_rate").val();
+                    var bigflag = $("#id_bigflag option:selected").val();
+                    var SmallCode = $("#id_smallflag option:selected").val();
+                    var kb = $("#id_Platform_kd").val();
+                    var Weight = $("#id_Weight").val();
+                    var CostPrice = $("#id_CostPrice").val();
+                    var c_category = $("#id_category option:selected").val();
+                    $("#id_CostPrice").attr("readonly",true);
+                    $("#id_Weight").attr("readonly",true);
+                    var sb_discount = $("#id_sb_discount").val();
+                    var bcd_rate = $("#id_bcd_rate").val();
+                    var yj_rate = $("#id_yj_rate").val();
+                    var xss_rate = $("#id_xss_rate").val();
+                    $.ajax({
+                        url: "/suanjia1/",
+                        type: "POST",
+                        contentType: "application/x-www-form-urlencoded:charset=UTF-8",
+                        dataType: "json",
+                        data: {
+                            'SKU': SKU,
+                            'platformCountryCode': Platform,
+                            'DestinationCountryCode': Country,
+                            'profitRate': Profit_rate,
+                            'SmallCode':SmallCode,
+                            'LargeCode':bigflag,
+                            'kb':kb,
+                            'Weight':Weight,
+                            'CostPrice':CostPrice,
+                            'category':c_category,
+                            'sb_discount':sb_discount,
+                            'bcd_rate':bcd_rate,
+                            'yj_rate':yj_rate,
+                            'xss_rate':xss_rate,
+                        },
+
+                        success: function (dataq, textStatus, XMLHttpRequest) {
+                            console.log(dataq);
+                            $("#error_flag3").html('');
+                            $("#error_flag4").html('');
+                            if (Platform.indexOf("EBAY") >= 0 ){
+                                $("#error_flag2").html('<font size="2px"><b>此售价：建议只做8美金以下的产品！</b></font>');
+                            }else{
+                                $("#error_flag2").html('');
+                            }
+                            $("#id_Weight").val(dataq.Weight);
+                            $("#id_CostPrice").val(dataq.CostPrice);
+                            $("#id_Logistic_way").val(dataq.logisticName);
+                            $("#id_rate").val(dataq.ExchangeRate);
+                            $("#id_CURRENCYCODE").html(dataq.CURRENCYCODE);
+                            $("#id_Discount").val(dataq.Discount);
+                            $("#id_SellPrice1").val(dataq.sellingPrice_china);
+                            $("#id_SellPrice2").val(dataq.sellingPrice_us);
+                            $("#id_SellPrice3").val(dataq.sellingPrice_destination);
+                            $("#id_details").html(dataq.html_info);
+                            $("#error_flag").html('');
+                            $("#success_flag").css('display', '');
+                            $("#id_sb_discount").val(dataq.sb_discount);
+                            $("#id_bcd_rate").val(dataq.bcd_rate);
+                            $("#id_yj_rate").val(dataq.yj_rate);
+                            $("#id_xss_rate").val(dataq.xss_rate);
+							$("#jbyf").html(dataq.price_yf);
+							$("#fdyf").html(dataq.fd_money);
+							$("#zyf").html(dataq.zyf);
+							$("#wlgz").html(dataq.logisticwaycode_desc);
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            $("#id_Logistic_way").val('');
+                            $("#id_rate").val('');
+                            $("#id_Platform_kd").val('');
+                            $("#id_Discount").val('');
+                            $("#id_CURRENCYCODE").html('待定');
+                            $("#id_details").html('');
+                            $("#id_SellPrice1").val('');
+                            $("#id_SellPrice2").val('');
+                            $("#id_SellPrice3").val('');
+                            $("#error_flag").html('<font size="4px"><b>未查询到该SKU相关信息,可以清空SKU,手动输入克重和成本价查询！</b></font>');
+                            $("#success_flag").css('display', 'none');
+							$("#jbyf").html('');
+							$("#fdyf").html('');
+							$("#zyf").html('');
+							$("#wlgz").html('');
+                            console.log('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                        }
+                    });
+                });
+
+                $("#id_Platform_kd").blur(function () {
+                    var SKU = $("#id_SKU").val();
+                    var Platform = $("#id_Platform option:selected").val();
+                    var Country = $("#id_Country option:selected").val();
+                    var Profit_rate = $("#id_Profit_rate").val();
+                    var bigflag = $("#id_bigflag option:selected").val();
+                    var SmallCode = $("#id_smallflag option:selected").val();
+                    var kb = $("#id_Platform_kd").val();
+                    var Weight = $("#id_Weight").val();
+                    var CostPrice = $("#id_CostPrice").val();
+                    var c_category = $("#id_category option:selected").val();
+                    var sb_discount = $("#id_sb_discount").val();
+                    var bcd_rate = $("#id_bcd_rate").val();
+                    var yj_rate = $("#id_yj_rate").val();
+                    var xss_rate = $("#id_xss_rate").val();
+
+                    $("#id_CostPrice").attr("readonly",true);
+                    $("#id_Weight").attr("readonly",true);
+                    $.ajax({
+                        url: "/suanjia1/",
+                        type: "POST",
+                        contentType: "application/x-www-form-urlencoded:charset=UTF-8",
+                        dataType: "json",
+                        data: {
+                            'SKU': SKU,
+                            'Weight':Weight,
+                            'CostPrice':CostPrice,
+                            'platformCountryCode': Platform,
+                            'DestinationCountryCode': Country,
+                            'profitRate': Profit_rate,
+                            'SmallCode':SmallCode,
+                            'LargeCode':bigflag,
+                            'kb':kb,
+                            'category':c_category,
+                            'sb_discount':sb_discount,
+                            'bcd_rate':bcd_rate,
+                            'yj_rate':yj_rate,
+                            'xss_rate':xss_rate
+                        },
+
+                        success: function (dataq, textStatus, XMLHttpRequest) {
+                            console.log(dataq);
+                            $("#error_flag3").html('');
+                            $("#error_flag4").html('');
+                            if (Platform.indexOf("EBAY") >= 0 ){
+                                $("#error_flag2").html('<font size="2px"><b>此售价：建议只做8美金以下的产品！</b></font>');
+                            }else{
+                                $("#error_flag2").html('');
+                            }
+                            $("#id_Weight").val(dataq.Weight);
+                            $("#id_CostPrice").val(dataq.CostPrice);
+                            $("#id_Logistic_way").val(dataq.logisticName);
+                            $("#id_rate").val(dataq.ExchangeRate);
+                            if(kb.length == 0){
+                                $("#id_Platform_kd").val(dataq.kickback);
+                            }
+                            $("#id_CURRENCYCODE").html(dataq.CURRENCYCODE);
+                            $("#id_Discount").val(dataq.Discount);
+                            $("#id_SellPrice1").val(dataq.sellingPrice_china);
+                            $("#id_SellPrice2").val(dataq.sellingPrice_us);
+                            $("#id_SellPrice3").val(dataq.sellingPrice_destination);
+                            $("#id_details").html(dataq.html_info);
+                            $("#error_flag").html('');
+                            $("#success_flag").css('display', '');
+                            $("#id_sb_discount").val(dataq.sb_discount);
+                            $("#id_bcd_rate").val(dataq.bcd_rate);
+                            $("#id_yj_rate").val(dataq.yj_rate);
+                            $("#id_xss_rate").val(dataq.xss_rate);
+							$("#jbyf").html(dataq.price_yf);
+							$("#fdyf").html(dataq.fd_money);
+							$("#zyf").html(dataq.zyf);
+							$("#wlgz").html(dataq.logisticwaycode_desc);
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            $("#id_Logistic_way").val('');
+                            $("#id_rate").val('');
+                            $("#id_Platform_kd").val('');
+                            $("#id_Discount").val('');
+                            $("#id_CURRENCYCODE").html('待定');
+                            $("#id_details").html('');
+                            $("#id_SellPrice1").val('');
+                            $("#id_SellPrice2").val('');
+                            $("#id_SellPrice3").val('');
+                            $("#error_flag").html('<font size="4px"><b>未查询到该SKU相关信息,可以清空SKU,手动输入克重和成本价查询！</b></font>');
+                            $("#success_flag").css('display', 'none');
+							$("#jbyf").html('');
+							$("#fdyf").html('');
+							$("#zyf").html('');
+							$("#wlgz").html('');
+                            console.log('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                        }
+                    });
+                });
+
+                $("#id_SKU").blur(function () {
+                    var SKU = $("#id_SKU").val();
+                    var Platform = $("#id_Platform option:selected").val();
+                    var Country = $("#id_Country option:selected").val();
+                    var Profit_rate = $("#id_Profit_rate").val();
+                    var bigflag = $("#id_bigflag option:selected").val();
+                    var SmallCode = $("#id_smallflag option:selected").val();
+                    var c_category = $("#id_category option:selected").val();
+                    var sb_discount = $("#id_sb_discount").val();
+                    var bcd_rate = $("#id_bcd_rate").val();
+                    var yj_rate = $("#id_yj_rate").val();
+                    var xss_rate = $("#id_xss_rate").val();
+                    if (SKU.trim() != '') {
+                        $.ajax({
+                            url: "/suanjia1/",
+                            type: "POST",
+                            contentType: "application/x-www-form-urlencoded:charset=UTF-8",
+                            dataType: "json",
+                            data: {
+                                'SKU': SKU,
+                                'platformCountryCode': Platform,
+                                'DestinationCountryCode': Country,
+                                'profitRate': Profit_rate,
+                                'SmallCode':SmallCode,
+                                'LargeCode':bigflag,
+                                'category':c_category,
+                                'sb_discount':sb_discount,
+                                'bcd_rate':bcd_rate,
+                                'yj_rate':yj_rate,
+                                'xss_rate':xss_rate
+                            },
+
+                            success: function (dataq, textStatus, XMLHttpRequest) {
+                                console.log(dataq);
+                                if (Platform.indexOf("EBAY") >= 0 ){
+                                    $("#error_flag2").html('<font size="2px"><b>此售价：建议只做8美金以下的产品！</b></font>');
+                                }else{
+                                    $("#error_flag2").html('');
+                                }
+                                $("#error_flag3").html('');
+                                $("#error_flag4").html('');
+                                $("#id_Weight").val(dataq.Weight);
+                                $("#id_CostPrice").val(dataq.CostPrice);
+                                $("#id_Logistic_way").val(dataq.logisticName);
+                                $("#id_rate").val(dataq.ExchangeRate);
+                                $("#id_Platform_kd").val(dataq.kickback);
+                                $("#id_CURRENCYCODE").html(dataq.CURRENCYCODE);
+                                $("#id_Discount").val(dataq.Discount);
+                                $("#id_SellPrice1").val(dataq.sellingPrice_china);
+                                $("#id_SellPrice2").val(dataq.sellingPrice_us);
+                                $("#id_SellPrice3").val(dataq.sellingPrice_destination);
+                                $("#id_details").html(dataq.html_info);
+                                $("#error_flag").html('');
+                                $("#success_flag").css('display', '');
+                                $("#id_sb_discount").val(dataq.sb_discount);
+                                $("#id_bcd_rate").val(dataq.bcd_rate);
+                                $("#id_yj_rate").val(dataq.yj_rate);
+                                $("#id_xss_rate").val(dataq.xss_rate);
+								$("#jbyf").html(dataq.price_yf);
+								$("#fdyf").html(dataq.fd_money);
+								$("#zyf").html(dataq.zyf);
+								$("#wlgz").html(dataq.logisticwaycode_desc);
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                $("#id_Logistic_way").val('');
+                                $("#id_rate").val('');
+                                $("#id_Platform_kd").val('');
+                                $("#id_Discount").val('');
+                                $("#id_CURRENCYCODE").html('待定');
+                                $("#id_details").html('');
+                                $("#id_SellPrice1").val('');
+                                $("#id_SellPrice2").val('');
+                                $("#id_SellPrice3").val('');
+                                $("#error_flag").html('<font size="4px"><b>未查询到该SKU相关信息,可以清空SKU,手动输入克重和成本价查询！</b></font>');
+                                $("#success_flag").css('display', 'none');
+								$("#jbyf").html('');
+								$("#fdyf").html('');
+								$("#zyf").html('');
+								$("#wlgz").html('');
+                                console.log('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                            }
+                        });
+                    }
+
+                });
+                $("#id_Weight").blur(function () {
+                    var CostPrice = $("#id_CostPrice").val();
+                    var Weight = $("#id_Weight").val();
+                    var Platform = $("#id_Platform option:selected").val();
+                    var Country = $("#id_Country option:selected").val();
+                    var Profit_rate = $("#id_Profit_rate").val();
+                    var bigflag = $("#id_bigflag option:selected").val();
+                    var SmallCode = $("#id_smallflag option:selected").val();
+                    var PackWeight =$("#id_kg").val();
+                    var c_category = $("#id_category option:selected").val();
+                    var sb_discount = $("#id_sb_discount").val();
+                    var bcd_rate = $("#id_bcd_rate").val();
+                    var yj_rate = $("#id_yj_rate").val();
+                    var xss_rate = $("#id_xss_rate").val();
+                    var reg = /^\d+(\.\d+)?$/;
+                    if(reg.test(Weight)==false){
+                        $("#error_flag3").html('<font size="2px"><b>克重为非数字！</b></font>');
+                        return;
+                    }
+                    if(CostPrice!="" & Weight !=""){
+                        $("#error_flag2").html('');
+                        $.ajax({
+                        url: "/suanjia1/",
+                        type: "POST",
+                        contentType: "application/x-www-form-urlencoded:charset=UTF-8",
+                        dataType: "json",
+                        data: {
+                            'Weight': Weight,
+                            'CostPrice':CostPrice,
+                            'platformCountryCode': Platform,
+                            'DestinationCountryCode': Country,
+                            'profitRate': Profit_rate,
+                            'SmallCode':SmallCode,
+                            'LargeCode':bigflag,
+                            'PackWeight':PackWeight,
+                            'category':c_category,
+                            'sb_discount':sb_discount,
+                            'bcd_rate':bcd_rate,
+                            'yj_rate':yj_rate,
+                            'xss_rate':xss_rate,
+                        },
+                        success: function (dataq, textStatus, XMLHttpRequest) {
+                            console.log(dataq);
+                            if (Platform.indexOf("EBAY") >= 0 ){
+                                $("#error_flag2").html('<font size="2px"><b>此售价：建议只做8美金以下的产品！</b></font>');
+                            }else{
+                                $("#error_flag2").html('');
+                            }
+                            $("#error_flag3").html('');
+                            $("#error_flag4").html('');
+                            $("#id_Weight").val(dataq.Weight);
+                            $("#id_CostPrice").val(dataq.CostPrice);
+                            $("#id_Logistic_way").val(dataq.logisticName);
+                            $("#id_rate").val(dataq.ExchangeRate);
+                            $("#id_Platform_kd").val(dataq.kickback);
+                            $("#id_CURRENCYCODE").html(dataq.CURRENCYCODE);
+                            $("#id_Discount").val(dataq.Discount);
+                            $("#id_SellPrice1").val(dataq.sellingPrice_china);
+                            $("#id_SellPrice2").val(dataq.sellingPrice_us);
+                            $("#id_SellPrice3").val(dataq.sellingPrice_destination);
+                            $("#id_sb_discount").val(dataq.sb_discount);
+                            $("#id_bcd_rate").val(dataq.bcd_rate);
+                            $("#id_yj_rate").val(dataq.yj_rate);
+                            $("#id_xss_rate").val(dataq.xss_rate);
+                            $("#id_details").html(dataq.html_info);
+                            $("#error_flag").html('');
+                            $("#success_flag").css('display', '');
+							$("#jbyf").html(dataq.price_yf);
+							$("#fdyf").html(dataq.fd_money);
+							$("#zyf").html(dataq.zyf);
+							$("#wlgz").html(dataq.logisticwaycode_desc);
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            $("#id_Logistic_way").val('');
+                            $("#id_rate").val('');
+                            $("#id_Platform_kd").val('');
+                            $("#id_Discount").val('');
+                            $("#id_CURRENCYCODE").html('待定');
+                            $("#id_details").html('');
+                            $("#id_SellPrice1").val('');
+                            $("#id_SellPrice2").val('');
+                            $("#id_SellPrice3").val('');
+                            $("#error_flag").html('<font size="4px"><b>未查询到该SKU相关信息,可以清空SKU,手动输入克重和成本价查询！</b></font>');
+                            $("#success_flag").css('display', 'none');
+							$("#jbyf").html('');
+							$("#fdyf").html('');
+							$("#zyf").html('');
+							$("#wlgz").html('');
+                            console.log('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                        }
+                        });
+                    }
+                });
+                $("#id_Weight").on('input',function(e){
+                    var CostPrice = $("#id_CostPrice").val();
+                    var Weight = $("#id_Weight").val();
+                    var Platform = $("#id_Platform option:selected").val();
+                    var Country = $("#id_Country option:selected").val();
+                    var Profit_rate = $("#id_Profit_rate").val();
+                    var bigflag = $("#id_bigflag option:selected").val();
+                    var SmallCode = $("#id_smallflag option:selected").val();
+                    var c_category = $("#id_category option:selected").val();
+                    var PackWeight =$("#id_kg").val();
+                    var sb_discount = $("#id_sb_discount").val();
+                    var bcd_rate = $("#id_bcd_rate").val();
+                    var yj_rate = $("#id_yj_rate").val();
+                    var xss_rate = $("#id_xss_rate").val();
+                    var reg = /^\d+(\.\d+)?$/;
+                    if(reg.test(Weight)==false){
+                        $("#error_flag3").html('<font size="2px"><b>克重为非数字！</b></font>');
+                        return;
+                    }
+                    if(CostPrice!="" & Weight !=""){
+                        $("#error_flag2").html('');
+                        $.ajax({
+                        url: "/suanjia1/",
+                        type: "POST",
+                        contentType: "application/x-www-form-urlencoded:charset=UTF-8",
+                        dataType: "json",
+                        data: {
+                            'Weight': Weight,
+                            'CostPrice':CostPrice,
+                            'platformCountryCode': Platform,
+                            'DestinationCountryCode': Country,
+                            'profitRate': Profit_rate,
+                            'SmallCode':SmallCode,
+                            'LargeCode':bigflag,
+                            'PackWeight':PackWeight,
+                            'category':c_category,
+                            'sb_discount':sb_discount,
+                            'bcd_rate':bcd_rate,
+                            'yj_rate':yj_rate,
+                            'xss_rate':xss_rate,
+                        },
+                        success: function (dataq, textStatus, XMLHttpRequest) {
+                            console.log(dataq);
+                            if (Platform.indexOf("EBAY") >= 0 ){
+                                $("#error_flag2").html('<font size="2px"><b>此售价：建议只做8美金以下的产品！</b></font>');
+                            }else{
+                                $("#error_flag2").html('');
+                            }
+                            $("#error_flag3").html('');
+                            $("#error_flag4").html('');
+                            $("#id_Weight").val(dataq.Weight);
+                            $("#id_CostPrice").val(dataq.CostPrice);
+                            $("#id_Logistic_way").val(dataq.logisticName);
+                            $("#id_rate").val(dataq.ExchangeRate);
+                            $("#id_Platform_kd").val(dataq.kickback);
+                            $("#id_CURRENCYCODE").html(dataq.CURRENCYCODE);
+                            $("#id_Discount").val(dataq.Discount);
+                            $("#id_SellPrice1").val(dataq.sellingPrice_china);
+                            $("#id_SellPrice2").val(dataq.sellingPrice_us);
+                            $("#id_SellPrice3").val(dataq.sellingPrice_destination);
+                            $("#id_details").html(dataq.html_info);
+                            $("#error_flag").html('');
+                            $("#success_flag").css('display', '');
+							$("#jbyf").html(dataq.price_yf);
+							$("#fdyf").html(dataq.fd_money);
+							$("#zyf").html(dataq.zyf);
+							$("#wlgz").html(dataq.logisticwaycode_desc);
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            $("#id_Logistic_way").val('');
+                            $("#id_rate").val('');
+                            $("#id_Platform_kd").val('');
+                            $("#id_Discount").val('');
+                            $("#id_CURRENCYCODE").html('待定');
+                            $("#id_details").html('');
+                            $("#id_SellPrice1").val('');
+                            $("#id_SellPrice2").val('');
+                            $("#id_SellPrice3").val('');
+                            $("#error_flag").html('<font size="4px"><b>未查询到该SKU相关信息,可以清空SKU,手动输入克重和成本价查询！</b></font>');
+                            $("#success_flag").css('display', 'none');
+                            $("#id_sb_discount").val(dataq.sb_discount);
+                            $("#id_bcd_rate").val(dataq.bcd_rate);
+                            $("#id_yj_rate").val(dataq.yj_rate);
+                            $("#id_xss_rate").val(dataq.xss_rate);
+							$("#jbyf").html('');
+							$("#fdyf").html('');
+							$("#zyf").html('');
+							$("#wlgz").html('');
+                            console.log('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                        }
+                        });
+                    }
+                });
+                $("#id_CostPrice").on('input',function(e){
+                    var CostPrice = $("#id_CostPrice").val();
+                    var Weight = $("#id_Weight").val();
+                    var Platform = $("#id_Platform option:selected").val();
+                    var Country = $("#id_Country option:selected").val();
+                    var Profit_rate = $("#id_Profit_rate").val();
+                    var bigflag = $("#id_bigflag option:selected").val();
+                    var SmallCode = $("#id_smallflag option:selected").val();
+                    var PackWeight =$("#id_kg").val();
+                    var c_category = $("#id_category option:selected").val();
+                    var sb_discount = $("#id_sb_discount").val();
+                    var bcd_rate = $("#id_bcd_rate").val();
+                    var yj_rate = $("#id_yj_rate").val();
+                    var xss_rate = $("#id_xss_rate").val();
+                    var reg = /^\d+(\.\d+)?$/;
+                    if(reg.test(CostPrice)==false){
+                        $("#error_flag4").html('<font size="2px"><b>成本价为非数字！</b></font>');
+                        return;
+                    }
+                    if(CostPrice !='' & Weight!=''){
+                        $.ajax({
+                        url: "/suanjia1/",
+                        type: "POST",
+                        contentType: "application/x-www-form-urlencoded:charset=UTF-8",
+                        dataType: "json",
+                        data: {
+                            'Weight': Weight,
+                            'CostPrice':CostPrice,
+                            'platformCountryCode': Platform,
+                            'DestinationCountryCode': Country,
+                            'profitRate': Profit_rate,
+                            'SmallCode':SmallCode,
+                            'LargeCode':bigflag,
+                            'PackWeight':PackWeight,
+                            'category':c_category,
+                            'sb_discount':sb_discount,
+                            'bcd_rate':bcd_rate,
+                            'yj_rate':yj_rate,
+                            'xss_rate':xss_rate,
+                        },
+                        success: function (dataq, textStatus, XMLHttpRequest) {
+                            console.log(dataq);
+                            if (Platform.indexOf("EBAY") >= 0 ){
+                                $("#error_flag2").html('<font size="2px"><b>此售价：建议只做8美金以下的产品！</b></font>');
+                            }else{
+                                $("#error_flag2").html('');
+                            }
+                            $("#error_flag3").html('');
+                            $("#error_flag4").html('');
+                            $("#id_Weight").val(dataq.Weight);
+                            $("#id_CostPrice").val(dataq.CostPrice);
+                            $("#id_Logistic_way").val(dataq.logisticName);
+                            $("#id_rate").val(dataq.ExchangeRate);
+                            $("#id_Platform_kd").val(dataq.kickback);
+                            $("#id_CURRENCYCODE").html(dataq.CURRENCYCODE);
+                            $("#id_Discount").val(dataq.Discount);
+                            $("#id_SellPrice1").val(dataq.sellingPrice_china);
+                            $("#id_SellPrice2").val(dataq.sellingPrice_us);
+                            $("#id_SellPrice3").val(dataq.sellingPrice_destination);
+                            $("#id_details").html(dataq.html_info);
+                            $("#error_flag").html('');
+                            $("#success_flag").css('display', '');
+                            $("#id_sb_discount").val(dataq.sb_discount);
+                            $("#id_bcd_rate").val(dataq.bcd_rate);
+                            $("#id_yj_rate").val(dataq.yj_rate);
+                            $("#id_xss_rate").val(dataq.xss_rate);
+							$("#jbyf").html(dataq.price_yf);
+							$("#fdyf").html(dataq.fd_money);
+							$("#zyf").html(dataq.zyf);
+							$("#wlgz").html(dataq.logisticwaycode_desc);
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            $("#id_Logistic_way").val('');
+                            $("#id_rate").val('');
+                            $("#id_Platform_kd").val('');
+                            $("#id_Discount").val('');
+                            $("#id_CURRENCYCODE").html('待定');
+                            $("#id_details").html('');
+                            $("#id_SellPrice1").val('');
+                            $("#id_SellPrice2").val('');
+                            $("#id_SellPrice3").val('');
+                            $("#error_flag").html('<font size="4px"><b>未查询到该SKU相关信息,可以清空SKU,手动输入克重和成本价查询！</b></font>');
+                            $("#success_flag").css('display', 'none');
+							$("#jbyf").html('');
+							$("#fdyf").html('');
+							$("#zyf").html('');
+							$("#wlgz").html('');
+                            console.log('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                        }
+                        });
+                    }
+                });
+                $("#id_CostPrice").blur(function () {
+                    var CostPrice = $("#id_CostPrice").val();
+                    var Weight = $("#id_Weight").val();
+                    var Platform = $("#id_Platform option:selected").val();
+                    var Country = $("#id_Country option:selected").val();
+                    var Profit_rate = $("#id_Profit_rate").val();
+                    var bigflag = $("#id_bigflag option:selected").val();
+                    var SmallCode = $("#id_smallflag option:selected").val();
+                    var PackWeight =$("#id_kg").val();
+                    var c_category = $("#id_category option:selected").val();
+                    var sb_discount = $("#id_sb_discount").val();
+                    var bcd_rate = $("#id_bcd_rate").val();
+                    var yj_rate = $("#id_yj_rate").val();
+                    var xss_rate = $("#id_xss_rate").val();
+                    var reg = /^\d+(\.\d+)?$/;
+                    if(reg.test(CostPrice)==false){
+                        $("#error_flag4").html('<font size="2px"><b>成本价为非数字！</b></font>');
+                        return;
+                    }
+                    if(CostPrice !='' & Weight !=''){
+                        $.ajax({
+                        url: "/suanjia1/",
+                        type: "POST",
+                        contentType: "application/x-www-form-urlencoded:charset=UTF-8",
+                        dataType: "json",
+                        data: {
+                            'Weight': Weight,
+                            'CostPrice':CostPrice,
+                            'platformCountryCode': Platform,
+                            'DestinationCountryCode': Country,
+                            'profitRate': Profit_rate,
+                            'SmallCode':SmallCode,
+                            'LargeCode':bigflag,
+                            'PackWeight':PackWeight,
+                            'category':c_category,
+                            'sb_discount':sb_discount,
+                            'bcd_rate':bcd_rate,
+                            'yj_rate':yj_rate,
+                            'xss_rate':xss_rate,
+                        },
+                        success: function (dataq, textStatus, XMLHttpRequest) {
+                            console.log(dataq);
+                            if (Platform.indexOf("EBAY") >= 0 ){
+                                $("#error_flag2").html('<font size="2px"><b>此售价：建议只做8美金以下的产品！</b></font>');
+                            }else{
+                                $("#error_flag2").html('');
+                            }
+                            $("#error_flag3").html('');
+                            $("#error_flag4").html('');
+                            $("#id_Weight").val(dataq.Weight);
+                            $("#id_CostPrice").val(dataq.CostPrice);
+                            $("#id_Logistic_way").val(dataq.logisticName);
+                            $("#id_rate").val(dataq.ExchangeRate);
+                            $("#id_Platform_kd").val(dataq.kickback);
+                            $("#id_CURRENCYCODE").html(dataq.CURRENCYCODE);
+                            $("#id_Discount").val(dataq.Discount);
+                            $("#id_SellPrice1").val(dataq.sellingPrice_china);
+                            $("#id_SellPrice2").val(dataq.sellingPrice_us);
+                            $("#id_SellPrice3").val(dataq.sellingPrice_destination);
+                            $("#id_sb_discount").val(dataq.sb_discount);
+                            $("#id_bcd_rate").val(dataq.bcd_rate);
+                            $("#id_yj_rate").val(dataq.yj_rate);
+                            $("#id_xss_rate").val(dataq.xss_rate);
+                            $("#id_details").html(dataq.html_info);
+                            $("#error_flag").html('');
+                            $("#success_flag").css('display', '');
+							$("#jbyf").html(dataq.price_yf);
+							$("#fdyf").html(dataq.fd_money);
+							$("#zyf").html(dataq.zyf);
+							$("#wlgz").html(dataq.logisticwaycode_desc);
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            $("#id_Logistic_way").val('');
+                            $("#id_rate").val('');
+                            $("#id_Platform_kd").val('');
+                            $("#id_Discount").val('');
+                            $("#id_CURRENCYCODE").html('待定');
+                            $("#id_details").html('');
+                            $("#id_SellPrice1").val('');
+                            $("#id_SellPrice2").val('');
+                            $("#id_SellPrice3").val('');
+                            $("#error_flag").html('<font size="4px"><b>未查询到该SKU相关信息,可以清空SKU,手动输入克重和成本价查询！</b></font>');
+                            $("#success_flag").css('display', 'none');
+							$("#jbyf").html('');
+							$("#fdyf").html('');
+							$("#zyf").html('');
+							$("#wlgz").html('');
+                            console.log('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                        }
+                        });
+                    }
+                });
+
+
+                $("#id_Country").change(function () {
+                    var Country = $(this).val();
+                    var SKU = $("#id_SKU").val();
+                    var Weight = $("#id_Weight").val();
+                    var CostPrice = $("#id_CostPrice").val();
+                    var Platform = $("#id_Platform option:selected").val();
+                    var Profit_rate = $("#id_Profit_rate").val();
+                    $.getJSON('/price_list2/?Platform='+ Platform +'&Country=' + Country, function (result) {
+                        if (result.resultCode == '200') {
+                            var Category = document.getElementById('id_category');
+                            Category.options.length = 0;
+                            if (result['PL_flag'] == 1){
+                                var PL = result['PL'];
+                                for (var i = 0; i < PL.length; i++) {
+                                    $("#id_category").append("<option value='" + PL[i]['category_code'] + "'>" + PL[i]['category_name'] + "</option>");
+                                }
+                                $("#div_id_SKU").attr("class","form-group col-sm-6");
+                                $("#div_id_category").show();
+                            }else{
+                                $("#div_id_SKU").attr("class","form-group col-sm-12");
+                                $("#div_id_category").hide();
+                            }
+                            var ex1 = result['ex1'];
+                            var ex2 = result['ex2'];
+                            var t1 = result['t1'];
+                            var t2 = result['t2'];
+                            $("#ex").remove();
+                            if(ex1 > ex2){
+                                htm = '<span id="ex"><font color="red" size="5">&#8593;&nbsp;&nbsp;</font>'+'<b><font color="red" size="3">'+ex2+'('+t2+')'+'~'+ex1+'('+t1+')'+'</font></b></span>';
+                                $("#hl").after(htm);
+                            }else if(ex1 < ex2) {
+                                htm = '<span id="ex"><font color="red" size="5">&#8595;&nbsp;&nbsp;</font>'+'<b><font color="red" size="3">'+ex1+'('+t1+')'+'~'+ex2+'('+t2+')'+'</font></b></span>';
+                                $("#hl").after(htm);
+                            }else{
+                                html = ''
+                                $("#ex").remove();
+                            }
+                            var SKU = $("#id_SKU").val();
+                            var Weight = $("#id_Weight").val();
+                            var CostPrice = $("#id_CostPrice").val();
+                            var Country = $("#id_Country option:selected").val();
+                            var c_category = $("#id_category option:selected").val();
+                            var Profit_rate = $("#id_Profit_rate").val();
+                            $.ajax({
+                                url: "/suanjia1/",
+                                type: "POST",
+                                contentType: "application/x-www-form-urlencoded:charset=UTF-8",
+                                dataType: "json",
+                                data: {
+                                    'SKU': SKU,
+                                    'Weight': Weight,
+                                    'CostPrice': CostPrice,
+                                    'platformCountryCode': Platform,
+                                    'DestinationCountryCode': Country,
+                                    'profitRate': Profit_rate,
+                                    'category':c_category,
+                                },
+
+                                success: function (dataq, textStatus, XMLHttpRequest) {
+                                    if (Platform.indexOf("EBAY") >= 0) {
+                                        $("#error_flag2").html('<font size="2px"><b>此售价：建议只做8美金以下的产品！</b></font>');
+                                    } else {
+                                        $("#error_flag2").html('');
+                                    }
+                                    $("#error_flag3").html('');
+                                    $("#error_flag4").html('');
+                                    $("#id_Weight").val(dataq.Weight);
+                                    $("#id_CostPrice").val(dataq.CostPrice);
+                                    $("#id_Logistic_way").val(dataq.logisticName);
+                                    $("#id_rate").val(dataq.ExchangeRate);
+                                    $("#id_CURRENCYCODE").html(dataq.CURRENCYCODE);
+                                    $("#id_details").html(dataq.html_info);
+                                    $("#id_Platform_kd").val(dataq.kickback);
+                                    $("#id_Discount").val(dataq.Discount);
+                                    $("#error_flag").html('');
+                                    $("#id_SellPrice1").val(dataq.sellingPrice_china);
+                                    $("#id_SellPrice2").val(dataq.sellingPrice_us);
+                                    $("#id_SellPrice3").val(dataq.sellingPrice_destination);
+                                    $("#success_flag").css('display', '');
+									$("#jbyf").html(dataq.price_yf);
+									$("#fdyf").html(dataq.fd_money);
+									$("#zyf").html(dataq.zyf);
+									$("#wlgz").html(dataq.logisticwaycode_desc);
+                                },
+                                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                    $("#id_Logistic_way").val('');
+                                    $("#id_rate").val('');
+                                    $("#id_Platform_kd").val('');
+                                    $("#id_Discount").val('');
+                                    $("#id_CURRENCYCODE").html('待定');
+                                    $("#id_details").html('');
+                                    $("#id_SellPrice1").val('');
+                                    $("#id_SellPrice2").val('');
+                                    $("#id_SellPrice3").val('');
+                                    $("#success_flag").css('display', 'none');
+									$("#jbyf").html('');
+									$("#fdyf").html('');
+									$("#zyf").html('');
+									$("#wlgz").html('');
+                                    console.log('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                                }
+                            });
+                        } else {
+                            console.log('错误信息：' + XMLHttpRequest.responseText);
+                        }
+                    });
+                });
+
+              
+
+                function getprcie(){
+                    var Platform = $("#id_Platform option:selected").val();
+                    var Country = document.getElementById('id_Country');
+                    Country.options.length = 0;
+                    $.getJSON('/price_list2/?Platform='+Platform, function(result){
+                        if (result.resultCode == '200'){
+                            var s_country = result['s_country'];
+                            console.log(s_country);
+                            for (var i=0;i<s_country.length;i++){
+                                $("#id_Country").append("<option value='"+s_country[i]['countrycode']+"'>"+s_country[i]['countryname']+"</option>");
+                            }
+                            $("#id_Country").selectpicker('refresh');
+                        }else {
+                            console.log('错误信息：' + XMLHttpRequest.responseText);
+                            alert('异常！');
+                        }
+                    });
+                }
+
+                $("#id_Platform").change(function () {
+                    var Platform = $("#id_Platform option:selected").val();
+                    if (Platform.indexOf("EBAY") >= 0){
+                        $("#PL").show();
+                    }else{
+                        $("#PL").hide();
+                    }
+                    if(Platform.indexOf("AMAZON-IN-FBA") >= 0 ){
+                        html = '<div class="form-inline form-group">\
+                        <div id="div_id_sb_discount" class="form-group col-sm-6"><label for="id_sb_discount"\
+                                                                                         class="control-label ">\
+                            申报折扣(%)\
+                        </label>\
+                            <div class="controls "><input class="text-field admintextinputwidget form-control"\
+                                                          id="id_sb_discount" maxlength="32" name="sb_discount"\
+                                                          type="text" /></div>\
+                        </div>\
+                        <div id="div_id_bcd_rate" class="form-group col-sm-6"><label for="id_bcd_rate"\
+                                                                                     class="control-label ">\
+                            bcd汇率(%)\
+                        </label>\
+                            <div class="controls "><input class="text-field admintextinputwidget form-control"\
+                                                          id="id_bcd_rate" maxlength="32" name="bcd_rate"\
+                                                          type="text" /></div>\
+                        </div>\
+                        <div id="div_id_yj_rate" class="form-group col-sm-6"><label for="id_yj_rate"\
+                                                                                         class="control-label ">\
+                            佣金比例(%)\
+                        </label>\
+                            <div class="controls "><input class="text-field admintextinputwidget form-control"\
+                                                          id="id_yj_rate" maxlength="32" name="yj_rate"\
+                                                          type="text" /></div>\
+                        </div>\
+                        <div id="div_id_xss_rate" class="form-group col-sm-6"><label for="id_xss_rate"\
+                                                                                     class="control-label ">\
+                            销售税比例(%)\
+                        </label>\
+                            <div class="controls "><input class="text-field admintextinputwidget form-control"\
+                                                          id="id_xss_rate" maxlength="32" name="xss_rate"\
+                                                          type="text" /></div>\
+                        </div>\
+                        </div>';
+                        html2 = '<span id="warning"><b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<font size="3" color="#E47833">友情提示：仅支持根据售价得出利润率，不支持正算！</font></b></span>';
+                        $("#success_flag").after(html2);
+                        $("#sc").after(html);
+                    }else{
+                        $("#div_id_sb_discount").remove();
+                        $("#div_id_bcd_rate").remove();
+                        $("#div_id_yj_rate").remove();
+                        $("#div_id_xss_rate").remove();
+                        $("#warning").remove();
+                    }
+                    if(Platform.indexOf("AMAZON-FBA") >= 0 ){
+                        $("#div_id_category").hide();
+                        var Country = document.getElementById('id_Country');
+                        Country.options.length = 0;
+                        $.getJSON('/price_list2/?Platform=' + Platform , function (result) {
+                            if (result.resultCode == '200') {
+                                var s_country = result['s_country'];
+                                for (var i = 0; i < s_country.length; i++) {
+                                    $("#id_Country").append("<option value='" + s_country[i]['countrycode'] + "'>" + s_country[i]['countryname'] + "</option>");
+                                }
+                            }
+                        });
+                        var Country = $("#id_Country option:selected").val();
+                        html = '<div id="div_id_bigflag" class="form-group col-sm-6"><label for="id_bigflag" class="control-label "><b><font color="#007979">大规格</font></b></label><div class="controls "><select class="adminselectwidget form-control" id="id_bigflag" name="bigflag">\
+                         {% for t_cfg_standard_large_obj in t_cfg_standard_large_objs %}\
+                            <option value="{{ t_cfg_standard_large_obj.standard_large_code }}" text="{{ t_cfg_standard_large_obj.standard_large_code }}" >{{ t_cfg_standard_large_obj.standard_large_name }}</option>\
+                         {% endfor %}</select></div></div>\
+                        <div id="div_id_smallflag" class="form-group col-sm-6"><label for="id_smallflag" class="control-label "><b><font color="#007979">小规格</font></b></label><div class="controls "><select class="adminselectwidget form-control" id="id_smallflag" name="smallflag">\
+                        </select><font color="red" size="2px"><b>注：1磅等于0.454kg</b></font></div></div>';
+                        html2 = '<div id="div_id_kg" class="form-group col-sm-6"><label for="id_kg" class="control-label "><font color="#007979">包裹重量(kg)</font></label><div class="controls "><input class="text-field admintextinputwidget form-control" id="id_kg" name="kg" type="text" value="20"/><font color="red" size="2px"><b>注：请按实际需要规格填写,超出范围则算价失败!!!</b></font></div></div>';
+                        $("#div_id_SKU").attr("class","form-group col-sm-6");
+                        $("#div_id_SKU").after(html2);
+                        $("#div_id_CostPrice").after(html);
+
+
+
+
+
+
+                        $("#id_Country").change(function () {
+                            var Country = $(this).val();
+                            var Platform = 'AMAZON-FBA';
+                            //if(Country == 'UK'){
+                             //   $("#id_kg").val('0.1');
+                            //}else{
+                            //    $("#id_kg").val('20');
+                            //}
+                            $.getJSON('/price_list4/?Platform=' + Platform + '&Country=' + Country, function (result) {
+                                var bigflag = document.getElementById('id_bigflag');
+                                bigflag.options.length = 0;
+                                var smallflag = document.getElementById('id_smallflag');
+                                smallflag.options.length = 0;
+                                $("#div_id_SKU").attr("class","form-group col-sm-6");
+                                if (result.resultCode == '200') {
+                                    var big = result['big'];
+                                    for (var i = 0; i < big.length; i++) {
+                                        $("#id_bigflag").append("<option value='" + big[i]['large_code'] + "'>" + big[i]['large_name'] + "</option>");
+                                    }
+                                    var small = result['small'];
+                                    for (var i = 0; i < small.length; i++) {
+                                        $("#id_smallflag").append("<option value='" + small[i]['small_code'] + "'>" + small[i]['small_name'] + "</option>");
+                                    }
+                                }
+                                var SKU = $("#id_SKU").val();
+                                var CostPrice = $("#id_CostPrice").val();
+                                var Weight = $("#id_Weight").val();
+                                var Platform = $("#id_Platform option:selected").val();
+                                var Country = $("#id_Country option:selected").val();
+                                var Profit_rate = $("#id_Profit_rate").val();
+                                var bigflag = $("#id_bigflag option:selected").val();
+                                var SmallCode = $("#id_smallflag option:selected").val();
+                                var PackWeight =$("#id_kg").val();
+                                $.ajax({
+                                    url: "/suanjia1/",
+                                    type: "POST",
+                                    contentType: "application/x-www-form-urlencoded:charset=UTF-8",
+                                    dataType: "json",
+                                    data: {
+                                        'SKU': SKU,
+                                        'platformCountryCode': Platform,
+                                        'DestinationCountryCode': Country,
+                                        'profitRate': Profit_rate,
+                                        'SmallCode':SmallCode,
+                                        'LargeCode':bigflag,
+                                        'PackWeight':PackWeight,
+                                        'Weight': Weight,
+                                        'CostPrice':CostPrice,
+                                    },
+
+                                    success: function (dataq, textStatus, XMLHttpRequest) {
+                                        console.log(dataq);
+                                        $("#error_flag3").html('');
+                                        $("#error_flag4").html('');
+                                        if (Platform.indexOf("EBAY") >= 0 ){
+                                            $("#error_flag2").html('<font size="2px"><b>此售价：建议只做8美金以下的产品！</b></font>');
+                                        }else{
+                                            $("#error_flag2").html('');
+                                        }
+                                        $("#id_Weight").val(dataq.Weight);
+                                        $("#id_CostPrice").val(dataq.CostPrice);
+                                        $("#id_Logistic_way").val(dataq.logisticName);
+                                        $("#id_rate").val(dataq.ExchangeRate);
+                                        $("#id_Platform_kd").val(dataq.kickback);
+                                        $("#id_CURRENCYCODE").html(dataq.CURRENCYCODE);
+                                        $("#id_Discount").val(dataq.Discount);
+                                        $("#id_SellPrice1").val(dataq.sellingPrice_china);
+                                        $("#id_SellPrice2").val(dataq.sellingPrice_us);
+                                        $("#id_SellPrice3").val(dataq.sellingPrice_destination);
+                                        $("#id_details").html(dataq.html_info);
+                                        $("#error_flag").html('');
+                                        $("#success_flag").css('display', '');
+										$("#jbyf").html(dataq.price_yf);
+										$("#fdyf").html(dataq.fd_money);
+										$("#zyf").html(dataq.zyf);
+										$("#wlgz").html(dataq.logisticwaycode_desc);
+
+                                    },
+                                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                        $("#id_Logistic_way").val('');
+                                        $("#id_rate").val('');
+                                        $("#id_Platform_kd").val('');
+                                        $("#id_Discount").val('');
+                                        $("#id_CURRENCYCODE").html('待定');
+                                        $("#id_details").html('');
+                                        $("#id_SellPrice1").val('');
+                                        $("#id_SellPrice2").val('');
+                                        $("#id_SellPrice3").val('');
+                                        $("#error_flag").html('<font size="4px"><b>未查询到该SKU相关信息,可以清空SKU,手动输入克重和成本价查询！</b></font>');
+                                        $("#success_flag").css('display', 'none');
+										$("#jbyf").html('');
+										$("#fdyf").html('');
+										$("#zyf").html('');
+										$("#wlgz").html('');
+                                        console.log('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                                    }
+                                });
+                            });
+                        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+                        var bigflag = $("#id_bigflag option:selected").val();
+                        var PackWeight =$("#id_kg").val();
+                        var smallflag = document.getElementById('id_smallflag');
+                        smallflag.options.length = 0;
+                        $.getJSON('/price_list3/?bigflag='+bigflag, function(result){
+                            if (result.resultCode == '200'){
+                                var guige = result['guige'];
+                                for (var i=0;i<guige.length;i++){
+                                    $("#id_smallflag").append("<option value='"+guige[i]['smallcode']+"'>"+guige[i]['smallname']+"</option>");
+                                }
+                                var SmallCode = $("#id_smallflag option:selected").val();
+                                var SKU = $("#id_SKU").val();
+                                var Weight = $("#id_Weight").val();
+                                var CostPrice = $("#id_CostPrice").val();
+                                var Country = $("#id_Country option:selected").val();
+                                var Profit_rate = $("#id_Profit_rate").val();
+                                $.ajax({
+                                    url: "/suanjia1/",
+                                    type: "POST",
+                                    contentType: "application/x-www-form-urlencoded:charset=UTF-8",
+                                    dataType: "json",
+                                    data: {
+                                        'SKU': SKU,
+                                        'Weight':Weight,
+                                        'CostPrice':CostPrice,
+                                        'platformCountryCode': Platform,
+                                        'DestinationCountryCode': Country,
+                                        'profitRate': Profit_rate,
+                                        'SmallCode':SmallCode,
+                                        'LargeCode':bigflag,
+                                        'PackWeight':PackWeight,
+                                    },
+
+                                    success: function (dataq, textStatus, XMLHttpRequest) {
+                                        $("#error_flag3").html('');
+                                        $("#error_flag4").html('');
+                                        $("#id_Weight").val(dataq.Weight);
+                                        $("#id_CostPrice").val(dataq.CostPrice);
+                                        $("#id_Logistic_way").val(dataq.logisticName);
+                                        $("#id_rate").val(dataq.ExchangeRate);
+                                        $("#id_CURRENCYCODE").html(dataq.CURRENCYCODE);
+                                        $("#id_details").html(dataq.html_info);
+                                        $("#id_Platform_kd").val(dataq.kickback);
+                                        $("#id_Discount").val(dataq.Discount);
+                                        $("#error_flag").html('');
+                                        $("#id_SellPrice1").val(dataq.sellingPrice_china);
+                                        $("#id_SellPrice2").val(dataq.sellingPrice_us);
+                                        $("#id_SellPrice3").val(dataq.sellingPrice_destination);
+                                        $("#success_flag").css('display', '');
+										$("#jbyf").html(dataq.price_yf);
+										$("#fdyf").html(dataq.fd_money);
+										$("#zyf").html(dataq.zyf);
+										$("#wlgz").html(dataq.logisticwaycode_desc);
+                                    },
+                                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                        $("#id_Logistic_way").val('');
+                                        $("#id_rate").val('');
+                                        $("#id_Platform_kd").val('');
+                                        $("#id_Discount").val('');
+                                        $("#id_CURRENCYCODE").html('待定');
+                                        $("#id_details").html('');
+                                        $("#id_SellPrice1").val('');
+                                        $("#id_SellPrice2").val('');
+                                        $("#id_SellPrice3").val('');
+                                        $("#success_flag").css('display', 'none');
+										$("#jbyf").html('');
+										$("#fdyf").html('');
+										$("#zyf").html('');
+										$("#wlgz").html('');
+                                        console.log('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                                    }
+                                });
+                            } else {
+                                console.log('错误信息：' + XMLHttpRequest.responseText);
+                            }
+                        });
+                        $("#id_bigflag").change(function () {
+                            var bigflag = $("#id_bigflag option:selected").val();
+                            var smallflag = document.getElementById('id_smallflag');
+                            var PackWeight =$("#id_kg").val();
+                            smallflag.options.length = 0;
+                            var Country = $("#id_Country option:selected").val();
+                            $.getJSON('/price_list3/?bigflag=' + bigflag +'&Country=' + Country, function (result) {
+                                if (result.resultCode == '200') {
+                                    var guige = result['guige'];
+                                    for (var i = 0; i < guige.length; i++) {
+                                        $("#id_smallflag").append("<option value='" + guige[i]['smallcode'] + "'>" + guige[i]['smallname'] + "</option>");
+                                    }
+                                    var SKU = $("#id_SKU").val();
+                                    var Weight = $("#id_Weight").val();
+                                    var CostPrice = $("#id_CostPrice").val();
+                                    var Country = $("#id_Country option:selected").val();
+                                    var Profit_rate = $("#id_Profit_rate").val();
+                                    var SmallCode = $("#id_smallflag option:selected").val();
+                                    $.ajax({
+                                        url: "/suanjia1/",
+                                        type: "POST",
+                                        contentType: "application/x-www-form-urlencoded:charset=UTF-8",
+                                        dataType: "json",
+                                        data: {
+                                            'SKU': SKU,
+                                            'Weight': Weight,
+                                            'CostPrice': CostPrice,
+                                            'platformCountryCode': Platform,
+                                            'DestinationCountryCode': Country,
+                                            'profitRate': Profit_rate,
+                                            'SmallCode': SmallCode,
+                                            'LargeCode': bigflag,
+                                            'PackWeight':PackWeight,
+                                        },
+
+                                        success: function (dataq, textStatus, XMLHttpRequest) {
+                                            $("#error_flag3").html('');
+                                            $("#error_flag4").html('');
+                                            $("#id_Weight").val(dataq.Weight);
+                                            $("#id_CostPrice").val(dataq.CostPrice);
+                                            $("#id_Logistic_way").val(dataq.logisticName);
+                                            $("#id_rate").val(dataq.ExchangeRate);
+                                            $("#id_CURRENCYCODE").html(dataq.CURRENCYCODE);
+                                            $("#id_details").html(dataq.html_info);
+                                            $("#id_Platform_kd").val(dataq.kickback);
+                                            $("#id_Discount").val(dataq.Discount);
+                                            $("#error_flag").html('');
+                                            $("#id_SellPrice1").val(dataq.sellingPrice_china);
+                                            $("#id_SellPrice2").val(dataq.sellingPrice_us);
+                                            $("#id_SellPrice3").val(dataq.sellingPrice_destination);
+                                            $("#success_flag").css('display', '');
+											$("#jbyf").html(dataq.price_yf);
+											$("#fdyf").html(dataq.fd_money);
+											$("#zyf").html(dataq.zyf);
+											$("#wlgz").html(dataq.logisticwaycode_desc);
+                                        },
+                                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                            $("#id_Logistic_way").val('');
+                                            $("#id_rate").val('');
+                                            $("#id_Platform_kd").val('');
+                                            $("#id_Discount").val('');
+                                            $("#id_CURRENCYCODE").html('待定');
+                                            $("#id_details").html('');
+                                            $("#id_SellPrice1").val('');
+                                            $("#id_SellPrice2").val('');
+                                            $("#id_SellPrice3").val('');
+                                            $("#success_flag").css('display', 'none');
+											$("#jbyf").html('');
+											$("#fdyf").html('');
+											$("#zyf").html('');
+											$("#wlgz").html('');
+                                            console.log('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                                        }
+                                    });
+                                }else {
+                                    console.log('错误信息：' + XMLHttpRequest.responseText);
+                                }
+                            });
+                        });
+
+                        $("#id_kg").on('input',function(e){
+                            var SKU = $("#id_SKU").val();
+                            var CostPrice = $("#id_CostPrice").val();
+                            var Weight = $("#id_Weight").val();
+                            var Platform = $("#id_Platform option:selected").val();
+                            var Country = $("#id_Country option:selected").val();
+                            var Profit_rate = $("#id_Profit_rate").val();
+                            var bigflag = $("#id_bigflag option:selected").val();
+                            var SmallCode = $("#id_smallflag option:selected").val();
+                            var PackWeight =$("#id_kg").val();
+                            $.ajax({
+                                url: "/suanjia1/",
+                                type: "POST",
+                                contentType: "application/x-www-form-urlencoded:charset=UTF-8",
+                                dataType: "json",
+                                data: {
+                                    'SKU': SKU,
+                                    'platformCountryCode': Platform,
+                                    'DestinationCountryCode': Country,
+                                    'profitRate': Profit_rate,
+                                    'SmallCode':SmallCode,
+                                    'LargeCode':bigflag,
+                                    'PackWeight':PackWeight,
+                                    'Weight': Weight,
+                                    'CostPrice':CostPrice,
+                                },
+
+                                success: function (dataq, textStatus, XMLHttpRequest) {
+                                    console.log(dataq);
+                                    $("#error_flag3").html('');
+                                    $("#error_flag4").html('');
+                                    if (Platform.indexOf("EBAY") >= 0 ){
+                                        $("#error_flag2").html('<font size="2px"><b>此售价：建议只做8美金以下的产品！</b></font>');
+                                    }else{
+                                        $("#error_flag2").html('');
+                                    }
+                                    $("#id_Weight").val(dataq.Weight);
+                                    $("#id_CostPrice").val(dataq.CostPrice);
+                                    $("#id_Logistic_way").val(dataq.logisticName);
+                                    $("#id_rate").val(dataq.ExchangeRate);
+                                    $("#id_Platform_kd").val(dataq.kickback);
+                                    $("#id_CURRENCYCODE").html(dataq.CURRENCYCODE);
+                                    $("#id_Discount").val(dataq.Discount);
+                                    $("#id_SellPrice1").val(dataq.sellingPrice_china);
+                                    $("#id_SellPrice2").val(dataq.sellingPrice_us);
+                                    $("#id_SellPrice3").val(dataq.sellingPrice_destination);
+                                    $("#id_details").html(dataq.html_info);
+                                    $("#error_flag").html('');
+                                    $("#success_flag").css('display', '');
+									$("#jbyf").html(dataq.price_yf);
+									$("#fdyf").html(dataq.fd_money);
+									$("#zyf").html(dataq.zyf);
+									$("#wlgz").html(dataq.logisticwaycode_desc);
+                                },
+                                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                    $("#id_Logistic_way").val('');
+                                    $("#id_rate").val('');
+                                    $("#id_Platform_kd").val('');
+                                    $("#id_Discount").val('');
+                                    $("#id_CURRENCYCODE").html('待定');
+                                    $("#id_details").html('');
+                                    $("#id_SellPrice1").val('');
+                                    $("#id_SellPrice2").val('');
+                                    $("#id_SellPrice3").val('');
+                                    $("#error_flag").html('<font size="4px"><b>未查询到该SKU相关信息,可以清空SKU,手动输入克重和成本价查询！</b></font>');
+                                    $("#success_flag").css('display', 'none');
+									$("#jbyf").html('');
+									$("#fdyf").html('');
+									$("#zyf").html('');
+									$("#wlgz").html('');
+                                    console.log('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                                }
+                            });
+                        });
+
+
+                        $("#id_smallflag").change(function () {
+                            var bigflag = $("#id_bigflag option:selected").val();
+                            var SKU = $("#id_SKU").val();
+                            var Weight = $("#id_Weight").val();
+                            var CostPrice = $("#id_CostPrice").val();
+                            var Country = $("#id_Country option:selected").val();
+                            var Profit_rate = $("#id_Profit_rate").val();
+                            var SmallCode = $("#id_smallflag option:selected").val();
+                            var PackWeight =$("#id_kg").val();
+                            $.ajax({
+                                url: "/suanjia1/",
+                                type: "POST",
+                                contentType: "application/x-www-form-urlencoded:charset=UTF-8",
+                                dataType: "json",
+                                data: {
+                                    'SKU': SKU,
+                                    'Weight':Weight,
+                                    'CostPrice':CostPrice,
+                                    'platformCountryCode': Platform,
+                                    'DestinationCountryCode': Country,
+                                    'profitRate': Profit_rate,
+                                    'SmallCode':SmallCode,
+                                    'LargeCode':bigflag,
+                                    'PackWeight':PackWeight,
+                                },
+
+                                success: function (dataq, textStatus, XMLHttpRequest) {
+                                    $("#error_flag3").html('');
+                                    $("#error_flag4").html('');
+                                    $("#id_Weight").val(dataq.Weight);
+                                    $("#id_CostPrice").val(dataq.CostPrice);
+                                    $("#id_Logistic_way").val(dataq.logisticName);
+                                    $("#id_rate").val(dataq.ExchangeRate);
+                                    $("#id_CURRENCYCODE").html(dataq.CURRENCYCODE);
+                                    $("#id_details").html(dataq.html_info);
+                                    $("#id_Platform_kd").val(dataq.kickback);
+                                    $("#id_Discount").val(dataq.Discount);
+                                    $("#error_flag").html('');
+                                    $("#id_SellPrice1").val(dataq.sellingPrice_china);
+                                    $("#id_SellPrice2").val(dataq.sellingPrice_us);
+                                    $("#id_SellPrice3").val(dataq.sellingPrice_destination);
+                                    $("#success_flag").css('display', '');
+									$("#jbyf").html(dataq.price_yf);
+									$("#fdyf").html(dataq.fd_money);
+									$("#zyf").html(dataq.zyf);
+									$("#wlgz").html(dataq.logisticwaycode_desc);
+                                },
+                                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                    $("#id_Logistic_way").val('');
+                                    $("#id_rate").val('');
+                                    $("#id_Platform_kd").val('');
+                                    $("#id_Discount").val('');
+                                    $("#id_CURRENCYCODE").html('待定');
+                                    $("#id_details").html('');
+                                    $("#id_SellPrice1").val('');
+                                    $("#id_SellPrice2").val('');
+                                    $("#id_SellPrice3").val('');
+                                    $("#success_flag").css('display', 'none');
+									$("#jbyf").html('');
+									$("#fdyf").html('');
+									$("#zyf").html('');
+									$("#wlgz").html('');
+                                    console.log('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                                }
+                            });
+                        });
+                    }else {
+                        $("#div_id_bigflag").remove();
+                        $("#div_id_smallflag").remove();
+                        $("#div_id_kg").remove();
+                        $("#div_id_SKU").attr("class", "form-group col-sm-12");
+                        var Country = document.getElementById('id_Country');
+                        Country.options.length = 0;
+                        $.getJSON('/price_list2/?Platform=' + Platform, function (result) {
+                            if (result.resultCode == '200') {
+                                var s_country = result['s_country'];
+                                for (var i = 0; i < s_country.length; i++) {
+                                    $("#id_Country").append("<option value='" + s_country[i]['countrycode'] + "'>" + s_country[i]['countryname'] + "</option>");
+                                }
+                                var Category = document.getElementById('id_category');
+                                Category.options.length = 0;
+                                if (result['PL_flag'] == 1){
+                                    var PL = result['PL'];
+                                    for (var i = 0; i < PL.length; i++) {
+                                        $("#id_category").append("<option value='" + PL[i]['category_code'] + "'>" + PL[i]['category_name'] + "</option>");
+                                    }
+                                    $("#div_id_SKU").attr("class","form-group col-sm-6");
+                                    $("#div_id_category").show();
+                                }else{
+                                    $("#div_id_SKU").attr("class","form-group col-sm-12");
+                                    $("#div_id_category").hide();
+                                }
+                                var SKU = $("#id_SKU").val();
+                                var Weight = $("#id_Weight").val();
+                                var CostPrice = $("#id_CostPrice").val();
+                                var Country = $("#id_Country option:selected").val();
+                                var c_category = $("#id_category option:selected").val();
+                                var Profit_rate = $("#id_Profit_rate").val();
+                                var sb_discount = $("#id_sb_discount").val();
+                                var bcd_rate = $("#id_bcd_rate").val();
+                                var yj_rate = $("#id_yj_rate").val();
+                                var xss_rate = $("#id_xss_rate").val();
+                                $.ajax({
+                                    url: "/suanjia1/",
+                                    type: "POST",
+                                    contentType: "application/x-www-form-urlencoded:charset=UTF-8",
+                                    dataType: "json",
+                                    data: {
+                                        'SKU': SKU,
+                                        'Weight': Weight,
+                                        'CostPrice': CostPrice,
+                                        'platformCountryCode': Platform,
+                                        'DestinationCountryCode': Country,
+                                        'profitRate': Profit_rate,
+                                        'category':c_category,
+                                        'sb_discount':sb_discount,
+                                        'bcd_rate':bcd_rate,
+                                        'yj_rate':yj_rate,
+                                        'xss_rate':xss_rate,
+                                    },
+
+                                    success: function (dataq, textStatus, XMLHttpRequest) {
+                                        if (Platform.indexOf("EBAY") >= 0) {
+                                            $("#error_flag2").html('<font size="2px"><b>此售价：建议只做8美金以下的产品！</b></font>');
+                                        } else {
+                                            $("#error_flag2").html('');
+                                        }
+                                        $("#error_flag3").html('');
+                                        $("#error_flag4").html('');
+                                        $("#id_Weight").val(dataq.Weight);
+                                        $("#id_CostPrice").val(dataq.CostPrice);
+                                        $("#id_Logistic_way").val(dataq.logisticName);
+                                        $("#id_rate").val(dataq.ExchangeRate);
+                                        $("#id_CURRENCYCODE").html(dataq.CURRENCYCODE);
+                                        $("#id_details").html(dataq.html_info);
+                                        $("#id_Platform_kd").val(dataq.kickback);
+                                        $("#id_Discount").val(dataq.Discount);
+                                        $("#error_flag").html('');
+                                        $("#id_SellPrice1").val(dataq.sellingPrice_china);
+                                        $("#id_SellPrice2").val(dataq.sellingPrice_us);
+                                        $("#id_SellPrice3").val(dataq.sellingPrice_destination);
+                                        $("#success_flag").css('display', '');
+                                        $("#id_sb_discount").val(dataq.sb_discount);
+                                        $("#id_bcd_rate").val(dataq.bcd_rate);
+                                        $("#id_yj_rate").val(dataq.yj_rate);
+                                        $("#id_xss_rate").val(dataq.xss_rate);
+										$("#jbyf").html(dataq.price_yf);
+										$("#fdyf").html(dataq.fd_money);
+										$("#zyf").html(dataq.zyf);
+										$("#wlgz").html(dataq.logisticwaycode_desc);
+                                    },
+                                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                        $("#id_Logistic_way").val('');
+                                        $("#id_rate").val('');
+                                        $("#id_Platform_kd").val('');
+                                        $("#id_Discount").val('');
+                                        $("#id_CURRENCYCODE").html('待定');
+                                        $("#id_details").html('');
+                                        $("#id_SellPrice1").val('');
+                                        $("#id_SellPrice2").val('');
+                                        $("#id_SellPrice3").val('');
+                                        $("#success_flag").css('display', 'none');
+										$("#jbyf").html('');
+										$("#fdyf").html('');
+										$("#zyf").html('');
+										$("#wlgz").html('');
+                                        console.log('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                                    }
+                                });
+                            } else {
+                                console.log('错误信息：' + XMLHttpRequest.responseText);
+                            }
+                        });
+                    }
+                });
+                $("#id_category").change(function () {
+                    var SKU = $("#id_SKU").val();
+                    var c_category = $("#id_category option:selected").val();
+                    var Platform = $("#id_Platform option:selected").val();
+                    var Country = $("#id_Country option:selected").val();
+                    var Profit_rate = $("#id_Profit_rate").val();
+                    var Weight = $("#id_Weight").val();
+                    var CostPrice = $("#id_CostPrice").val();
+                    var kb = $("#id_Platform_kd").val();
+                    if (Profit_rate != '') {
+                        $.ajax({
+                            url: "/suanjia1/",
+                            type: "POST",
+                            contentType: "application/x-www-form-urlencoded:charset=UTF-8",
+                            dataType: "json",
+                            data: {
+                                'SKU': SKU,
+                                'Weight':Weight,
+                                'CostPrice':CostPrice,
+                                'platformCountryCode': Platform,
+                                'DestinationCountryCode': Country,
+                                'profitRate': Profit_rate,
+                                'kb':kb,
+                                'category':c_category,
+                            },
+
+                            success: function (dataq, textStatus, XMLHttpRequest) {
+                                if (Platform.indexOf("EBAY") >= 0 ){
+                                    $("#error_flag2").html('<font size="2px"><b>此售价：建议只做8美金以下的产品！</b></font>');
+                                }else{
+                                    $("#error_flag2").html('');
+                                }
+                                $("#error_flag3").html('');
+                                $("#error_flag4").html('');
+                                $("#id_Weight").val(dataq.Weight);
+                                $("#id_CostPrice").val(dataq.CostPrice);
+                                $("#id_Logistic_way").val(dataq.logisticName);
+                                $("#id_rate").val(dataq.ExchangeRate);
+                                $("#id_CURRENCYCODE").html(dataq.CURRENCYCODE);
+                                $("#id_details").html(dataq.html_info);
+                                $("#id_Platform_kd").val(dataq.kickback);
+                                $("#id_Discount").val(dataq.Discount);
+                                $("#error_flag").html('');
+                                $("#id_SellPrice1").val(dataq.sellingPrice_china);
+                                $("#id_SellPrice2").val(dataq.sellingPrice_us);
+                                $("#id_SellPrice3").val(dataq.sellingPrice_destination);
+                                $("#success_flag").css('display', '');
+								$("#jbyf").html(dataq.price_yf);
+								$("#fdyf").html(dataq.fd_money);
+								$("#zyf").html(dataq.zyf);
+								$("#wlgz").html(dataq.logisticwaycode_desc);
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                $("#id_Logistic_way").val('');
+                                $("#id_rate").val('');
+                                $("#id_Platform_kd").val('');
+                                $("#id_Discount").val('');
+                                $("#id_CURRENCYCODE").html('待定');
+                                $("#id_details").html('');
+                                $("#id_SellPrice1").val('');
+                                $("#id_SellPrice2").val('');
+                                $("#id_SellPrice3").val('');
+                                $("#success_flag").css('display', 'none');
+								$("#jbyf").html('');
+								$("#fdyf").html('');
+								$("#zyf").html('');
+								$("#wlgz").html('');
+                                console.log('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                            }
+                        });
+                    }
+                });
+                $("#id_Profit_rate").on('input',function(e){
+                    var SKU = $("#id_SKU").val();
+                    var Platform = $("#id_Platform option:selected").val();
+                    var Country = $("#id_Country option:selected").val();
+                    var Profit_rate = $("#id_Profit_rate").val();
+                    var Weight = $("#id_Weight").val();
+                    var CostPrice = $("#id_CostPrice").val();
+                    var bigflag = $("#id_bigflag option:selected").val();
+                    var SmallCode = $("#id_smallflag option:selected").val();
+                    var kb = $("#id_Platform_kd").val();
+                    var c_category = $("#id_category option:selected").val();
+                    var sb_discount = $("#id_sb_discount").val();
+                    var bcd_rate = $("#id_bcd_rate").val();
+                    var yj_rate = $("#id_yj_rate").val();
+                    var xss_rate = $("#id_xss_rate").val();
+                    if (Profit_rate != '') {
+                        $.ajax({
+                            url: "/suanjia1/",
+                            type: "POST",
+                            contentType: "application/x-www-form-urlencoded:charset=UTF-8",
+                            dataType: "json",
+                            data: {
+                                'SKU': SKU,
+                                'Weight':Weight,
+                                'CostPrice':CostPrice,
+                                'platformCountryCode': Platform,
+                                'DestinationCountryCode': Country,
+                                'profitRate': Profit_rate,
+                                'SmallCode':SmallCode,
+                                'LargeCode':bigflag,
+                                'kb':kb,
+                                'category':c_category,
+                                'sb_discount':sb_discount,
+                                'bcd_rate':bcd_rate,
+                                'yj_rate':yj_rate,
+                                'xss_rate':xss_rate,
+                            },
+
+                            success: function (dataq, textStatus, XMLHttpRequest) {
+                                if (Platform.indexOf("EBAY") >= 0 ){
+                                    $("#error_flag2").html('<font size="2px"><b>此售价：建议只做8美金以下的产品！</b></font>');
+                                }else{
+                                    $("#error_flag2").html('');
+                                }
+                                $("#error_flag3").html('');
+                                $("#error_flag4").html('');
+                                $("#id_Weight").val(dataq.Weight);
+                                $("#id_CostPrice").val(dataq.CostPrice);
+                                $("#id_Logistic_way").val(dataq.logisticName);
+                                $("#id_rate").val(dataq.ExchangeRate);
+                                $("#id_CURRENCYCODE").html(dataq.CURRENCYCODE);
+                                $("#id_details").html(dataq.html_info);
+                                $("#id_Platform_kd").val(dataq.kickback);
+                                $("#id_Discount").val(dataq.Discount);
+                                $("#error_flag").html('');
+                                $("#id_SellPrice1").val(dataq.sellingPrice_china);
+                                $("#id_SellPrice2").val(dataq.sellingPrice_us);
+                                $("#id_SellPrice3").val(dataq.sellingPrice_destination);
+                                $("#success_flag").css('display', '');
+                                $("#id_sb_discount").val(dataq.sb_discount);
+                                $("#id_bcd_rate").val(dataq.bcd_rate);
+                                $("#id_yj_rate").val(dataq.yj_rate);
+                                $("#id_xss_rate").val(dataq.xss_rate);
+								$("#jbyf").html(dataq.price_yf);
+								$("#fdyf").html(dataq.fd_money);
+								$("#zyf").html(dataq.zyf);
+								$("#wlgz").html(dataq.logisticwaycode_desc);
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                $("#id_Logistic_way").val('');
+                                $("#id_rate").val('');
+                                $("#id_Platform_kd").val('');
+                                $("#id_Discount").val('');
+                                $("#id_CURRENCYCODE").html('待定');
+                                $("#id_details").html('');
+                                $("#id_SellPrice1").val('');
+                                $("#id_SellPrice2").val('');
+                                $("#id_SellPrice3").val('');
+                                $("#success_flag").css('display', 'none');
+								$("#jbyf").html('');
+								$("#fdyf").html('');
+								$("#zyf").html('');
+								$("#wlgz").html('');
+                                console.log('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                            }
+                        });
+                    }
+                });
+
+                $("#id_SellPrice2").on('input',function(e){
+                    var SKU = $("#id_SKU").val();
+                    var Weight = $("#id_Weight").val();
+                    var CostPrice = $("#id_CostPrice").val();
+                    var SellPrice = $("#id_SellPrice2").val();
+                    var Platform = $("#id_Platform option:selected").val();
+                    var Country = $("#id_Country option:selected").val();
+                    var kb = $("#id_Platform_kd").val();
+                    var c_category = $("#id_category option:selected").val();
+                    var sb_discount = $("#id_sb_discount").val();
+                    var bcd_rate = $("#id_bcd_rate").val();
+                    var yj_rate = $("#id_yj_rate").val();
+                    var xss_rate = $("#id_xss_rate").val();
+                    if (SellPrice.trim() != '' & SellPrice.trim() != 0) {
+                        $.ajax({
+                            url: "/suanjia2/",
+                            type: "POST",
+                            contentType: "application/x-www-form-urlencoded:charset=UTF-8",
+                            dataType: "json",
+                            data: {
+                                'SKU': SKU,
+                                'SellPrice': SellPrice,
+                                'platformCountryCode': Platform,
+                                'DestinationCountryCode': Country,
+                                'Weight':Weight,
+                                'CostPrice':CostPrice,
+                                'kb':kb,
+                                'category':c_category,
+                                'sb_discount':sb_discount,
+                                'bcd_rate':bcd_rate,
+                                'yj_rate':yj_rate,
+                                'xss_rate':xss_rate,
+                            },
+
+                            success: function (dataq, textStatus, XMLHttpRequest) {
+                                console.log(dataq);
+                                if (Platform.indexOf("EBAY") >= 0 ){
+                                    $("#error_flag2").html('<font size="2px"><b>此售价：建议只做8美金以下的产品！</b></font>');
+                                }else{
+                                    $("#error_flag2").html('');
+                                }
+                                $("#error_flag3").html('');
+                                $("#error_flag4").html('');
+                                $("#id_Weight").val(dataq.Weight);
+                                $("#id_CostPrice").val(dataq.CostPrice);
+                                $("#id_Logistic_way").val(dataq.logisticName);
+                                $("#id_rate").val(dataq.ExchangeRate);
+                                $("#id_Platform_kd").val(dataq.kickback);
+                                $("#id_CURRENCYCODE").html(dataq.CURRENCYCODE);
+                                $("#id_details").html(dataq.html_info);
+                                $("#id_Discount").val(dataq.Discount);
+                                $("#id_SellPrice1").val(dataq.sellingPrice_china);
+                                $("#id_Profit_rate").val(dataq.profitRate);
+                                $("#id_SellPrice3").val(dataq.sellingPrice_destination);
+                                $("#id_sb_discount").val(dataq.sb_discount);
+                                $("#id_bcd_rate").val(dataq.bcd_rate);
+                                $("#id_yj_rate").val(dataq.yj_rate);
+                                $("#id_xss_rate").val(dataq.xss_rate);
+                                $("#success_flag").css('display', '');
+								$("#jbyf").html(dataq.price_yf);
+								$("#fdyf").html(dataq.fd_money);
+								$("#zyf").html(dataq.zyf);
+								$("#wlgz").html(dataq.logisticwaycode_desc);
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                $("#id_Logistic_way").val('');
+                                $("#id_rate").val('');
+                                $("#id_Platform_kd").val('');
+                                $("#id_Discount").val('');
+                                $("#id_CURRENCYCODE").html('待定');
+                                $("#id_details").html('');
+                                $("#id_SellPrice1").val('');
+                                $("#id_SellPrice3").val('');
+                                $("#success_flag").css('display', 'none');
+								$("#jbyf").html('');
+								$("#fdyf").html('');
+								$("#zyf").html('');
+								$("#wlgz").html('');
+                                console.log('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                            }
+                        });
+                    }
+
+                });
+                
+                $("#id_SellPrice3").on('input',function(e){
+                    var SKU = $("#id_SKU").val();
+                    var Weight = $("#id_Weight").val();
+                    var CostPrice = $("#id_CostPrice").val();
+                    var SellPrice = $("#id_SellPrice3").val();
+                    var Platform = $("#id_Platform option:selected").val();
+                    var Country = $("#id_Country option:selected").val();
+                    var kb = $("#id_Platform_kd").val();
+                    var price_des = $("#id_SellPrice3").val();
+                    var currencycode = $("#id_CURRENCYCODE").html();
+                    var c_category = $("#id_category option:selected").val();
+                    var sb_discount = $("#id_sb_discount").val();
+                    var bcd_rate = $("#id_bcd_rate").val();
+                    var yj_rate = $("#id_yj_rate").val();
+                    var xss_rate = $("#id_xss_rate").val();
+
+                    if (SellPrice.trim() != '' & SellPrice.trim() != 0) {
+                        $.ajax({
+                            url: "/suanjia2/",
+                            type: "POST",
+                            contentType: "application/x-www-form-urlencoded:charset=UTF-8",
+                            dataType: "json",
+                            data: {
+                                'SKU': SKU,
+                                'SellPrice': SellPrice,
+                                'platformCountryCode': Platform,
+                                'DestinationCountryCode': Country,
+                                'Weight':Weight,
+                                'CostPrice':CostPrice,
+                                'kb':kb,
+                                'price_des':price_des,
+                                'currencycode':currencycode,
+                                'category':c_category,
+                                'sb_discount':sb_discount,
+                                'bcd_rate':bcd_rate,
+                                'yj_rate':yj_rate,
+                                'xss_rate':xss_rate,
+                            },
+
+                            success: function (dataq, textStatus, XMLHttpRequest) {
+                                console.log(dataq);
+                                if (Platform.indexOf("EBAY") >= 0 ){
+                                    $("#error_flag2").html('<font size="2px"><b>此售价：建议只做8美金以下的产品！</b></font>');
+                                }else{
+                                    $("#error_flag2").html('');
+                                }
+                                $("#error_flag3").html('');
+                                $("#error_flag4").html('');
+                                $("#id_Weight").val(dataq.Weight);
+                                $("#id_CostPrice").val(dataq.CostPrice);
+                                $("#id_Logistic_way").val(dataq.logisticName);
+                                $("#id_rate").val(dataq.ExchangeRate);
+                                $("#id_Platform_kd").val(dataq.kickback);
+                                $("#id_CURRENCYCODE").html(dataq.CURRENCYCODE);
+                                $("#id_details").html(dataq.html_info);
+                                $("#id_Discount").val(dataq.Discount);
+                                $("#id_SellPrice1").val(dataq.sellingPrice_china);
+                                $("#id_Profit_rate").val(dataq.profitRate);
+                                $("#id_SellPrice2").val(dataq.sellingPrice);
+                                $("#success_flag").css('display', '');
+                                $("#id_sb_discount").val(dataq.sb_discount);
+                                $("#id_bcd_rate").val(dataq.bcd_rate);
+                                $("#id_yj_rate").val(dataq.yj_rate);
+                                $("#id_xss_rate").val(dataq.xss_rate);
+								$("#jbyf").html(dataq.price_yf);
+								$("#fdyf").html(dataq.fd_money);
+								$("#zyf").html(dataq.zyf);
+								$("#wlgz").html(dataq.logisticwaycode_desc);
+                            },
+                            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                                $("#id_Logistic_way").val('');
+                                $("#id_rate").val('');
+                                $("#id_Platform_kd").val('');
+                                $("#id_Discount").val('');                             
+                                $("#id_details").html('');
+                                $("#id_SellPrice1").val('');
+                                $("#id_SellPrice2").val('');
+                                $("#success_flag").css('display', 'none');
+								$("#jbyf").html('');
+								$("#fdyf").html('');
+								$("#zyf").html('');
+								$("#wlgz").html('');
+                                console.log('错误信息：' + XMLHttpRequest.responseText); //获取的信息即是异常中的Message
+                            }
+                        });
+                    } 
+
+                });
+            </script>

@@ -1,0 +1,37 @@
+<div>
+<HR style="FILTER: alpha(opacity=100,finishopacity=0,style=3)" width="80%" color=#987cb9 SIZE=3>
+<p   style="font-size:50px;text-align:center">自动排重明细</p>
+<div>
+
+<table  align="center"  >
+    <tr  >
+
+        <td>排重序号</td>
+        <td>图片相似度(%)</td>
+        <td>MainSKU</td>
+        <td>相似图片路径</td>
+        <td>相似图片</td>
+    </tr>
+
+    {% for t_autopic_uqex_obj in t_autopic_uqex_objs %}
+        <tr >
+            <td >{{t_autopic_uqex_obj.id}}</td>
+            <td >{{t_autopic_uqex_obj.Rate}}%</td>
+            <td >{{t_autopic_uqex_obj.MainSKU}}</td>
+            <td >{{t_autopic_uqex_obj.PicPath}}</td>
+            <td >
+          		<img  src="{{t_autopic_uqex_obj.PicPath}}" width="200" height="200" alt = "{{ t_autopic_uqex_obj.PicPath}}" border="1"  title="{{ t_autopic_uqex_obj.PicPath }}" >
+            </td>
+        </tr>
+    {% endfor %}
+
+</table>
+
+
+<br/>
+</div>
+<HR style="FILTER: alpha(opacity=100,finishopacity=0,style=3)" width="80%" color=#987cb9 SIZE=3>
+<br/><br/>
+</div>
+
+

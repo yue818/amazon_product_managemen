@@ -1,0 +1,126 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>周出单趋势图</title>
+    <style type="text/css">
+                .btn_1{
+                    display: inline-block;
+                    padding: 6px 12px;
+                    margin-bottom: 0;
+                    font-size: 14px;
+                    font-weight: normal;
+                    line-height: 1.428571429;
+                    text-align: center;
+                    vertical-align: middle;
+                    cursor: pointer;
+                    background-image: none;
+                    border: 1px solid transparent;
+                    border-radius: 6px;
+                    -webkit-user-select: none;
+                    -moz-user-select: none;
+                    color: #ffffff;
+                    background-color: #555555;
+                }
+
+                a{
+                    text-decoration: none;
+                }
+        </style>
+</head>
+<body>
+<script src="/static/highcharts/jquery-1.8.3.min.js"></script>
+<script src="/static/highcharts/highcharts.js"></script>
+<script src="/static/highcharts/exporting.js"></script>
+<script src="/static/highcharts/highcharts-zh_CN.js"></script>
+
+<div>
+    <table border="0" cellpadding="0" cellspacing="0" style="margin-left:auto; margin-right:auto;">
+    <tr>
+        <td>
+            <div id="weeklytrend" style="width:900px;height:500px" align="center"></div>
+        </td>
+    </tr>
+    </table>
+</div>
+<br>
+{{ rt|safe }}
+
+<script>
+$(function () {
+
+	function ss(element,title,daylist,ordercnt,sales){
+	  element.highcharts({
+        credits: {
+            enabled: false
+        },
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: title
+        },
+        subtitle: {
+            text: '周出单趋势图'
+        },
+        xAxis: {
+            categories: daylist,
+            crosshair: true
+        },
+        yAxis: [{
+            min: 0,
+            title: {
+                text: '链接数'
+            }
+        },
+        {
+            min: 0,
+            title: {
+            text: '销售额($)',
+            style: {color: '#32CD32'}
+            },
+        opposite: true
+        }
+        ],
+        tooltip: {
+            headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+            pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+            '<td style="padding:0"><b>{point.y:.1f}</b></td></tr>',
+            footerFormat: '</table>',
+            shared: true,
+            useHTML: true
+        },
+        plotOptions: {
+            column: {
+                pointPadding: 0.2,
+                borderWidth: 0
+            }
+            ,
+            spline: {
+                marker: {
+                    enabled: true,//是否显示点
+                    radius: 2,//点的半径
+                    fillColor: "#00FF00",
+                    lineColor: "#32CD32"
+                },
+            lineWidth:2//线条粗细
+            }
+        },
+        series: [ {
+            type: 'column',
+            name: '出单链接数',
+            data:  ordercnt
+        },{
+        type: 'spline',
+        name: '销售额',
+        lineColor: "#32CD32",
+        data: sales,
+        yAxis: 1
+        }]
+    });
+
+}
+ss($('#weeklytrend'),'{{PeriodNO}}',{{datelist|safe}},{{ordercnt|safe}},{{sales|safe}})
+});
+</script>
+</body>
+</html>
