@@ -94,6 +94,7 @@ from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
 from brick.wish.to_translation import *
 from brick.public.amazon_asin import get_comments
+from django.forms.models import model_to_dict
 import os
 import uuid
 import json
@@ -3918,7 +3919,7 @@ def importfile_aliexpress_refund(request):
     
 def importfile_stocking_demand(request):
     import os
-    from app_djcelery.tasks import import_excel_file,import_fba_excel_file,import_fbw_excel_file,import_excel_saler_profit_config_file,import_fbareject_excel_file,import_excel_clothfactory_file
+    from app_djcelery.tasks import import_excel_file,import_fba_excel_file,import_fbw_excel_file,import_excel_saler_profit_config_file,import_fbareject_excel_file,import_excel_clothfactory_file,import_affiliate_excel_file
     from django.contrib.auth.models import User
     dealflag = request.GET.get('dealflag', '')
     file = request.FILES.get('myfile')
@@ -3954,6 +3955,9 @@ def importfile_stocking_demand(request):
                     messages.info(request,u"无权限批量导入操作。")
                     result['errorcode'] = -1
                     result['errortext'] = ''
+            elif dealflag == "AFFILIATE":
+                result = import_affiliate_excel_file(file_obj, user_name)
+                
             if result['errorcode'] == 0:
                 messages.success(request, result['errortext'])
             else:
@@ -3970,6 +3974,8 @@ def importfile_stocking_demand(request):
         return HttpResponseRedirect('/Project/admin/skuapp/t_saler_profit_config')
     elif dealflag == "CLOTHFACTORY":
         return HttpResponseRedirect('/Project/admin/skuapp/t_cloth_factory_dispatch_needpurchase')
+    elif dealflag == "AFFILIATE":
+        return HttpResponseRedirect('/Project/admin/reportapp/t_online_aliexpress_affiliate_rate')
     elif dealflag == "OTHER":
         return HttpResponseRedirect('/Project/admin/skuapp/t_stocking_demand_list/?Status=notgenerated')
 
@@ -4067,39 +4073,37 @@ def save_ebay_image(request):
     t_templet_ebay_collection_box.objects.filter(id=int(myId)).update(Images=mainImage)
 
     return render(request, 'ebay_image.html', {'imageDict': imageDict, 'image_id': myId})
-    
+
+@csrf_exempt
 def modify_ebay_schedule(request):
     """展示eBay铺货定时计划"""
     from datetime import datetime
     from skuapp.table.t_config_store_ebay import t_config_store_ebay
-
-    myId = request.GET.get('myId', '')
+    from ebayapp.table.t_config_site_ebay import t_config_site_ebay
+    from ebayapp.table.t_config_ebay_shipping_template import t_config_ebay_shipping_template
+    from ebayapp.table.t_config_ebay_category import t_config_ebay_category
 
     if request.method == 'POST':
+        res = {'code': -1, 'message': ''}
         user = request.user.first_name
         post = request.POST
         time = datetime.now()
-        shops = post.get('shops', '')
-        #shops = post.getlist('shops')
-        #messages.error(request,'&*&*&*&*&*&%s'%shops)
-        start = post.get('start', '')
-        interval = post.get('interval', '')
 
-        if start.strip() != '' and interval.strip() != '' and shops.strip() != '':
-        #if start.strip() != '' and interval.strip() != '' and len(shops)>0:
-            shops_list =[]
-            for i in shops:
-                shops_list.append(shops)
-            Shops = shops_list[0].split(',')
-            #messages.error(request,'&*&*&*&*&*&%s'%Shops)
-                
-            Site = t_templet_ebay_wait_upload.objects.filter(id=myId).values('Site')
-            if int(Site[0]['Site']) == 2:      #加拿大账号与美国一样
-                Site = t_templet_ebay_wait_upload.objects.filter(Site=0)[:1].values('Site')
-            #messages.error(request,'********%s'%Site)
-            site_name = t_config_store_ebay.objects.filter(siteID=Site).values('storeName')
-            #messages.error(request,'********%s'%site_name)
-        #for k, v in range(0, len(site_name)):
+        shops_str = post.get('shops_info', '')
+        site_id = post.get('site', '')
+        myId = post.get('myId', '')
+        shipping_id = post.get('shipping_id')
+        pro_category_id_1 = post.get('pro_category_id_1')
+        pro_category_id_2 = post.get('pro_category_id_2')
+
+        if shops_str.strip() != '' and site_id.strip() != '':
+            Shops = shops_str.split(',')
+            if site_id and (int(site_id) == 71 or int(site_id) == 77):
+                res['message'] = '法国德国站点暂时不支持铺货'
+                return HttpResponse(json.dumps(res), content_type="application/json")
+            else:
+                site_ids = [0, 2, 3, 15]
+                site_name = t_config_store_ebay.objects.filter(siteID__in=site_ids).values('storeName')
             site_storename = []
             for i in site_name:
                 if isinstance(i,dict):
@@ -4108,16 +4112,60 @@ def modify_ebay_schedule(request):
                             site_storename.append(v)
 
             if Shops and set(Shops).issubset(site_storename):
-                # 铺货店铺和站点对应
                 repeate_Shop = [val for val in list(set(Shops)) if Shops.count(val) > 1]
                 if repeate_Shop:
                     rt = '请勿重复填写铺货店铺: %s' % ",".join(repeate_Shop)
                 else:
-                    schedule = {}
-                    schedule['start'] = start
-                    schedule['interval'] = interval
-                    t_templet_ebay_wait_upload.objects.filter(id=myId).update(ShopSets=shops, TimePlan=schedule,UpdateStaff=user, UpdateTime=time, Status='NO')
+                    if shipping_id:
+                        ebay_shipping_tmp = t_config_ebay_shipping_template.objects.get(pk=shipping_id)
+                    else:
+                        ebay_shipping_tmp = None
+                    if ebay_shipping_tmp:
+                        t_templet_ebay_wait_upload.objects.filter(id=myId).update(
+                            ShopSets=shops_str, UpdateStaff=user, UpdateTime=time, Status='NO', Site=int(site_id),
+                            Category1=pro_category_id_1, Category2=pro_category_id_2, ShippingTempID=int(shipping_id),
+                            ShippingService1=ebay_shipping_tmp.ShippingService1,
+                            ShippingServiceCost1=ebay_shipping_tmp.ShippingServiceCost1,
+                            ShippingServiceAdditionalCost1=ebay_shipping_tmp.ShippingServiceAdditionalCost1,
+                            ShippingService2=ebay_shipping_tmp.ShippingService2,
+                            ShippingServiceCost2=ebay_shipping_tmp.ShippingServiceCost2,
+                            ShippingServiceAdditionalCost2=ebay_shipping_tmp.ShippingServiceAdditionalCost2,
+                            ShippingService3=ebay_shipping_tmp.ShippingService3,
+                            ShippingServiceCost3=ebay_shipping_tmp.ShippingServiceCost3,
+                            ShippingServiceAdditionalCost3=ebay_shipping_tmp.ShippingServiceAdditionalCost3,
+                            ShippingService4=ebay_shipping_tmp.ShippingService4,
+                            ShippingServiceCost4=ebay_shipping_tmp.ShippingServiceCost4,
+                            ShippingServiceAdditionalCost4=ebay_shipping_tmp.ShippingServiceAdditionalCost4,
+                            InternationalShippingService1=ebay_shipping_tmp.InternationalShippingService1,
+                            InternationalShippingServiceCost1=ebay_shipping_tmp.InternationalShippingServiceCost1,
+                            InternationalShippingServiceAdditionalCost1=ebay_shipping_tmp.InternationalShippingServiceAdditionalCost1,
+                            InternationalShipToLocation1=ebay_shipping_tmp.InternationalShipToLocation1,
+                            InternationalShippingService2=ebay_shipping_tmp.InternationalShippingService2,
+                            InternationalShippingServiceCost2=ebay_shipping_tmp.InternationalShippingServiceCost2,
+                            InternationalShippingServiceAdditionalCost2=ebay_shipping_tmp.InternationalShippingServiceAdditionalCost2,
+                            InternationalShipToLocation2=ebay_shipping_tmp.InternationalShipToLocation2,
+                            InternationalShippingService3=ebay_shipping_tmp.InternationalShippingService3,
+                            InternationalShippingServiceCost3=ebay_shipping_tmp.InternationalShippingServiceCost3,
+                            InternationalShippingServiceAdditionalCost3=ebay_shipping_tmp.InternationalShippingServiceAdditionalCost3,
+                            InternationalShipToLocation3=ebay_shipping_tmp.InternationalShipToLocation3,
+                            InternationalShippingService4=ebay_shipping_tmp.InternationalShippingService4,
+                            InternationalShippingServiceCost4=ebay_shipping_tmp.InternationalShippingServiceCost4,
+                            InternationalShippingServiceAdditionalCost4=ebay_shipping_tmp.InternationalShippingServiceAdditionalCost4,
+                            InternationalShipToLocation4=ebay_shipping_tmp.InternationalShipToLocation4,
+                            InternationalShippingService5=ebay_shipping_tmp.InternationalShippingService5,
+                            InternationalShippingServiceCost5=ebay_shipping_tmp.InternationalShippingServiceCost5,
+                            InternationalShippingServiceAdditionalCost5=ebay_shipping_tmp.InternationalShippingServiceAdditionalCost5,
+                            InternationalShipToLocation5=ebay_shipping_tmp.InternationalShipToLocation5,
+                            DispatchTimeMax=ebay_shipping_tmp.DispatchTimeMax,
+                            ExcludeShipToLocation=ebay_shipping_tmp.ExcludeShipToLocation,
+                        )
+                    else:
+                        t_templet_ebay_wait_upload.objects.filter(id=myId).update(
+                            ShopSets=shops_str, UpdateStaff=user, UpdateTime=time, Status='NO', Site=int(site_id),
+                            Category1=pro_category_id_1, Category2=pro_category_id_2,
+                        )
                     rt = u'修改成功！'
+                    res['code'] = 0
             elif Shops and not set(Shops).issubset(site_storename):
                 rt = ''
                 for each in Shops:
@@ -4126,30 +4174,120 @@ def modify_ebay_schedule(request):
                 rt = '您填写的铺货店铺:' + rt[0:-1] + '与站点不对应!'
             else:
                 rt = '系统异常，请重试！' # 异常
-        # else:
-        #     rt = '未完全填写数据!'
-        return render(request, 'SKU.html', {'rt': rt})
+        else:
+            rt = '未完全填写数据!'
+        res['message'] = rt
+        return HttpResponse(json.dumps(res), content_type="application/json")
     else:
+        myId = request.GET.get('myId', '')
         ebay_wait_upload_objs = t_templet_ebay_wait_upload.objects.filter(id=myId)
+        schedule = {}
         if ebay_wait_upload_objs.exists():
             obj = ebay_wait_upload_objs[0]
-            schedule = {}
-            if obj.ShopSets == None:
+            if not obj.ShopSets:
                 shops = ''
             else:
                 shops = obj.ShopSets
-            if obj.TimePlan == None:
-                start = ''
-                interval = ''
+            if not obj.Site:
+                site_id = ''
             else:
-                schedule = eval(obj.TimePlan)
-                start = schedule['start']
-                interval = schedule['interval']
-            schedule['shops'] = shops
-            schedule['start'] = start
-            schedule['interval'] = interval
+                site_id = obj.Site
+            if not obj.Category1:
+                Category1_id = ''
+            else:
+                Category1_id = obj.Category1
+            if not obj.Category2:
+                Category2_id = ''
+            else:
+                Category2_id = obj.Category2
+            if not obj.ShippingTempID:
+                ShippingTempID = ''
+            else:
+                ShippingTempID = obj.ShippingTempID
+        else:
+            shops = ''
+            site_id = ''
+            Category1_id = ''
+            Category2_id = ''
+            ShippingTempID = ''
 
-        return render(request, 'show_ebay_schedule.html', {'schedule':schedule, 'myId':myId})
+        if not site_id:
+            site_id = 0
+
+        schedule['shops'] = shops
+        schedule['site_id'] = site_id
+        schedule['Category1_id'] = Category1_id
+        schedule['Category2_id'] = Category2_id
+        schedule['ShippingTempID'] = ShippingTempID
+
+        category1_name_str = ''
+        category1_name = list()
+        if Category1_id:
+            while True:
+                try:
+                    category1_obj = t_config_ebay_category.objects.get(SiteID=str(site_id), CategoryID=Category1_id)
+                except t_config_ebay_category.DoesNotExist:
+                    break
+                # if Category1_id != category1_obj.CategoryParentID:
+                if category1_obj.CategoryLevel != 1:
+                    Category1_id = category1_obj.CategoryParentID
+                    if category1_obj.CategoryName:
+                        category1_name.append(category1_obj.CategoryName)
+                    else:
+                        category1_name.append(category1_obj.CategoryID)
+                else:
+                    if category1_obj.CategoryName:
+                        category1_name.append(category1_obj.CategoryName)
+                    else:
+                        category1_name.append(category1_obj.CategoryID)
+                    break
+
+        if category1_name:
+            category1_name.reverse()
+            category1_name_str = ' --> '.join(category1_name)
+
+        category2_name_str = ''
+        category2_name = list()
+        if Category2_id:
+            while True:
+                try:
+                    category2_obj = t_config_ebay_category.objects.get(SiteID=site_id, CategoryID=Category2_id)
+                except t_config_ebay_category.DoesNotExist:
+                    break
+                # if Category2_id != category2_obj.CategoryParentID:
+                if category2_obj.CategoryLevel != 1:
+                    Category2_id = category2_obj.CategoryParentID
+                    if category2_obj.CategoryName:
+                        category2_name.append(category2_obj.CategoryName)
+                    else:
+                        category2_name.append(category2_obj.CategoryID)
+                else:
+                    if category2_obj.CategoryName:
+                        category2_name.append(category2_obj.CategoryName)
+                    else:
+                        category2_name.append(category2_obj.CategoryID)
+                    break
+
+        if category2_name:
+            category2_name.reverse()
+            category2_name_str = ' --> '.join(category2_name)
+
+        schedule['Category1_name'] = category1_name_str
+        schedule['Category2_name'] = category2_name_str
+
+        site_info = t_config_site_ebay.objects.all().values('siteID', 'siteName')
+        shipping_info = t_config_ebay_shipping_template.objects.all().values('id', 'ShippingTempName')
+        shop_info = t_config_store_ebay.objects.all().values('storeName')
+
+        data = {
+            'schedule':schedule,
+            'myId':myId,
+            'site_info': site_info,
+            'shipping_info': shipping_info,
+            'shop_info': shop_info,
+        }
+
+        return render(request, 'show_ebay_schedule_new.html', data)
 
 def show_ebay_variation(request):
     """展示采集箱变种信息"""
@@ -4173,11 +4311,11 @@ def show_ebay_variation(request):
         title['upload_id'] = templet_id
 
     tables_objs = MySQL_table.objects.filter(id=int(templet_id))
+    result = []
     if tables_objs.exists():
         obj = tables_objs[0]
-        if (obj.Variation.strip() != '') and (obj.Variation is not None):
+        if obj.Variation:
             variation_list = eval(obj.Variation).get("Variation", '')
-            result = []
             if variation_list != '':
                 for variation in variation_list:
                     sku = variation.get('SKU', '')
@@ -4198,41 +4336,55 @@ def show_ebay_variation(request):
 
                     result_dict = {'sku':sku, 'price':price, 'quantity':quantity, 'color':color, 'size':size}
                     result.append(result_dict)
+        else:
+            sku = obj.sku
+            price = obj.StartPrice
+            quantity = obj.Quantity
+            color = ''
+            size = ''
+            result_dict = {'sku':sku, 'price':price, 'quantity':quantity, 'color':color, 'size':size}
+            result.append(result_dict)
 
     return render(request, 'show_ebay_variation.html', {'result': result, 'ebay_title': title})
 
 def save_ebay_variation(request):
     """修改采集箱变体信息"""
     post = request.POST
-    box_id = post.get('box_id', '')
+    upload_id = post.get('upload_id', '')
 
-    sku = post.getlist('sku')
+    # sku = post.getlist('sku')
     price = post.getlist('price')
     quantity = post.getlist('quantity')
     color = post.getlist('color')
     size = post.getlist('size')
 
-    collection_box_obj = t_templet_ebay_collection_box.objects.filter(id=int(box_id))
-    Variation = eval(collection_box_obj[0].Variation)
-    variation_list = Variation.get('Variation', '')
-    length = len(variation_list)
-    for i in range(length):
-        variation_list[i]['SKU'] = sku[i]
-        variation_list[i]['StartPrice'] = price[i]
-        variation_list[i]['Quantity'] = quantity[i]
+    collection_box_obj = t_templet_ebay_wait_upload.objects.filter(id=int(upload_id))
+    if collection_box_obj[0].Variation:
+        Variation = eval(collection_box_obj[0].Variation)
+        variation_list = Variation.get('Variation', '')
+        length = len(variation_list)
+        for i in range(length):
+            # variation_list[i]['SKU'] = sku[i]
+            variation_list[i]['StartPrice'] = price[i]
+            variation_list[i]['Quantity'] = quantity[i]
 
-        NameValueList = variation_list[i]['VariationSpecifics']['NameValueList']
-        for each in NameValueList:
-            if 'Color' in each.values():
-                each['Value'] = color[i]
-            if 'Size' in each.values():
-                each['Value'] = size[i]
-    collection_box_obj.update(Variation = str(Variation))
+            NameValueList = variation_list[i]['VariationSpecifics']['NameValueList']
+            for each in NameValueList:
+                if 'Color' in each.values():
+                    each['Value'] = color[i]
+                if 'Size' in each.values():
+                    each['Value'] = size[i]
+        collection_box_obj.update(Variation = str(Variation))
+    else:
+        collection_box_obj.update(
+            StartPrice=price[0],
+            Quantity=quantity[0],
+        )
 
     rt = u'修改成功！'
     return render(request, 'SKU.html', {'rt': rt})
-    
-    
+
+
 from django.db import connection
 #from brick.db.ebay_api import *
 from brick.ebay.ebay_api import *
@@ -4619,10 +4771,21 @@ def t_online_info_amazon_listing_complete_shopname(request):
     return render(request, 't_online_info_amazon_listing_plugin.html')
 
 
-
 # Amazon店铺管理--同步listID、list上架、list下架
 def syndata_by_amazon_api(request):
-    import traceback
+    from django.db import connection
+    from brick.amazon.product_refresh.get_auth_info import GetAuthInfo
+    from brick.amazon.product_refresh.generate_feed_xml import GenerateFeedXml
+    from brick.amazon.upload_product.message_to_rabbitmq import MessageToRabbitMq
+    import json
+    from skuapp.table.t_online_info_amazon import t_online_info_amazon
+    import datetime
+    import urllib
+    from django.http import HttpResponseRedirect
+    from skuapp.table.t_amazon_auto_load import t_amazon_auto_load
+    import uuid
+
+    # import traceback
     # logging.basicConfig(level=logging.DEBUG,
     #                     format='%(asctime)s [%(filename)s %(funcName)s:%(lineno)d] %(thread)d %(levelname)s %(message)s',
     #                     datefmt='%Y-%m-%d %H:%M:%S',
@@ -4633,27 +4796,62 @@ def syndata_by_amazon_api(request):
     #                                      maxBytes=5 * 1024 * 1024,
     #                                      backupCount=10)
     try:
-        # logging.debug('11111111')
-        from skuapp.table.t_online_info_amazon_listing import *
-        shopName = request.GET.get('shopName')
+        shop_name = request.GET.get('ShopName')
         seller_sku = request.GET.get('seller_sku')
         operation_type = request.GET.get('operation_type')
-        pri_id =  request.GET.get('pri_id')
-        # logging.debug('shopname: %s' % shopName)
-        # logging.debug('seller_sku: %s' % seller_sku)
-        # logging.debug('pri_id: %s' % pri_id)
-        product_list_obj = t_online_info_amazon_listing.objects.filter(id=int(pri_id))[0]
-
+        # pri_id = request.GET.get('pri_id')
         if operation_type == 'sync':
             messages.success(request, u'正在同步，请稍后刷新页面。。。')
-            return HttpResponseRedirect('/Project/admin/skuapp/t_online_info_amazon_listing/?seller_sku=%s&ShopName=%s' % (seller_sku,shopName))
-        elif operation_type == 'upload':
-            messages.success(request, u'正在执行上架操作，请稍后刷新页面。。。')
-            return HttpResponseRedirect('/Project/admin/skuapp/t_online_info_amazon_listing/?seller_sku=%s&ShopName=%s' % (seller_sku,shopName))
-        elif operation_type == 'download':
-            messages.success(request, u'正在执行下架操作，请稍后刷新页面。。。')
-            return HttpResponseRedirect('/Project/admin/skuapp/t_online_info_amazon_listing/?seller_sku=%s&ShopName=%s' % (seller_sku,shopName))
+            return HttpResponseRedirect('/Project/admin/skuapp/t_online_info_amazon_listing/?seller_sku=%s&ShopName=%s' % (seller_sku, shop_name))
+        elif operation_type in ('load', 'unload'):
+            batch_id = str(uuid.uuid4())
+            shop_sku = dict()
+            shop_sku[shop_name] = [seller_sku]
+            refresh_type = 'auto_' + operation_type + '_product'
+            operate_record_list = list()
+
+            t_online_info_amazon_ins = t_online_info_amazon.objects.filter(ShopName=shop_name, seller_sku=seller_sku)
+            if t_online_info_amazon_ins:
+                operate_record_list.append(t_amazon_auto_load(batch_id=batch_id, shop_name=shop_name, seller_sku=seller_sku, status=t_online_info_amazon_ins[0].Status, insert_time=datetime.datetime.now(), deal_type=operation_type, deal_user=request.user.username))
+                t_online_info_amazon_ins.update(deal_action=operation_type + '_product',
+                                                deal_result=None,
+                                                deal_result_info=None,
+                                                UpdateTime=datetime.datetime.now())
+                t_amazon_auto_load.objects.bulk_create(operate_record_list)
+
+            for key, value in shop_sku.items():
+                get_auth_info_ins = GetAuthInfo(connection)
+                auth_info = get_auth_info_ins.get_auth_info_by_shop_name(str(key))
+                auth_info['IP'] = auth_info['ShopIP']
+                auth_info['table_name'] = 't_online_info_amazon'
+                auth_info['update_type'] = refresh_type
+                auth_info['product_list'] = value
+                auth_info['batch_id'] = batch_id
+
+                if refresh_type == 'auto_load_product':
+                    feed_xml_ins = GenerateFeedXml(auth_info)
+                    feed_xml = feed_xml_ins.get_inventory_xml(value, 999)
+                elif refresh_type == 'auto_unload_product':
+                    feed_xml_ins = GenerateFeedXml(auth_info)
+                    feed_xml = feed_xml_ins.get_inventory_xml(value, 0)
+                else:
+                    feed_xml = None
+
+                auth_info['feed_xml'] = feed_xml
+
+                message_to_rabbit_obj = MessageToRabbitMq(auth_info, connection)
+                auth_info = json.dumps(auth_info)
+                message_to_rabbit_obj.put_message(auth_info)
+
+                if refresh_type == 'auto_load_product':
+                    messages.success(request, '产品上架中')
+                elif refresh_type == 'auto_unload_product':
+                    messages.success(request, '产品下架中')
+                else:
+                    pass
+            return HttpResponse('success')
         elif operation_type == 'change':
+            product_list_obj = t_online_info_amazon.objects.filter(ShopName=shop_name, seller_sku=seller_sku)[0]
             if product_list_obj.sale_from_date:
                 sale_from_date_0 = str(product_list_obj.sale_from_date)[0:10]
                 sale_from_date_1 = str(product_list_obj.sale_from_date)[11:16]
@@ -4671,11 +4869,11 @@ def syndata_by_amazon_api(request):
             parent_asin1 = product_list_obj.Parent_asin
             parent_sku = ''
             if parent_asin1 is not None:
-                parent_sku_obj = t_online_info_amazon_listing.objects.filter(asin1=parent_asin1)
+                parent_sku_obj = t_online_info_amazon.objects.filter(asin1=parent_asin1)
                 if parent_sku_obj:
                     parent_sku = parent_sku_obj[0].seller_sku
 
-            return render(request, 'product_info_modify_amazon.html', {'product_list_obj': product_list_obj, 'sale_from_date_0':sale_from_date_0, 'sale_from_date_1':sale_from_date_1, 'sale_end_date_0':sale_end_date_0, 'sale_end_date_1':sale_end_date_1, 'parent_sku':parent_sku})
+            return render(request, 'product_info_modify_amazon.html', {'product_list_obj': product_list_obj, 'sale_from_date_0': sale_from_date_0, 'sale_from_date_1':sale_from_date_1, 'sale_end_date_0':sale_end_date_0, 'sale_end_date_1':sale_end_date_1, 'parent_sku':parent_sku})
         else:
             pass
     except Exception as e:
@@ -4706,6 +4904,8 @@ def product_info_modify_amazon(request):
         auth_info_product['IP'] = auth_info_product['ShopIP']
         auth_info_product['table_name'] = 't_online_info_amazon'
         auth_info_product['update_type'] = 'product_info_modify'
+        auth_info_product['update_type'] = 'product_info_modify'
+        auth_info_product['seller_sku'] = amazon_list_obj.seller_sku
 
         product_info_dic = {}
         item_name = request.POST.get('item_name')
@@ -4716,23 +4916,26 @@ def product_info_modify_amazon(request):
         bullet_point5 = request.POST.get('bullet_point5')
         product_description = request.POST.get('product_description')
         generic_keywords1 = request.POST.get('generic_keywords1')
-        generic_keywords2 = request.POST.get('generic_keywords2')
-        generic_keywords3 = request.POST.get('generic_keywords3')
-        generic_keywords4 = request.POST.get('generic_keywords4')
-        generic_keywords5 = request.POST.get('generic_keywords5')
-        product_info_dic['seller_sku'] = amazon_list_obj.seller_sku
+
+        # product_info_dic['seller_sku'] = amazon_list_obj.seller_sku
         product_info_dic['item_name'] = item_name
-        product_info_dic['product_description'] = product_description
-        product_info_dic['bullet_point1'] = bullet_point1
-        product_info_dic['bullet_point2'] = bullet_point2
-        product_info_dic['bullet_point3'] = bullet_point3
-        product_info_dic['bullet_point4'] = bullet_point4
-        product_info_dic['bullet_point5'] = bullet_point5
-        product_info_dic['generic_keywords1'] = generic_keywords1
-        product_info_dic['generic_keywords2'] = generic_keywords2
-        product_info_dic['generic_keywords3'] = generic_keywords3
-        product_info_dic['generic_keywords4'] = generic_keywords4
-        product_info_dic['generic_keywords5'] = generic_keywords5
+        product_info_dic['item_description'] = product_description
+        if bullet_point1:
+            product_info_dic['bullet_point1'] = bullet_point1
+        if bullet_point2:
+            product_info_dic['bullet_point2'] = bullet_point2
+        if bullet_point3:
+            product_info_dic['bullet_point3'] = bullet_point3
+        if bullet_point4:
+            product_info_dic['bullet_point4'] = bullet_point4
+        if bullet_point5:
+            product_info_dic['bullet_point5'] = bullet_point5
+        if generic_keywords1:
+            product_info_dic['generic_keywords1'] = generic_keywords1
+        # product_info_dic['generic_keywords2'] = generic_keywords2
+        # product_info_dic['generic_keywords3'] = generic_keywords3
+        # product_info_dic['generic_keywords4'] = generic_keywords4
+        # product_info_dic['generic_keywords5'] = generic_keywords5
 
         feed_xml_ins = GenerateFeedXml(auth_info_product)
         feed_xml = feed_xml_ins.get_product_xml(product_info_dic)
@@ -4809,15 +5012,13 @@ def product_info_modify_amazon(request):
         parent_sku = request.POST.get('parent_sku', '')
         seller_sku = amazon_list_obj.seller_sku
 
-
-        if parent_sku is None or parent_sku.strip() == '':
-            variation_type = 'parent'
-            parent_sku = seller_sku
-            child_sku = ''
-        else:
-            variation_type = 'child'
-            child_sku = seller_sku
-
+        # if parent_sku is None or parent_sku.strip() == '':
+        #     variation_type = 'parent'
+        #     parent_sku = seller_sku
+        #     child_sku = ''
+        # else:
+        #     variation_type = 'child'
+        #     child_sku = seller_sku
 
         # 上传图片
         image_local = request.FILES.get('image_local')
@@ -4826,7 +5027,7 @@ def product_info_modify_amazon(request):
         # 上传本地照片
         if image_local is not None:
             modify_image_obj = ModifyImageBeforeUpload()
-            pic_url = modify_image_obj.upload_image_to_oss(shop_name, image_local, variation_type, 'main', parent_sku, child_sku, 0)
+            pic_url = modify_image_obj.upload_image_to_oss(shop_name, image_local, 'parent', 'main', seller_sku, '', 0)
 
         # 上传图片链接
         if image_url.strip() != '':
@@ -4838,7 +5039,7 @@ def product_info_modify_amazon(request):
                 pass
             if image_bytes is not None:
                 modify_image_obj = ModifyImageBeforeUpload()
-                pic_url = modify_image_obj.upload_image_to_oss(shop_name, image_bytes, variation_type, 'main', parent_sku, child_sku, 0)
+                pic_url = modify_image_obj.upload_image_to_oss(shop_name, image_bytes, 'parent', 'main', seller_sku, '', 0)
         if pic_url is not None:
             get_auth_info_ins = GetAuthInfo(connection)
             auth_info_image = get_auth_info_ins.get_auth_info_by_shop_name(str(amazon_list_obj.ShopName))
@@ -5722,14 +5923,19 @@ def load_amazon_products(request):
     import datetime
     import urllib
     from django.http import HttpResponseRedirect
+    from skuapp.table.t_amazon_auto_load import t_amazon_auto_load
+    import uuid
+
 
     if request.method == 'GET':
         ids = request.GET.get('id').split(',')
         synType = request.GET.get('synType')
+        batch_id = str(uuid.uuid4())
         shop_sku = {}
         sku_str = ''
         if synType == 'load':  # 产品上架
-            refresh_type = 'load_product'
+            refresh_type = 'auto_load_product'
+            upload_record_list = list()
             for record in ids:
                 t_online_info_amazon_ins = t_online_info_amazon.objects.filter(id=record)
                 for obj in t_online_info_amazon_ins:
@@ -5744,8 +5950,11 @@ def load_amazon_products(request):
                                                     deal_result=None,
                                                     deal_result_info=None,
                                                     UpdateTime=datetime.datetime.now())
+                    upload_record_list.append(t_amazon_auto_load(batch_id=batch_id, shop_name=obj.ShopName, seller_sku=obj.seller_sku, status=obj.Status, deal_type='load'))
+            t_amazon_auto_load.objects.bulk_create(upload_record_list)
         elif synType == 'unload':  # 产品下架
-            refresh_type = 'unload_product'
+            refresh_type = 'auto_unload_product'
+            unload_record_list = list()
             for record in ids:
                 t_online_info_amazon_ins = t_online_info_amazon.objects.filter(id=record)
                 for obj in t_online_info_amazon_ins:
@@ -5760,7 +5969,8 @@ def load_amazon_products(request):
                                                     deal_result=None,
                                                     deal_result_info=None,
                                                     UpdateTime=datetime.datetime.now())
-
+                    unload_record_list.append(t_amazon_auto_load(batch_id=batch_id, shop_name=obj.ShopName, seller_sku=obj.seller_sku, status=obj.Status, deal_type='unload'))
+            t_amazon_auto_load.objects.bulk_create(unload_record_list)
         for key, value in shop_sku.items():
             get_auth_info_ins = GetAuthInfo(connection)
             auth_info = get_auth_info_ins.get_auth_info_by_shop_name(str(key))
@@ -5768,11 +5978,12 @@ def load_amazon_products(request):
             auth_info['table_name'] = 't_online_info_amazon'
             auth_info['update_type'] = refresh_type
             auth_info['product_list'] = value
+            auth_info['batch_id'] = batch_id
 
-            if refresh_type == 'load_product':
+            if refresh_type == 'auto_load_product':
                 feed_xml_ins = GenerateFeedXml(auth_info)
                 feed_xml = feed_xml_ins.get_inventory_xml(value, 999)
-            elif refresh_type == 'unload_product':
+            elif refresh_type == 'auto_unload_product':
                 feed_xml_ins = GenerateFeedXml(auth_info)
                 feed_xml = feed_xml_ins.get_inventory_xml(value, 0)
             else:
@@ -5784,9 +5995,9 @@ def load_amazon_products(request):
             auth_info = json.dumps(auth_info)
             message_to_rabbit_obj.put_message(auth_info)
 
-        if refresh_type == 'load_product':
+        if refresh_type == 'auto_load_product':
             messages.success(request, '商品上架中')
-        elif refresh_type == 'unload_product':
+        elif refresh_type == 'auto_unload_product':
             messages.success(request, '商品下架中')
         else:
             pass
@@ -6625,6 +6836,8 @@ def edit_show_SalesAttr(request):
 def t_cloth_factory_dealdata(request):
     try:
         from skuapp.table.t_cloth_factory_dispatch_plan import t_cloth_factory_dispatch_plan
+        from skuapp.table.t_cloth_factory_dispatch_needpurchase import t_cloth_factory_dispatch_needpurchase
+        from datetime import datetime
         get_sku = request.GET.get('SKU')
         get_id = request.GET.get('id')
         productNumbers_Num = request.GET.get('productNumbers_Num')
@@ -6635,18 +6848,61 @@ def t_cloth_factory_dealdata(request):
             selData = ''
         remarkApply = request.GET.get('remarkApply')
         completeNumber = request.GET.get('completeNumber')
-        if int(productNumbers_Num) == 0 or float(productNumbers_Num) == 0.0 or float(completeNumber) == 0.0:
-            return JsonResponse({'result': 'NG'})
-        if completeNumber == "111229999":
-            t_cloth_factory_dispatch_plan.objects.filter(id=get_id).update(productNumbers=productNumbers_Num,rawNumbers=rawNum_Num,unit=selData,remarkApply=remarkApply,remarkAudit=remarkAudit)
-        else:
-            if productNumbers_Num is None or productNumbers_Num == "":
-                productNumbers_Num = "0"
-            #productNumbers_Num = float(productNumbers_Num) * 1.3
-            if float(productNumbers_Num) < float(completeNumber):
-                return JsonResponse({'result': 'RP'})
+        dispatchfactory = request.GET.get('dispatchfactory')
+        if dispatchfactory == "dispatchfactory":
+            t_cloth_factory_dispatch_needpurchase_obj = t_cloth_factory_dispatch_needpurchase.objects.filter(id=get_id).values_list('OrderNo','OSCode','SKU','goodsCostPrice','size','productNumbers','OSCode','buyer','outFactory','FactoryRemark','SpecialPurchaseFlag')
+            if t_cloth_factory_dispatch_needpurchase_obj:
+                from django.db import connection
+                from Project.settings import OSCODE_DICT
+                cursor = connection.cursor()
+                strInsertSql = "insert into factory_db.t_factory_order_info(OrderNID,OrderStatus,StockType,OrderDate,SKU,Price,Size,Number,OsCode,Merchandiser,OutFactory,Note,OriginalNID,storeID) " \
+                               "values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+
+                # 查看工厂承包类型 10 包工包料   11 包工不包料
+                strSelectSql = "select type from t_cloth_factory where name='%s'" % (t_cloth_factory_dispatch_needpurchase_obj[0][8])
+                cursor.execute(strSelectSql)
+                typeRecord = cursor.fetchone()
+                costPrice = 0
+                if len(typeRecord) == 0 or typeRecord[0] == 10:
+                    costPrice = t_cloth_factory_dispatch_needpurchase_obj[0][3]
+                else:
+                    strSelectSql = "select ProcessCosts from t_supply_chain_production_basic where MainSKU=(select MainSKU from t_product_mainsku_sku where ProductSKU='%s' limit 1) limit 1" % (
+                        get_sku)
+                    cursor.execute(strSelectSql)
+                    processCostRecord = cursor.fetchone()
+                    if processCostRecord:
+                        costPrice = processCostRecord[0]
+
+                size = t_cloth_factory_dispatch_needpurchase_obj[0][2].split('-')[-1] if ('-' in t_cloth_factory_dispatch_needpurchase_obj[0][2]) else t_cloth_factory_dispatch_needpurchase_obj[0][2]
+                days = OSCODE_DICT[t_cloth_factory_dispatch_needpurchase_obj[0][1]] if (t_cloth_factory_dispatch_needpurchase_obj[0][1] in OSCODE_DICT.keys()) else 6
+                # 入仓库类型
+                stordID = '19'
+                if t_cloth_factory_dispatch_needpurchase_obj[0][10] is not None and t_cloth_factory_dispatch_needpurchase_obj[0][10]  == "customermade":
+                    stordID = '82'
+                param = (t_cloth_factory_dispatch_needpurchase_obj[0][0],'ordered',t_cloth_factory_dispatch_needpurchase_obj[0][1],datetime.now(),
+                                 t_cloth_factory_dispatch_needpurchase_obj[0][2],costPrice,
+                                 size,t_cloth_factory_dispatch_needpurchase_obj[0][5],
+                                 str(days),t_cloth_factory_dispatch_needpurchase_obj[0][7],
+                                 t_cloth_factory_dispatch_needpurchase_obj[0][8],t_cloth_factory_dispatch_needpurchase_obj[0][9],get_id,stordID)
+                cursor.execute(strInsertSql,param)
+                cursor.close()
+                connection.commit()
+                t_cloth_factory_dispatch_needpurchase.objects.filter(id=get_id).update(currentState = '18',dispatchMan=request.user.first_name,disPatchDate=datetime.now())
             else:
-                t_cloth_factory_dispatch_plan.objects.filter(id=get_id).update(completeNumbers=completeNumber)
+                return JsonResponse({'result': 'NG'})
+        else:
+            if int(productNumbers_Num) == 0 or float(productNumbers_Num) == 0.0 or float(completeNumber) == 0.0:
+                return JsonResponse({'result': 'NG'})
+            if completeNumber == "111229999":
+                t_cloth_factory_dispatch_plan.objects.filter(id=get_id).update(productNumbers=productNumbers_Num,rawNumbers=rawNum_Num,unit=selData,remarkApply=remarkApply,remarkAudit=remarkAudit)
+            else:
+                if productNumbers_Num is None or productNumbers_Num == "":
+                    productNumbers_Num = "0"
+                #productNumbers_Num = float(productNumbers_Num) * 1.3
+                if float(productNumbers_Num) < float(completeNumber):
+                    return JsonResponse({'result': 'RP'})
+                else:
+                    t_cloth_factory_dispatch_plan.objects.filter(id=get_id).update(completeNumbers=completeNumber)
         return JsonResponse({'result': 'OK'})
     except Exception as e:
         messages.info(request, u'id=%s,SKU=%s,productNumbers=%s,rawNum=%s,selData=%s,remarkApply=%s,remarkAudit=%s,error:%s,录入数据存在问题，请修正后重新保存。'
@@ -7838,6 +8094,9 @@ def update_info(request):
         from skuapp.table.t_stocking_demand_fba_deliver import t_stocking_demand_fba_deliver
         from skuapp.table.t_stocking_rejecting_fba import t_stocking_rejecting_fba
         from skuapp.table.t_stocking_demand_fba_detail import t_stocking_demand_fba_detail
+        from pyapp.table.Personal_Customization_SKU import personal_customization_sku
+        from skuapp.table.t_cloth_factory_dispatch_needpurchase import t_cloth_factory_dispatch_needpurchase
+        from skuapp.table.t_stocking_demand_fbw_management import t_stocking_demand_fbw_management
 
         udata = {}
         id = request.GET.get('id')
@@ -7870,6 +8129,10 @@ def update_info(request):
                     t_stocking_demand_fba.objects.filter(id=id).update(Status='purchasing',recordPurchaseCodeMan=request.user.first_name,recordPurchaseCodeDate=datetime.datetime.now())
                     t_stocking_demand_fba_detail.objects.filter(Stocking_plan_number=_workobjs.Stocking_plan_number).update(
                         Status='purchasing')
+                        
+        elif type == 'personal_customization_sku':
+            workobjs = personal_customization_sku.objects.filter(id=id)
+
         elif type == 't_stocking_demand_fbw':
             workobjs = t_stocking_demand_fbw.objects.filter(id=id)
             if key == "QTY" and len(value) > 0:
@@ -7882,6 +8145,8 @@ def update_info(request):
             workobjs = t_stocking_demand_fba_deliver.objects.filter(id=id)
         elif type == 't_stocking_rejecting_fba':
             workobjs = t_stocking_rejecting_fba.objects.filter(id=id)
+        elif type == 't_stocking_demand_fbw_management':
+            workobjs = t_stocking_demand_fbw_management.objects.filter(id=id)
         elif type == 't_supply_chain_production_basic':
             if key:
                 workobjs=t_supply_chain_production_basic.objects.filter(id=id)
@@ -7931,6 +8196,8 @@ def update_info(request):
             workobjs = t_sku_weight_examine.objects.filter(id=id)
         elif type == 't_progress_tracking_of_product_customization_table':
             workobjs = t_progress_tracking_of_product_customization_table.objects.filter(id=id)
+        elif type == 't_cloth_factory_dispatch_needpurchase':
+            workobjs = t_cloth_factory_dispatch_needpurchase.objects.filter(id=id)
         else:
             raise Exception(u'没有对应的type值：{s}'.format(s=type))
         if supply_chain_flag:
@@ -7954,10 +8221,46 @@ def update_info(request):
     return JsonResponse(sResult)
 
 
+# 给wish_ticket增加回复功能
+@csrf_exempt
+def wish_ticket_replay(request):
+    from skuapp.table.wish_ticket import wish_ticket
+    import requests
+    url = request.path
 
+    if 'restore' in url: # 获取前端传递过来的url，进行跳转到指定的HTML加载
+        try:
+            id = request.GET.get('id', '~')
+            ticket_objs = wish_ticket.objects.filter(ticket_id=id)
+            at = request.GET.get('access_token', '~')
+            product_id = ticket_objs[0].product_id
+            product_image_url = ticket_objs[0].product_image_url
+            product_image_url = product_image_url.replace('\\', '')
+            product_name = ticket_objs[0].product_name
+            order_id = ticket_objs[0].order_id
+            replies = ticket_objs[0].replies.replace('\n','')
+            replies = eval(replies)
+            msg1 = []
+            for reply in replies:
+               
+                message = 'send:' + ' ' + reply['Reply']['date'] + '--' + reply['Reply']['sender'] + '&gt;&gt;&gt;' + reply['Reply']['message']
+                message = message.replace('\\', '')
+                msgs = message.split('&gt;&gt;&gt;')
+                msg1.append(msgs)
+            return render(request, 'wish_ticket_replay.html', locals())
+        except Exception, ex:
+            return JsonResponse({'result': repr(ex)})
+    else:
+        id = request.POST.get('id', '~')
+        at = request.POST.get('at', '~')
+        text = request.POST.get('text', '~')
 
-
-
+        # 拼接url，按照接口文档要求
+        url = 'https://merchant.wish.com/api/v2/ticket/reply/?reply=%s&id=%s&access_token=%s'%(text,id,at)
+        wb_data = requests.post(url)
+        result = wb_data.json()
+        # print result
+        return JsonResponse(result)
 
 
 
@@ -9588,79 +9891,135 @@ def t_product_suringPlugin(request):
     from django.db import connection
     from datetime import datetime as tttime
     cursor = connection.cursor()
+    user_name = request.user.username
     if request.method == 'GET':
+        pid = request.GET.get('_pid_').strip()
         try:
-            pid = request.GET.get('_pid_').strip()
-            url = 'https://1039393360449722.cn-shanghai.fc.aliyuncs.com/2016-08-15/proxy/Stock/Simplefunction2/?pid=%s' % pid
-            re = requests.get(url)
-            obj = json.loads(re.text)
-            if obj['errcode'] == 0 or obj['errcode'] == -2:
-                try:
-                    picpath = 'https://contestimg.wish.com/api/webimage/' + pid + '-small.jpg'
-                    fxprice = obj['o_price'] + "+" + obj['price']
-                    obj['title'] = obj['title'].replace('\'', '\'\'')
-                    obj['cids'] = obj['cids'].replace('\'', '')
-                    cids = obj['cids'].split(',')
-                    user_name = request.user.username
-                    categorynames = ''
-                    for cid in cids:
-                        categoryname = get_cid_name(cursor, cid)
-                        categorynames = categorynames + ' CATEGORY:' + categoryname
-                    if len(categorynames) == 0:
-                        categorynames = 'can not get category'
-                    obj['rating_detail'] = obj['rating_detail'].replace('\'', '\'\'')
-                    rating_num = t_product_suring_ratingdetails(obj['rating_detail'])
-                    if rating_num == -1:
-                        messages.info(request, '7天回评数据异常,计算数量失败,:%s' % rating_num)
-                    else:
-                        messages.info(request, '7天回评数:%s' % rating_num)
-                    params = {}
-                    params = json.loads(obj['rating_detail'])
-                    if params['avg_star'] == '':
-                        params['avg_star'] = 0
-                    if params['rating_count'] == '':
-                        params['rating_count'] = 0
-                    if params['rating_count'] == 0:
-                        params['avg_star'] = 0
-                    boughtthis = params['num_bought'].replace('+ bought this', '').replace(' bought this', '')
-                    if boughtthis == '':
-                        boughtthis = 0
-                    if obj['errcode'] == 0:
-                        getinfostatus = 'SUCCESS'
-                        status = 1
-                    else:
-                        getinfostatus = 'Get data from haiying api is None or out of stock'
-                        status = 0
-                    sql = "insert into t_product_suvering (suvering_time,sourcepic_path,product_id,title,category,price,sale_time,sale_number,comment_number,point," \
-                          "little_flames,rating_details,PB,saler,getinfo_time,getinfo_status,sevenratingnum,status)  " \
-                          "values ('%s','%s','%s','%s','%s','%s','%s',%s,%s,%s,%s,'%s',%s,'%s','%s','%s',%s,%s) on  DUPLICATE key update sourcepic_path='%s',category='%s',price='%s',sale_number=%s,comment_number=%s,point=%s,little_flames=%s,rating_details='%s',getinfo_time='%s',getinfo_status='%s',sevenratingnum=%s,status=%s ;" \
-                          % (tttime.now(), picpath, pid, obj['title'], str(categorynames), fxprice, obj['gen_time'],
-                             boughtthis, params['rating_count'], params['avg_star'], obj['aver'], obj['rating_detail'],
-                             obj['is_pb'],user_name, tttime.now(), getinfostatus, rating_num, status, picpath, str(categorynames),
-                             fxprice, boughtthis,
-                             params['rating_count'], params['avg_star'], obj['aver'], obj['rating_detail'],
-                             tttime.now(), getinfostatus, rating_num, status)
-                    sql_1 = "update t_product_suvering set rating_details = REPLACE(REPLACE(rating_details, CHAR(10), ''), CHAR(13), '') where product_id = '%s'" % pid
-                    cursor.execute(sql)
-                    cursor.execute(sql_1)
-                    cursor.execute('commit;')
-                except Exception as e:
-                    getinfostatus = '异常数据,请联系IT人员查看'
-            else:
-                try:
-                    if obj['errcode'] == -1:
-                        getinfostatus = 'Get data from wish api fail'
-                    if obj['errcode'] == -3:
-                        getinfostatus = 'Get data from haiying api fail'
-                    if obj['errcode'] == -4:
-                        getinfostatus = 'wish api requests fail'
-                    user_name = request.user.username
-                    sql = "insert into t_product_suvering (suvering_time,product_id,getinfo_time,saler,getinfo_status,status) values ('%s','%s','%s','%s','%s',%s) on  DUPLICATE key update product_id ='%s',getinfo_time='%s',getinfo_status='%s',status=%s" % (
-                    tttime.now(), pid, tttime.now(),user_name, getinfostatus, 0, pid, tttime.now(), getinfostatus, 0)
-                    cursor.execute(sql)
-                    cursor.execute('commit;')
-                except:
-                    getinfostatus = '异常数据,请联系IT人员查看'
+            ptm = request.GET.get('_ptm_', '') # ptm是反向url地址
+            if pid != '' and ptm == '':
+                url = 'https://1039393360449722.cn-shanghai.fc.aliyuncs.com/2016-08-15/proxy/Stock/Simplefunction2/?pid=%s' % pid
+                re = requests.get(url)
+                obj = json.loads(re.text)
+                if obj['errcode'] == 0 or obj['errcode'] == -2:
+                    try:
+                        picpath = 'https://contestimg.wish.com/api/webimage/' + pid + '-small.jpg'
+                        fxprice = obj['o_price'] + "+" + obj['price']
+                        obj['title'] = obj['title'].replace('\'', '\'\'')
+                        obj['cids'] = obj['cids'].replace('\'', '')
+                        cids = obj['cids'].split(',')
+                        user_name = request.user.username
+                        categorynames = ''
+                        for cid in cids:
+                            categoryname = get_cid_name(cursor, cid)
+                            categorynames = categorynames + ' CATEGORY:' + categoryname
+                        if len(categorynames) == 0:
+                            categorynames = 'can not get category'
+                        obj['rating_detail'] = obj['rating_detail'].replace('\'', '\'\'')
+                        rating_num = t_product_suring_ratingdetails(obj['rating_detail'])
+                        if rating_num == -1:
+                            messages.info(request, '7天回评数据异常,计算数量失败,:%s' % rating_num)
+                        else:
+                            messages.info(request, '7天回评数:%s' % rating_num)
+                        params = {}
+                        params = json.loads(obj['rating_detail'])
+                        if params['avg_star'] == '':
+                            params['avg_star'] = 0
+                        if params['rating_count'] == '':
+                            params['rating_count'] = 0
+                        if params['rating_count'] == 0:
+                            params['avg_star'] = 0
+                        boughtthis = params['num_bought'].replace('+ bought this', '').replace(' bought this', '')
+                        if boughtthis == '':
+                            boughtthis = 0
+                        if obj['errcode'] == 0:
+                            getinfostatus = 'SUCCESS'
+                            status = 1
+                        else:
+                            getinfostatus = 'Get data from haiying api is None or out of stock'
+                            status = 0
+                        sql = "insert into t_product_suvering (suvering_time,sourcepic_path,product_id,title,category,price,sale_time,sale_number,comment_number,point," \
+                              "little_flames,rating_details,PB,saler,getinfo_time,getinfo_status,sevenratingnum,status)  " \
+                              "values ('%s','%s','%s','%s','%s','%s','%s',%s,%s,%s,%s,'%s',%s,'%s','%s','%s',%s,%s) on  DUPLICATE key update sourcepic_path='%s',category='%s',price='%s',sale_number=%s,comment_number=%s,point=%s,little_flames=%s,rating_details='%s',getinfo_time='%s',getinfo_status='%s',sevenratingnum=%s,status=%s ;" \
+                              % (tttime.now(), picpath, pid, obj['title'], str(categorynames), fxprice, obj['gen_time'],
+                                 boughtthis, params['rating_count'], params['avg_star'], obj['aver'], obj['rating_detail'],
+                                 obj['is_pb'],user_name, tttime.now(), getinfostatus, rating_num, status, picpath, str(categorynames),
+                                 fxprice, boughtthis,
+                                 params['rating_count'], params['avg_star'], obj['aver'], obj['rating_detail'],
+                                 tttime.now(), getinfostatus, rating_num, status)
+                        sql_1 = "update t_product_suvering set rating_details = REPLACE(REPLACE(rating_details, CHAR(10), ''), CHAR(13), '') where product_id = '%s'" % pid
+                        cursor.execute(sql)
+                        cursor.execute(sql_1)
+                        cursor.execute('commit;')
+                        cursor.close()
+                    except Exception as e:
+                        getinfostatus = '异常数据,请联系IT人员查看'
+                else:
+                    try:
+                        if obj['errcode'] == -1:
+                            getinfostatus = 'Get data from wish api fail'
+                        if obj['errcode'] == -3:
+                            getinfostatus = 'Get data from haiying api fail'
+                        if obj['errcode'] == -4:
+                            getinfostatus = 'wish api requests fail'
+                        user_name = request.user.username
+                        sql = "insert into t_product_suvering (suvering_time,product_id,getinfo_time,saler,getinfo_status,status) values ('%s','%s','%s','%s','%s',%s) on  DUPLICATE key update product_id ='%s',getinfo_time='%s',getinfo_status='%s',status=%s" % (
+                        tttime.now(), pid, tttime.now(),user_name, getinfostatus, 0, pid, tttime.now(), getinfostatus, 0)
+                        cursor.execute(sql)
+                        cursor.execute('commit;')
+                    except:
+                        getinfostatus = '异常数据,请联系IT人员查看'
+            elif ptm != '' and pid == '':
+                WISH_URL = 'wish.'
+                AMAZON_URL = 'amazon.'
+                WWW1688_URL = '1688.'
+                EBAY_URL = 'ebay.'
+                ALIEXPRESS_URL = 'aliexpress.'
+                import json
+                from brick.spider.get import readWish, readAmazon, readeBay, readAliexpress
+                from skuapp.table.t_online_info import t_online_info
+                err, fifteenOrders, priceRange, enTitle, cnTitle, imageUrl = None, "", "", "", "", ""
+                message = {"error": 1}
+                # if request.is_ajax() and request.method == "GET":
+                url = ptm
+                if url.find(WISH_URL) >= 0:  # wish的数据采集
+                    err, fifteenOrders, priceRange, enTitle, cnTitle, imageUrl = readWish(url)
+
+                if url.find(AMAZON_URL) >= 0:  # amazon的数据采集
+                    err, fifteenOrders, priceRange, enTitle, cnTitle, imageUrl = readAmazon(url)
+                    # err = "amazon not support"
+                if url.find(EBAY_URL) >= 0:  # EBAY的数据采集
+                    err, fifteenOrders, priceRange, enTitle, cnTitle, imageUrl = readeBay(url)
+                if url.find(ALIEXPRESS_URL) >= 0:  # aliexpress的数据采集
+                    err, enTitle, imageUrl, priceRange, fifteenOrders = readAliexpress(url)
+              
+                if fifteenOrders == "":
+                    fifteenOrders = 0
+                if imageUrl != "":
+                    enTitle = enTitle.replace('\'', '\'\'')
+                    getinfostatus = 'SUCCESS'
+                    status = 1
+                    # messages.info(request, 'info8:%s' % str(getinfostatus))
+                    try:
+                        sql = "insert into t_product_suvering (suvering_time,sourcepic_path,product_id,title,PB,saler,sale_number,getinfo_time,getinfo_status,status)  " \
+                              "values ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s') on  DUPLICATE key update sourcepic_path='%s',product_id='%s',sale_number='%s',getinfo_time='%s',getinfo_status='%s',title='%s',PB='%s',status='%s',saler='%s';" \
+                              % (tttime.now(),imageUrl,url,enTitle,'-1',user_name, fifteenOrders,tttime.now(),getinfostatus,status,imageUrl,url,fifteenOrders,tttime.now(),getinfostatus,enTitle,'-1',status,user_name)
+                        cursor.execute(sql)
+                        cursor.execute('commit;')
+                        cursor.close()
+                    except Exception as e:
+                        getinfostatus = '异常数据,请联系IT人员查看'
+                else:
+                    getinfostatus = 'Get data from api fail'
+                    status = 0
+                    try:
+                        user_name = request.user.username
+                        sql = "insert into t_product_suvering (suvering_time,product_id,getinfo_time,saler,getinfo_status,status) values ('%s','%s','%s','%s','%s',%s) on  DUPLICATE key update product_url ='%s',getinfo_time='%s',getinfo_status='%s',status=%s" % (
+                            tttime.now(), url, tttime.now(), user_name, getinfostatus, status, url, tttime.now(),
+                            getinfostatus, status)
+                        cursor.execute(sql)
+                        cursor.execute('commit;')
+                    except:
+                        getinfostatus = '异常数据,请联系IT人员查看'
         except Exception as e:
             getinfostatus = 'wish商品pid: %s,云函数请求失败,请联系IT人员' % pid
     cursor.close()
@@ -9705,78 +10064,144 @@ def show_wish_refresh(request):
     from django.db import connection
     from datetime import datetime as tttime
     cursor = connection.cursor()
+    pid = idvalue
+    user_name = request.user.username
     try:
-        pid = idvalue
-        url = 'https://1039393360449722.cn-shanghai.fc.aliyuncs.com/2016-08-15/proxy/Stock/Simplefunction2/?pid=%s' % pid
-        re = requests.get(url)
-        obj = json.loads(re.text)
-        if obj['errcode'] == 0 or obj['errcode'] == -2:
-            try:
-                picpath = 'https://contestimg.wish.com/api/webimage/' + pid + '-small.jpg'
-                fxprice = obj['o_price'] + "+" + obj['price']
-                obj['title'] = obj['title'].replace('\'', '\'\'')
-                obj['cids'] = obj['cids'].replace('\'', '')
-                cids = obj['cids'].split(',')
-                categorynames = ''
-                for cid in cids:
-                    categoryname = get_cid_name(cursor, cid)
-                    categorynames = categorynames + ' CATEGORY:' + categoryname
-                if len(categorynames) == 0:
-                    categorynames = 'can not get category'
-                obj['rating_detail'] = obj['rating_detail'].replace('\'', '\'\'')
-                rating_num = t_product_suring_ratingdetails(obj['rating_detail'])
-                if rating_num == -1:
-                    messages.info(request, '7天回评数据异常,计算数量失败,:%s' % rating_num)
-                else:
-                    messages.info(request, '7天回评数:%s' % rating_num)
-                params = {}
-                params = json.loads(obj['rating_detail'])
-                if params['avg_star'] == '':
-                    params['avg_star'] = 0
-                if params['rating_count'] == '':
-                    params['rating_count'] = 0
-                if params['rating_count'] == 0:
-                    params['avg_star'] = 0
-                boughtthis = params['num_bought'].replace('+ bought this', '').replace(' bought this', '')
-                if boughtthis == '':
-                    boughtthis = 0
-                if obj['errcode'] == 0:
-                    getinfostatus = 'SUCCESS'
-                    status = 1
-                else:
-                    getinfostatus = 'Get data from haiying api is None or out of stock'
-                    status = 0
-                user_name = request.user.username
-                sql = "insert into t_product_suvering (suvering_time,sourcepic_path,product_id,title,category,price,sale_time,sale_number,comment_number,point," \
-                      "little_flames,rating_details,PB,saler,getinfo_time,getinfo_status,sevenratingnum,status)  " \
-                      "values ('%s','%s','%s','%s','%s','%s','%s',%s,%s,%s,%s,'%s',%s,'%s','%s','%s',%s,%s) on  DUPLICATE key update sourcepic_path='%s',category='%s',price='%s',sale_number=%s,comment_number=%s,point=%s,little_flames=%s,rating_details='%s',getinfo_time='%s',getinfo_status='%s',sevenratingnum=%s,status=%s ;" \
-                      % (tttime.now(), picpath, pid, obj['title'], str(categorynames), fxprice, obj['gen_time'],
-                         boughtthis, params['rating_count'], params['avg_star'], obj['aver'], obj['rating_detail'],
-                         obj['is_pb'],user_name, tttime.now(), getinfostatus, rating_num, status, picpath, str(categorynames),
-                         fxprice, boughtthis,
-                         params['rating_count'], params['avg_star'], obj['aver'], obj['rating_detail'],
-                         tttime.now(), getinfostatus, rating_num, status)
-                sql_1 = "update t_product_suvering set rating_details = REPLACE(REPLACE(rating_details, CHAR(10), ''), CHAR(13), '') where product_id = '%s'" % pid
-                cursor.execute(sql)
-                cursor.execute(sql_1)
-                cursor.execute('commit;')
-            except Exception as e:
-                getinfostatus = '异常数据,请联系IT人员查看'
+        if 'www.' in idvalue:
+            # url = ptm
+            # re = requests.get(url)
+            # obj = json.loads(re.text)
+            # messages.info(request, 'info3:%s' % str(obj))
+            # print obj
+            # getinfostatus = 'SUCCESS'
+            WISH_URL = 'wish.'
+            AMAZON_URL = 'amazon.'
+            WWW1688_URL = '1688.'
+            EBAY_URL = 'ebay.'
+            ALIEXPRESS_URL = 'aliexpress.'
+            import json
+            from brick.spider.get import readWish, readAmazon, readeBay, readAliexpress
+            from skuapp.table.t_online_info import t_online_info
+
+            err, fifteenOrders, priceRange, enTitle, cnTitle, imageUrl = None, "", "", "", "", ""
+            message = {"error": 1}
+            # if request.is_ajax() and request.method == "GET":
+            url = idvalue
+            if url.find(WISH_URL) >= 0:  # wish的数据采集
+                err, fifteenOrders, priceRange, enTitle, cnTitle, imageUrl = readWish(url)
+                # messages.info(request, 'info4:%s' % str(fifteenOrders))
+                # messages.info(request, 'info5:%s' % str(imageUrl))
+                # messages.info(request, 'info6:%s' % str(enTitle))
+                # messages.info(request, 'info7:%s' % str(err))
+
+            if url.find(AMAZON_URL) >= 0:  # amazon的数据采集
+                err, fifteenOrders, priceRange, enTitle, cnTitle, imageUrl = readAmazon(url)
+                # err = "amazon not support"
+            if url.find(EBAY_URL) >= 0:  # EBAY的数据采集
+                err, fifteenOrders, priceRange, enTitle, cnTitle, imageUrl = readeBay(url)
+            if url.find(ALIEXPRESS_URL) >= 0:  # aliexpress的数据采集
+                err, enTitle, imageUrl, priceRange, fifteenOrders = readAliexpress(url)
+            if fifteenOrders == "":
+                fifteenOrders = 0
+
+            if imageUrl != "":
+                enTitle = enTitle.replace('\'', '\'\'')
+                getinfostatus = 'SUCCESS'
+                status = 1
+                try:
+                    sql = "insert into t_product_suvering (suvering_time,sourcepic_path,product_id,title,PB,saler,sale_number,getinfo_time,getinfo_status,status)  " \
+                          "values ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s') on  DUPLICATE key update sourcepic_path='%s',product_id='%s',sale_number='%s',getinfo_time='%s',getinfo_status='%s',title='%s',PB='%s',status='%s';" \
+                          % (tttime.now(), imageUrl, url, enTitle, '-1',user_name, fifteenOrders, tttime.now(), getinfostatus,
+                             status, imageUrl, url, fifteenOrders, tttime.now(), getinfostatus, enTitle, '-1', status)
+                    cursor.execute(sql)
+                    cursor.execute('commit;')
+                    cursor.close()
+                except Exception as e:
+                    getinfostatus = '异常数据,请联系IT人员查看'
+            else:
+                getinfostatus = 'Get data from api fail'
+                status = 0
+                try:
+                    user_name = request.user.username
+                    sql = "insert into t_product_suvering (suvering_time,product_id,getinfo_time,saler,getinfo_status,status) values ('%s','%s','%s','%s','%s',%s) on  DUPLICATE key update product_url ='%s',getinfo_time='%s',getinfo_status='%s',status=%s" % (
+                        tttime.now(), url, tttime.now(), user_name, getinfostatus, status, url, tttime.now(),
+                        getinfostatus, status)
+                    cursor.execute(sql)
+                    cursor.execute('commit;')
+                except:
+                    getinfostatus = '异常数据,请联系IT人员查看'
         else:
-            try:
-                if obj['errcode'] == -1:
-                    getinfostatus = 'Get data from wish api fail'
-                if obj['errcode'] == -3:
-                    getinfostatus = 'Get data from haiying api fail'
-                if obj['errcode'] == -4:
-                    getinfostatus = 'wish api requests fail'
-                user_name = request.user.username
-                sql = "insert into t_product_suvering (suvering_time,product_id,getinfo_time,saler,getinfo_status,status) values ('%s','%s','%s','%s','%s',%s) on  DUPLICATE key update product_id ='%s',getinfo_time='%s',getinfo_status='%s',status=%s" % (
-                    tttime.now(), pid, tttime.now(), getinfostatus,user_name, 0, pid, tttime.now(), getinfostatus, 0)
-                cursor.execute(sql)
-                cursor.execute('commit;')
-            except Exception as e:
-                getinfostatus = '异常数据,请联系IT人员查看'
+            url = 'https://1039393360449722.cn-shanghai.fc.aliyuncs.com/2016-08-15/proxy/Stock/Simplefunction2/?pid=%s' % pid
+            re = requests.get(url)
+            obj = json.loads(re.text)
+            if obj['errcode'] == 0 or obj['errcode'] == -2:
+                try:
+                    picpath = 'https://contestimg.wish.com/api/webimage/' + pid + '-small.jpg'
+                    fxprice = obj['o_price'] + "+" + obj['price']
+                    obj['title'] = obj['title'].replace('\'', '\'\'')
+                    obj['cids'] = obj['cids'].replace('\'', '')
+                    cids = obj['cids'].split(',')
+                    categorynames = ''
+                    for cid in cids:
+                        categoryname = get_cid_name(cursor, cid)
+                        categorynames = categorynames + ' CATEGORY:' + categoryname
+                    if len(categorynames) == 0:
+                        categorynames = 'can not get category'
+                    obj['rating_detail'] = obj['rating_detail'].replace('\'', '\'\'')
+                    rating_num = t_product_suring_ratingdetails(obj['rating_detail'])
+                    if rating_num == -1:
+                        messages.info(request, '7天回评数据异常,计算数量失败,:%s' % rating_num)
+                    else:
+                        messages.info(request, '7天回评数:%s' % rating_num)
+                    params = {}
+                    params = json.loads(obj['rating_detail'])
+                    if params['avg_star'] == '':
+                        params['avg_star'] = 0
+                    if params['rating_count'] == '':
+                        params['rating_count'] = 0
+                    if params['rating_count'] == 0:
+                        params['avg_star'] = 0
+                    boughtthis = params['num_bought'].replace('+ bought this', '').replace(' bought this', '')
+                    if boughtthis == '':
+                        boughtthis = 0
+                    if obj['errcode'] == 0:
+                        getinfostatus = 'SUCCESS'
+                        status = 1
+                    else:
+                        getinfostatus = 'Get data from haiying api is None or out of stock'
+                        status = 0
+                    user_name = request.user.username
+                    sql = "insert into t_product_suvering (suvering_time,sourcepic_path,product_id,title,category,price,sale_time,sale_number,comment_number,point," \
+                          "little_flames,rating_details,PB,saler,getinfo_time,getinfo_status,sevenratingnum,status)  " \
+                          "values ('%s','%s','%s','%s','%s','%s','%s',%s,%s,%s,%s,'%s',%s,'%s','%s','%s',%s,%s) on  DUPLICATE key update sourcepic_path='%s',category='%s',price='%s',sale_number=%s,comment_number=%s,point=%s,little_flames=%s,rating_details='%s',getinfo_time='%s',getinfo_status='%s',sevenratingnum=%s,status=%s ;" \
+                          % (tttime.now(), picpath, pid, obj['title'], str(categorynames), fxprice, obj['gen_time'],
+                             boughtthis, params['rating_count'], params['avg_star'], obj['aver'], obj['rating_detail'],
+                             obj['is_pb'],user_name, tttime.now(), getinfostatus, rating_num, status, picpath, str(categorynames),
+                             fxprice, boughtthis,
+                             params['rating_count'], params['avg_star'], obj['aver'], obj['rating_detail'],
+                             tttime.now(), getinfostatus, rating_num, status)
+                    sql_1 = "update t_product_suvering set rating_details = REPLACE(REPLACE(rating_details, CHAR(10), ''), CHAR(13), '') where product_id = '%s'" % pid
+                    cursor.execute(sql)
+                    cursor.execute(sql_1)
+                    cursor.execute('commit;')
+                except Exception as e:
+                    getinfostatus = '异常数据,请联系IT人员查看'
+            else:
+                try:
+                    if obj['errcode'] == -1:
+                        getinfostatus = 'Get data from wish api fail'
+                    if obj['errcode'] == -3:
+                        getinfostatus = 'Get data from haiying api fail'
+                    if obj['errcode'] == -4:
+                        getinfostatus = 'wish api requests fail'
+                    user_name = request.user.username
+                    sql = "insert into t_product_suvering (suvering_time,product_id,getinfo_time,saler,getinfo_status,status) values ('%s','%s','%s','%s','%s',%s) on  DUPLICATE key update product_id ='%s',getinfo_time='%s',getinfo_status='%s',status=%s" % (
+                        tttime.now(), pid, tttime.now(), getinfostatus,user_name, 0, pid, tttime.now(), getinfostatus, 0)
+                    cursor.execute(sql)
+                    cursor.execute('commit;')
+                except Exception as e:
+                    getinfostatus = '异常数据,请联系IT人员查看'
+
     except Exception as e:
         getinfostatus = 'wish商品pid: %s,云函数请求失败,请联系IT人员' % pid
     cursor.close()
@@ -10414,12 +10839,13 @@ def save_modify(request):
     sh_flag = 0  # 待审核标记
     lq_flag = 0  # 待领去标记
     ht_flag = 0  # 待换图标记
+    pack_flag = 0
     picture_note_list = []
     is_request_picture_list = []
 
     obj = t_product_information_modify()
 
-    b_goods_objs = py_b_goods.objects.filter(SKU__startswith=main_sku)
+    b_goods_objs = py_b_goods.objects.filter(SKU__istartswith=main_sku)
     value_dict = {}
     all_cost_reduction_dict = {}
     if son_sku_list:
@@ -10429,8 +10855,8 @@ def save_modify(request):
                 if son_sku == 'public':
                     public_property = request.POST.getlist(k + '_' + 'all', '')  # 公共属性
                     if public_property:
-                        change_list, ht_flag, sh_flag, lq_flag, select_list, picture_note_list, is_request_picture, single_cost_reduction_dict = \
-                            information_modify_detail_process(public_property, select_list, picture_note_list, k, v, sys_param_dict, ht_flag, sh_flag, lq_flag)
+                        change_list, ht_flag, sh_flag, lq_flag, select_list, picture_note_list, is_request_picture, single_cost_reduction_dict, pack_flag = \
+                            information_modify_detail_process(public_property, select_list, picture_note_list, k, v, sys_param_dict, ht_flag, sh_flag, lq_flag, pack_flag)
                         if len(change_list) == 3:
                             continue
                         for x_sku in son_sku_list:
@@ -10451,8 +10877,8 @@ def save_modify(request):
                 else:
                     sku_property = request.POST.getlist(k + '_' + son_sku, '')  # 子SKU属性
                     if sku_property:
-                        change_list, ht_flag, sh_flag, lq_flag, select_list, picture_note_list, is_request_picture, single_cost_reduction_dict = \
-                            information_modify_detail_process(sku_property, select_list, picture_note_list, k, v, sys_param_dict, ht_flag, sh_flag, lq_flag)
+                        change_list, ht_flag, sh_flag, lq_flag, select_list, picture_note_list, is_request_picture, single_cost_reduction_dict, pack_flag = \
+                            information_modify_detail_process(sku_property, select_list, picture_note_list, k, v, sys_param_dict, ht_flag, sh_flag, lq_flag, pack_flag)
                         if len(change_list) == 3:
                             continue
                         if is_request_picture:
@@ -10522,6 +10948,7 @@ def save_modify(request):
         obj.Select = select[0]
     else:
         obj.Select = 100
+    obj.PackFlag = pack_flag
     obj.save()
 
 
@@ -10535,7 +10962,7 @@ def get_information_modify_param():
     return sys_param_dict
 
 
-def information_modify_detail_process(change_list, select_list, picture_note_list, k, v, sys_param_dict, ht_flag, sh_flag, lq_flag):
+def information_modify_detail_process(change_list, select_list, picture_note_list, k, v, sys_param_dict, ht_flag, sh_flag, lq_flag, pack_flag):
     """保存商品信息修改细节处理过程"""
     sh_item = ['SalerName2', 'WarningCats']
     sh_goodsstatus = [u'清仓下架(需审核)', u'售完下架(需审核)', u'处理库尾(需审核)', u'停售(需审核)', u'清仓（合并）(需审核)']
@@ -10552,6 +10979,9 @@ def information_modify_detail_process(change_list, select_list, picture_note_lis
             sh_flag = 1
         else:
             lq_flag = 1
+
+        if k == 'PackName':
+            pack_flag = 1
 
         if k == 'GoodsStatus':
             new_status = change_list[2]
@@ -10589,13 +11019,17 @@ def information_modify_detail_process(change_list, select_list, picture_note_lis
         else:
             select_list.append(3)
             change_list.append(u'更改商品信息')
-    return change_list, ht_flag, sh_flag, lq_flag, select_list, picture_note_list, is_request_picture, single_cost_reduction_dict
+    return change_list, ht_flag, sh_flag, lq_flag, select_list, picture_note_list, is_request_picture, single_cost_reduction_dict, pack_flag
 
 
 def show_modify_detail(request):
     """显示商品信息修改详情"""
     from Project.settings import WARNING_DICT
     from pyapp.models import ChoicesUnit
+    from django.db import connection
+    from brick.table.b_supplier import b_supplier
+    b_supplier_obj = b_supplier(db_conn=connection)
+
     modify_id = request.GET.get('modify_id', '')
     page = request.GET.get('page', '')
     from skuapp.table.t_product_information_modify import t_product_information_modify as information_modify
@@ -10618,6 +11052,18 @@ def show_modify_detail(request):
                     else:
                         old_val = v2[1]
                         new_val = v2[2]
+
+                    SupplierUSED = ''
+                    if k2 == 'SupplierName':
+                        uf = b_supplier_obj.GetSupplierStatus(new_val)
+                        if uf and int(uf) == 1:
+                            SupplierUSED = u'供应商状态: 已停用'
+                        elif uf and int(uf) == 0:
+                            SupplierUSED = u'供应商状态: 正常'
+                        else:
+                            SupplierUSED = u'供应商状态: 新'
+                    v2.append(SupplierUSED)
+
                     describe = v2[3]
                     modify_type = v2[4]
                     single_result_list = [sku, name, old_val, new_val, describe, modify_type]
@@ -11842,7 +12288,7 @@ def skuapp_getcategory(request):
                 information['message'] = u'没有权限查看和修改'
                 return render(request, 'skuapp_editcategory.html', information)
         
-        information_title = ['业务流水号', '普元品类', '原速卖通品类(以逗号隔开)', '操作', '新速卖通品类']
+        information_title = ['业务流水号', '普元品类', '原品类(以逗号隔开)', '操作', '新品类']
         aliexpress_list = list()
         for a_d in aliexpress_data:
             aliexpress_dict = dict()
@@ -11932,7 +12378,7 @@ def find_amazon_comments(request):
 
     except Exception,ex:
         return JsonResponse({'result': repr(ex)})
-		
+        
 def reg_check_tort_amazon(chart_tort_Word, chart_tort_Source, params, dict_params):
     import re
     tort_word = ' ' + chart_tort_Word + ' '
@@ -12040,6 +12486,7 @@ def check_amazon_word_tort(request):
 
 
 def t_work_flow_of_plate_house_button_click(request):
+
     objid=request.GET.get('id')
 
     objs=t_work_flow_of_plate_house.objects.filter(id=objid).values('mainsku','cgperson','image')
@@ -12051,8 +12498,10 @@ def t_work_flow_of_plate_house_button_click(request):
         cgperson=request.user.first_name
     flag=0
     errmsg=''
+    msg={}
     try:
-        if not t_supply_chain_production_basic.objects.filter(MainSKU=mainsku).exists():
+        obj=t_supply_chain_production_basic.objects.filter(MainSKU=mainsku)
+        if not obj.exists():
             CostPrice=None
             subskus = classmainsku(connection).get_sku_by_mainsku(mainsku)
             if subskus:
@@ -12061,11 +12510,65 @@ def t_work_flow_of_plate_house_button_click(request):
                     if py_obj:
                         CostPrice=py_obj.get('CostPrice')
                         break
-            t_supply_chain_production_basic(MainSKU=mainsku,CostPrice=CostPrice,Buyer=cgperson,DateTime=datetime.datetime.now(),Main_Pic=img).save()
+            obj=t_supply_chain_production_basic(MainSKU=mainsku,CostPrice=CostPrice,Buyer=cgperson,DateTime=datetime.datetime.now(),Main_Pic=img)
+            obj.save()
+            msg = model_to_dict(obj)
             flag=1
         else:
+            msg = model_to_dict(obj[:1][0])
             flag = 2
+        print(msg)
     except Exception:
         errmsg=traceback.format_exc()
-    return JsonResponse({'flag':flag,'errmsg':errmsg})
+    return JsonResponse({'flag':flag,'errmsg':errmsg,'msg':msg})
 
+
+
+
+def judge_supplier_isblacklist(request):
+    SupplierName = request.GET.get('SupplierName', '')
+    from pyapp.models import B_Supplier
+    b_supplier_obj = B_Supplier.objects.filter(SupplierName=SupplierName, IsBlacklist=1)
+    if b_supplier_obj.exists():
+        result = {'sResult': '0'}
+    else:
+        result = {'sResult': '1'}
+    return JsonResponse(result)
+    
+    
+@csrf_exempt
+def check_supplier(request):
+    from pyapp.models import B_Supplier
+    from reportapp.table.t_report_supplier_sku_m import t_report_supplier_sku_m
+    from pyapp.table.t_product_b_goods import t_product_b_goods
+    from  pyapp.models import b_supplier_money
+
+    supplier_name = request.GET.get('SupplierName', '')
+
+    return_param = {}
+    return_param['sResult'] = '0'
+    return_param['supplierSkuCount'] = 0
+    return_param['cgSkuCount'] = 0
+    return_param['CGALLmoney'] = 0
+    return_param['supplier_status'] = u'新'
+    return_param['is_blacklist'] = u'否'
+    try:
+        objs = b_supplier_money.objects.filter(SupplierName=supplier_name).values('CGSKUcount', 'CGALLmoney')
+        if objs:
+            return_param['cgSkuCount'] = objs[0]['CGSKUcount']
+            return_param['CGALLmoney'] = str(objs[0]['CGALLmoney'])
+
+        SupplierID_param = B_Supplier.objects.filter(SupplierName=supplier_name).values('NID', 'Used', 'IsBlacklist')
+        if SupplierID_param:
+            return_param['supplierSkuCount'] = t_product_b_goods.objects.filter(
+                GoodsStatus__in=['正常', '临时下架', '在售'], SupplierID=SupplierID_param[0]['NID'], Used=0).count()
+            if SupplierID_param[0]['Used'] in [0, '0']:
+                return_param['supplier_status'] = u'正常'
+            else:
+                return_param['supplier_status'] = u'已停'
+
+            if SupplierID_param[0]['IsBlacklist'] == 1:
+                return_param['is_blacklist'] = u'是'
+    except:
+        return_param = {'sResult': '-1'}
+    return JsonResponse(return_param)

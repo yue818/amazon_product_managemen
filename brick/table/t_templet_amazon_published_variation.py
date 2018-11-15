@@ -18,7 +18,8 @@ class t_templet_amazon_published_variation():
         shocur.execute("select relationship_type,variation_theme,parent_sku,child_sku,price,main_image_url,"
                        "other_image_url1,other_image_url2,other_image_url3,other_image_url4,other_image_url5,"
                        "other_image_url6,other_image_url7,other_image_url8,parent_item_sku,productSKU,parent_child,"
-                       "color_name,MetalType,color_map,size_name,size_map,external_product_id,item_quantity "
+                       "color_name,MetalType,color_map,size_name,size_map,external_product_id,item_quantity,"
+                       "fit_type,sleeve_type "
                        "from t_templet_amazon_published_variation  where parent_item_sku = %s and "
                        "prodcut_variation_id = %s ;",(params['parent_item_sku'],params['prodcut_variation_id']))
         t_templet_amazon_published_variation_objs = shocur.fetchall()
@@ -50,6 +51,8 @@ class t_templet_amazon_published_variation():
                 t_templet_amazon_published_variation['size_map'] = t_templet_amazon_published_variation_obj[21]
                 t_templet_amazon_published_variation['external_product_id'] = t_templet_amazon_published_variation_obj[22]
                 t_templet_amazon_published_variation['item_quantity'] = t_templet_amazon_published_variation_obj[23]
+                t_templet_amazon_published_variation['fit_type'] = t_templet_amazon_published_variation_obj[24]
+                t_templet_amazon_published_variation['sleeve_type'] = t_templet_amazon_published_variation_obj[25]
                 t_templet_amazon_published_variations.append(t_templet_amazon_published_variation)
         shocur.close()
         return t_templet_amazon_published_variations

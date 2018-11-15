@@ -1,5 +1,7 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
+from skuapp.modelsadminx.b_goods_sales_count_Admin import b_goods_sales_count_Admin
 from skuapp.modelsadminx.t_cfg_b_currencycodeAdmin import *
+from skuapp.modelsadminx.t_cfg_b_currencycode_logAdmin import *
 from skuapp.modelsadminx.wish_processed_order_Admin import wish_processed_order_Admin
 from skuapp.modelsadminx.wish_notification_Admin import wish_notification_Admin
 from skuapp.modelsadminx.t_cfg_b_emsfareAdmin import *
@@ -15,6 +17,7 @@ from skuapp.modelsadminx.t_cfg_standard_smallAdmin import *
 from skuapp.modelsadminx.t_cfg_standard_large_smallAdmin import *
 from skuapp.modelsadminx.t_cfg_categoryAdmin import *
 from skuapp.modelsadminx.t_cfg_category_infoAdmin import *
+from skuapp.modelsadminx.t_cfg_extra_feeAdmin import *
 from skuapp.modelsadminx.GlobalSetting import *
 from skuapp.modelsadminx.t_product_b_goods_Admin import *
 from skuapp.modelsadminx.t_api_schedule_ed_Admin import *
@@ -84,6 +87,11 @@ from skuapp.modelsadminx.v_product_all_image_Admin import *
 from skuapp.modelsadminx.v_product_enter_ed_Admin import *
 from skuapp.modelsadminx.t_store_configuration_file_Admin import *
 from skuapp.modelsadminx.t_store_marketplan_execution_Admin import *
+from skuapp.modelsadminx.t_store_marketplan_execution_ebayAdmin import *
+from skuapp.modelsadminx.t_store_marketplan_execution_joomAdmin import *
+from skuapp.modelsadminx.t_store_marketplan_execution_aliexpressAdmin import *
+from skuapp.modelsadminx.t_store_execution_aliexpressAdmin import *
+from skuapp.modelsadminx.t_store_marketplan_execution_amazonAdmin import *
 from skuapp.modelsadminx.t_store_marketplan_execution_evaluate_Admin import *
 from skuapp.modelsadminx.t_store_weekly_statistics_Admin import *
 from skuapp.modelsadminx.t_store_status_Admin import *
@@ -121,6 +129,7 @@ from skuapp.modelsadminx.t_online_info_wait_publish_joom3_Admin import *
 from skuapp.modelsadminx.t_online_info_wait_publish_TophatterAdmin import *
 from skuapp.modelsadminx.t_history_Admin import *
 from skuapp.modelsadminx.t_online_info_wait_publish_UMKA_Admin import *
+from skuapp.modelsadminx.t_online_info_wait_publish_vova_Admin import *
 from skuapp.modelsadminx.t_online_info_wait_publish_jumia_Admin import *
 from skuapp.modelsadminx.t_sys_staff_auth_Admin import *
 from skuapp.modelsadminx.t_online_info_publish_joom_Admin import *
@@ -166,8 +175,26 @@ from skuapp.modelsadminx.t_stocking_demand_passaudit_Admin import t_stocking_dem
 from skuapp.modelsadminx.t_stocking_purchase_order_Admin import *
 from skuapp.modelsadminx.t_set_warehouse_storage_situation_list_Admin import *
 from skuapp.modelsadminx.t_shipping_management_Admin import *
+from skuapp.modelsadminx.t_stocking_demand_fba_Admin import t_stocking_demand_fba_Admin
+from skuapp.modelsadminx.t_stocking_demand_fba_purchase_Admin import t_stocking_demand_fba_purchase_Admin
+from skuapp.modelsadminx.t_stocking_demand_fba_check_Admin import t_stocking_demand_fba_check_Admin
+from skuapp.modelsadminx.t_stocking_demand_fba_genbatch_Admin import t_stocking_demand_fba_genbatch_Admin
+from skuapp.modelsadminx.t_stocking_demand_fba_deliver_Admin import t_stocking_demand_fba_deliver_Admin
+from skuapp.modelsadminx.t_stocking_demand_fba_all_Admin import t_stocking_demand_fba_all_Admin
+from skuapp.modelsadminx.t_stocking_demand_fba_detail_Admin import t_stocking_demand_fba_detail_Admin
+from skuapp.modelsadminx.t_stocking_demand_fbw_Admin import t_stocking_demand_fbw_Admin
+from skuapp.modelsadminx.t_stocking_demand_fbw_deliver_Admin import t_stocking_demand_fbw_deliver_Admin
+from skuapp.modelsadminx.t_stocking_demand_fbw_demand_Admin import t_stocking_demand_fbw_demand_Admin
+from skuapp.modelsadminx.t_stocking_demand_fbw_management_Admin import t_stocking_demand_fbw_management_Admin
+from skuapp.modelsadminx.t_stocking_demand_fbw_all_Admin import t_stocking_demand_fbw_all_Admin
+from skuapp.modelsadminx.t_saler_profit_config_Admin import t_saler_profit_config_Admin
+from skuapp.modelsadminx.t_saler_profit_reportform_Admin import t_saler_profit_reportform_Admin
+from skuapp.modelsadminx.t_stocking_reject_fba_Admin import t_stocking_reject_fba_Admin
+from skuapp.modelsadminx.t_stocking_rejecting_fba_Admin import t_stocking_rejecting_fba_Admin
 from skuapp.modelsadminx.t_help_banding_sku_to_ali_Admin import *
 
+
+from skuapp.modelsadminx.t_joom_refund_Admin import *
 from skuapp.modelsadminx.t_config_logisticAdmin import *
 from skuapp.modelsadminx.t_config_logistic_expressAdmin import *
 from skuapp.modelsadminx.t_online_info_logistic_Admin import *
@@ -202,6 +229,16 @@ from skuapp.modelsadminx.t_wish_keywords_Admin import t_wish_keywords_Admin
 from skuapp.modelsadminx.t_online_info_amazon_listing_Admin import *
 from skuapp.modelsadminx.t_templet_amazon_collection_reverse_Admin import *
 from skuapp.modelsadminx.amzon_india_price_config_Admin import amzon_india_price_config_Admin
+from skuapp.modelsadminx.t_trademark_Admin import t_trademark_Admin
+from skuapp.modelsadminx.t_copyright_Admin import t_copyright_Admin
+from skuapp.modelsadminx.t_patents_Admin import t_patents_Admin
+
+
+
+
+
+
+
 from skuapp.modelsadminx.t_report_sales_clothingsystem_Admin import *
 from skuapp.modelsadminx.t_templet_amazon_upload_fail_Admin import t_templet_amazon_upload_fail_Admin
 from skuapp.modelsadminx.t_templet_amazon_recycle_bin_Admin import t_templet_amazon_recycle_bin_Admin
@@ -211,6 +248,7 @@ from skuapp.modelsadminx.t_tort_info_Admin import *
 from skuapp.modelsadminx.t_tort_info_audit_Admin import *
 from skuapp.modelsadminx.t_tort_info_result_Admin import *
 from skuapp.modelsadminx.t_tort_info_result_no_Admin import *
+from skuapp.modelsadminx.t_tort_info_result_common_Admin import *
 from skuapp.modelsadminx.t_tort_info_cancel_Admin import *
 from skuapp.modelsadminx.t_tort_info_cancel_audit_Admin import *
 from skuapp.modelsadminx.t_tort_info_image_Admin import *
@@ -221,12 +259,31 @@ from skuapp.modelsadminx.t_marketing_review_trace_Admin import t_marketing_revie
 
 from skuapp.modelsadminx.t_wish_pb_campaignproductstats_Admin import *
 from skuapp.modelsadminx.t_wish_pb_productdailystats_Admin import *
+from skuapp.modelsadminx.t_wish_pb_report_Admin import *
+from skuapp.modelsadminx.t_work_flow_of_plate_house_admin import t_work_flow_of_plate_house_admin
+from skuapp.modelsadminx.t_work_battledore_admin import t_work_battledore_admin
+from skuapp.modelsadminx.t_wish_pb_finance_rep_Admin import *
 
+from skuapp.modelsadminx.t_wish_pb_earnings_show_Admin import *
+from modelsadminx.t_eBay_TrendKw_Admin import *
+from skuapp.modelsadminx.t_product_price_suggest_Admin import *
 
+from skuapp.modelsadminx.t_report_sales_daily_byPlatform_Admin import *
+from skuapp.modelsadminx.t_report_sales_daily_byShopName_Admin import *
+from skuapp.modelsadminx.t_report_sales_daily_byProductID_Admin import *
+from skuapp.modelsadminx.t_report_sales_daily_Admin import *
+from skuapp.modelsadminx.t_report_sales_daily_byMainSKU_Admin import *
+from skuapp.modelsadminx.t_report_sales_daily_bySKU_Admin import *
+from skuapp.modelsadminx.t_wish_activerate_Admin import *
 
 
 #from skuapp.plugin.CategoryPlugin import *
+from skuapp.plugin.sales_count_Plugin import sales_count_Plugin
+
 from skuapp.plugin.show_picturePlugin import *
+from skuapp.plugin.marketplan_Plugin import *
+
+xadmin.site.register_plugin(marketplan_Plugin, ListAdminView)
 from skuapp.plugin.t_helpPlugin import *
 from skuapp.plugin.t_product_build_ingPlugin import *
 from skuapp.plugin.t_product_downloadxls_Plugin import *
@@ -246,15 +303,15 @@ from skuapp.plugin.publish_joomPlugin import *
 from skuapp.plugin.publish_joom3Plugin import *
 from skuapp.plugin.publish_tophatterPlugin import *
 from skuapp.plugin.publish_UMKAPlugin import *
+from skuapp.plugin.publish_vovaPlugin import *
 from skuapp.plugin.publish_jumiaPlugin import *
 from skuapp.plugin.t_upload_statistics_table_Plugin import *
 from skuapp.plugin.t_goods_shelves_search_Plugin import *
 from skuapp.plugin.t_amazon_cpc_ad_plugin import t_amazon_cpc_ad_plugin
-
-from skuapp.plugin.t_online_info_amazon_store_secondplugin import t_online_info_amazon_store_secondplugin
-xadmin.site.register_plugin(t_online_info_amazon_store_secondplugin, ListAdminView)
 from skuapp.plugin.t_online_info_amazon_listing_plugin import *
 xadmin.site.register_plugin(t_online_info_amazon_listing_plugin, ListAdminView)
+from skuapp.plugin.t_product_enter_ed_plugin import t_product_enter_ed_menu_Plugin
+xadmin.site.register_plugin(t_product_enter_ed_menu_Plugin, ListAdminView)
 from skuapp.plugin.search_boxPlugin import *
 from skuapp.plugin.search_box1Plugin import *
 from skuapp.plugin.search_box2Plugin import *
@@ -301,21 +358,43 @@ from skuapp.plugin.repeat_sku_plugin import repeat_sku_Plugin
 from skuapp.plugin.t_config_mstsc_searchplugin import t_config_Search_Plugin
 from skuapp.plugin.Main_SKU_countplugin import Main_SKU_countplugin
 from skuapp.plugin.t_amazon_cpc_ad_left_menu_plugin import t_amazon_cpc_ad_left_menu_plugin
+from skuapp.plugin.t_product_information_modify_Plguin import t_product_information_modify_Plugin
 
 from skuapp.plugin.enter_ed_userPlugin import enter_ed_user_Plugin
 from skuapp.plugin.depart_get_userPlugin import depart_get_user_Plugin
-
+from skuapp.plugin.joom_refundPlugin import joom_refundPlugin
 from skuapp.plugin.t_tort_info_tree_menu_Plugin import *
-
-
+from skuapp.plugin.sales_show_byplatformnamePlugin import *
+from skuapp.plugin.sales_show_bytypePlugin import *
+from skuapp.plugin.salesshowlisting_Plugin import *
 from skuapp.plugin.t_wish_pb_productdailystats_Plugin import *
+from skuapp.plugin.t_wish_activerate_Plugin import *
+from skuapp.plugin.t_wishpb_syncdata_Plugin import *
+from skuapp.plugin.t_wish_pb_earnings_Plugin import *
 
 from skuapp.plugin.t_wish_pb_left_menu_Plugin import *
 from skuapp.plugin.t_wishpb_keywords_Plugin import *
+from skuapp.plugin.t_wish_pb_report_Plugin import *
+from skuapp.plugin.b_supplier_Plugin import b_supplier_Plugin
 from skuapp.plugin.wish_processed_order_Plugin import wish_processed_order_Plugin
 xadmin.site.register_plugin(wish_processed_order_Plugin, ListAdminView)
 from skuapp.plugin.wish_notification_Plugin import wish_notification_Plugin
 xadmin.site.register_plugin(wish_notification_Plugin, ListAdminView)
+from skuapp.plugin.t_stocking_check_reportPlugin import t_stocking_check_reportPlugin
+xadmin.site.register_plugin(t_stocking_check_reportPlugin, ListAdminView)
+from skuapp.plugin.t_stocking_purchase_orderPlugin import t_stocking_purchase_orderPlugin
+xadmin.site.register_plugin(t_stocking_purchase_orderPlugin, ListAdminView)
+from skuapp.plugin.site_left_menu_stocking_purchase_Plugin import site_left_menu_stocking_purchase_Plugin
+xadmin.site.register_plugin(site_left_menu_stocking_purchase_Plugin, ListAdminView)
+from skuapp.plugin.t_stocking_demand_fba_tree_menu_Plugin import t_stocking_demand_fba_tree_menu_Plugin
+xadmin.site.register_plugin(t_stocking_demand_fba_tree_menu_Plugin, ListAdminView)
+from skuapp.plugin.t_stocking_demand_fbw_tree_menu_Plugin import t_stocking_demand_fbw_tree_menu_Plugin
+xadmin.site.register_plugin(t_stocking_demand_fbw_tree_menu_Plugin, ListAdminView)
+from skuapp.plugin.hide_page_action_Plugin import hide_page_action_Plugin
+xadmin.site.register_plugin(hide_page_action_Plugin, ListAdminView)
+
+from skuapp.plugin.t_amazon_comment_Plugin import t_amazon_comment_Plugin
+from skuapp.plugin.t_amazon_comment_analy_Plugin import t_amazon_comment_analy_Plugin
 
 
 
@@ -356,7 +435,7 @@ from skuapp.modelsadminx.t_product_survering_admin import t_product_survering_ad
 from skuapp.plugin.t_product_udPlugin import *
 from skuapp.modelsadminx.z_clothing_Admin import clothing_salesman_registrationAdmin
 from skuapp.modelsadminx.goods_quality_check_Admin import Newshop_feedbackAdmin, GoodsResponse_tableAdmin,BugerResponse_tableAdmin,WarehouseSpecialist_tableAdmin,GoodsCheck_tableAdmin,Result_tableAdmin
-
+from modelsadminx.t_amazon_pro_comment_Admin import t_amazon_pro_comment_Admin
 
 from modelsadminx.t_task_trunk_Admin import *
 from modelsadminx.t_task_details_Admin import *
@@ -392,16 +471,18 @@ from skuapp.modelsadminx.t_cloth_factory_dispatch_overtobuild_Admin import t_clo
 from skuapp.modelsadminx.t_cloth_factory_dispatch_close_Admin import t_cloth_factory_dispatch_close_Admin
 from skuapp.modelsadminx.t_cloth_factory_dispatch_history_Admin import t_cloth_factory_dispatch_history_Admin
 from skuapp.modelsadminx.t_cloth_factory_Admin import t_cloth_factory_Admin
+from skuapp.modelsadminx.t_cloth_factory_dispatch_paiding_Admin import t_cloth_factory_dispatch_paiding_Admin
 from skuapp.modelsadminx.t_aliexpress_distribution_shop_Admin import t_aliexpress_distribution_shop_Admin
 from skuapp.modelsadminx.t_templet_public_wish_review_Admin import t_templet_public_wish_review_Admin
 from skuapp.modelsadminx.t_amazon_cpc_ad_Admin import t_amazon_cpc_ad_Admin
+from skuapp.modelsadminx.t_templet_wish_upload_review_Admin import t_templet_wish_upload_review_Admin
+from skuapp.modelsadminx.t_supply_chain_production_basic_Admin import t_supply_chain_production_basic_Admin
 from skuapp.modelsadminx.t_config_shop_alias_Admin import t_config_shop_alias_Admin
 
 
-
-
-
+from skuapp.table.t_joom_refund import *
 from skuapp.table.t_cfg_b_currencycode import *
+from skuapp.table.t_cfg_b_currencycode_log import *
 from skuapp.table.t_cfg_b_emsfare import *
 from skuapp.table.t_cfg_b_emsfare_country import *
 from skuapp.table.t_cfg_b_emsfare2 import *
@@ -415,6 +496,7 @@ from skuapp.table.t_cfg_standard_small import *
 from skuapp.table.t_cfg_standard_large_small import *
 from skuapp.table.t_cfg_category import *
 from skuapp.table.t_cfg_category_info import *
+from skuapp.table.t_cfg_extra_fee import *
 from skuapp.table.t_report_GET_SP_AUTO_TARGETING_REPORT_  import *
 #from skuapp.table.B_PackInfo  import *
 from pyapp.models  import xxxb_packinfo
@@ -494,7 +576,12 @@ from skuapp.table.v_user_permission_id          import *
 from skuapp.table.t_shopsku_information_binding import *
 from skuapp.table.t_store_configuration_file    import *
 from skuapp.table.t_store_marketplan_execution  import *
+from skuapp.table.t_store_marketplan_execution_ebay  import *
 from skuapp.table.t_store_marketplan_execution_evaluate import *
+from skuapp.table.t_store_marketplan_execution_joom import *
+from skuapp.table.t_store_marketplan_execution_aliexpress import *
+from skuapp.table.t_store_execution_aliexpress import *
+from skuapp.table.t_store_marketplan_execution_amazon import *
 from skuapp.table.t_store_weekly_statistics    import *
 from skuapp.table.t_store_status                import *
 from skuapp.table.t_store_summary_of_sales_profit_data      import *
@@ -533,6 +620,7 @@ from skuapp.table.t_online_info_wait_publish_joom2 import *
 from skuapp.table.t_online_info_wait_publish_joom3 import *
 from skuapp.table.t_online_info_wait_publish_tophatter import *
 from skuapp.table.t_online_info_wait_publish_UMKA import *
+from skuapp.table.t_online_info_wait_publish_vova import *
 from skuapp.table.t_online_info_wait_publish_jumia import *
 from skuapp.table.t_sys_staff_auth import *
 from skuapp.table.t_online_info_publish_joom import *
@@ -590,6 +678,22 @@ from skuapp.table.t_stocking_demand_passaudit import t_stocking_demand_passaudit
 from skuapp.table.t_stocking_purchase_order import *
 from skuapp.table.t_set_warehouse_storage_situation_list import *
 from skuapp.table.t_shipping_management import *
+from skuapp.table.t_stocking_demand_fba import t_stocking_demand_fba
+from skuapp.table.t_stocking_demand_fba_purchase import t_stocking_demand_fba_purchase
+from skuapp.table.t_stocking_demand_fba_check import t_stocking_demand_fba_check
+from skuapp.table.t_stocking_demand_fba_genbatch import t_stocking_demand_fba_genbatch
+from skuapp.table.t_stocking_demand_fba_deliver import t_stocking_demand_fba_deliver
+from skuapp.table.t_stocking_demand_fbw import t_stocking_demand_fbw
+from skuapp.table.t_stocking_demand_fbw_deliver import t_stocking_demand_fbw_deliver
+from skuapp.table.t_stocking_demand_fbw_demand import t_stocking_demand_fbw_demand
+from skuapp.table.t_stocking_demand_fbw_management import t_stocking_demand_fbw_management
+from skuapp.table.t_stocking_demand_fbw_all import t_stocking_demand_fbw_all
+from skuapp.table.t_stocking_demand_fba_all import t_stocking_demand_fba_all
+from skuapp.table.t_stocking_demand_fba_detail import t_stocking_demand_fba_detail
+from skuapp.table.t_saler_profit_config import t_saler_profit_config
+from skuapp.table.t_saler_profit_reportform import t_saler_profit_reportform
+from skuapp.table.t_stocking_reject_fba import t_stocking_reject_fba
+from skuapp.table.t_stocking_rejecting_fba import t_stocking_rejecting_fba
 from skuapp.table.t_help_banding_sku_to_ali import *
 from skuapp.table.t_online_info_amazon_listing import *
 from skuapp.table.t_config_logistic import *
@@ -647,6 +751,16 @@ from skuapp.table.t_product_quality_feedback_ck import *
 from skuapp.table.t_product_quality_feedback_final_sh import *
 from skuapp.table.t_product_quality_feedback_final_result import *
 from skuapp.table.t_templet_amazon_collection_reverse import *
+
+
+
+
+
+
+from skuapp.table.t_amazon_pro_comment import t_amazon_pro_comment
+from skuapp.table.t_trademark import t_trademark
+from skuapp.table.t_copyright import t_copyright
+from skuapp.table.t_patents import t_patents
 from skuapp.table.amzon_india_price_config import amzon_india_price_config
 from skuapp.modelsadminx.t_aliexpress_service_division_analysis_Admin import t_aliexpress_service_division_analysis_Admin
 from skuapp.table.t_aliexpress_service_division_analysis import t_aliexpress_service_division_analysis
@@ -658,6 +772,7 @@ from skuapp.table.t_product_suvering import t_product_suvering
 from skuapp.table.t_product_upc_id_amazon import *
 from skuapp.modelsadminx.t_product_upc_id_amazon_Admin import *
 from skuapp.plugin.t_product_upc_id_Plugin import *
+from skuapp.plugin.amazon_result_copy_select_sitePlugin import *
 from skuapp.table.b_goods_sku_status_change import *
 from skuapp.table.t_report_sales_clothingsystem import *
 from skuapp.table.t_cloth_factory_dispatch_needpurchase import t_cloth_factory_dispatch_needpurchase
@@ -673,6 +788,7 @@ from skuapp.table.t_cloth_factory_dispatch_overtobuild import t_cloth_factory_di
 from skuapp.table.t_cloth_factory_dispatch_close import t_cloth_factory_dispatch_close
 from skuapp.table.t_cloth_factory_dispatch_history import t_cloth_factory_dispatch_history
 from skuapp.table.t_cloth_factory import t_cloth_factory
+from skuapp.table.t_cloth_factory_dispatch_paiding import t_cloth_factory_dispatch_paiding
 from skuapp.table.t_aliexpress_compare_price import t_aliexpress_compare_price
 
 from skuapp.table.t_templet_amazon_upload_result_lose_pic import *
@@ -691,6 +807,7 @@ from skuapp.table.t_tort_info import *
 from skuapp.table.t_tort_info_audit import t_tort_info_audit
 from skuapp.table.t_tort_info_result import t_tort_info_result
 from skuapp.table.t_tort_info_result_no import t_tort_info_result_no
+from skuapp.table.t_tort_info_result_common import t_tort_info_result_common
 from skuapp.table.t_tort_info_cancel import t_tort_info_cancel
 from skuapp.table.t_tort_info_cancel_audit import t_tort_info_cancel_audit
 from skuapp.table.t_tort_info_image import t_tort_info_image
@@ -699,32 +816,42 @@ from skuapp.table.t_tort_info_query import t_tort_info_query
 from skuapp.table.t_config_mstscfinance_user import t_config_mstscfinance_user
 from skuapp.table.t_wish_pb_campaignproductstats import *
 from skuapp.table.t_wish_pb_productdailystats import *
+from skuapp.table.t_wish_pb_report import *
 from skuapp.table.t_marketing_review_trace import t_marketing_review_trace
 from skuapp.table.wish_processed_order import wish_processed_order
 from skuapp.table.wish_notification import wish_notification
 from skuapp.table.t_amazon_cpc_ad import t_amazon_cpc_ad
-from skuapp.table.t_config_shop_alias import t_config_shop_alias
-
-
+from skuapp.table.t_work_flow_of_plate_house import t_work_flow_of_plate_house
 from skuapp.plugin.amazon_india_FBA_sku_Plugin import *
+from skuapp.table.t_work_battledore import t_work_battledore
+from skuapp.table.t_templet_wish_upload_review import t_templet_wish_upload_review
+from skuapp.table.t_supply_chain_production_basic import t_supply_chain_production_basic
+from skuapp.table.t_wish_pb_finance_rep import *
+from skuapp.table.t_wish_pb_earnings_rep import t_wish_pb_earnings_show
+from skuapp.modelsadminx.t_config_amazon_template_Admin import *
+from skuapp.table.t_config_amazon_template import *
+from skuapp.table.t_stocking_check_report import t_stocking_check_report
+from skuapp.modelsadminx.t_stocking_check_report_Admin import t_stocking_check_report_Admin
+from skuapp.table.t_config_shop_alias import t_config_shop_alias
+from skuapp.table.t_eBay_TrendKw import t_eBay_TrendKw
+from skuapp.table.t_product_price_suggest import t_product_price_suggest
+from skuapp.table.t_report_sales_daily_byPlatform import *
+from skuapp.table.t_report_sales_daily_byShopName import *
+from skuapp.table.t_report_sales_daily_byProductID import *
+from skuapp.table.t_report_sales_daily import *
+from skuapp.table.t_report_sales_daily_byMainSKU import *
+from skuapp.table.t_report_sales_daily_bySKU import *
+from skuapp.table.t_wish_activerate import t_wish_activerate
+from skuapp.table.b_goods_sales_count import b_goods_sales_count
 
 
-
-
-
-
-
-
-
-
-
-
-
+xadmin.site.register(t_config_amazon_template,t_config_amazon_template_Admin)
 xadmin.site.register(t_product_upc_id_amazon,t_product_upc_id_amazon_Admin)
 
 from skuapp.table.t_product_saler_requirement_photograph import t_product_saler_requirement_photograph
 from skuapp.modelsadminx.t_product_saler_requirement_photograph_Admin import t_product_saler_requirement_photograph_Admin
 xadmin.site.register(t_cfg_b_currencycode, t_cfg_b_currencycodeAdmin)
+xadmin.site.register(t_cfg_b_currencycode_log, t_cfg_b_currencycode_logAdmin)
 xadmin.site.register(t_cfg_b_emsfare, t_cfg_b_emsfareAdmin)
 xadmin.site.register(t_cfg_b_emsfare_country, t_cfg_b_emsfare_countryAdmin)
 xadmin.site.register(t_cfg_b_emsfare2, t_cfg_b_emsfare2Admin)
@@ -738,6 +865,7 @@ xadmin.site.register(t_cfg_standard_small, t_cfg_standard_smallAdmin)
 xadmin.site.register(t_cfg_standard_large_small, t_cfg_standard_large_smallAdmin)
 xadmin.site.register(t_cfg_category, t_cfg_categoryAdmin)
 xadmin.site.register(t_cfg_category_info, t_cfg_category_infoAdmin)
+xadmin.site.register(t_cfg_extra_fee, t_cfg_extra_feeAdmin)
 
 xadmin.site.register(amzon_india_price_config, amzon_india_price_config_Admin)
 xadmin.site.register(t_wish_keywords, t_wish_keywords_Admin)
@@ -754,6 +882,11 @@ xadmin.site.register(t_store_status,t_store_status_Admin)
 xadmin.site.register(t_store_weekly_statistics,t_store_weekly_statistics_Admin)
 xadmin.site.register(t_store_summary_of_sales_profit_data,t_store_summary_of_sales_profit_data_Admin)
 xadmin.site.register(t_store_marketplan_execution,t_store_marketplan_execution_Admin)
+xadmin.site.register(t_store_marketplan_execution_ebay,t_store_marketplan_execution_ebayAdmin)
+xadmin.site.register(t_store_marketplan_execution_amazon,t_store_marketplan_execution_amazonAdmin)
+xadmin.site.register(t_store_marketplan_execution_aliexpress,t_store_marketplan_execution_aliexpressAdmin)
+xadmin.site.register(t_store_execution_aliexpress,t_store_execution_aliexpressAdmin)
+xadmin.site.register(t_store_marketplan_execution_joom,t_store_marketplan_execution_joomAdmin)
 xadmin.site.register(t_store_configuration_file,t_store_configuration_file_Admin)
 xadmin.site.register(t_online_info_wish,t_online_info_wish_Admin)
 xadmin.site.register(t_report_potential_wish,t_report_potential_wish_Admin)
@@ -847,8 +980,11 @@ xadmin.site.register(t_online_info_wait_publish_joom2,t_online_info_wait_publish
 xadmin.site.register(t_online_info_wait_publish_joom3,t_online_info_wait_publish_joom3_Admin)
 xadmin.site.register(t_online_info_wait_publish_tophatter,t_online_info_wait_publish_TophatterAdmin)
 xadmin.site.register(t_online_info_wait_publish_UMKA,t_online_info_wait_publish_UMKA_Admin)
+xadmin.site.register(t_online_info_wait_publish_vova,t_online_info_wait_publish_vova_Admin)
 xadmin.site.register(t_online_info_wait_publish_jumia,t_online_info_wait_publish_jumia_Admin)
 xadmin.site.register(t_online_info_publish_joom,t_online_info_publish_joom_Admin)
+from skuapp.plugin.t_trademark_copyright_plugin import t_trademark_copyright_plugin
+xadmin.site.register_plugin(t_trademark_copyright_plugin, ListAdminView)
 xadmin.site.register(t_distribution_product_to_store_result,t_distribution_product_to_store_result_Admin)
 xadmin.site.register(t_config_paypal_account,t_config_paypal_accountAdmin)
 xadmin.site.register(t_paypal_payout_log,t_paypal_payout_logAdmin)
@@ -912,6 +1048,22 @@ xadmin.site.register(t_stocking_demand_passaudit,t_stocking_demand_passaudit_Adm
 xadmin.site.register(t_stocking_purchase_order,t_stocking_purchase_order_Admin)
 xadmin.site.register(t_set_warehouse_storage_situation_list,t_set_warehouse_storage_situation_list_Admin)
 xadmin.site.register(t_shipping_management,t_shipping_management_Admin)
+xadmin.site.register(t_stocking_demand_fba,t_stocking_demand_fba_Admin)
+xadmin.site.register(t_stocking_demand_fba_purchase,t_stocking_demand_fba_purchase_Admin)
+xadmin.site.register(t_stocking_demand_fba_check,t_stocking_demand_fba_check_Admin)
+xadmin.site.register(t_stocking_demand_fba_genbatch,t_stocking_demand_fba_genbatch_Admin)
+xadmin.site.register(t_stocking_demand_fba_deliver,t_stocking_demand_fba_deliver_Admin)
+xadmin.site.register(t_stocking_demand_fba_all,t_stocking_demand_fba_all_Admin)
+xadmin.site.register(t_stocking_demand_fba_detail,t_stocking_demand_fba_detail_Admin)
+xadmin.site.register(t_stocking_demand_fbw,t_stocking_demand_fbw_Admin)
+xadmin.site.register(t_stocking_demand_fbw_deliver,t_stocking_demand_fbw_deliver_Admin)
+xadmin.site.register(t_stocking_demand_fbw_demand,t_stocking_demand_fbw_demand_Admin)
+xadmin.site.register(t_stocking_demand_fbw_management,t_stocking_demand_fbw_management_Admin)
+xadmin.site.register(t_stocking_demand_fbw_all,t_stocking_demand_fbw_all_Admin)
+xadmin.site.register(t_saler_profit_config,t_saler_profit_config_Admin)
+xadmin.site.register(t_saler_profit_reportform,t_saler_profit_reportform_Admin)
+xadmin.site.register(t_stocking_reject_fba,t_stocking_reject_fba_Admin)
+xadmin.site.register(t_stocking_rejecting_fba,t_stocking_rejecting_fba_Admin)
 xadmin.site.register(t_help_banding_sku_to_ali,t_help_banding_sku_to_ali_Admin)
 
 xadmin.site.register(t_config_logistic,t_config_logisticAdmin)
@@ -971,6 +1123,7 @@ xadmin.site.register(t_cloth_factory_dispatch_overtobuild,t_cloth_factory_dispat
 xadmin.site.register(t_cloth_factory_dispatch_close,t_cloth_factory_dispatch_close_Admin)
 xadmin.site.register(t_cloth_factory_dispatch_history,t_cloth_factory_dispatch_history_Admin)
 xadmin.site.register(t_cloth_factory,t_cloth_factory_Admin)
+xadmin.site.register(t_cloth_factory_dispatch_paiding,t_cloth_factory_dispatch_paiding_Admin)
 xadmin.site.register(t_templet_amazon_upload_result_lose_pic,t_templet_amazon_upload_result_lose_pic_Admin)
 xadmin.site.register(t_templet_amazon_upload_fail,t_templet_amazon_upload_fail_Admin)
 xadmin.site.register(t_templet_amazon_recycle_bin,t_templet_amazon_recycle_bin_Admin)
@@ -983,6 +1136,7 @@ xadmin.site.register(t_tort_info, t_tort_info_Admin)
 xadmin.site.register(t_tort_info_audit, t_tort_info_audit_Admin)
 xadmin.site.register(t_tort_info_result, t_tort_info_result_Admin)
 xadmin.site.register(t_tort_info_result_no, t_tort_info_result_no_Admin)
+xadmin.site.register(t_tort_info_result_common, t_tort_info_result_common_Admin)
 xadmin.site.register(t_tort_info_cancel, t_tort_info_cancel_Admin)
 xadmin.site.register(t_tort_info_cancel_audit, t_tort_info_cancel_audit_Admin)
 xadmin.site.register(t_tort_info_image, t_tort_info_image_Admin)
@@ -990,22 +1144,43 @@ xadmin.site.register(t_tort_info_sync, t_tort_info_sync_Admin)
 xadmin.site.register(t_tort_info_query, t_tort_info_query_Admin)
 xadmin.site.register(t_wish_pb_campaignproductstats, t_wish_pb_campaignproductstats_Admin)
 xadmin.site.register(t_wish_pb_productdailystats, t_wish_pb_productdailystats_Admin)
+xadmin.site.register(t_wish_pb_report, t_wish_pb_report_Admin)
 xadmin.site.register_plugin(importfile_marketing_Plugin,ListAdminView)
 xadmin.site.register(t_marketing_review_trace,t_marketing_review_trace_Admin)
 xadmin.site.register(wish_processed_order, wish_processed_order_Admin)
 xadmin.site.register(wish_notification, wish_notification_Admin)
-
-
-
+xadmin.site.register(t_work_flow_of_plate_house,t_work_flow_of_plate_house_admin)
+xadmin.site.register(t_work_battledore, t_work_battledore_admin)
+xadmin.site.register(t_templet_wish_upload_review,t_templet_wish_upload_review_Admin)
+xadmin.site.register(t_stocking_check_report,t_stocking_check_report_Admin)
+xadmin.site.register(t_eBay_TrendKw, t_eBay_TrendKw_Admin)
+xadmin.site.register(t_product_price_suggest, t_product_price_suggest_Admin)
+xadmin.site.register(t_report_sales_daily_byPlatform,t_report_sales_daily_byPlatform_Admin)
+xadmin.site.register(t_report_sales_daily_byShopName,t_report_sales_daily_byShopName_Admin)
+xadmin.site.register(t_report_sales_daily_byProductID,t_report_sales_daily_byProductID_Admin)
+xadmin.site.register(t_report_sales_daily,t_report_sales_daily_Admin)
+xadmin.site.register(t_report_sales_daily_byMainSKU,t_report_sales_daily_byMainSKU_Admin)
+xadmin.site.register(t_report_sales_daily_bySKU,t_report_sales_daily_bySKU_Admin)
+xadmin.site.register(t_wish_activerate, t_wish_activerate_Admin)
+xadmin.site.register(b_goods_sales_count, b_goods_sales_count_Admin)
+xadmin.site.register(t_amazon_pro_comment, t_amazon_pro_comment_Admin)
 xadmin.site.register(t_config_mstscfinance_user,t_config_mstscfinance_user_Admin)
 xadmin.site.register(t_amazon_cpc_ad, t_amazon_cpc_ad_Admin)
+xadmin.site.register(t_wish_pb_finance_rep, t_wish_pb_finance_rep_Admin)
+xadmin.site.register(t_wish_pb_earnings_show, t_wish_pb_earnings_show_Admin)
+from skuapp.plugin.amazon_advertising_report_Plugin import amazon_advertising_report_Plugin
+xadmin.site.register_plugin(amazon_advertising_report_Plugin,ListAdminView)
+from skuapp.plugin.amazon_advertising_shop_report_Plugin import amazon_advertising_shop_report_Plugin
+xadmin.site.register_plugin(amazon_advertising_shop_report_Plugin,ListAdminView)
+from skuapp.plugin.amazon_shop_search_Plugin import amazon_shop_search_Plugin
+xadmin.site.register_plugin(amazon_shop_search_Plugin,ListAdminView)
+xadmin.site.register_plugin(t_product_suringPlugin,ListAdminView)
 xadmin.site.register(t_config_shop_alias, t_config_shop_alias_Admin)
-
-
-
-
 xadmin.site.register_plugin(t_product_upc_id_amazon_Plugin, ModelFormAdminView)
-
+xadmin.site.register(t_trademark, t_trademark_Admin)
+xadmin.site.register(t_copyright, t_copyright_Admin)
+xadmin.site.register(t_patents, t_patents_Admin)
+xadmin.site.register_plugin(sales_count_Plugin,ListAdminView)
 
 xadmin.site.register_plugin(Large_Small_Plugin,ModelFormAdminView)
 xadmin.site.register_plugin(t_wish_keywords_downloads_plugin, BaseAdminView)
@@ -1029,9 +1204,14 @@ xadmin.site.register_plugin(task_trunkPlugin, ListAdminView)
 xadmin.site.register_plugin(t_task_trunkPlugin, ModelFormAdminView)
 xadmin.site.register_plugin(t_product_udPlugin, ListAdminView)
 xadmin.site.register_plugin(variation_item_amazon_Plugin, ModelFormAdminView)
+xadmin.site.register_plugin(t_wish_activerate_Plugin, ListAdminView)
+xadmin.site.register_plugin(t_wishpb_syncdata_Plugin, ListAdminView)
    
+
+xadmin.site.register_plugin(t_amazon_comment_Plugin, ListAdminView)
 xadmin.site.register_plugin(t_amazon_cpc_ad_plugin, ListAdminView)
 xadmin.site.register_plugin(t_wish_pb_productdailystats_Plugin, ListAdminView)
+xadmin.site.register_plugin(t_wish_pb_report_Plugin, ListAdminView)
 xadmin.site.register_plugin(button_Plugin, ModelFormAdminView)
 xadmin.site.register_plugin(search_sku_Plugin, ModelFormAdminView)
 xadmin.site.register_plugin(t_paypal_payout_logPlugin, ModelFormAdminView)
@@ -1041,6 +1221,7 @@ xadmin.site.register_plugin(publish_joomPlugin, BaseAdminView)
 xadmin.site.register_plugin(publish_joom3Plugin, BaseAdminView)
 xadmin.site.register_plugin(publish_tophatterPlugin, BaseAdminView)
 xadmin.site.register_plugin(publish_UMKAPlugin, BaseAdminView)
+xadmin.site.register_plugin(publish_vovaPlugin, BaseAdminView)
 xadmin.site.register_plugin(publish_jumiaPlugin, BaseAdminView)
 xadmin.site.register_plugin(t_product_enter_ed_classificationPlugin, ListAdminView)
 xadmin.site.register_plugin(select_checkboxPlugin, ListAdminView)
@@ -1074,8 +1255,19 @@ xadmin.site.register(WarehouseSpecialist_table, WarehouseSpecialist_tableAdmin)
 xadmin.site.register(GoodsCheck_table, GoodsCheck_tableAdmin)
 xadmin.site.register(t_aliexpress_compare_price,t_aliexpress_compare_price_Admin)
 xadmin.site.register_plugin(shopsku_apply_plugin,ModelFormAdminView)
-
+xadmin.site.register_plugin(salesshowlisting_Plugin, ListAdminView)
+xadmin.site.register_plugin(t_amazon_comment_analy_Plugin, ListAdminView)
+xadmin.site.register_plugin(sales_show_byplatformnamePlugin, ListAdminView)
+xadmin.site.register_plugin(sales_show_bytypePlugin, ListAdminView)
 xadmin.site.register_plugin(t_product_quality_feedback_Plugin, ListAdminView)
+
+from ebayapp.plugin.search_ebay_listing_plugin2 import search_ebay_listing_plugin2
+xadmin.site.register_plugin(search_ebay_listing_plugin2, ListAdminView)
+from ebayapp.plugin.ebay_pl_plugin import ebay_pl_plugin
+xadmin.site.register_plugin(ebay_pl_plugin, ListAdminView)
+from reportapp.plugin.t_saler_profit_report_menu_Plugin import t_saler_profit_report_menu_Plugin
+xadmin.site.register_plugin(t_saler_profit_report_menu_Plugin, ListAdminView)
+
 xadmin.site.register_plugin(search_boxPlugin, ListAdminView)
 xadmin.site.register_plugin(kc_refresh_time,ListAdminView)
 xadmin.site.register_plugin(Three_Grade_Classification_Of_Clothing_Plugin,ModelFormAdminView)
@@ -1095,6 +1287,7 @@ xadmin.site.register_plugin(t_config_Search_Plugin,BaseAdminView)
 xadmin.site.register_plugin(Main_SKU_countplugin,ListAdminView)
 xadmin.site.register_plugin(t_tort_info_tree_menu_Plugin, ListAdminView)
 xadmin.site.register_plugin(t_wish_pb_left_menu_Plugin, ListAdminView)
+xadmin.site.register_plugin(t_wish_pb_earnings_Plugin, ListAdminView)
 xadmin.site.register_plugin(t_wishpb_keywords_Plugin, ModelFormAdminView)
 from plugin.wish_site_left_Plugin import wish_site_left_Plugin
 xadmin.site.register_plugin(wish_site_left_Plugin,ListAdminView)
@@ -1107,7 +1300,6 @@ from skuapp.plugin.wish_ticket_Plugin import wish_ticket_Plugin
 xadmin.site.register_plugin(wish_ticket_Plugin,ListAdminView)
 from skuapp.plugin.wish_site_left_ti_Plugin import wish_site_left_ti_Plugin
 xadmin.site.register_plugin(wish_site_left_ti_Plugin,ListAdminView)
-xadmin.site.register_plugin(t_product_suringPlugin, ListAdminView)
 from skuapp.plugin.wish_in_Plugin import wish_in_Plugin
 xadmin.site.register_plugin(wish_in_Plugin,ListAdminView)
 from skuapp.plugin.wish_site_left_in_Plugin import wish_site_left_in_Plugin
@@ -1115,28 +1307,93 @@ xadmin.site.register_plugin(wish_site_left_in_Plugin,ListAdminView)
 from skuapp.table.wish_infractions import wish_infractions
 from skuapp.modelsadminx.wish_infractions_Admin import wish_infractions_Admin
 xadmin.site.register(wish_infractions, wish_infractions_Admin)
+xadmin.site.register(t_supply_chain_production_basic,t_supply_chain_production_basic_Admin)
+from skuapp.plugin.t_supply_chain_production_basic_plugin import t_supply_chain_production_basic_plugin
+xadmin.site.register_plugin(t_supply_chain_production_basic_plugin,ListAdminView)
+xadmin.site.register_plugin(t_product_information_modify_Plugin,ListAdminView)
+xadmin.site.register_plugin(amazon_result_copy_select_sitePlugin, ListAdminView)
+xadmin.site.register(t_joom_refund,t_joom_refund_Admin)
+xadmin.site.register_plugin(joom_refundPlugin,ListAdminView)
 
-from skuapp.table.t_amazon_removal_order_detail import t_amazon_removal_order_detail
-from skuapp.modelsadminx.t_amazon_removal_order_detail_Admin import t_amazon_removal_order_detail_Admin
-xadmin.site.register(t_amazon_removal_order_detail, t_amazon_removal_order_detail_Admin)
+# 克重审核模块
+from skuapp.table.t_sku_weight_examine import t_sku_weight_examine
+from skuapp.modelsadminx.t_sku_weight_examine_admin import t_sku_weight_examine_admin
+xadmin.site.register(t_sku_weight_examine, t_sku_weight_examine_admin)
+
+
+# 产品定做落地跟踪表
+from skuapp.table.t_progress_tracking_of_product_customization_table import t_progress_tracking_of_product_customization_table
+from skuapp.modelsadminx.t_progress_tracking_of_product_customization_table_Admin import t_progress_tracking_of_product_customization_table_Admin
+xadmin.site.register(t_progress_tracking_of_product_customization_table, t_progress_tracking_of_product_customization_table_Admin)
+
+# 产品定做落地跟踪表------插件
+from skuapp.plugin.product_customization_plugin import product_customization_plugin
+xadmin.site.register_plugin(product_customization_plugin,ListAdminView)
+
+# 产品定做落地跟踪表------已完成SKU库存查询
+from skuapp.table.v_product_customization_show import v_product_customization_show
+from skuapp.modelsadminx.v_product_customization_show_Admin import v_product_customization_show_Admin
+xadmin.site.register(v_product_customization_show, v_product_customization_show_Admin)
 
 from skuapp.table.t_amazon_shopsku_modify import t_amazon_shopsku_modify
 from skuapp.modelsadminx.t_amazon_shopsku_modify_Admin import t_amazon_shopsku_modify_Admin
+from skuapp.table.t_config_wishapi_product_analyse_info_original_trans import t_config_wishapi_product_analyse_info_original_trans
+from skuapp.modelsadminx.t_config_wishapi_product_analyse_info_original_trans_Admin import t_config_wishapi_product_analyse_info_original_trans_Admin
 xadmin.site.register(t_amazon_shopsku_modify, t_amazon_shopsku_modify_Admin)
-
-
+xadmin.site.register(t_config_wishapi_product_analyse_info_original_trans,t_config_wishapi_product_analyse_info_original_trans_Admin)
+from skuapp.table.t_amazon_removal_order_detail import t_amazon_removal_order_detail
+from skuapp.modelsadminx.t_amazon_removal_order_detail_Admin import t_amazon_removal_order_detail_Admin
+xadmin.site.register(t_amazon_removal_order_detail, t_amazon_removal_order_detail_Admin)
 
 from skuapp.table.t_amazon_all_orders_data import t_amazon_all_orders_data
 from skuapp.modelsadminx.t_amazon_all_orders_data_Admin import t_amazon_all_orders_data_Admin
 xadmin.site.register(t_amazon_all_orders_data, t_amazon_all_orders_data_Admin)
 
+from skuapp.table.t_template_amazon_advertising_report import t_template_amazon_advertising_report
+from skuapp.table.t_template_amazon_business_report import t_template_amazon_business_report
+from skuapp.modelsadminx.t_template_amazon_advertising_report_Admin import t_template_amazon_advertising_report_Admin
+from skuapp.modelsadminx.t_template_amazon_business_report_Admin import t_template_amazon_business_report_Admin
+xadmin.site.register(t_template_amazon_advertising_report,t_template_amazon_advertising_report_Admin)
+xadmin.site.register(t_template_amazon_business_report,t_template_amazon_business_report_Admin)
 
+from skuapp.table.t_template_amazon_advertising_business_report import t_template_amazon_advertising_business_report
+from skuapp.modelsadminx.t_template_amazon_advertising_business_report_Admin import t_template_amazon_advertising_business_report_Admin
+xadmin.site.register(t_template_amazon_advertising_business_report,t_template_amazon_advertising_business_report_Admin)
 
+from skuapp.table.t_template_amazon_advertising_business_count_report import t_template_amazon_advertising_business_count_report
+from skuapp.modelsadminx.t_template_amazon_advertising_business_count_report_Admin import t_template_amazon_advertising_business_count_report_Admin
+xadmin.site.register(t_template_amazon_advertising_business_count_report,t_template_amazon_advertising_business_count_report_Admin)
+from skuapp.table.t_template_amazon_advertising_business_daily_report import t_template_amazon_advertising_business_daily_report
+from skuapp.modelsadminx.t_template_amazon_advertising_business_daily_report_Admin import t_template_amazon_advertising_business_daily_report_Admin
+xadmin.site.register(t_template_amazon_advertising_business_daily_report,t_template_amazon_advertising_business_daily_report_Admin)
+from skuapp.table.t_template_amazon_advertising_business_count_shop_report import t_template_amazon_advertising_business_count_shop_report
+from skuapp.modelsadminx.t_template_amazon_advertising_business_count_shop_report_Admin import t_template_amazon_advertising_business_count_shop_report_Admin
+xadmin.site.register(t_template_amazon_advertising_business_count_shop_report,t_template_amazon_advertising_business_count_shop_report_Admin)
+from skuapp.table.t_template_amazon_advertising_keywords_report import t_template_amazon_advertising_keywords_report
+from skuapp.modelsadminx.t_template_amazon_advertising_keywords_report_Admin import t_template_amazon_advertising_keywords_report_Admin
+xadmin.site.register(t_template_amazon_advertising_keywords_report,t_template_amazon_advertising_keywords_report_Admin)
 
+from skuapp.plugin.site_left_menu_tree_amazon_advertising_Plugin import site_left_menu_tree_amazon_advertising_Plugin
+xadmin.site.register_plugin(site_left_menu_tree_amazon_advertising_Plugin,BaseAdminView)
 
+xadmin.site.register_plugin(b_supplier_Plugin, ListAdminView)
+xadmin.site.register_plugin(b_supplier_Plugin, ModelFormAdminView)
+
+from skuapp.plugin.saler_profit_plugin import saler_profit_plugin
+xadmin.site.register_plugin(saler_profit_plugin,ListAdminView)
 
 from skuapp.plugin.amazon_sort_bar_plugin import amazon_sort_bar_plugin
 xadmin.site.register_plugin(amazon_sort_bar_plugin, BaseAdminView)
+
+from skuapp.table.t_product_enter_ed_aliexpress import *
+from skuapp.modelsadminx.t_product_enter_ed_aliexpress_Admin import *
+xadmin.site.register(t_product_enter_ed_aliexpress,t_product_enter_ed_aliexpress_Admin)
+from skuapp.plugin.aliexpress_left_Plugin import aliexpress_left_Plugin
+xadmin.site.register_plugin(aliexpress_left_Plugin,ListAdminView)
+
+from skuapp.table.t_config_aliexpress_pl import *
+from skuapp.modelsadminx.t_config_aliexpress_pl_Admin import *
+xadmin.site.register(t_config_aliexpress_pl,t_config_aliexpress_pl_Admin)
 
 
 from skuapp.plugin.t_amazon_product_cost_refresh_plugin import t_amazon_product_cost_refresh_plugin
@@ -1162,14 +1419,62 @@ from skuapp.table.t_amazon_operation_log import t_amazon_operation_log
 from skuapp.modelsadminx.t_amazon_operation_log_Admin import t_amazon_operation_log_Admin
 xadmin.site.register(t_amazon_operation_log, t_amazon_operation_log_Admin)
 
-from skuapp.table.t_perf_amazon_refresh_status import t_perf_amazon_refresh_status
-from skuapp.modelsadminx.t_perf_amazon_refresh_status_Admin import t_perf_amazon_refresh_status_Admin
-xadmin.site.register(t_perf_amazon_refresh_status, t_perf_amazon_refresh_status_Admin)
-
+from skuapp.table.b_costprice_modify import b_costprice_modify
+from skuapp.modelsadminx.b_costprice_modify_Admin import b_costprice_modify_Admin
+xadmin.site.register(b_costprice_modify,b_costprice_modify_Admin)
 
 from skuapp.plugin.t_amazon_order_type_plugin import t_amazon_order_type_plugin
 xadmin.site.register_plugin(t_amazon_order_type_plugin, ListAdminView)
 
+
+# 供应链进度跟踪
+from skuapp.plugin.t_work_progress_tracking_plugin import t_work_progress_tracking_plugin
+xadmin.site.register_plugin(t_work_progress_tracking_plugin,ListAdminView)
+
 from skuapp.table.t_amazon_actionable_order_data import t_amazon_actionable_order_data
 from skuapp.modelsadminx.t_amazon_actionable_order_data_Admin import t_amazon_actionable_order_data_Admin
 xadmin.site.register(t_amazon_actionable_order_data, t_amazon_actionable_order_data_Admin)
+
+
+
+from skuapp.modelsadminx.t_product_enter_ed_wish_Admin import t_product_enter_ed_wish_Admin
+from skuapp.table.t_product_enter_ed_wish import t_product_enter_ed_wish
+from skuapp.plugin.t_product_enter_ed_wish_left_Plugin import t_product_enter_ed_wish_left_Plugin
+xadmin.site.register(t_product_enter_ed_wish,t_product_enter_ed_wish_Admin)
+xadmin.site.register_plugin(t_product_enter_ed_wish_left_Plugin, ListAdminView)
+
+
+from skuapp.modelsadminx.t_product_enter_ed_all_Admin import t_product_enter_ed_all_Admin
+from skuapp.table.t_product_enter_ed_all import t_product_enter_ed_all
+from skuapp.plugin.t_product_enter_ed_all_left_Plugin import t_product_enter_ed_all_left_Plugin
+xadmin.site.register(t_product_enter_ed_all,t_product_enter_ed_all_Admin)
+xadmin.site.register_plugin(t_product_enter_ed_all_left_Plugin, ListAdminView)
+
+
+from skuapp.modelsadminx.t_product_enter_ed_ebay_Admin import t_product_enter_ed_ebay_Admin
+from skuapp.table.t_product_enter_ed_ebay import t_product_enter_ed_ebay
+from skuapp.plugin.t_product_enter_ed_ebay_left_Plugin import t_product_enter_ed_ebay_left_Plugin
+xadmin.site.register(t_product_enter_ed_ebay,t_product_enter_ed_ebay_Admin)
+xadmin.site.register_plugin(t_product_enter_ed_ebay_left_Plugin, ListAdminView)
+
+
+from skuapp.modelsadminx.t_product_enter_ed_amazon_Admin import t_product_enter_ed_amazon_Admin
+from skuapp.table.t_product_enter_ed_amazon import t_product_enter_ed_amazon
+from skuapp.plugin.t_product_enter_ed_amazon_left_Plugin import t_product_enter_ed_amazon_left_Plugin
+xadmin.site.register(t_product_enter_ed_amazon,t_product_enter_ed_amazon_Admin)
+xadmin.site.register_plugin(t_product_enter_ed_amazon_left_Plugin, ListAdminView)
+
+
+from skuapp.modelsadminx.t_product_enter_ed_aliex_Admin import t_product_enter_ed_aliex_Admin
+from skuapp.table.t_product_enter_ed_aliex import t_product_enter_ed_aliex
+from skuapp.plugin.t_product_enter_ed_aliex_left_Plugin import t_product_enter_ed_aliex_left_Plugin
+xadmin.site.register(t_product_enter_ed_aliex,t_product_enter_ed_aliex_Admin)
+xadmin.site.register_plugin(t_product_enter_ed_aliex_left_Plugin, ListAdminView)
+
+from skuapp.modelsadminx.t_amazon_shop_refund_status_Admin import t_amazon_shopsku_modify_Admin
+from skuapp.table.t_amazon_shop_refund_status import t_amazon_shop_refund_status
+xadmin.site.register(t_amazon_shop_refund_status, t_amazon_shopsku_modify_Admin)
+
+from skuapp.modelsadminx.t_amazon_auto_load_Admin import t_amazon_auto_load_Admin
+from skuapp.table.t_amazon_auto_load import t_amazon_auto_load
+xadmin.site.register(t_amazon_auto_load, t_amazon_auto_load_Admin)

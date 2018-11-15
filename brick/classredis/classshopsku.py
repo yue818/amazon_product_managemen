@@ -1,15 +1,30 @@
 # -*- coding: utf-8 -*-
+
 class classshopsku():
-    def __init__(self,db_conn=None,redis_conn=None):
+    def __init__(self,db_conn=None,redis_conn=None,shopname=None):
         self.db_conn = db_conn
         self.redis_conn = redis_conn
+        self.shopname = shopname
+        self.platform = self.__get_platform()
+
+    def __get_platform(self):
+        return self.shopname.split('-')[0] if self.shopname else None
+
+    def __newKey(self, k): #
+        return '{}.{}'.format(self.shopname, k) if self.shopname else k
 
     #私有方法
     def __private_set_attr(self,name,key,value):
+        if self.platform == 'Wish':
+            key = self.__newKey(key)
+
         if self.redis_conn is not None and value is not None:
             self.redis_conn.hset(name, key,value)
 
     def __private_get_attr(self,name,key):
+        if self.platform == 'Wish':
+            key = self.__newKey(key)
+            
         if self.redis_conn is not None:
             return self.redis_conn.hget(name,key)
 
@@ -59,10 +74,10 @@ class classshopsku():
 
             if sku:
                 newshopsku_list = shopskutmp.split('*')
-                if len(newshopsku_list) == 1:
-                    skulist.append(sku)
+                if len(newshopsku_list) == 1 or self.platform == 'Wish':
+                    skulist.append(sku.strip())
                 else:
-                    skulist.append(sku + '*' + str(newshopsku_list[1]))
+                    skulist.append((sku + '*' + str(newshopsku_list[1])).strip())
         if skulist:
             sku = '+'.join(skulist)
         return sku
@@ -78,7 +93,10 @@ class classshopsku():
         price = self.__private_get_attr(shopsku,'Price')
         if price is None and self.db_conn is not None:
             pricur = self.db_conn.cursor()
-            pricur.execute("select Price from t_online_info WHERE ShopSKU = %s ;",(shopsku,))
+            if self.shopname:
+                pricur.execute("select Price from t_online_info WHERE ShopSKU = %s and ShopName = %s ;",(shopsku, self.shopname))
+            else:
+                pricur.execute("select Price from t_online_info WHERE ShopSKU = %s;",(shopsku,))
             obj = pricur.fetchone()
             pricur.close()
             if obj:
@@ -108,7 +126,10 @@ class classshopsku():
         quantity = self.__private_get_attr(shopsku,'Quantity')
         if quantity is None and self.db_conn is not None:
             quacur = self.db_conn.cursor()
-            quacur.execute("select Quantity from t_online_info WHERE ShopSKU = %s ;", (shopsku,))
+            if self.shopname:
+                quacur.execute("select Quantity from t_online_info WHERE ShopSKU = %s and ShopName = %s  ;", (shopsku, self.shopname))
+            else:
+                quacur.execute("select Quantity from t_online_info WHERE ShopSKU = %s ;", (shopsku,))
             obj = quacur.fetchone()
             quacur.close()
             if obj:
@@ -137,7 +158,10 @@ class classshopsku():
         quantity = self.__private_get_attr(shopsku, 'DEQuantity')
         if quantity is None and self.db_conn is not None:
             quacur = self.db_conn.cursor()
-            quacur.execute("select DEExpressInventory from t_online_info WHERE ShopSKU = %s ;", (shopsku,))
+            if self.shopname:
+                quacur.execute("select DEExpressInventory from t_online_info WHERE ShopSKU = %s and ShopName = %s  ;", (shopsku, self.shopname))
+            else:
+                quacur.execute("select DEExpressInventory from t_online_info WHERE ShopSKU = %s ;", (shopsku,))
             obj = quacur.fetchone()
             quacur.close()
             if obj:
@@ -152,7 +176,10 @@ class classshopsku():
         quantity = self.__private_get_attr(shopsku, 'GBQuantity')
         if quantity is None and self.db_conn is not None:
             quacur = self.db_conn.cursor()
-            quacur.execute("select GBExpressInventory from t_online_info WHERE ShopSKU = %s ;", (shopsku,))
+            if self.shopname:
+                quacur.execute("select GBExpressInventory from t_online_info WHERE ShopSKU = %s and ShopName = %s  ;", (shopsku, self.shopname))
+            else:
+                quacur.execute("select GBExpressInventory from t_online_info WHERE ShopSKU = %s ;", (shopsku,))
             obj = quacur.fetchone()
             quacur.close()
             if obj:
@@ -167,7 +194,10 @@ class classshopsku():
         quantity = self.__private_get_attr(shopsku, 'USQuantity')
         if quantity is None and self.db_conn is not None:
             quacur = self.db_conn.cursor()
-            quacur.execute("select USExpressInventory from t_online_info WHERE ShopSKU = %s ;", (shopsku,))
+            if self.shopname:
+                quacur.execute("select USExpressInventory from t_online_info WHERE ShopSKU = %s and ShopName = %s  ;", (shopsku, self.shopname))
+            else:
+                quacur.execute("select USExpressInventory from t_online_info WHERE ShopSKU = %s ;", (shopsku,))
             obj = quacur.fetchone()
             quacur.close()
             if obj:
@@ -183,7 +213,10 @@ class classshopsku():
         status = self.__private_get_attr(shopsku,'Status')
         if status is None and self.db_conn is not None:
             stacur = self.db_conn.cursor()
-            stacur.execute("select Status from t_online_info WHERE ShopSKU = %s ;",(shopsku,))
+            if self.shopname:
+                stacur.execute("select Status from t_online_info WHERE ShopSKU = %s and ShopName = %s  ;",(shopsku, self.shopname))
+            else:
+                stacur.execute("select Status from t_online_info WHERE ShopSKU = %s ;",(shopsku,))
             obj = stacur.fetchone()
             stacur.close()
             if obj:
@@ -213,7 +246,10 @@ class classshopsku():
         shipping = self.__private_get_attr(shopsku,'Shipping')
         if shipping is None and self.db_conn is not None:
             shicur = self.db_conn.cursor()
-            shicur.execute("select Shipping from t_online_info where ShopSKU = %s ;",(shopsku,))
+            if self.shopname:
+                shicur.execute("select Shipping from t_online_info where ShopSKU = %s and ShopName = %s  ;",(shopsku, self.shopname))
+            else:
+                shicur.execute("select Shipping from t_online_info where ShopSKU = %s ;",(shopsku,))
             obj = shicur.fetchone()
             shicur.close()
             if obj:
@@ -242,7 +278,10 @@ class classshopsku():
         shipping = self.__private_get_attr(shopsku,'DEShipping')
         if shipping is None and self.db_conn is not None:
             shicur = self.db_conn.cursor()
-            shicur.execute("select DEExpressShipping from t_online_info where ShopSKU = %s ;",(shopsku,))
+            if self.shopname:
+                shicur.execute("select DEExpressShipping from t_online_info where ShopSKU = %s and ShopName = %s  ;",(shopsku, self.shopname))
+            else:
+                shicur.execute("select DEExpressShipping from t_online_info where ShopSKU = %s ;",(shopsku,))
             obj = shicur.fetchone()
             shicur.close()
             if obj:
@@ -257,7 +296,10 @@ class classshopsku():
         shipping = self.__private_get_attr(shopsku,'GBShipping')
         if shipping is None and self.db_conn is not None:
             shicur = self.db_conn.cursor()
-            shicur.execute("select GBExpressShipping from t_online_info where ShopSKU = %s ;",(shopsku,))
+            if self.shopname:
+                shicur.execute("select GBExpressShipping from t_online_info where ShopSKU = %s and ShopName = %s  ;",(shopsku, self.shopname))
+            else:
+                shicur.execute("select GBExpressShipping from t_online_info where ShopSKU = %s ;",(shopsku,))
             obj = shicur.fetchone()
             shicur.close()
             if obj:
@@ -272,7 +314,10 @@ class classshopsku():
         shipping = self.__private_get_attr(shopsku,'USShipping')
         if shipping is None and self.db_conn is not None:
             shicur = self.db_conn.cursor()
-            shicur.execute("select USExpressShipping from t_online_info where ShopSKU = %s ;",(shopsku,))
+            if self.shopname:
+                shicur.execute("select USExpressShipping from t_online_info where ShopSKU = %s and ShopName = %s  ;",(shopsku, self.shopname))
+            else:
+                shicur.execute("select USExpressShipping from t_online_info where ShopSKU = %s ;",(shopsku,))
             obj = shicur.fetchone()
             shicur.close()
             if obj:
@@ -288,7 +333,10 @@ class classshopsku():
         image =  self.__private_get_attr(shopsku,'Image')
         if image is None and self.db_conn is not None:
             imacur = self.db_conn.cursor()
-            imacur.execute("select ShopSKUImage from t_online_info WHERE ShopSKU = %s ;",(shopsku,))
+            if self.shopname:
+                imacur.execute("select ShopSKUImage from t_online_info WHERE ShopSKU = %s and ShopName = %s ;",(shopsku, self.shopname))
+            else:
+                imacur.execute("select ShopSKUImage from t_online_info WHERE ShopSKU = %s ;",(shopsku,))
             obj = imacur.fetchone()
             imacur.close()
             if obj:
@@ -318,7 +366,10 @@ class classshopsku():
         color = self.__private_get_attr(shopsku,'Color')
         if color is None and self.db_conn is not None:
             colcur = self.db_conn.cursor()
-            colcur.execute("select Color from t_online_info WHERE ShopSKU = %s ;",(shopsku,))
+            if self.shopname:
+                colcur.execute("select Color from t_online_info WHERE ShopSKU = %s and ShopName = %s;",(shopsku, self.shopname))
+            else:
+                colcur.execute("select Color from t_online_info WHERE ShopSKU = %s ;",(shopsku,))
             obj = colcur.fetchone()
             colcur.close()
             if obj:
@@ -348,7 +399,10 @@ class classshopsku():
         site = self.__private_get_attr(shopsku,'Size')
         if site is None and self.db_conn is not None:
             sitcur = self.db_conn.cursor()
-            sitcur.execute("select `Size` from t_online_info WHERE ShopSKU = %s ;",(shopsku,))
+            if self.shopname:
+                sitcur.execute("select `Size` from t_online_info WHERE ShopSKU = %s and ShopName = %s;",(shopsku, self.shopname))
+            else:
+                sitcur.execute("select `Size` from t_online_info WHERE ShopSKU = %s ;",(shopsku,))
             obj = sitcur.fetchone()
             sitcur.close()
             if obj:
@@ -378,7 +432,10 @@ class classshopsku():
         msrp = self.__private_get_attr(shopsku, 'msrp')
         if msrp is None and self.db_conn is not None:
             msrcur = self.db_conn.cursor()
-            msrcur.execute("select msrp from t_online_info WHERE ShopSKU = %s ;", (shopsku,))
+            if self.shopname:
+                msrcur.execute("select msrp from t_online_info WHERE ShopSKU = %s and ShopName = %s;", (shopsku, self.shopname))
+            else:
+                msrcur.execute("select msrp from t_online_info WHERE ShopSKU = %s ;", (shopsku,))
             obj = msrcur.fetchone()
             msrcur.close()
             if obj:
@@ -408,7 +465,10 @@ class classshopsku():
         shippingtime = self.__private_get_attr(shopsku, 'ShippingTime')
         if shippingtime is None and self.db_conn is not None:
             shtcur = self.db_conn.cursor()
-            shtcur.execute("select ShippingTime from t_online_info WHERE ShopSKU = %s ;", (shopsku,))
+            if self.shopname:
+                shtcur.execute("select ShippingTime from t_online_info WHERE ShopSKU = %s and ShopName = %s;", (shopsku, self.shopname))
+            else:
+                shtcur.execute("select ShippingTime from t_online_info WHERE ShopSKU = %s ;", (shopsku,))
             obj = shtcur.fetchone()
             shtcur.close()
             if obj:
@@ -438,7 +498,7 @@ class classshopsku():
         published = self.__private_get_attr(shopsku, 'Published')
         if (published is None or published.strip() == '') and self.db_conn is not None:
             persor = self.db_conn.cursor()
-            persor.execute("select PersonCode from py_db.b_goodsskulinkshop WHERE ShopSKU = %s ;", (shopsku,))
+            persor.execute("select PersonCode from py_db.b_goodsskulinkshop WHERE ShopSKU = %s;", (shopsku,))
             obj = persor.fetchone()
             persor.close()
             if obj:
@@ -454,7 +514,7 @@ class classshopsku():
         shopname = self.__private_get_attr(shopsku, 'ShopName')
         if shopname is None and self.db_conn is not None:
             persor = self.db_conn.cursor()
-            persor.execute("select ShopName from t_online_info WHERE ShopSKU = %s ;", (shopsku,))
+            persor.execute("select ShopName from t_online_info WHERE ShopSKU = %s;", (shopsku,))
             obj = persor.fetchone()
             persor.close()
             if obj:

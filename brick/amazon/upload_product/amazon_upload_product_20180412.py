@@ -129,7 +129,6 @@ BUCKETNAME_APIVERSION = 'fancyqube-all-mainsku-pic'
 LOCAL_PATH = 'C:\inetpub\wwwroot\\'
 
 
-
 class Server():
 
     def __init__(self):
@@ -549,7 +548,7 @@ class Server():
             sql_main = "SELECT id, prodcut_variation_id, item_sku, productSKU, main_image_url, other_image_url1, other_image_url2, other_image_url3, other_image_url4, other_image_url5, other_image_url6, other_image_url7, other_image_url8,ShopSets FROM 	t_templet_amazon_wait_upload a WHERE 	id = %s" % upload_id
             cursor.execute(sql_main)
             main_image_info = cursor.fetchone()
-
+            # 根据主体建本地图片目录
             image_path = LOCAL_PATH  # 本地图片根目录
             # is_path_exist = os.path.exists(image_path)
             # if not is_path_exist:
@@ -768,7 +767,6 @@ class Server():
 
 
 def retry_server():
-
     try:
         c = Server()
         c.listen_client()

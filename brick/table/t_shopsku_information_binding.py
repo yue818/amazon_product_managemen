@@ -29,3 +29,24 @@ class t_shopsku_information_binding():
             result['code'] = 1
             result['error'] = '%s:%s'%(Exception,ex)
         return result
+
+
+    def The_earliest_binding_time(self,sku,seller):
+        earsor = self.db_conn.cursor()
+        earsor.execute("select MIN(ApplyTime) from py_db.t_log_sku_shopsku WHERE SKU=%s and `Status` = 'APPLYSUCCESS'  and StaffName=%s;",(sku,seller))
+        obj = earsor.fetchone()
+        earsor.close()
+        return obj
+
+
+
+
+
+
+
+
+
+
+
+
+

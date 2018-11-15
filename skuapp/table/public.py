@@ -145,7 +145,8 @@ ChoiceCgSuggestRemark = 12346
 item_weight_unit = 30002
 ChoiceWarningFlag = 12347
 ChoiceSkuSales = 10101
-
+Choiceisnormal = 100010
+ChoiceisEbaySiteID = 100020
 ChoiceAI = 40000  # 精准调研标记选择  0 默认；1 精准
 
 Choice_examine_status = 40001  # 克重审核 审核状态 0：未审核；1 已审核
@@ -161,9 +162,11 @@ ChoicePurchaseType = 40009 #排单类型  首单:firstorder  定做:customermade
 ChoiceFBWPlanDELIVER = 40010  # 发货方式 '随机':'random','正常':'normal'
 ChoiceFBWPlanNEWOLD = 40011  # 新品老品 '新品':'new','老品':'old'
 
+
+
 ChoiceAmazonShopType = 40012  # 亚马逊店铺类型：自刊登，跟卖
 ChoiceAmazonShopStatus = 40013  # 亚马逊店铺状态
-
+Choicedeliverstatus = 40014 #在途 onload  签收 signin   上架完成 finishup
 
 def getChoices(typeid):
     return t_sys_param.objects.values_list('V','VDesc').filter(Type=typeid).order_by('Seq')

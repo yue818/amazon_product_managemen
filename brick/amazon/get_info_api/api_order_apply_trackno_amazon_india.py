@@ -50,7 +50,7 @@ class AMZTrackApiSchedule():
     def get_response_by_url_and_params(self, url, params):
         req = urllib2.Request(url=url)
         req.add_header("Content-Type", "application/json")
-        response = urllib2.urlopen(req, data=params, timeout=30)
+        response = urllib2.urlopen(req, data=params, timeout=60)
         return response
 
     def hash_md5(self, signdata):

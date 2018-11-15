@@ -26,7 +26,8 @@ class t_templet_amazon_wait_upload():
                        "generic_keywords3,generic_keywords4,generic_keywords5,department_name1,department_name2,department_name3,department_name4,"
                        "department_name5,material_type,metal_type,setting_type,ring_size,gem_type,target_audience_keywords1,target_audience_keywords2,"
                        "target_audience_keywords3,productSKU,status,prodcut_variation_id,id,ShopSets,clothing_size,clothing_color,toy_color,jewerly_color,"
-                       "item_shape, homes_color, homes_size,number_of_pieces,item_weight,item_weight_unit,color_name_public  "
+                       "item_shape, homes_color, homes_size,number_of_pieces,item_weight,item_weight_unit,color_name_public,sleeve_type,mrp,item_type_name,"
+                       "season, material_composition,included_components,are_batteries_included  "
                        "from t_templet_amazon_wait_upload where id = %s ;", (params['id'],))
         t_tempet_amazon_wait_upload_obj = shocur.fetchone()
         t_tempet_amazon_wait_upload = {}
@@ -118,6 +119,14 @@ class t_templet_amazon_wait_upload():
             t_tempet_amazon_wait_upload['item_weight'] = t_tempet_amazon_wait_upload_obj[84]
             t_tempet_amazon_wait_upload['item_weight_unit'] = t_tempet_amazon_wait_upload_obj[85]
             t_tempet_amazon_wait_upload['color_name_public'] = t_tempet_amazon_wait_upload_obj[86]
+            t_tempet_amazon_wait_upload['sleeve_type'] = t_tempet_amazon_wait_upload_obj[87]
+            t_tempet_amazon_wait_upload['mrp'] = t_tempet_amazon_wait_upload_obj[88]
+            t_tempet_amazon_wait_upload['item_type_name'] = t_tempet_amazon_wait_upload_obj[89]
+            t_tempet_amazon_wait_upload['season'] = t_tempet_amazon_wait_upload_obj[90]
+            t_tempet_amazon_wait_upload['material_composition'] = t_tempet_amazon_wait_upload_obj[91]
+            t_tempet_amazon_wait_upload['included_components'] = t_tempet_amazon_wait_upload_obj[92]
+            t_tempet_amazon_wait_upload['are_batteries_included'] = t_tempet_amazon_wait_upload_obj[93]
+
         shocur.close()
         return t_tempet_amazon_wait_upload
 

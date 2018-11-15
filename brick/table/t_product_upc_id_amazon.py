@@ -35,7 +35,7 @@ class t_product_upc_id_amazon():
     def update_product_id(self, params):
         shocur = self.cnxn.cursor()
         shocur.execute('SET @update_id:= 0;')
-        shocur.execute("UPDATE t_product_upc_id_amazon SET `use_status` = '3', id = (SELECT @update_id:= id), updateTime=%s, updateUser='online_auto'"
+        shocur.execute("UPDATE t_product_upc_id_amazon SET `use_status` = '2', id = (SELECT @update_id:= id), updateTime=%s, updateUser='online_auto'"
                        "WHERE  external_product_id_type = %s and use_status='1' LIMIT 1;", (datetime.now(), params['id_type']))
         shocur.execute('commit;')
         shocur.execute('SELECT @update_id;')

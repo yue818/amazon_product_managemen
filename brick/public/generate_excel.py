@@ -20,15 +20,15 @@ def generate_excel(allobjs,pathname):
             worksheet.write(0, index, item)
 
         row = 0
-        for i in range(1,len(allobjs)):
+        for i in range(1, len(allobjs)):
             row = row + 1
             for idx, val in enumerate(allobjs[i]):
                 worksheet.write(row, idx, val)
 
         workbook.save(pathname)
         result['code'] = 0
-        result['error']= ''
-    except Exception,ex:
+        result['error'] = ''
+    except Exception, ex:
         result['code'] = 1
         result['error'] = '%s:%s'%(Exception,ex)
     return result

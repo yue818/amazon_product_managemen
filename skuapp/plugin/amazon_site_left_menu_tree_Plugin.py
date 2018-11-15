@@ -239,8 +239,8 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
         }
 
         flag = 'info_all'
-        if self.request.GET.get('_p_Status'):
-            flag = self.request.GET.get('_p_Status')
+        if self.request.GET.get('Status'):
+            flag = self.request.GET.get('Status')
         if 't_templet_amazon_collection_box' in self.request.get_full_path():
             flag = '1'
         if self.request.GET.get('_p_status') == 'NO':
@@ -257,7 +257,7 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
             flag = '7'
 
         search_str = ''
-        inactive_shop_str =''
+        inactive_shop_str = ''
         if str(is_fba):
             search_str += '&_p_is_fba=%s' % is_fba
         else:
@@ -297,7 +297,7 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
                         "code": "110101",
                         "parentCode": "1101",
                         "selected": "",
-                        "to_url": '/Project/admin/skuapp/t_online_info_amazon_listing/?_p_Status=Active&_p_refresh_status=0&_p_shop_status=0%s' % search_str,
+                        "to_url": '/Project/admin/skuapp/t_online_info_amazon_listing/?Status=Active&_p_refresh_status=0&_p_shop_status=0%s' % search_str,
                         "flag": 'Active',
                         "child": []
                     },
@@ -308,7 +308,7 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
                         "code": "110102",
                         "parentCode": "1101",
                         "selected": "",
-                        "to_url": '/Project/admin/skuapp/t_online_info_amazon_listing/?_p_Status=Inactive&_p_refresh_status=0&_p_shop_status=0%s' % search_str,
+                        "to_url": '/Project/admin/skuapp/t_online_info_amazon_listing/?Status=Inactive&_p_refresh_status=0&_p_shop_status=0%s' % search_str,
                         "flag": 'Inactive',
                         "child": []
                     },
@@ -324,16 +324,16 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
                         "child": []
                     },
 
-                    # {
-                    #     "name": u"店铺刷新状态",
-                    #     "icon": "",
-                    #     "code": "110104",
-                    #     "parentCode": "1101",
-                    #     "selected": "",
-                    #     "to_url": '/Project/admin/skuapp/t_perf_amazon_refresh_status',
-                    #     "flag": 'refresh_status',
-                    #     "child": []
-                    # },
+                    {
+                        "name": u"店铺刷新状态",
+                        "icon": "",
+                        "code": "110104",
+                        "parentCode": "1101",
+                        "selected": "",
+                        "to_url": '/Project/admin/skuapp/t_perf_amazon_refresh_status',
+                        "flag": 'refresh_status',
+                        "child": []
+                    },
                 ]
         }
 
@@ -460,6 +460,80 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
                 ]
         }
 
+        if shopname:
+            shop_str = '&shopname=%s' % shopname
+        else:
+            shop_str = ''
+
+        amazon_auto_upload = {
+            "name": u"亚马逊上架",
+            "code": "1104",
+            "icon": "icon-minus-sign",
+            "parentCode": "11",
+            "selected": "",
+            "to_url": '',
+            "flag": "",
+            "child":
+                [
+                    {
+                        "name": u"可上架",
+                        "icon": "",
+                        "code": "110401",
+                        "parentCode": "1104",
+                        "selected": "",
+                        "to_url": '/Project/admin/skuapp/t_online_info_amazon_listing/?_p_Status=Inactive&_p_refresh_status=0&_p_shop_status=0&_p_is_fba=0&_p_product_status=1%s' % shop_str,
+                        "flag": 'can_upload',
+                        "child": []
+                    },
+
+                    {
+                        "name": u"上架记录",
+                        "icon": "",
+                        "code": "110402",
+                        "parentCode": "1104",
+                        "selected": "",
+                        "to_url": '/Project/admin/skuapp/t_amazon_auto_load/?_p_deal_type=load',
+                        "flag": 'upload_log',
+                        "child": []
+                    },
+                ]
+        }
+
+
+        amazon_auto_unload = {
+            "name": u"亚马逊下架",
+            "code": "1105",
+            "icon": "icon-minus-sign",
+            "parentCode": "11",
+            "selected": "",
+            "to_url": '',
+            "flag": "",
+            "child":
+                [
+                    {
+                        "name": u"可下架",
+                        "icon": "",
+                        "code": "110501",
+                        "parentCode": "1105",
+                        "selected": "",
+                        "to_url": '/Project/admin/skuapp/t_online_info_amazon_listing/?_p_Status=Active&_p_refresh_status=0&_p_shop_status=0&_p_is_fba=0&product_status=2,3,4%s' % shop_str,
+                        "flag": 'can_unload',
+                        "child": []
+                    },
+
+                    {
+                        "name": u"下架记录",
+                        "icon": "",
+                        "code": "110502",
+                        "parentCode": "1105",
+                        "selected": "",
+                        "to_url": '/Project/admin/skuapp/t_amazon_auto_load/?_p_deal_type=unload',
+                        "flag": 'unload_log',
+                        "child": []
+                    },
+                ]
+        }
+
         amazon_online_info = {
             "name": u"全部产品(%s)" % all_list_cnt,
             "code": "11",
@@ -471,6 +545,8 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
             "child": [
                 amazon_online_info_active_shop,
                 amazon_online_info_inactive_shop,
+                amazon_auto_upload,
+                amazon_auto_unload,
                 amazon_online_info_analysis,
             ]
         }
@@ -550,6 +626,23 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
         if '_p_shop_status=1' in self.request.get_full_path():
             flag = 'inactive_shop'
 
+        # if '_p_Status=Active' in self.request.get_full_path():
+        if self.request.GET.get('_p_Status') == 'Active':
+            flag = 'can_unload'
+
+        # if '_p_Status=Inactive' in self.request.get_full_path():
+        if self.request.GET.get('_p_Status') == 'Inactive':
+            flag = 'can_upload'
+
+        if '_p_deal_type=upload' in self.request.get_full_path():
+            flag = 'upload_log'
+
+        if '_p_deal_type=unload' in self.request.get_full_path():
+            flag = 'unload_log'
+
+
+
+
         menu_list = [
             {
                 "name": u"店铺管理",
@@ -593,6 +686,13 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
                                 if menu_l['flag'] == flag:
                                     menu_l['selected'] = 'selected'
                                     show_flag = 1
+                                # if menu_l['child']:
+                                #     for menu_l_l in menu_['child']:
+                                #         if not menu_l_l:
+                                #             continue
+                                #         if menu_l_l['flag'] == flag:
+                                #             menu_l_l['selected'] = 'selected'
+                                #             show_flag = 1
        
         # if show_flag == 1:
             # messages.error(self.request, 'count-------%s' % self.request.result_count)

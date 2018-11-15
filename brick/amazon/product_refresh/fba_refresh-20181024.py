@@ -1,25 +1,15 @@
 # -*- coding:utf-8 -*-
 
-"""  
- @desc:  
- @author: wuchongxiang 
- @site: 
+"""
+ @desc:
+ @author: wuchongxiang
+ @site:
  @software: PyCharm
  @file: fba_refresh-20181024.py
- @time: 2018/10/24 9:24
-"""  
-# -*- coding:utf-8 -*-
-
-"""  
- @desc:  
- @author: wuchongxiang 
- @site: 
- @software: PyCharm
- @file: fba_refresh-20181019.py
- @time: 2018/10/19 9:36
+ @time: 2018/10/24 16:01
 """
 import logging.handlers
-from mws import Reports, Products, Finances
+from mws import Reports, Products, Finances, MWSError
 import time
 import datetime
 import pymysql
@@ -34,6 +24,7 @@ import sys
 import win32api
 import oss2
 import chardet
+from requests.exceptions import ConnectionError
 
 log_day = datetime.datetime.now().strftime("%Y%m%d")
 log_file_name = 'fba_refresh_' + log_day + '.log'
@@ -369,6 +360,7 @@ def refresh_db_tables(auth_info, sql_execute_obj):
                    count(distinct amazon_order_id) refund_cnt
               from t_amazon_finance_record
              where shop_name = '%s'
+               and finance_type = 'Refund'
                and SUBSTRING_INDEX(substring_index(shop_name, '-', -1), '/', 1) =
                    upper(case
                            when substring_index(marketplace_name, '.', -1) = 'com' then
@@ -1949,7 +1941,7 @@ class FinancesPublic:
     def get_finance_report(self, begin_time=None, end_time=None, next_token=None):
         finance_report = self.finance_public.list_financial_events(posted_after=begin_time, posted_before=end_time, next_token=next_token)
         finance_report_dict = finance_report._response_dict
-        logging.debug('get data raw:%s' % finance_report_dict)
+        # logging.debug('get data raw:%s' % finance_report_dict)
         return finance_report_dict
 
     def get_last_refund_time(self):
@@ -2000,25 +1992,39 @@ class FinancesPublic:
             print ex
 
     def insert_finance_record(self, finance_data):
-        sql_delete = '''delete from t_amazon_finance_record where shop_name ="%s" and amazon_order_id ="%s" and seller_sku ="%s" and order_adjustment_item_id="%s" and fee_type="%s" and posted_date ="%s" ''' \
-                     % (self.auth_info['ShopName'], finance_data[1], finance_data[3], finance_data[5], finance_data[6], finance_data[0])
+        sql_delete = '''delete from t_amazon_finance_record where shop_name ="%s" and amazon_order_id ="%s" and seller_sku ="%s" and   fee_type="%s" and posted_date ="%s" and finance_type = "%s" and  (order_adjustment_item_id="%s" or order_item_id = "%s") ''' \
+                     % (self.auth_info['ShopName'], finance_data[1], finance_data[3], finance_data[6], finance_data[0], finance_data[10], finance_data[5],  finance_data[9])
         print sql_delete
         logging.debug('sql_delete is: %s' % sql_delete)
         self.execute_db(sql_delete)
         sql_insert = '''insert into t_amazon_finance_record
-            (posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, fee_type, fee_currency, fee_amount, shop_name, finance_type, refresh_time)
-            values ("%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s")
-            ''' % (finance_data[0],finance_data[1],finance_data[2],finance_data[3],finance_data[4],finance_data[5],finance_data[6],finance_data[7],finance_data[8],self.auth_info['ShopName'], 'Refund', datetime.datetime.now())
+            (posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, fee_type, fee_currency, fee_amount, shop_name, finance_type, refresh_time, order_item_id)
+            values ("%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s")
+            ''' % (finance_data[0],finance_data[1],finance_data[2],finance_data[3],finance_data[4],finance_data[5],finance_data[6],finance_data[7],finance_data[8],self.auth_info['ShopName'], finance_data[10], datetime.datetime.now(), finance_data[9])
         print sql_insert
         logging.debug('sql_insert is: %s' % sql_insert)
         self.execute_db(sql_insert)
 
-    def parse_item(self, posted_date, amazon_order_id, marketplace_name, shipment_item):
+    def parse_item(self, posted_date, amazon_order_id, marketplace_name, shipment_item, report_type):
+        # 公共信息
         seller_sku = shipment_item.get('SellerSKU').get('value')
         quantity_shipped = shipment_item.get('QuantityShipped').get('value')
-        order_adjustment_item_id = shipment_item.get('OrderAdjustmentItemId').get('value')
+        if shipment_item.get('OrderAdjustmentItemId'):
+            order_adjustment_item_id = shipment_item.get('OrderAdjustmentItemId').get('value')
+        else:
+            order_adjustment_item_id = ''
+        if shipment_item.get('OrderItemId'):
+            order_item_id = shipment_item.get('OrderItemId').get('value')
+        else:
+            order_item_id = ''
 
-        fee_component_dict = shipment_item.get('ItemFeeAdjustmentList')
+        # fee 部分
+        if shipment_item.get('ItemFeeAdjustmentList'):
+            fee_component_dict = shipment_item.get('ItemFeeAdjustmentList')
+        elif shipment_item.get('ItemFeeList'):
+            fee_component_dict = shipment_item.get('ItemFeeList')
+        else:
+            fee_component_dict = ''
         if fee_component_dict:
             fee_component = fee_component_dict.get('FeeComponent')
             if isinstance(fee_component, list):
@@ -2026,16 +2032,20 @@ class FinancesPublic:
                     feed_type = val.get('FeeType').get('value')
                     feed_currency_code = val.get('FeeAmount').get('CurrencyCode').get('value')
                     feed_currency_amount = val.get('FeeAmount').get('CurrencyAmount').get('value')
-                    data_list_feed = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, feed_currency_code, feed_currency_amount]
+                    data_list_feed = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, feed_currency_code, feed_currency_amount, order_item_id, report_type]
                     self.insert_finance_record(data_list_feed)
             else:
                 feed_type = fee_component.get('FeeType').get('value')
                 feed_currency_code = fee_component.get('FeeAmount').get('CurrencyCode').get('value')
                 feed_currency_amount = fee_component.get('FeeAmount').get('CurrencyAmount').get('value')
-                data_list_feed = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, feed_currency_code, feed_currency_amount]
+                data_list_feed = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, feed_currency_code, feed_currency_amount, order_item_id, report_type]
                 self.insert_finance_record(data_list_feed)
 
-        charge_component_dict = shipment_item.get('ItemChargeAdjustmentList')
+        # charge 部分
+        if shipment_item.get('ItemChargeAdjustmentList'):
+            charge_component_dict = shipment_item.get('ItemChargeAdjustmentList')
+        elif shipment_item.get('ItemChargeList'):
+            charge_component_dict = shipment_item.get('ItemChargeList')
         if charge_component_dict:
             charge_component = charge_component_dict.get('ChargeComponent')
             if isinstance(charge_component, list):
@@ -2043,68 +2053,94 @@ class FinancesPublic:
                     feed_type = val.get('ChargeType').get('value')
                     charge_currency_code = val.get('ChargeAmount').get('CurrencyCode').get('value')
                     charge_currency_amount = val.get('ChargeAmount').get('CurrencyAmount').get('value')
-                    data_list_charge = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, charge_currency_code, charge_currency_amount]
+                    data_list_charge = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, charge_currency_code, charge_currency_amount, order_item_id, report_type]
                     self.insert_finance_record(data_list_charge)
             else:
                 feed_type = charge_component.get('ChargeType').get('value')
                 charge_currency_code = charge_component.get('ChargeAmount').get('CurrencyCode').get('value')
                 charge_currency_amount = charge_component.get('ChargeAmount').get('CurrencyAmount').get('value')
-                data_list_charge = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, charge_currency_code, charge_currency_amount]
+                data_list_charge = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, charge_currency_code, charge_currency_amount, order_item_id, report_type]
                 self.insert_finance_record(data_list_charge)
 
-    def parse_report(self, refund_report_each):
-        if not refund_report_each:
-            print 'no refund data'
-            logging.debug('no refund data')
+    def parse_report(self, finance_report_each, report_type):
+        if not finance_report_each:
+            logging.debug('no %s data' % report_type)
             return
-        posted_date = refund_report_each.get('PostedDate').get('value')
-        posted_date = time.strftime("%Y-%m-%d %H:%M:%S", time.strptime(posted_date[0:19], "%Y-%m-%dT%H:%M:%S"))
-        amazon_order_id = refund_report_each.get('AmazonOrderId').get('value')
-        marketplace_name = refund_report_each.get('MarketplaceName').get('value')
-        shipment_item = refund_report_each.get('ShipmentItemAdjustmentList').get('ShipmentItem')
-        if isinstance(shipment_item, list):
-            for ship_item in shipment_item:
-                self.parse_item(posted_date, amazon_order_id, marketplace_name, ship_item)
-        else:
-            self.parse_item(posted_date, amazon_order_id, marketplace_name, shipment_item)
 
-    def finance_flow(self, begin_time, end_time):
+        # 公共信息
+        posted_date = finance_report_each.get('PostedDate').get('value')
+        posted_date = time.strftime("%Y-%m-%d %H:%M:%S", time.strptime(posted_date[0:19], "%Y-%m-%dT%H:%M:%S"))
+        amazon_order_id = finance_report_each.get('AmazonOrderId').get('value')
+        marketplace_name = finance_report_each.get('MarketplaceName').get('value')
+
+        # 根据不同报告类型分析item信息
+        if ('US' if marketplace_name.split('.')[-1].upper() == 'COM' else marketplace_name.split('.')[-1].upper()) == self.auth_info['ShopSite']:
+            if finance_report_each.get('ShipmentItemList'):
+                shipment_item = finance_report_each.get('ShipmentItemList').get('ShipmentItem')
+            elif finance_report_each.get('ShipmentItemAdjustmentList'):
+                shipment_item = finance_report_each.get('ShipmentItemAdjustmentList').get('ShipmentItem')
+            if isinstance(shipment_item, list):
+                for ship_item in shipment_item:
+                    self.parse_item(posted_date, amazon_order_id, marketplace_name, ship_item, report_type)
+            else:
+                self.parse_item(posted_date, amazon_order_id, marketplace_name, shipment_item, report_type)
+
+    def deal_different_report(self, report_list):
+        for report_body_type_tuple in report_list:
+            report_body = report_body_type_tuple[0]
+            report_type = report_body_type_tuple[1]
+
+            if isinstance(report_body, list):
+                for report in report_body:
+                    self.parse_report(report, report_type)
+            else:
+                self.parse_report(report_body, report_type)
+
+    def finance_flow(self, begin_time, end_time, retry_cnt=0):
         try:
             begin_time_status = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             logging.debug('begin flow, begin_time: %s, end_time:%s' % (begin_time, end_time))
-            refund_report_raw = self.get_finance_report(begin_time=begin_time, end_time=end_time)
+            finance_report_raw = self.get_finance_report(begin_time=begin_time, end_time=end_time)
             logging.debug('get data')
 
+            # 报告是否分页返回
             next_token = None
-            next_token_dict = refund_report_raw.get('ListFinancialEventsResult').get('NextToken')
+            next_token_dict = finance_report_raw.get('ListFinancialEventsResult').get('NextToken')
             if next_token_dict:
                 next_token = next_token_dict.get('value')
 
-            refund_report = refund_report_raw.get('ListFinancialEventsResult').get('FinancialEvents').get('RefundEventList').get('ShipmentEvent')
-            if isinstance(refund_report, list):
-                for report in refund_report:
-                    print '---------------------------------------------'
-                    self.parse_report(report)
-            else:
-                self.parse_report(refund_report)
+            refund_report = finance_report_raw.get('ListFinancialEventsResult').get('FinancialEvents').get('RefundEventList').get('ShipmentEvent')
+            shipment_report = finance_report_raw.get('ListFinancialEventsResult').get('FinancialEvents').get('ShipmentEventList').get('ShipmentEvent')
+            report_list = [(refund_report, 'Refund'), (shipment_report, 'Shipment')]
+            self.deal_different_report(report_list)
 
             while next_token:
-                refund_report_raw = self.get_finance_report(next_token=next_token)
+                finance_report_raw = self.get_finance_report(next_token=next_token)
+
                 next_token = None
-                next_token_dict = refund_report_raw.get('ListFinancialEventsByNextTokenResult').get('NextToken')
+                next_token_dict = finance_report_raw.get('ListFinancialEventsByNextTokenResult').get('NextToken')
                 if next_token_dict:
                     next_token = next_token_dict.get('value')
-                refund_report = refund_report_raw.get('ListFinancialEventsByNextTokenResult').get('FinancialEvents').get('RefundEventList').get('ShipmentEvent')
-                if isinstance(refund_report, list):
-                    for report in refund_report:
-                        self.parse_report(report)
-                else:
-                    self.parse_report(refund_report)
+
+                refund_report = finance_report_raw.get('ListFinancialEventsByNextTokenResult').get('FinancialEvents').get('RefundEventList').get('ShipmentEvent')
+                shipment_report = finance_report_raw.get('ListFinancialEventsByNextTokenResult').get('FinancialEvents').get('ShipmentEventList').get('ShipmentEvent')
+                report_list = [(refund_report, 'Refund'), (shipment_report, 'Shipment')]
+                self.deal_different_report(report_list)
+
             self.update_shop_status_finance(self.auth_info, begin_time_status, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Success', '')
-        except Exception as ex:
-            self.update_shop_status_finance(self.auth_info, begin_time_status, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Fail', str(ex).replace("'", "`"))
-            print ex
+            return 'ok', 0
+        except (MWSError, ConnectionError):
+            retry_cnt = retry_cnt + 1
+            if retry_cnt >= 5:
+                self.update_shop_status_finance(self.auth_info, begin_time_status, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Fail', str(traceback.format_exc()).replace("'", "`"))
+                return 'break', retry_cnt
+            else:
+                logging.error('traceback.format_exc():\n%s' % traceback.format_exc())
+                return 'retry', retry_cnt
+        except:
+            self.update_shop_status_finance(self.auth_info, begin_time_status, datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), 'Fail', str(traceback.format_exc()).replace("'", "`"))
             logging.error('traceback.format_exc():\n%s' % traceback.format_exc())
+            return 'break', retry_cnt
 
 
 class GetLocalIPAndAuthInfo:
@@ -2246,7 +2282,7 @@ for key, val in auth_info_all.items():
 
         get_data_public_obj.report_flow('_GET_FLAT_FILE_ACTIONABLE_ORDER_DATA_')
 
-        get_data_public_obj.report_flow('_GET_FLAT_FILE_ODR_DATA_')
+        # get_data_public_obj.report_flow('_GET_FLAT_FILE_ODR_DATA_') # 缺陷订单无法获取
 
         start_date_receive = get_data_public_obj.get_last_receive_time()
         end_date_receive = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
@@ -2259,14 +2295,32 @@ for key, val in auth_info_all.items():
         get_data_public_obj.report_flow('_GET_FBA_FULFILLMENT_REMOVAL_ORDER_DETAIL_DATA_', start_date_remove, end_date_remove)
 
         finace_obj = FinancesPublic(auth_info, DATABASE)
-        max_refund_time_list = finace_obj.get_last_refund_time()
-        for i in range(len(max_refund_time_list) - 1):
-            start_date = max_refund_time_list[i]
-            end_date = max_refund_time_list[i + 1]
-            finace_obj.finance_flow(begin_time=start_date, end_time=end_date)
-            logging.debug('now wait 60 seconds')
-            time.sleep(60)
-        finace_obj.close_db_conn()
+        retry_cnt = 0
+        exe_result = None
+        while retry_cnt <= 4 and exe_result != 'error':  # 防止因next_token过期抛出异常，进行4次重试
+            max_finance_time_list = finace_obj.get_last_refund_time()
+            for i in range(len(max_finance_time_list) - 1):
+                start_date = max_finance_time_list[i]
+                end_date = max_finance_time_list[i + 1]
+                finance_return = finace_obj.finance_flow(begin_time=start_date, end_time=end_date, retry_cnt=retry_cnt)
+                logging.debug('exe_return is %s -------------------------------------------------------' % str(finance_return))
+                if finance_return[0] == 'retry':  # 跳出for循环，进入while，重新获取交易时间列表进行数据抓取
+                    retry_cnt = finance_return[1]
+                    logging.debug('now wait 20 seconds, then retry')
+                    time.sleep(20)
+                    break
+                elif finance_return[0] == 'break':  # 跳出for循环，结束while
+                    exe_result = 'error'
+                    break
+                else:  # 本次for循环正常完成
+                    retry_cnt = 0
+
+                if i == len(max_finance_time_list) - 2:
+                    exe_result = 'error'
+                    break
+
+                logging.debug('now wait 60 seconds')
+                time.sleep(60)
 
         if not 12 <= this_hour < 18:  # 中午时间不做全量刷新
             get_data_public_obj.delete_mid_table()

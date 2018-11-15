@@ -80,8 +80,10 @@ class t_cloth_factory_dispatch_needpurchase(models.Model):
     OSCode      =   models.CharField(u'采购等级码',max_length=8,blank = True,null = True)
     Stocking_plan_number = models.CharField(u'采购计划单号', max_length=32, blank=True, null=True)
     SpecialPurchaseFlag = models.CharField(u'排单类型',choices=getChoices(ChoicePurchaseType), max_length=16)
+    OrderNo = models.CharField(u'订单号', max_length=16, blank=True, null=True)
     GenRecordMan = models.CharField(u'手动单个和批量导入人', max_length=32, blank=True, null=True)
     GenRecordDate = models.DateTimeField(u'手动单个和批量导入时间', blank=True, null=True)
+    FactoryRemark = models.TextField(u'提交工厂备注', blank=True, null=True)
     
     class Meta:
         verbose_name=u'需采购供应链服装列表'

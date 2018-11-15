@@ -28,6 +28,15 @@
         var itemType = document.getElementById('itemType').value;
         to_url = document.getElementById('to_url').value;
     };
+    
+    function enterSumbit(){
+        var event=arguments.callee.caller.arguments[0]||window.event;//消除浏览器差异  
+         if (event.keyCode == 13){  
+            console.log('您按了回车键');
+            //自己写判断函数
+            search_item_name();  
+         }
+    }
 
 
     function  change_group_all(root_id, group_selected, item_type) {
@@ -112,7 +121,7 @@
 <p>---------------------------------------------------------</p>
 &nbsp&nbsp
 
-<input style="width:90%;height:5%" id="search_item_id" value="{{item_key_word}}">
+<input style="width:90%;height:5%" id="search_item_id" name="search_item_id" onkeydown="enterSumbit()" value="{{item_key_word}}">
 <button type="button" id="search_button" value="搜索" style="" onclick="search_item_name()">搜索</button>
 <br />
 <div class="div_all">

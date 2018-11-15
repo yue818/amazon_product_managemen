@@ -12,10 +12,17 @@ from random import randint
 from datetime import datetime
 from brick.public.create_shop_table import create_shop_table
 from brick.classredis.classshopsku import classshopsku
+from brick.classredis.classsku import classsku
 from brick.public.combination_sku import G_ZHSKU
+from skuapp.table.t_product_mainsku_sku import t_product_mainsku_sku
+from skuapp.table.t_sys_department_staff import t_sys_department_staff
 from django_redis import get_redis_connection
 redis_coon = get_redis_connection(alias='product')
-classshopsku_obj = classshopsku(db_conn=None, redis_conn=redis_coon)
+
+classsku_obj = classsku(db_cnxn=connection, redis_cnxn=redis_coon)
+
+
+ABNORMAL_STATUS = [u'停售', u'清仓', u'清仓（合并）', u'']
 
 
 
@@ -27,7 +34,33 @@ class ShopskuApply(object):
         self.shop_name_original = u'%s' % shop_name.strip()
         self.staff_name = staff_name
         self.apply_type = apply_type
-        self.classshopsku_obj = classshopsku(db_conn=None, redis_conn=redis_coon)
+
+        shopname_codelist = self.shop_name.split('-')
+        if len(shopname_codelist) <= 1:
+            shopcode = self.shop_name
+        else:
+            shopcode = '{}-{}'.format(shopname_codelist[0], shopname_codelist[1])
+
+        self.classshopsku_obj = classshopsku(
+            db_conn=None, redis_conn=redis_coon,
+            shopname = shopcode if shopname_codelist[0] == 'Wish' else None
+        )
+        self.shop_name_full = u'%s' % shop_name.strip()
+
+
+    def get_shop_name_full(self):
+        """根据输入的店铺名获得全称"""
+        try:
+            sql = 'SELECT DictionaryName FROM py_db.B_Dictionary WHERE DictionaryName LIKE "%%%s%%" or FitCode LIKE "%%%s%%"' % \
+                  (self.shop_name_original, self.shop_name_original)
+            self.cur.execute(sql)
+            shopname_info = self.cur.fetchone()
+            if shopname_info:
+                self.shop_name_full = shopname_info[0]
+            return {'error_code': 0}
+        except Exception, e:
+            error_info = '[get_shop_name_temp] ex=%s LINE=%s' % (e, sys._getframe().f_lineno)
+            return {'error_code': 10000, 'error_info': error_info}
 
 
     def get_shop_name_temp(self):
@@ -42,7 +75,8 @@ class ShopskuApply(object):
                 if self.shop_name.startswith(key):
                     shop_name_temp = self.shop_name[: val]
                     self.shop_name = shop_name_temp
-            return {'error_code': 0, 'shop_name_temp': shop_name_temp}
+                    return {'error_code': 0, 'shop_name_temp': shop_name_temp}
+            return {'error_code': -1, 'error_info': u'请检查店铺名："%s" 的规范性' % self.shop_name}
         except Exception, e:
             error_info = '[get_shop_name_temp] ex=%s LINE=%s' % (e, sys._getframe().f_lineno)
             return {'error_code': 10000, 'error_info': error_info}
@@ -102,13 +136,12 @@ class ShopskuApply(object):
                              (table_name,  random_code, self.shop_name, sku, self.staff_name)
             self.cur.execute(insert_seq_sql)
             insert_id = int(self.cur.lastrowid)
-            self.cur.execute('commit;')
             return {'error_code': 0, 'insert_id': insert_id}
         except Exception, e:
             error_info = '[insert_seq] ex=%s LINE=%s' % (e, sys._getframe().f_lineno)
             return {'error_code': 20000, 'error_info': error_info}
 
-    def insert_log(self, sku, status, random_code=None, shop_sku=None, error_info=None):
+    def insert_log(self, sku, status, input_sku, random_code=None, shop_sku=None, error_info=None, dq_username=None, force_apply=None, reason=None):
         """
         将申请信息插入到log表
         :param sku: 商品SKU
@@ -119,11 +152,32 @@ class ShopskuApply(object):
         """
         try:
             apply_time = datetime.now()
+            main_sku = classsku_obj.get_bemainsku_by_sku(sku=sku)
             insert_log_sql = 'insert into py_db.t_log_sku_shopsku(RandomCode, ShopName, SKU, ShopSKU, StaffName, ' \
-                             'ApplyTime, Status, ErrorInfo, ApplyType) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)'
-            self.cur.execute(insert_log_sql, (random_code, self.shop_name_original, sku, shop_sku, self.staff_name, apply_time,
-                                              status, error_info, self.apply_type))
-            self.cur.execute('commit; ')
+                             'ApplyTime, Status, ErrorInfo, ApplyType, InputSKU, MainSKU, ForceApply, ForceReason) ' \
+                             'VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'
+            self.cur.execute(insert_log_sql,
+                             (random_code, self.shop_name_original, sku, shop_sku, self.staff_name, apply_time,
+                              status, error_info, self.apply_type, input_sku, main_sku, force_apply, reason)
+                             )
+            DepartmentID = str(t_sys_department_staff.objects.get(StaffID=dq_username).DepartmentID)
+            if DepartmentID =='1':
+                update_sql = 'UPDATE t_product_enter_ed SET onebuOperation = "1" WHERE MainSKU = "%s"'%main_sku
+            if DepartmentID =='2':
+                update_sql = 'UPDATE t_product_enter_ed SET twobuOperation = "1" WHERE MainSKU = "%s"'%main_sku
+            if DepartmentID =='3':
+                update_sql = 'UPDATE t_product_enter_ed SET threebuOperation = "1" WHERE MainSKU = "%s"'%main_sku
+            if DepartmentID =='4':
+                update_sql = 'UPDATE t_product_enter_ed SET fourbuOperation = "1" WHERE MainSKU = "%s"'%main_sku
+            if DepartmentID =='6':
+                update_sql = 'UPDATE t_product_enter_ed SET sixbuOperation = "1" WHERE MainSKU = "%s"'%main_sku
+            if DepartmentID =='7':
+                update_sql = 'UPDATE t_product_enter_ed SET sevenbuOperation = "1" WHERE MainSKU = "%s"'%main_sku
+            if DepartmentID =='8':
+                update_sql = 'UPDATE t_product_enter_ed SET eightbuOperation = "1" WHERE MainSKU = "%s"'%main_sku
+            if DepartmentID =='9':
+                update_sql = 'UPDATE t_product_enter_ed SET ninebuOperation = "1" WHERE MainSKU = "%s"'%main_sku
+            self.cur.execute(update_sql)
             return {'error_code': 0}
         except Exception, e:
             error_info = '[insert_log] ex=%s LINE=%s' % (e, sys._getframe().f_lineno)
@@ -131,10 +185,9 @@ class ShopskuApply(object):
 
     def insert_link(self, sku, shop_sku, flag=0):
         try:
-            insert_link_sql = 'insert into py_db.b_goodsskulinkshop(SKU, ShopSKU, Memo, PersonCode, Falg) ' \
-                              'VALUES (%s, %s, %s, %s, %s)'
-            self.cur.execute(insert_link_sql, (sku, shop_sku, self.shop_name_original, self.staff_name, flag))
-            self.cur.execute('commit; ')
+            insert_link_sql = 'insert into py_db.b_goodsskulinkshop(SKU, ShopSKU, Memo, PersonCode, Falg, ShopName) ' \
+                              'VALUES (%s, %s, %s, %s, %s, %s)'
+            self.cur.execute(insert_link_sql, (sku, shop_sku, self.shop_name_original, self.staff_name, flag, self.shop_name_full))
             return {'error_code': 0}
         except Exception, e:
             error_info = '[insert_link] ex=%s LINE=%s' % (e, sys._getframe().f_lineno)
@@ -144,12 +197,14 @@ class ShopskuApply(object):
 
 class SKUProcess(object):
 
-    def __init__(self, cur, input_sku, file_type, first_name):
+    def __init__(self, cur, input_sku, file_type, first_name, force_apply, ZHtitle=''):
         self.cur = cur
         self.input_sku = input_sku
         self.file_type = file_type
         self.defeat_sku_info = {}
         self.first_name = first_name
+        self.ZHtitle = ZHtitle
+        self.force_apply = force_apply
 
     def sku_process(self):
         """
@@ -181,11 +236,9 @@ class SKUProcess(object):
                     all_sku_list += son_sku_info['sku_list']
         elif self.file_type == 'GROUPSKUAPPLY':
             for cskuset in templist:
-                if cskuset.find('+') == -1 and cskuset.startswith('ZH'):
-                    all_sku_list.append(cskuset)
-                else:
-                    ZHSKU_dict = G_ZHSKU(cskuset, connection, self.first_name, '', datetime.now())
-                    ZHSKU = ZHSKU_dict.get('ZHSKU', '')
+                zhsku_info = self.judge_zhsku(cskuset=cskuset)
+                if zhsku_info['error_code'] == 0:
+                    ZHSKU = zhsku_info['ZHSKU']
                     all_sku_list.append(ZHSKU)
         return {'error_code': 0, 'all_sku_list': all_sku_list}
 
@@ -195,10 +248,14 @@ class SKUProcess(object):
         :param sku: 子SKU
         """
         try:
-            sql = 'select nid from py_db.b_goods WHERE SKU=%s; '
+            sql = 'select GoodsStatus from py_db.b_goods WHERE SKU=%s; '
             self.cur.execute(sql, (sku, ))
             sku_info = self.cur.fetchone()
             if sku_info:
+                goods_status = sku_info[0]
+                if (goods_status in ABNORMAL_STATUS) and self.force_apply == 'NO':
+                    self.defeat_sku_info[sku] = u'商品SKU：%s目前是"%s"状态' % (sku, goods_status)
+                    return {'error_code': 10000}
                 return {'error_code': 0}
             else:
                 self.defeat_sku_info[sku] = u'未查到商品SKU：%s' % sku
@@ -214,21 +271,69 @@ class SKUProcess(object):
         :param main_sku: 主SKU
         """
         try:
-            sql = 'select SKU from py_db.b_goods WHERE SKU like \"%s%%\"; ' % main_sku
-            self.cur.execute(sql)
-            sku_infos = self.cur.fetchall()
+            mainsku_sku_list = []
+            sql_1 = 'select ProductSKU from t_product_mainsku_sku WHERE MainSKU=%s'
+            self.cur.execute(sql_1, (main_sku, ))
+            mainsku_sku_infos = self.cur.fetchall()
+            if mainsku_sku_infos:
+                for mainsku_sku_info in mainsku_sku_infos:
+                    product_sku = '%s' % mainsku_sku_info[0]
+                    mainsku_sku_list.append(product_sku)
+            if mainsku_sku_list:
+                tt = '("' + '","'.join(mainsku_sku_list) + '")'
+                sql_2 = 'select SKU, GoodsStatus from py_db.b_goods WHERE SKU in %s; ' % tt
+                self.cur.execute(sql_2)
+                sku_infos = self.cur.fetchall()
+            else:
+                sql = 'select SKU, GoodsStatus from py_db.b_goods WHERE SKU like \"%s%%\"; ' % main_sku
+                self.cur.execute(sql)
+                sku_infos = self.cur.fetchall()
+
             sku_list = []
             if sku_infos:
                 for sku_info in sku_infos:
-                    sku_list.append(sku_info[0])
-            if sku_list:
-                return {'error_code': 0, 'sku_list': sku_list}
+                    sku = sku_info[0]
+                    goods_status = sku_info[1]
+                    if (goods_status in ABNORMAL_STATUS) and self.force_apply == 'NO':
+                        self.defeat_sku_info[sku] = u'主SKU：%s下的商品SKU：%s目前是"%s"状态' % (main_sku, sku, goods_status)
+                    else:
+                        sku_list.append(sku)
+                if sku_list:
+                    return {'error_code': 0, 'sku_list': sku_list}
+                else:
+                    return {'error_code': 10000, 'error_info': u'主SKU：%s下的所有商品SKU是非正常商品状态' % main_sku}
             else:
                 self.defeat_sku_info[main_sku] = u'未查到主SKU：%s' % main_sku
                 return {'error_code': 10000, 'error_info': u'未查到主SKU：%s' % main_sku}
         except Exception, e:
             error_info = '[get_son_sku] ex=%s LINE=%s' % (e, sys._getframe().f_lineno)
             self.defeat_sku_info[main_sku] = error_info
+            return {'error_code': 20000, 'error_info': error_info}
+
+    def judge_zhsku(self, cskuset):
+        """校验组合SKU合法性"""
+        try:
+            if ('+' in cskuset) or ('*' in cskuset):
+                sku_list = [ skutmp.split('\\')[0].split('*')[0] for skutmp in cskuset.split('+') if skutmp ]
+                SKUTempL = t_product_mainsku_sku.objects.filter(ProductSKU__in=sku_list).values_list('ProductSKU', flat=True)
+                if len(set(SKUTempL)) != len(set(sku_list)):
+                    faultSKU = set(sku_list) - set(SKUTempL)
+                    faultSKU_str = [str(temp) for temp in faultSKU]
+                    self.defeat_sku_info[cskuset] = u'组合SKU：%s中的商品SKU：%s有误' % (cskuset, ",".join(faultSKU_str))
+                    return {'error_code': 10000, 'error_info': u'组合SKU：%s中的商品SKU：%s有误' % (cskuset, ",".join(faultSKU_str))}
+                else:
+                    ZHSKU_dict = G_ZHSKU(cskuset, connection, self.first_name, '', datetime.now(),self.ZHtitle)
+                    ZHSKU = ZHSKU_dict.get('ZHSKU', '')
+            else:
+                if cskuset.startswith('ZH'):
+                    ZHSKU = cskuset
+                else:
+                    self.defeat_sku_info[cskuset] = u'不合法的组合SKU：%s' % cskuset
+                    return {'error_code': 10000, 'error_info': u'不合法的组合SKU：%s' % cskuset}
+            return {'error_code': 0, 'ZHSKU': ZHSKU}
+        except Exception, e:
+            error_info = '[get_son_sku] ex=%s LINE=%s' % (e, sys._getframe().f_lineno)
+            self.defeat_sku_info[cskuset] = error_info
             return {'error_code': 20000, 'error_info': error_info}
 
 
@@ -249,12 +354,13 @@ def change_global_result(result_info=None, result='DEFEAT', defeat_sku=None, suc
     return shopsku_apply_result
 
 
-def shopsku_apply(input_sku, shop_name, apply_type="SONSKUAPPLY", first_name="UPLOAD"):
+def shopsku_apply(input_sku, shop_name, apply_type="SONSKUAPPLY", first_name="UPLOAD", dq_username=None, force_apply='NO', ZHtitle='', reason=None):
     cur = connection.cursor()
     defeat_sku_info = {}
     success_sku_info = {}
     shopsku_apply_result = {'result': '', 'defeat_sku': '', 'success_sku': '', 'error_code': '', 'error_info': ''}
     ShopskuApply_obj = ShopskuApply(cur=cur, shop_name=shop_name, staff_name=first_name, apply_type=apply_type)
+    ShopskuApply_obj.get_shop_name_full()     # 查询店铺名全称
     shop_name_temp_info = ShopskuApply_obj.get_shop_name_temp()     # 查询店铺名简写
     if shop_name_temp_info['error_code'] == 0:
         shop_name_temp = shop_name_temp_info['shop_name_temp']
@@ -284,7 +390,13 @@ def shopsku_apply(input_sku, shop_name, apply_type="SONSKUAPPLY", first_name="UP
         else:
             shopsku_apply_result = change_global_result(result_info=shop_code_info, result='DEFEAT')
         if shop_code and table_exists:           # 如果查询到店铺特征码，并且店铺seq表存在，则进行处理SKU文件
-            SKUProcess_obj = SKUProcess(cur=cur, input_sku=input_sku, file_type=apply_type, first_name=first_name)
+            try:
+                shopcode = shop_name.split('-')[0].title() + '-' + shop_name.split('-')[1]
+                classshopsku_obj = classshopsku(db_conn=None, redis_conn=redis_coon, shopname=shopcode if shop_name.split('-')[0].title() == 'Wish' else None)
+            except Exception as ex:
+                classshopsku_obj = classshopsku(db_conn=None, redis_conn=redis_coon)
+
+            SKUProcess_obj = SKUProcess(cur=cur, input_sku=input_sku, file_type=apply_type, first_name=first_name, force_apply=force_apply, ZHtitle=ZHtitle)
             sku_process_info = SKUProcess_obj.sku_process()
             defeat_sku_info = SKUProcess_obj.defeat_sku_info
             if sku_process_info['error_code'] == 0:
@@ -297,7 +409,7 @@ def shopsku_apply(input_sku, shop_name, apply_type="SONSKUAPPLY", first_name="UP
                         if insert_seq_info['error_code'] == 0:
                             insert_id = insert_seq_info['insert_id']
                             shop_sku = shop_code + str(insert_id)
-                            ShopskuApply_obj.insert_log(sku=sku, status='APPLYSUCCESS', random_code=random_code, shop_sku=shop_sku)
+                            ShopskuApply_obj.insert_log(sku=sku, status='APPLYSUCCESS', random_code=random_code, shop_sku=shop_sku, input_sku=input_sku, dq_username=dq_username, force_apply=force_apply, reason=reason)
                             insert_link_info = ShopskuApply_obj.insert_link(sku=sku, shop_sku=shop_sku)
                             if insert_link_info['error_code'] == 0:
                                 success_sku_info[shop_sku] = sku
@@ -315,7 +427,8 @@ def shopsku_apply(input_sku, shop_name, apply_type="SONSKUAPPLY", first_name="UP
     else:
         shopsku_apply_result = change_global_result(result_info=shop_name_temp_info, result='DEFEAT')
     for k, v in defeat_sku_info.items():
-        ShopskuApply_obj.insert_log(sku=k, status='APPLYDEFEAT', error_info=v)  # 将错误的sku信息插入到log表
+        ShopskuApply_obj.insert_log(sku=k, status='APPLYDEFEAT', error_info=v, input_sku=input_sku, force_apply=force_apply, reason=reason)  # 将错误的sku信息插入到log表
+    cur.execute('commit;')
     cur.close()
     return shopsku_apply_result
 
@@ -326,6 +439,9 @@ input_sku: 英文逗号拼接的商品SKU字符串;
 shop_name: 店铺名;
 apply_type: 申请类型(非必须, 默认SONSKUAPPLY,可选值:MAINSKUAPPLY: 主SKU申请, SONSKUAPPLY: 子SKU申请, GROUPSKUAPPLY: 组合SKU申请);
 first_name: 铺货人(非必须, 默认UPLOAD)
+dq_username: 部门领用人(非必须, 默认None)
+force_apply: 非正常商品强制申请(非必须, 默认'NO',非正常商品不申请)
+ZHtitle: 组合商品标题(非必须, 默认'')
 
 返回值:
 shopsku_apply_result格式：字典

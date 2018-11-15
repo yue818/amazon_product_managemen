@@ -242,8 +242,8 @@ class t_templet_amazon_collection_box_Admin(object):
               'quantity', 'product_description', 'bullet_point1', 'bullet_point2', 'metal_type', 'item_shape',
               'homes_size',
               'bullet_point3', 'bullet_point4', 'bullet_point5', 'standard_price', 'sale_price', 'sale_from_date',
-              'sale_end_date', 'mrp', 'fulfillment_latency',
-              'homes_color', 'fit_type', 'sleeve_type', 'generic_keywords1',
+              'sale_end_date', 'mrp', 'fulfillment_latency', 'are_batteries_included',
+              'homes_color', 'fit_type', 'sleeve_type', 'generic_keywords1', 'included_components',
               'product_subtype', 'unit_count', 'unit_count_type', 'mfg_minimum', 'clothing_size', 'clothing_color',
               'mfg_minimum_unit_of_measure', 'productSKU', 'item_package_quantity', 'item_type', 'warranty_description',
               'department_name1', 'department_name2', 'department_name3', 'department_name4', 'department_name5',
@@ -298,7 +298,7 @@ class t_templet_amazon_collection_box_Admin(object):
                  Row('jewerly_color', 'material_type', 'number_of_pieces', ),
                  Row('toy_color', 'homes_color', 'homes_size', ),
                  Row('sleeve_type', 'fit_type', 'season',),
-                 Row('material_composition', ),
+                 Row('material_composition', 'included_components', 'are_batteries_included',),
                  Row('warranty_description', ),
                  Row('color_name_public', 'item_weight', 'item_weight_unit', ),
                  # Row('material_type', 'metal_type', 'setting_type'),
@@ -621,6 +621,8 @@ class t_templet_amazon_collection_box_Admin(object):
                     old_obj.color_name_public = obj.color_name_public
                     old_obj.mrp = obj.mrp
                     old_obj.sleeve_type = obj.sleeve_type
+                    old_obj.included_components = obj.included_components
+                    old_obj.are_batteries_included = obj.are_batteries_included
                     old_obj.item_type_name = item_type_name
                     prodcut_variation_id = old_obj.prodcut_variation_id
                     tortSKU = self.save_product_variation(request,obj, prodcut_variation_id)

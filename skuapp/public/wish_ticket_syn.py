@@ -10,6 +10,8 @@ import requests
 import json
 import MySQLdb
 from datetime import datetime
+
+from django.contrib import messages
 from django.db import connection
 from django.db import transaction
 import logging
@@ -70,10 +72,10 @@ class wish_ticket_syn():
             if r.status_code == 200 and _content['code'] == 0:
                 return {'errorcode': 1, 'data': _content['data']}
             else:
-                return {'errorcode': 0,'errortext': u'%s:%s:%s' % (r.status_code, _content['code'], _content['message'])}
+                return {'errorcode': 0,
+                        'errortext': u'%s:%s:%s' % (r.status_code, _content['code'], _content['message'])}
         except Exception as e:
             return {'errorcode': -1, 'errortext': u'%s' % e}
-
 
     def get_access_token(self, shopName):
         sql = "select K, V from t_config_online_amazon where Name = '{}'".format(shopName)
@@ -99,6 +101,11 @@ class wish_ticket_syn():
 
                         try:
                             for data in info['data']:
+                                item_list = data['Ticket']['items']
+                                product_id = item_list[0]['Order']['product_id']
+                                product_image_url = item_list[0]['Order']['product_image_url']
+                                product_name = item_list[0]['Order']['product_name']
+                                order_id = item_list[0]['Order']['order_id']
                                 logger.error('data--------------------------------------%s' % data)
                                 dict_ticket = {'shopName': shopName, 'updateTime': datetime.now(),
                                                'Operators': Operators,
@@ -109,11 +116,13 @@ class wish_ticket_syn():
                                                'UserInfo_name': '', 'last_update_date': '', 'state_id': '',
                                                'merchant_id': '',
                                                'photo_proof': '', 'ticket_id': '', 'ticket_transaction_id': '',
-                                               'subject': ''}
+                                               'subject': '',
+                                               'product_id':product_id,
+                                               'product_image_url':product_image_url, 'product_name':product_name,'replies':'',
+                                               'order_id':order_id}
 
-                                data['Ticket'].pop('replies')
-                                data['Ticket'].pop('items')
                                 ticket_dict = data['Ticket']
+
                                 for k, v in ticket_dict.items():
                                     if k == 'UserInfo':
                                         for x, y in ticket_dict['UserInfo'].items():
@@ -136,6 +145,8 @@ class wish_ticket_syn():
                                             k = 'ticket_id'
                                         elif k == 'transaction_id':
                                             k = 'ticket_transaction_id'
+                                        elif k == 'replies':
+                                            v = repr(v)
                                         if '\u' in v:
                                             try:
                                                 v = v.decode("unicode_escape")
@@ -157,16 +168,15 @@ class wish_ticket_syn():
                         insertSQL = "INSERT INTO wish_ticket(shopName,label,sublabel,open_date,state," \
                                     "UserInfo_locale,UserInfo_joined_date,UserInfo_id,UserInfo_name,last_update_date," \
                                     "state_id,default_refund_reason,merchant_id,photo_proof,ticket_id," \
-                                    "ticket_transaction_id,subject,updateTime, Operators) VALUE (%(shopName)s," \
+                                    "ticket_transaction_id,subject,updateTime,Operators,product_id,product_name,product_image_url,replies,order_id) VALUE (%(shopName)s," \
                                     "%(label)s,%(sublabel)s,%(open_date)s,%(state)s,%(UserInfo_locale)s," \
                                     "%(UserInfo_joined_date)s,%(UserInfo_id)s,%(UserInfo_name)s,%(last_update_date)s," \
                                     "%(state_id)s,%(default_refund_reason)s,%(merchant_id)s,%(photo_proof)s," \
-                                    "%(ticket_id)s,%(ticket_transaction_id)s,%(subject)s,%(updateTime)s,%(Operators)s)"
+                                    "%(ticket_id)s,%(ticket_transaction_id)s,%(subject)s,%(updateTime)s,%(Operators)s,%(product_id)s,%(product_name)s,%(product_image_url)s,%(replies)s,%(order_id)s)"
 
                         self.cursor.execute(truncateSQL)
                         self.cursor.executemany(insertSQL, list_ticket)
                         transaction.commit()
-
                         return 0
                     except Exception, e1:
                         logger.error('--------------------------------------%s' % e1)

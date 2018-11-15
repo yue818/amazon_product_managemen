@@ -33,6 +33,60 @@ class t_amazon_actionable_order_data_Admin(object):
     list_display = ('shop_name', 'sku', 'order_id', 'purchase_date', 'payments_date', 'promise_date','days_past_promise','quantity_purchased',
                     'quantity_shipped','quantity_to_ship','ship_service_level', 'refresh_time')
 
+    actions = ['to_excel']
+
+    def to_excel(self, request, queryset):
+        path = MEDIA_ROOT + 'download_xls/' + request.user.username
+        mkdir_p(MEDIA_ROOT + 'download_xls')
+        os.popen('chmod 777 %s' % (MEDIA_ROOT + 'download_xls'))
+        mkdir_p(path)
+        os.popen('chmod 777 %s' % path)
+
+        w = Workbook()
+        sheet = w.add_sheet('actionable_order')
+        sheet.write(0, 0, u'店铺')
+        sheet.write(0, 1, u'店铺SKU')
+        sheet.write(0, 2, u'订单编号')
+        sheet.write(0, 3, u'购买日期')
+        sheet.write(0, 4, u'付款日期')
+        sheet.write(0, 5, u'承诺日期')
+        sheet.write(0, 6, u'超出承诺日期的天数')
+        sheet.write(0, 7, u'购买的数量')
+        sheet.write(0, 8, u'已配送数量')
+        sheet.write(0, 9, u'待配送数量')
+        sheet.write(0, 10, u'运输方式	')
+        sheet.write(0, 11, u'更新时间')
+
+        # 写数据
+        row = 0
+        for qs in queryset:
+            row = row + 1
+            purchase_date = qs.purchase_date.strftime('%Y-%m-%d %H:%M')
+            payments_date = qs.payments_date.strftime('%Y-%m-%d %H:%M')
+            promise_date = qs.promise_date.strftime('%Y-%m-%d %H:%M')
+            refresh_time = qs.refresh_time.strftime('%Y-%m-%d %H:%M')
+            excel_content_list = (qs.shop_name, qs.sku, qs.order_id, purchase_date, payments_date, promise_date, qs.days_past_promise, qs.quantity_purchased, qs.quantity_shipped, qs.quantity_to_ship, qs.ship_service_level, refresh_time )
+            column = 0
+            for content in excel_content_list:
+                sheet.write(row, column, content)
+                column += 1
+        filename = request.user.username + '_' + datetime.datetime.now().strftime('%Y%m%d%H%M%S') + '.xls'
+        w.save(path + '/' + filename)
+        os.popen(r'chmod 777 %s' % (path + '/' + filename))
+
+        # 上传oss对象
+        auth = oss2.Auth(ACCESS_KEY_ID, ACCESS_KEY_SECRET)
+        bucket = oss2.Bucket(auth, ENDPOINT, BUCKETNAME_XLS)
+        bucket.create_bucket(oss2.BUCKET_ACL_PUBLIC_READ)
+        # 删除现有的
+        for object_info in oss2.ObjectIterator(bucket,
+                                               prefix='%s/%s_' % (request.user.username, request.user.username)):
+            bucket.delete_object(object_info.key)
+        bucket.put_object(u'%s/%s' % (request.user.username, filename), open(path + '/' + filename))
+        messages.success(request, u'%s%s.%s/%s/%s' % (PREFIX, BUCKETNAME_XLS, ENDPOINT_OUT, request.user.username, filename) + u':成功导出,可点击Download下载到本地............................。')
+
+    to_excel.short_description = u'导出数据'
+
     def get_list_queryset(self, ):
         request = self.request
         shop_name = request.GET.get('shop_name', '')

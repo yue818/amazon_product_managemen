@@ -2,9 +2,6 @@
 import pika
 import uuid
 import traceback
-import zlib
-import logging
-import logging.handlers
 """  
  @desc:  
  @author: yewangping  
@@ -13,17 +10,6 @@ import logging.handlers
  @file: schedule_to_MQ.py
  @time: 2017/12/22 13:50
 """
-
-logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s [%(filename)s %(funcName)s:%(lineno)d] %(thread)d %(levelname)s %(message)s',
-                    datefmt='%Y-%m-%d %H:%M:%S',
-                    filename='/tmp/test_rabbitmq.log',
-                    filemode='a')
-
-logging.handlers.RotatingFileHandler('/tmp/test_rabbitmq.log',
-                                     maxBytes=100 * 1024 * 1024,
-                                     backupCount=10)
-
 class schedule_to_MQ():
     def __init__(self, hostname, portValue, username, pwd):
         user_pwd = pika.PlainCredentials(username, pwd)
@@ -59,16 +45,10 @@ class schedule_to_MQ():
         try:
             if params['queueName']:
                 if params['body']:
-                    logging.debug('message body is %s' % params['body'])
-                    logging.debug('message body before  is %s' % len(params['body']))
-                    body_compress = zlib.compress(params['body'])
-                    logging.debug('body_compress body is %s' % body_compress)
-                    logging.debug('message body  after is %s' % len(body_compress))
-                    result_data = self.channel.queue_declare(exclusive=False, durable=True)  # exclusive=False 必须这样写
+                    result_data = self.channel.queue_declare(exclusive=False,durable=True)  # exclusive=False 必须这样写
                     self.callback_queue = result_data.method.queue
                     self.corr_id = str(uuid.uuid4())
                     # print(self.corr_id)
-
                     resultIfo = self.channel.basic_publish(exchange='',
                                                routing_key=params['queueName'],
                                                properties=pika.BasicProperties(
@@ -76,9 +56,7 @@ class schedule_to_MQ():
                                                    correlation_id=self.corr_id,  # 发送uuid 相当于验证码
                                                    delivery_mode=2,
                                                ),
-                                               body=body_compress)
-                    # body = body_compress
-                    #params['body']
+                                               body=params['body'])
                     result['result'] = {'resultIfo': resultIfo, 'callback_queue': self.callback_queue, 'callback_id': self.corr_id}
                 else:
                     result['errorcode'] = -1
@@ -87,8 +65,6 @@ class schedule_to_MQ():
                 result['errorcode'] = -1
                 result['errortext'] = 'queueName is null'
         except Exception,ex:
-            traceback.print_exc()
-            logging.error('traceback.format_exc():\n%s' % traceback.format_exc())
             result['errorcode'] = -1
             result['errortext'] = traceback.format_exc()
         return result

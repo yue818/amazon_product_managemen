@@ -95,7 +95,11 @@ class t_order_amazon_india_Admin(object):
     def getLeaveTime(self,obj):
         leaveTime = {}
         lsd = obj.LatestShipDate
+        if '.' in lsd:
+            lsd = lsd.split(".")[0] + "Z"
         lud = obj.PurchaseDate
+        if '.' in lud:
+            lud = lud.split(".")[0] + "Z"
         date_time = datetime.datetime.strptime(lsd.encode('unicode-escape').decode('string_escape'), '%Y-%m-%dT%H:%M:%SZ')
         utc_tran = self.local2utc(datetime.datetime.now())
         firstTime = (date_time - utc_tran).days

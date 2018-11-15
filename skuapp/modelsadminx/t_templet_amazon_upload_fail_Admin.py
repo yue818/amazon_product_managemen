@@ -81,7 +81,8 @@ class t_templet_amazon_upload_fail_Admin(object):
                       'You are not authorized to list products in this category': u'无权限刊登此类商品', 'ItemPackageQuantity': u'商品数量不能为空',
                       'RecommendedBrowseNode': u'类目树选择错误', 'MinimumManufacturerAgeRecommended': u'最小使用年龄不能为空',
                       'The content of elements must consist of well-formed character data or markup': u'商品种类不能为空',
-                      'We could not access the media at URL http://': u'商品刊登成功，但图片缺失，缺失图片的店铺SKU：'}
+                      'We could not access the media at URL http://': u'商品刊登成功，但图片缺失，缺失图片的店铺SKU：',
+                      'Get result timeout': u'查询刊登结果超时，请联系IT人员确认是否可以转回草稿箱重新刊登(重新刊登前需要进入店铺后台清理刊登失败的链接)'}
         # rt = obj.resultInfo
         if obj.errorMessages:
             errorMessages_temp = u'未知错误'
@@ -108,6 +109,7 @@ class t_templet_amazon_upload_fail_Admin(object):
             #         if (i+1)%2 == 0:
             #             errorMessages_temp += temps[i] + '<br/>'
             rt += '<div style="width: 100%; height: auto; word-wrap:break-word; word-break:break-all; overflow: hidden;  ">'+errorMessages_temp+'</div>'
+            rt += '<br>' + obj.errorMessages
         return mark_safe(rt)
     show_result.short_description = u'&nbsp;&nbsp;刊登结果&nbsp;&nbsp;'
 
@@ -116,8 +118,9 @@ class t_templet_amazon_upload_fail_Admin(object):
         t_templet_amazon_published_variation_objs = t_templet_amazon_published_variation.objects.filter(
             prodcut_variation_id=obj.prodcut_variation_id)
         if t_templet_amazon_published_variation_objs:
-            rt = '<table border="1"><tr><td>类型</td><td>变体名</td><td>店铺SKU</td><td>包装数</td></tr>'
-            for t_templet_amazon_published_variation_obj in t_templet_amazon_published_variation_objs:
+            rt = '<table class="table table-condensed">' \
+                 '<tr><td>类型</td><td>变体名</td><td>店铺SKU</td><td>包装数</td></tr>'
+            for t_templet_amazon_published_variation_obj in t_templet_amazon_published_variation_objs[0:4]:
                 variation_value = ''
                 if t_templet_amazon_published_variation_obj.variation_theme == 'Color':
                     variation_value = t_templet_amazon_published_variation_obj.color_name
@@ -134,12 +137,20 @@ class t_templet_amazon_upload_fail_Admin(object):
                 rt += '<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>'%(t_templet_amazon_published_variation_obj.variation_theme,
                        variation_value,t_templet_amazon_published_variation_obj.child_sku,
                         t_templet_amazon_published_variation_obj.item_quantity,)
-            rt += '</table>'
+            if len(t_templet_amazon_published_variation_objs) > 4:
+                rt += '<tr><td><a id="more_id_%s">更多</a></td></tr></table>' % obj.id
+                rt = u"%s<script>$('#more_id_%s').on('click',function()" \
+                     u"{layer.open({type:2,skin:'layui-layer-lan',title:'全部变体信息'," \
+                     u"fix:false,shadeClose: true,maxmin:true,area:['800px','400px'],btn: ['关闭页面']," \
+                     u"content:'/t_templet_amazon_upload/?pvi=%s',});" \
+                     u"});</script>" % (rt, obj.id, obj.prodcut_variation_id)
+            else:
+                rt += '</table>'
         else:
             rt = u"单体"
         return mark_safe(rt)
 
-    show_variation_info.short_description = u'单体/变体'
+    show_variation_info.short_description = mark_safe(u'<p style="color:#428BCA" align="center">单体/变体</p>')
 
 
     list_display = ('show_image', 'item_sku',  'show_product_sku', 'item_name', 'show_variation_info', 'show_schedule', 'show_info', 'show_result')

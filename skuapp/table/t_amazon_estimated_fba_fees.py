@@ -23,6 +23,7 @@ class t_amazon_estimated_fba_fees(models.Model):
     unit_of_weight = models.CharField(u'重量单位', max_length=32, blank=True, null=True)
     product_size_tier = models.CharField(u'尺寸分段', max_length=32, blank=True, null=True)
     estimated_fee = models.CharField(u'预览费用', max_length=32, blank=True, null=True)
+    estimated_pick_pack_fee_per_unit = models.CharField(u'运费1', max_length=32, blank=True, null=True)
     expected_fulfillment_fee_per_unit = models.CharField(u'运费', max_length=32, blank=True, null=True)
     currency = models.CharField(u'货币单位', max_length=32, blank=True, null=True)
     refresh_time = models.DateTimeField(u'刷新时间', blank=True, null=True)

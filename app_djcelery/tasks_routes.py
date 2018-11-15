@@ -51,11 +51,8 @@ REAL_TIME_TASKS = {
     'app_djcelery.tasks.aliexpress_import_products_task': {'queue': 'real_time', 'routing_key': 'real_time'},
     'app_djcelery.tasks.mymall_import_products_task': {'queue': 'real_time', 'routing_key': 'real_time'},
     'app_djcelery.tasks.batch_change_mymall_data_by_task': {'queue': 'real_time', 'routing_key': 'real_time'},
-    'app_djcelery.tasks.online_syn_to_puyuan_task': {'queue': 'real_time', 'routing_key': 'real_time'},
     'app_djcelery.tasks.wish_listing_refund_statistics_task': {'queue': 'real_time', 'routing_key': 'real_time'},
-    'app_djcelery.tasks.online_modify_puyuan_task': {'queue': 'real_time', 'routing_key': 'real_time'},
-    'app_djcelery.tasks.online_sku_binding_puyuan_task': {'queue': 'real_time', 'routing_key': 'real_time'},
-    'app_djcelery.tasks.online_tort_syn_to_puyuan_task': {'queue': 'real_time', 'routing_key': 'real_time'},
+    'app_djcelery.tasks.process_rating': {'queue': 'real_time', 'routing_key': 'real_time'},
 }
 
 
@@ -68,11 +65,15 @@ TIMING_TASKS = {
     'app_djcelery.tasks.syn_py_info_p': {'queue': 'timing', 'routing_key': 'timing'},
     'app_djcelery.tasks.syn_py_info_kc': {'queue': 'timing', 'routing_key': 'timing'},
     'brick.wish.Haiying_Data.get_data_from_haiying_task.get_data_from_haiying_task': {'queue': 'timing', 'routing_key': 'timing'},
+    'brick.wish.Haiying_Data.get_data_from_haiying_task.get_data_from_haiying_viewdata': {'queue': 'timing', 'routing_key': 'timing'},
     'app_djcelery.tasks.wish_distribution_statistics_task': {'queue': 'timing', 'routing_key': 'timing'},
     'app_djcelery.tasks.wish_order_syn_task': {'queue': 'timing', 'routing_key': 'timing'},
     'app_djcelery.tasks.Amazon_india_auto_feed_trackNo': {'queue': 'timing', 'routing_key': 'timing'},
     'app_djcelery.tasks.wish_generate_image_task': {'queue': 'timing', 'routing_key': 'timing'},
     'app_djcelery.tasks.update_wishpbdata_task': {'queue': 'timing', 'routing_key': 'timing'},
+    'app_djcelery.tasks.update_ebayapp_price': {'queue': 'timing', 'routing_key': 'timing'},
+    'app_djcelery.tasks.update_profitrate_ebay_task': {'queue': 'timing', 'routing_key': 'timing'},
+    'app_djcelery.tasks.py_Syn_walmart_main_task': {'queue': 'timing', 'routing_key': 'timing'},
 }
 
 # 实时更新采购员数据任务
@@ -101,7 +102,6 @@ WISH_SHOPINFO_TASKS = {
 
 # wish店铺管理
 WISH_SHOP_MANAGE = {
-    'app_djcelery.tasks.syndata_by_wish_api_shopname': {'queue': 'wish_shop_manage', 'routing_key': 'wish_shop_manage'},
     'app_djcelery.tasks.syndata_by_wish_api': {'queue': 'wish_shop_manage', 'routing_key': 'wish_shop_manage'},
     'app_djcelery.tasks.update_goods_information_by_wish_api': {'queue': 'wish_shop_manage', 'routing_key': 'wish_shop_manage'},
     'app_djcelery.tasks.wish_to_publish': {'queue': 'wish_shop_manage', 'routing_key': 'wish_shop_manage'},
@@ -109,6 +109,7 @@ WISH_SHOP_MANAGE = {
 
 WISH_REFRESH = {
     'brick.wish.ShopOnlineInfo.F_EXE_SHOP_ONLINE_INFO': {'queue': 'wish_refresh', 'routing_key': 'wish_refresh'},
+    'app_djcelery.tasks.syndata_by_wish_api_shopname': {'queue': 'wish_refresh', 'routing_key': 'wish_refresh'},
 }
 
 # Joom店铺管理
@@ -153,6 +154,33 @@ AMAZON_UPLOAD = {
     'app_djcelery.tasks.stitch_goods_info': {'queue': 'amazon_upload', 'routing_key': 'amazon_upload'},
 }
 
+# 修改普源队列
+PY_MODIFY_TASKS = {
+    'app_djcelery.tasks.online_syn_to_puyuan_task': {'queue': 'py_modify', 'routing_key': 'py_modify'},
+    'app_djcelery.tasks.online_modify_puyuan_task': {'queue': 'py_modify', 'routing_key': 'py_modify'},
+    'app_djcelery.tasks.online_sku_binding_puyuan_task': {'queue': 'py_modify', 'routing_key': 'py_modify'},
+    'app_djcelery.tasks.online_tort_syn_to_puyuan_task': {'queue': 'py_modify', 'routing_key': 'py_modify'},
+    'app_djcelery.tasks.online_modify_py_purchaser_task': {'queue': 'py_modify', 'routing_key': 'py_modify'},
+    'app_djcelery.tasks.online_modify_py_possessman2_task': {'queue': 'py_modify', 'routing_key': 'py_modify'},
+}
+
+# 业销售业绩获取 gen_execl_saler_profit_data
+SALER_PROFIT_TASK = {
+    'app_djcelery.tasks.get_saler_profit_data': {'queue': 'get_saler_profit_data', 'routing_key': 'get_saler_profit_data'},
+    'app_djcelery.tasks.gen_execl_saler_profit_data': {'queue': 'gen_execl_saler_profit_data', 'routing_key': 'gen_execl_saler_profit_data'},
+    'app_djcelery.tasks.py_getgongzi_report': {'queue': 'py_getgongzi_report', 'routing_key': 'py_getgongzi_report'},
+}
+
+#lazada店铺管理
+LZD_SHOP_MANAGE = {
+    'app_djcelery.tasks.get_lazada_product': {'queue': 'get_lazada_product', 'routing_key': 'get_lazada_product'},
+}
+
+# Shopee店铺管理
+SHP_SHOP_MANAGE = {
+    'app_djcelery.tasks.syn_shopee_data': {'queue': 'shp_shop_manage', 'routing_key': 'shp_shop_manage'}
+}
+
 TASKS_LIST = [
     REAL_TIME_TASKS,
     TIMING_TASKS,
@@ -167,4 +195,8 @@ TASKS_LIST = [
     WISH_REFRESH,
     ALI_SHOP_MANAGE,
     AMAZON_UPLOAD,
+    SALER_PROFIT_TASK,
+    PY_MODIFY_TASKS,
+    LZD_SHOP_MANAGE,
+    SHP_SHOP_MANAGE,
 ]

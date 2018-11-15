@@ -42,7 +42,6 @@ import urllib
 from django.http import HttpResponseRedirect
 from django.db.models import Q
 
-import traceback
 
 redis_conn = get_redis_connection(alias='product')
 py_SynRedis_tables_obj = py_SynRedis_tables()
@@ -248,10 +247,14 @@ class t_online_info_amazon_listing_Admin(object):
                     if zh_sku_obj:
                         product_sku_html = str(obj.SKU) + '<br/>↓<br/>' + str(zh_sku_obj[0].Pro_SKU)
 
+                goods_status_html = goodsstatus
+                if obj.SKU is not None and obj.SKU != '' and (obj.SKU[0:2] == 'ZH' or '+' in obj.SKU) and obj.product_status != '1':
+                    goods_status_html = str(goodsstatus) + '<br/>↓<br/>' + str(obj.generic_keywords5)
+
                 rt = '''
                     %s <tr %s>
                      <td style="word-break:break-all;">%s</td>
-                     <td>%s</td>
+                     <td style="word-break:break-all;">%s</td>
                      <td>%s</td>
                      <td style="word-break:break-all;">%s</td>
                      %s
@@ -263,7 +266,7 @@ class t_online_info_amazon_listing_Admin(object):
                      <td><a><span id="%s">%s</span></a></td></tr>
                 ''' % (rt, style,
                        product_sku_html,
-                       goodsstatus,
+                       goods_status_html,
                        can_sold_days,
                        sinfor['ShopSKU'].replace('<', '&lt;').replace('>', '&gt;'),
                        inventory_html,
@@ -325,7 +328,7 @@ class t_online_info_amazon_listing_Admin(object):
 
             rt += u"</tbody></table>"
         except Exception as e:
-            rt = traceback.format_exc()
+            rt = ''
         return mark_safe(rt)
     show_sku_list.short_description = mark_safe('<p align="center"style="color:#428bca;">子SKU</p>')
 
@@ -335,6 +338,8 @@ class t_online_info_amazon_listing_Admin(object):
         else:
             url = u'%s' % obj.image_url
             rt = '<img src="%s"  width="69" height="69"  alt = "%s"  title="%s"  />' % (url, url, url)
+        if obj.ShopName in ('AMZ-0013-GBY-US/PJ','AMZ-0017-LXY-US/PJ','AMZ-0052-Bohonan-US/PJ','AMZ-0056-Chengcaifengye01-US/PJ','AMZ-0061-Peoria-US/PJ','AMZ-0078-Fuyamp-US/PJ','AMZ-0099-Fuguan-US/PJ','AMZ-0143-KZXX-US/PJ','AMZ-0145-SH-US/PJ','AMZ-0152-DL-US/PJ','AMZ-0154-HY-US/PJ','AMZ-0162-ZS-US/PJ','AMZ-0173-XL-US/PJ','AMZ-0182-FXXR-JP/HF','AMZ-0186-BL-US/HF','AMZ-0208-CHT-US/HF','AMZ-9900-YWGM-US/HF',):
+            rt += '<div title="跟卖" style="float:left;width: 20px;height: 20px;background-color: #FFCC33;text-align: center;line-height: 20px;border-radius: 4px; font-weight:bold;">跟</div>'
         return mark_safe(rt)
     show_image_url.short_description = u'<span style="color:#428BCA">图片</span>'
 
@@ -351,7 +356,29 @@ class t_online_info_amazon_listing_Admin(object):
             site_url = site_url_dict[obj.ShopSite]
         else:
             site_url = 'https://www.amazon.com/'
-        rt = u'<p style="word-break:break-all;">%s</p><br>店铺:%s<br>店长/销售员:%s<br>销售排名：%s<br><a href="%sdp/%s" target="_blank">%s</a><br><br>' % (obj.item_name, obj.ShopName, obj.seller, obj.sale_rank, site_url, obj.asin1, obj.asin1)
+        rt = u'<p style="word-break:break-all;">%s</p><br>店铺:%s<br>店长/销售员:%s<br>销售排名：%s<br><a href="%sdp/%s" target="_blank">%s</a><br/>' % (obj.item_name, obj.ShopName, obj.seller, obj.sale_rank, site_url, obj.asin1, obj.asin1)
+        #  轻小件标识展示
+        if obj.is_fba == 1:
+            if obj.lg_flag > 0:
+                if obj.lg_flag == 1:
+                    _rt = u' <div title="轻小件已注册" style="float:left;width: 80px;height: 20px;background-color: #7FFF00;text-align: center;line-height: 20px;border-radius: 4px">轻小件已注册</div><br/>'
+                elif obj.lg_flag == 2:
+                    _rt = u' <div title="轻小件可注册" style="float:left;width: 80px;height: 20px;background-color: #00BFFF;text-align: center;line-height: 20px;border-radius: 4px">轻小件可注册</div><br/>'
+                elif obj.lg_flag == 3:
+                    _rt = u' <div title="轻小件销量不足" style="float:left;width: 100px;height: 20px;background-color: #FF4500;text-align: center;line-height: 20px;border-radius: 4px">轻小件销量不足</div><br/>'
+                else:
+                    _rt = u' <div title="轻小件库存过高" style="float:left;width: 100px;height: 20px;background-color: #FFD700;text-align: center;line-height: 20px;border-radius: 4px">轻小件库存过高</div><br/>'
+
+                rt += _rt
+            elif obj.ShopSite in ('US', 'UK', 'DE', 'JP') and obj.product_size_tier:
+                if 'Oversize' in obj.product_size_tier:
+                    size_tier = u'大件'
+                else:
+                    size_tier = u'标件'
+
+                _rt = u' <div title="%s" style="float:left;width: 30px;height: 20px;background-color: #AAAAAA;text-align: center;line-height: 20px;border-radius: 4px">%s</div><br/>'%(obj.product_size_tier, size_tier)
+
+                rt += _rt
 
         if obj.is_fba == 1 or obj.is_fba == 0:
             t_cloth_factory_dispatch_needpurchase_objs = t_cloth_factory_dispatch_needpurchase.objects.filter(SKU=obj.SKU).\
@@ -462,9 +489,12 @@ class t_online_info_amazon_listing_Admin(object):
             #         upload_time = None
 
             if obj.upload_time:
-                upload_html = u'<br>刊登日期:%s' % obj.upload_time.strftime('%Y-%m-%d')
+                if obj.online_upload_flag == 1:
+                    upload_html = u'<br>刊登(online):%s' % obj.upload_time.strftime('%Y-%m-%d')
+                elif obj.online_upload_flag == 0:
+                    upload_html = u'<br>刊登(绑):%s' % obj.upload_time.strftime('%Y-%m-%d')
             else:
-                upload_html = ''
+                upload_html = u'<br>刊登(无)'
             rt = u'最近更新时间:<br>%s %s<br>操作状态:<br> %s ' % (obj.UpdateTime, upload_html, action)
         except Exception as e:
             rt = ''
@@ -473,7 +503,59 @@ class t_online_info_amazon_listing_Admin(object):
 
     def product_change(self, obj):
         if check_permission_legality(self):
-            return u'<br><a href = "/syndata_by_amazon_api/?operation_type=%s&pri_id=%s" style=" padding-top: 10px;">修改</a>' % ('change', obj.id)
+            # return u'<br><a href = "/syndata_by_amazon_api/?operation_type=%s&pri_id=%s" style=" padding-top: 10px;">修改</a>' % ('change', obj.id)
+            # <a href = "/syndata_by_amazon_api/?operation_type=change&ShopName=%s&seller_sku=%s" style=" padding-top: 10px;">修改</a>
+            return '''<a href = "/syndata_by_amazon_api/?operation_type=change&ShopName=%s&seller_sku=%s" style=" padding-top: 10px;">修改</a>
+                          <br/>
+                          <a onclick="enable_id_%s(\'%s\', \'%s\')">上架</a>
+                          <script>
+                            function enable_id_%s(ShopName, seller_sku) {
+                                to_lock(1);
+                                layer.confirm(seller_sku + '  请问确定要进行上架吗？',
+                                    {
+                                        btn: ['确定','取消'],
+                                        btn1:function(){
+                                           
+                                            $.get(
+                                                "/syndata_by_amazon_api/",
+                                                {'operation_type':'load','ShopName':ShopName,'seller_sku':seller_sku},
+                                                 function(data){
+                                                    window.location.href = window.location.href;
+                                                 }
+                                             );
+                                        },
+                                        end:function(){
+                                            to_lock(0);
+                                        }
+                                    }
+                                );
+                            }
+                          </script>
+                        
+                          <br />
+                          <a onclick="disable_id_%s(\'%s\', \'%s\')">下架</a>
+                          <script>
+                            function disable_id_%s(ShopName, seller_sku) {
+                                to_lock(1);
+                                layer.confirm(seller_sku + '  请问确定要进行下架吗？',
+                                    {
+                                        btn: ['确定','取消'],
+                                        btn1:function(){
+                                            $.get(
+                                                "/syndata_by_amazon_api/",
+                                                {'operation_type':'unload','ShopName':ShopName,'seller_sku':seller_sku},
+                                                 function(data){
+                                                    window.location.href = window.location.href;
+                                                 }
+                                             );
+                                        },
+                                        end:function(){
+                                            to_lock(0);
+                                        }
+                                    }
+                                );
+                            }
+                          </script>''' % (obj.ShopName, obj.seller_sku, obj.id, obj.ShopName, obj.seller_sku, obj.id, obj.id, obj.ShopName, obj.seller_sku,obj.id,)
         else:
             return ''
 
@@ -655,7 +737,6 @@ class t_online_info_amazon_listing_Admin(object):
         if len(objs) != len(fail_record):
             messages.success(request, '商品价格调整中, 调整批次号为：' + '<a href = "/Project/admin/skuapp/t_amazon_operation_log/?batch_id=%s" target = "_blank" > %s </a>' % (str(batch_id),str(batch_id)))
 
-
         if sku_str == '':
             sku_str = ' '
         else:
@@ -675,12 +756,16 @@ class t_online_info_amazon_listing_Admin(object):
         import datetime
         import urllib
         from django.http import HttpResponseRedirect
+        from skuapp.table.t_amazon_auto_load import t_amazon_auto_load
+        import uuid
 
         syn_type = request.POST.get('syn_type', '')
+        batch_id = str(uuid.uuid4())
         shop_sku = {}
         sku_str = ''
         if syn_type == 'load':  # 产品上架
-            refresh_type = 'load_product'
+            refresh_type = 'auto_load_product'
+            upload_record_list = list()
             for record in objs:
                 t_online_info_amazon_ins = t_online_info_amazon.objects.filter(id=record.id)
                 for obj in t_online_info_amazon_ins:
@@ -695,8 +780,11 @@ class t_online_info_amazon_listing_Admin(object):
                                                     deal_result=None,
                                                     deal_result_info=None,
                                                     UpdateTime=datetime.datetime.now())
+                    upload_record_list.append(t_amazon_auto_load(batch_id=batch_id, shop_name=obj.ShopName, seller_sku=obj.seller_sku, status=obj.Status, insert_time=datetime.datetime.now(), deal_type='load', deal_user=request.user.username))
+            t_amazon_auto_load.objects.bulk_create(upload_record_list)
         elif syn_type == 'unload':  # 产品下架
-            refresh_type = 'unload_product'
+            refresh_type = 'auto_unload_product'
+            unload_record_list = list()
             for record in objs:
                 t_online_info_amazon_ins = t_online_info_amazon.objects.filter(id=record.id)
                 for obj in t_online_info_amazon_ins:
@@ -711,6 +799,8 @@ class t_online_info_amazon_listing_Admin(object):
                                                     deal_result=None,
                                                     deal_result_info=None,
                                                     UpdateTime=datetime.datetime.now())
+                    unload_record_list.append(t_amazon_auto_load(batch_id=batch_id, shop_name=obj.ShopName, seller_sku=obj.seller_sku, status=obj.Status, insert_time=datetime.datetime.now(), deal_type='unload', deal_user=request.user.username))
+            t_amazon_auto_load.objects.bulk_create(unload_record_list)
 
         for key, value in shop_sku.items():
             get_auth_info_ins = GetAuthInfo(connection)
@@ -719,11 +809,12 @@ class t_online_info_amazon_listing_Admin(object):
             auth_info['table_name'] = 't_online_info_amazon'
             auth_info['update_type'] = refresh_type
             auth_info['product_list'] = value
+            auth_info['batch_id'] = batch_id
 
-            if refresh_type == 'load_product':
+            if refresh_type == 'auto_load_product':
                 feed_xml_ins = GenerateFeedXml(auth_info)
                 feed_xml = feed_xml_ins.get_inventory_xml(value, 999)
-            elif refresh_type == 'unload_product':
+            elif refresh_type == 'auto_unload_product':
                 feed_xml_ins = GenerateFeedXml(auth_info)
                 feed_xml = feed_xml_ins.get_inventory_xml(value, 0)
             else:
@@ -735,9 +826,9 @@ class t_online_info_amazon_listing_Admin(object):
             auth_info = json.dumps(auth_info)
             message_to_rabbit_obj.put_message(auth_info)
 
-        if refresh_type == 'load_product':
+        if refresh_type == 'auto_load_product':
             messages.success(request, '商品上架中')
-        elif refresh_type == 'unload_product':
+        elif refresh_type == 'auto_unload_product':
             messages.success(request, '商品下架中')
         else:
             pass
@@ -864,7 +955,7 @@ class t_online_info_amazon_listing_Admin(object):
         messages.success(request, u'%s%s.%s/%s/%s' % (PREFIX, BUCKETNAME_XLS, ENDPOINT_OUT, request.user.username, filename) + u':成功导出,可点击Download下载到本地............................。')
     to_excel.short_description = u'导出库存价格数据'
 
-    list_display = ('id', 'show_image_url', 'show_item_name_and_product_id', 'show_order', 'Status', 'show_sku_list', 'show_time', 'action_remark')
+    list_display = ('id', 'show_image_url', 'show_item_name_and_product_id', 'show_order', 'Status', 'show_sku_list', 'show_time', 'action_remark', 'show_operations')
     search_fields = None
     list_filter = None
     list_editable = ('action_remark',)
@@ -911,6 +1002,7 @@ class t_online_info_amazon_listing_Admin(object):
 
         seller = request.GET.get('seller', '')
         product_status = request.GET.get('product_status', '')
+        product_status = '' if product_status == '' else product_status.strip().replace(' ', '+').split(',')
 
         orders_refund_total_start = request.GET.get('orders_refund_total_start', '')
         orders_refund_total_end = request.GET.get('orders_refund_total_end', '')
@@ -920,8 +1012,16 @@ class t_online_info_amazon_listing_Admin(object):
         product_size_tier = request.GET.get('product_size_tier', '')
         shop_site = request.GET.get('shop_site', '')
 
+        shop_follow = request.GET.get('shop_follow', '')
+        lg_flag = request.GET.get('lgflag', '')
+        upload_time_start = request.GET.get('upload_time_start', '')
+        upload_time_end = request.GET.get('upload_time_end', '')
+
         if product_sku:
             qs = qs.filter(Q(SKU__icontains=product_sku) | Q(com_pro_sku__icontains=product_sku))
+
+        if shop_follow and not ShopName:
+            qs = qs.filter(ShopName__exact=shop_follow)
 
         searchList = {'ShopName__icontains': ShopName,
                       'item_name__icontains': item_name,
@@ -940,9 +1040,11 @@ class t_online_info_amazon_listing_Admin(object):
                       'Status__exact': status,
                       'UpdateTime__gte': date_refresh_start,
                       'UpdateTime__lte': date_refresh_end,
+                      'upload_time__gte': upload_time_start,
+                      'upload_time__lte': upload_time_end,
                       'inventory_received_date__gte': date_receive_start,
                       'inventory_received_date__lte': date_receive_end,
-                      'product_status__exact': product_status,
+                      'product_status__in': product_status,
                       'seller__exact': seller,
                       'Parent_asin__exact': parent_asin,
                       'SKU__in': product_sku_multi,
@@ -952,6 +1054,7 @@ class t_online_info_amazon_listing_Admin(object):
                       'refund_rate__lte': refund_rate_end,
                       'product_size_tier__icontains': product_size_tier,
                       'ShopSite__exact': shop_site,
+                      'lg_flag__exact': lg_flag,
                       }
         sl = {}
         for k, v in searchList.items():

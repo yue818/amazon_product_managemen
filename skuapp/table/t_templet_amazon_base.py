@@ -119,6 +119,8 @@ class t_templet_amazon_base(models.Model):
     season                          = models.CharField(u'季节(德法)', choices=PRODUCTCLOTHING_SEASON, max_length=32, blank=True, null=True)
     material_composition            = models.CharField(u'材料成分(德法)', max_length=1000, blank=True, null=True)
     remark                          = models.TextField(u'备注', blank=True, null=True)
+    included_components             = models.CharField(u'组件(IN)', max_length=50, blank=True, null=True)
+    are_batteries_included             = models.CharField(u'是否带电(IN)',choices=((u'true', u'带电'),(u'false', u'不带电')), max_length=12, blank=True, null=True)
     class Meta:
         app_label = 'skuapp'
         abstract = True

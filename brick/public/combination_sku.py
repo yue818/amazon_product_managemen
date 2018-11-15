@@ -10,7 +10,7 @@
 """
 from brick.table.t_combination_sku_log import t_combination_sku_log
 
-def G_ZHSKU(setsku,coon,cName,cSID,cTime):
+def G_ZHSKU(setsku,coon,cName,cSID,cTime,title=''):
     t_combination_sku_log_obj = t_combination_sku_log(coon)
     ZHSKU = t_combination_sku_log_obj.ObtainZHSKU(setsku)  # 商品SKU组合编码
     code = 0
@@ -23,7 +23,7 @@ def G_ZHSKU(setsku,coon,cName,cSID,cTime):
             Code = int(MCode) + 1    # 2
             ZHSKU = 'ZH%s'%str(Code).zfill(len(MCode))
 
-        code = t_combination_sku_log_obj.INSERTZHSKU(setsku,ZHSKU,cName,cSID,cTime)
+        code = t_combination_sku_log_obj.INSERTZHSKU(setsku,ZHSKU,cName,cSID,cTime,title)
     else:
         code = 2
 

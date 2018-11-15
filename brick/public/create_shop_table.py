@@ -59,8 +59,8 @@ class CreateShopTable(object):
                 current_type = 6
             else:
                 current_type = (max_type + 1) % 6
-            if self.shop_name.split('-')[0] == 'ALI':
-                current_type = random.sample([1, 4], 1)[0]
+            if (self.shop_name.split('-')[0]).upper() in ['ALI','TOP','CDIS','LZD','UMKA']:
+                current_type = random.choice([1, 4])
             length = random.randint(5, 10)
             initial_num = random.randint(100, 10000)
             code = self.random_code(current_type, length)

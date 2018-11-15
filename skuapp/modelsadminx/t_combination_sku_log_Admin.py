@@ -18,9 +18,15 @@ from django.contrib import messages
 from django.utils.safestring import mark_safe
 from brick.public.django_wrap import django_wrap
 from skuapp.table.t_product_mainsku_sku import t_product_mainsku_sku
+from skuapp.table.t_combination_sku_log import t_combination_sku_log
+import math
+from pyapp.models import b_store as py_b_store
 
 class t_combination_sku_log_Admin(object):
     downloadxls = True
+    search_box_flag = True
+    sku_apply_unbind_flag = True
+
 
     def show_Pro_SKU(self,obj) :
         rt = django_wrap(obj.Pro_SKU,'+',6)
@@ -28,9 +34,7 @@ class t_combination_sku_log_Admin(object):
     show_Pro_SKU.short_description = u'商品SKU合集'
 
     list_display   = ('id','Com_SKU','ZHName','show_Pro_SKU','CreateName','CreateTime','SynStatus')
-    search_fields  = ('id','Com_SKU','ZHName','Pro_SKU','CreateName','CreateStaffID','SynStatus')
     list_editable = ('ZHName',)
-    list_filter    = ('CreateTime',)
 
     actions = ['to_excel',]
 
@@ -58,14 +62,18 @@ class t_combination_sku_log_Admin(object):
         row = 0
         for qs in queryset:
             SKU_List = []
+            SKU_List_MainSKU = []
             if qs.Pro_SKU and qs.Pro_SKU.strip() != '':
                 SKU_List = [ skun for skun in qs.Pro_SKU.strip().split('+') if skun ]
+                SKU_List_MainSKU = [ skun.split('*')[0] for skun in qs.Pro_SKU.strip().split('+') if skun ]
 
             pyskuinfo = None
-            if SKU_List:
-                objsmainsku = t_product_mainsku_sku.objects.filter(ProductSKU__in=SKU_List).values_list('MainSKU',flat=True)
+            if SKU_List_MainSKU:
+                objsmainsku = t_product_mainsku_sku.objects.filter(ProductSKU__in=SKU_List_MainSKU).values_list('MainSKU',flat=True)
                 if len(set(objsmainsku)) == 1:
-                    pyskuinfo = py_b_goods.objects.filter(SKU=SKU_List[0])
+                    pyskuinfo = py_b_goods.objects.filter(SKU=SKU_List_MainSKU[0])
+            if qs.SynStatus == 'no':
+                t_combination_sku_log.objects.filter(id=qs.id).update(SynStatus='yes')
 
             SKU_List.insert(0,'')
             for i,SKU_each in enumerate(SKU_List):
@@ -96,8 +104,7 @@ class t_combination_sku_log_Admin(object):
                 # sheet.write(row,column,'')
 
                 column = column + 1  # G 样品数据
-                if i == 0 and pyskuinfo:
-                    sheet.write(row, column, '%s'%pyskuinfo[0].SampleCount)
+                # sheet.write(row, column, '%s'%pyskuinfo[0].SampleCount)
 
                 column = column + 1  # H 大类名称
                 if i == 0:  # 组合产品第一条
@@ -120,56 +127,64 @@ class t_combination_sku_log_Admin(object):
                     sheet.write(row, column, '%s'%pyskuinfo[0].Material)
 
                 column = column + 1  # M 规格
-                if i == 0 and pyskuinfo:
-                    sheet.write(row, column, '%s'%pyskuinfo[0].Class)
 
                 column = column + 1  # N 型号
                 if i == 0 and pyskuinfo:
-                    sheet.write(row, column, '%s'%pyskuinfo[0].Model)
+                    sheet.write(row,column, '%s'%pyskuinfo[0].Model)
 
                 column = column + 1  # O 款式
-                if i == 0 and pyskuinfo:
-                    sheet.write(row, column, '%s'%pyskuinfo[0].Style)
 
                 column = column + 1  # P 品牌
                 if i == 0 and pyskuinfo:
                     sheet.write(row, column, '%s'%pyskuinfo[0].Brand)
 
                 column = column + 1  # Q 单位
-                if i == 0 and pyskuinfo:
-                    sheet.write(row, column, '%s'%pyskuinfo[0].Unit)
 
                 column = column + 1  # R 最小包装数
-                if i == 0 and pyskuinfo:
-                    sheet.write(row, column, '%s'%pyskuinfo[0].PackageCount)
 
                 column = column + 1  # S 重量(G)
-                # sheet.write(row, column, '')
+                # if i == 0 and pyskuinfo:
+                #     pro_weights = 0
+                #     for j, each_pro in enumerate(SKU_List):
+                #         if j == 0:
+                #             pass
+                #         else:
+                #             pro_value = py_b_goods.objects.filter(SKU=each_pro.split('*')[0])[0].Weight
+                #             if each_pro.split('*')[-1] != each_pro.split('*')[0]:
+                #                 pro_weights += pro_value * (int(each_pro.split('*')[-1]))
+                #             else:
+                #                 pro_weights += pro_value
+                #     sheet.write(row, column, '%s' % pro_weights)
 
                 column = column + 1  # T 采购渠道
                 if i == 0 and pyskuinfo:
                     sheet.write(row, column, '%s'%pyskuinfo[0].BarCode)
 
                 column = column + 1  # U 成本单价(元)
-                # sheet.write(row, column, '')
+                # if i == 0 and pyskuinfo:
+                #     pro_costprices = 0
+                #     for j, each_pro in enumerate(SKU_List):
+                #         if j == 0:
+                #             pass
+                #         else:
+                #             pro_value = py_b_goods.objects.filter(SKU=each_pro.split('*')[0])[0].CostPrice
+                #             if each_pro.split('*')[-1] != each_pro.split('*')[0]:
+                #                 pro_costprices += pro_value * (int(each_pro.split('*')[-1]))
+                #             else:
+                #                 pro_costprices += pro_value
+                #     sheet.write(row, column, '%s'%pro_costprices)
 
                 column = column + 1  # V 批发价格(美元)
-                # sheet.write(row, column, '')
 
                 column = column + 1  # W 零售价格(美元)
-                # sheet.write(row, column, '')
 
                 column = column + 1  # X 最低售价(美元)
-                # sheet.write(row, column, '')
 
                 column = column + 1  # Y 最高售价(美元)
-                # sheet.write(row, column, '')
 
                 column = column + 1  # Z 市场参考价(美元)
-                # sheet.write(row, column, '')
 
                 column = column + 1  # AA 备注
-                # sheet.write(row, column, '')
 
                 column = column + 1  # AB 中文申报名
                 if i == 0 and pyskuinfo:
@@ -180,7 +195,23 @@ class t_combination_sku_log_Admin(object):
                     sheet.write(row, column, '%s'%pyskuinfo[0].AliasEnName)
 
                 column = column + 1  # AD 申报价值(美元)
-                # sheet.write(row, column, '')
+                if i == 0 and pyskuinfo:
+                    pro_costprices = 0
+                    for j, each_pro in enumerate(SKU_List):
+                        if j == 0:
+                            pass
+                        else:
+                            pro_value_obj = py_b_goods.objects.filter(SKU=each_pro.split('*')[0])
+                            if pro_value_obj.exists():
+                                pro_value = pro_value_obj[0].CostPrice
+                                if each_pro.split('*')[-1] != each_pro.split('*')[0]:
+                                    pro_costprices += pro_value * (int(each_pro.split('*')[-1]))
+                                else:
+                                    pro_costprices += pro_value
+                            else:
+                                messages.error(request,'ID: %s SKU: %s不存在' %(qs.id,each_pro.split('*')[0]) )
+                    pro_declaredvalue = math.ceil(int(pro_costprices)/6.5)
+                    sheet.write(row, column, '%s'%pro_declaredvalue)
 
                 column = column + 1  # AE 原产国代码
                 if i == 0 and pyskuinfo:
@@ -191,33 +222,27 @@ class t_combination_sku_log_Admin(object):
                     sheet.write(row, column, '%s'%pyskuinfo[0].OriginCountry)
 
                 column = column + 1  # AG 库存上限
-                # sheet.write(row, column, '')
 
                 column = column + 1  # AH 库存下限
-                # sheet.write(row, column, '')
 
                 column = column + 1  # AI 业绩归属人1
-                if i == 0 and pyskuinfo:
-                    sheet.write(row, column, '%s'%pyskuinfo[0].SalerName)
 
                 column = column + 1  # AJ 业绩归属人2
-                if i == 0 and pyskuinfo:
-                    sheet.write(row, column, '%s'%pyskuinfo[0].SalerName2)
 
                 column = column + 1  # AK 包装规格
-                # sheet.write(row, column, '')
 
                 column = column + 1  # AL 开发日期
-                # sheet.write(row, column, '')
+                if i == 0 and pyskuinfo:
+                    sheet.write(row, column, '%s'%pyskuinfo[0].DevDate)
 
                 column = column + 1  # AM 发货仓库
-                # sheet.write(row, column, '')
+                if i == 0 and pyskuinfo:
+                    storename = py_b_store.objects.filter(NID=pyskuinfo[0].StoreID)[0].StoreName
+                    sheet.write(row, column, '%s' % storename)
 
                 column = column + 1  # AN 图片URL
-                # sheet.write(row, column, '')
 
                 column = column + 1  # AO 最低采购价格
-                # sheet.write(row, column, '')
 
                 column = column + 1  # AP 责任归属人1
                 if i == 0 and pyskuinfo:
@@ -228,7 +253,6 @@ class t_combination_sku_log_Admin(object):
                     sheet.write(row, column, '%s'%pyskuinfo[0].possessMan2)
 
                 column = column + 1  # AR 内包装成本
-                # sheet.write(row, column, '')
 
                 column = column + 1  # AS 商品SKU状态
                 if i == 0:
@@ -247,11 +271,41 @@ class t_combination_sku_log_Admin(object):
                                                prefix='%s/%s_' % (request.user.username, request.user.username)):
             bucket.delete_object(object_info.key)
         bucket.put_object(u'%s/%s' % (request.user.username, filename), open(path + '/' + filename))
-
-        messages.error(request, u'%s%s.%s/%s/%s' % (PREFIX, BUCKETNAME_XLS, ENDPOINT_OUT, request.user.username,
+        messages.success(request, u'%s%s.%s/%s/%s' % (PREFIX, BUCKETNAME_XLS, ENDPOINT_OUT, request.user.username,
                                                     filename) + u':成功导出,可点击Download下载到本地............................。')
 
     to_excel.short_description = u'导出EXCEL'
+
+    def get_list_queryset(self,):
+        request = self.request
+        qs = super(t_combination_sku_log_Admin, self).get_list_queryset()
+        Com_SKU = request.GET.get('Com_SKU','')
+        CreateName = request.GET.get('CreateName','')
+        ZHName = request.GET.get('ZHName','')
+        SKU = request.GET.get('SKU','')
+        SynStatus = request.GET.get('SynStatus','')
+        CreateTimeStart = request.GET.get('CreateTimeStart','')
+        CreateTimeEnd = request.GET.get('CreateTimeEnd', '')
+
+        searchList = { 'Com_SKU__exact': Com_SKU,'CreateName__exact':CreateName,
+                     'ZHName__contains': ZHName,'SynStatus__exact':SynStatus,'Pro_SKU__contains': SKU,
+                      'CreateTime__gte': CreateTimeStart, 'CreateTime__lt': CreateTimeEnd,}
+
+
+        sl = {}
+        for k, v in searchList.items():
+            if isinstance(v, list):
+                if v:
+                    sl[k] = v
+            else:
+                if v is not None and v.strip() != '':
+                    sl[k] = v
+        if sl is not None:
+            try:
+                qs = qs.filter(**sl)
+            except Exception, ex:
+                messages.error(request, u'Please enter the correct content!')
+        return qs
 
 
 

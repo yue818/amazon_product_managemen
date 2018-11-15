@@ -5,6 +5,7 @@ import sys
 from datetime import datetime
 from django.db import connection
 from pyapp.models import b_goodsskulinkshop
+from pyapp.models import b_goods
 
 
 
@@ -23,10 +24,22 @@ class ShopskuChange(object):
                 table = data.sheets()[0]
                 nrows = table.nrows
                 sku_info_list = []
+                row_0 = table.row_values(0)
+                if row_0:
+                    shop_name = str(row_0[0]).strip()
+                    unbind_sku = str(row_0[1]).strip()
+                    shop_sku = str(row_0[2]).strip()
+                    bind_sku = str(row_0[3]).strip()
+                    if shop_name == 'ShopName' and unbind_sku == 'UnbindSKU' and shop_sku == 'ShopSKU' and bind_sku == 'BindSKU':
+                        pass
+                    else:
+                        return {'error_code': 10000, 'error_info': u'请严格按照模板进行店铺SKU的修改操作'}
+                else:
+                    return {'error_code': 10000, 'error_info': u'请严格按照模板进行店铺SKU的修改操作'}
                 for rownum in range(1, nrows):
                     row = table.row_values(rownum)
                     if row:
-                        shop_name = str(row[0]).strip()[0:9]
+                        shop_name = str(row[0]).strip()
                         unbind_sku = str(row[1]).strip()
                         shop_sku = str(row[2]).strip()
                         bind_sku = str(row[3]).strip()
@@ -46,23 +59,37 @@ class ShopskuChange(object):
         :param shop_sku: 店铺sku
         :param shop_name: 店铺名
         """
-        b_goodsskulinkshop_objs = b_goodsskulinkshop.objects.filter(SKU=unbind_sku, ShopSKU=shop_sku)
-        if b_goodsskulinkshop_objs.exists():
-            try:
-                link_id = b_goodsskulinkshop_objs[0].NID
-                current_flag = b_goodsskulinkshop_objs[0].Falg
-                if (current_flag == 1) or (current_flag == 3) or (current_flag is None):
-                    pass
-                else:
-                    return {'error_code': 10000, 'error_info': u'商品SKU：%s和店铺SKU：%s绑定关系处于尚未完成状态' % (unbind_sku, shop_sku)}
-                # 修改linkshop表状态
-                b_goodsskulinkshop_objs.update(Falg=2, SKU=bind_sku)
-                return {'error_code': 0, 'link_id': link_id}
-            except Exception, e:
-                error_info = '[unbind_shopsku] ex=%s LINE=%s' % (e, sys._getframe().f_lineno)
-                return {'error_code': -1, 'error_info': error_info}
+        if bind_sku.startswith('ZH'):
+            flag = 1
         else:
-            return {'error_code': 10000, 'error_info': u'未查到商品SKU：%s和店铺SKU：%s 绑定关系' % (unbind_sku, shop_sku)}
+            b_goods_obj = b_goods.objects.filter(SKU=bind_sku)
+            if b_goods_obj.exists():
+                flag = 1
+            else:
+                flag = 0
+        if flag:
+            b_goodsskulinkshop_objs = b_goodsskulinkshop.objects.filter(SKU=unbind_sku, ShopSKU=shop_sku)
+            if b_goodsskulinkshop_objs.exists():
+                try:
+                    link_id = b_goodsskulinkshop_objs[0].NID
+                    current_flag = b_goodsskulinkshop_objs[0].Falg
+                    if (current_flag == 1) or (current_flag == 3) or (current_flag is None):
+                        pass
+                    else:
+                        return {'error_code': 10000, 'error_info': u'待解绑商品SKU：%s和店铺SKU：%s绑定关系处于尚未完成状态' % (unbind_sku, shop_sku)}
+                    # 修改linkshop表状态
+                    b_goodsskulinkshop_objs.update(Falg=2)
+                    return {'error_code': 0, 'link_id': link_id}
+                except Exception, e:
+                    error_info = '[unbind_shopsku] ex=%s LINE=%s' % (e, sys._getframe().f_lineno)
+                    return {'error_code': -1, 'error_info': error_info}
+            else:
+                return {'error_code': 10000, 'error_info': u'未查到待解绑商品SKU：%s和店铺SKU：%s 的绑定关系' % (unbind_sku, shop_sku)}
+        else:
+            if bind_sku:
+                return {'error_code': 10000, 'error_info': u'未查到待绑定商品SKU：%s' % bind_sku}
+            else:
+                return {'error_code': 10000, 'error_info': u'待绑定商品SKU不能为空'}
 
 
     def insert_log(self, shop_name, unbind_sku, shop_sku,  bind_sku, status, link_id=None, error_info=None, confirm_change=None):

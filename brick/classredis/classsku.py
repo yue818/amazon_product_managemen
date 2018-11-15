@@ -99,6 +99,23 @@ class classsku():
             weicur.close()
         return weight
 
+    # 商品名称
+    def set_goodsName_by_sku(self, sku, goodsName):
+        self.__private_set_attr(sku, 'GoodsName', goodsName)
+
+    def get_goodsName_by_sku(self, sku):
+        goodsName = self.__private_get_attr(sku, 'GoodsName')
+        if goodsName is None and self.db_cnxn is not None:
+            weicur = self.db_cnxn.cursor()
+            weicur.execute('select GoodsName from py_db.b_goods WHERE SKU = %s ;', (sku,))
+            obj = weicur.fetchone()
+            if obj:
+                goodsName = obj[0]
+            if goodsName is not None:
+                self.set_goodsName_by_sku(sku, goodsName)
+            weicur.close()
+        return goodsName
+
     # 子SKU 包装规格
     def set_packinfo_by_sku(self,sku,packinfo):
         self.__private_set_attr(sku,'PackInfo',packinfo)
@@ -115,6 +132,12 @@ class classsku():
                 if packobj:
                     packinfo = packobj[0]
                     self.set_packinfo_by_sku(sku,packinfo)
+            if packinfo is None:
+                paccur.execute('select PackName from py_db.b_goods WHERE GoodsCode = %s ;', (sku,))
+                packobj = paccur.fetchone()
+                if packobj:
+                    packinfo = packobj[0]
+                    self.set_packinfo_by_sku(sku, packinfo)
         return packinfo
 
     # 子SKU所属 主SKU
@@ -219,12 +242,26 @@ class classsku():
     def get_updatetime_by_sku(self, sku):
         return self.__private_get_attr(sku, 'UpdateTime')
 
+    # ShopSKU 设置更新时间
+    def set_SevenSales_UpdateTime_by_shopsku(self, shopsku, value):
+        self.__private_set_attr(shopsku, 'SevenSales_UpdateTime', value)
+
+    def get_SevenSales_UpdateTime_by_shopsku(self, shopsku):
+        return self.__private_get_attr(shopsku, 'SevenSales_UpdateTime')
+
     # 商品SKU 是否带电
     def set_isCharged_by_sku(self, sku, value):
         self.__private_set_attr(sku, 'isCharged', value)
 
     def get_isCharged_by_sku(self, sku):
         return self.__private_get_attr(sku, 'isCharged')
+
+    # 商品SKU 最小包装数
+    def set_PackageCount_by_sku(self, sku, value):
+        self.__private_set_attr(sku, 'PackageCount', value)
+
+    def get_PackageCount_by_sku(self, sku):
+        return self.__private_get_attr(sku, 'PackageCount')
 
     #单商品SKU 获取属性值 返回字典
     def get_skuallattrvalue_by_sku(self, sku):
@@ -245,6 +282,7 @@ class classsku():
         DicResult["Location"] = self.get_location_by_sku(sku)  # 商品7天销量
         DicResult["ShopSKU"] = self.get_shopsevensale_by_sku(sku)  # 店铺SKU  7天销量
         DicResult["UpdateTime"] = self.get_updatetime_by_sku(sku) #商品属性redis刷新时间
+        DicResult["GoodsName"] = self.get_goodsName_by_sku(sku) #商品名称
         return DicResult
 
     # 多个商品SKU 获取属性值  参数skuList 列表  返回字典

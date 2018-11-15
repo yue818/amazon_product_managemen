@@ -8,7 +8,7 @@
  @time: 2017-12-30 13:21
 
 """
-import os,errno
+import os, errno
 def mkdir_p(path):
     try:
         os.makedirs(path)

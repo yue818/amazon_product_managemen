@@ -32,7 +32,12 @@
             <td nowrap>{{estimated_obj.item_package_weight}}</td>
             <!--<td nowrap>{{estimated_obj.unit_of_weight}}</td>-->
             <td nowrap>{{estimated_obj.product_size_tier}}</td>
-            <td nowrap>{{estimated_obj.expected_fulfillment_fee_per_unit}}</td>
+            {% if estimated_obj.expected_fulfillment_fee_per_unit == '--' or not estimated_obj.expected_fulfillment_fee_per_unit  %}
+                <td nowrap>{{estimated_obj.estimated_pick_pack_fee_per_unit}}</td>
+            {% else %}
+                <td nowrap>{{estimated_obj.expected_fulfillment_fee_per_unit}}</td>
+            {% endif %}
+
             <!--<td nowrap>{{estimated_obj.currency}}</td>-->
             <td nowrap>{{estimated_obj.refresh_time}}</td>
 

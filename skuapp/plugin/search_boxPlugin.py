@@ -6,6 +6,8 @@ from urllib import unquote
 from skuapp.table.search_box_plugin import *
 from Project.settings import *
 from django.contrib import messages
+from skuapp.table.t_report_sales_daily import *
+from skuapp.table.t_report_sales_daily_byShopName import *
 import MySQLdb
 from skuapp.table.b_goodsskulinkshop import *
 from skuapp.table.t_task_trunk import *
@@ -15,6 +17,10 @@ from skuapp.table.t_use_productsku_apply_for_shopsku import t_use_productsku_app
 from skuapp.table.t_store_configuration_file import t_store_configuration_file
 from django.db import connection
 import json
+
+
+from skuapp.table.t_product_suvering import t_product_suvering
+
 
 class search_boxPlugin(BaseAdminPlugin):
     search_box_flag = False
@@ -35,6 +41,20 @@ class search_boxPlugin(BaseAdminPlugin):
 
     def block_search_cata_nav(self, context, nodes):
         sourceURL = str(context['request']).split("'")[1]
+        #begin 用于控制选择页数后，再按过滤条件查询(查询结果如果小于之前选择业务报错)
+        strUrl = sourceURL
+        if "?" in sourceURL:
+            mainUrl = sourceURL.split("?")[0]
+            strUrl = mainUrl + '?'
+            conditionsAllParam = sourceURL.split("?")[1]
+            conditionsParam = conditionsAllParam.split("&")
+            for row in conditionsParam:
+                if len(row)>=2 and row[:2] == 'p=':
+                    continue
+                strUrl = strUrl + row + '&'
+            if strUrl[-1] == "&":
+                sourceURL = strUrl[:-1]
+        #end
 
         StepID_objs = u'%s' % context['request']
         AAA = self.model._meta.model_name
@@ -94,7 +114,15 @@ class search_boxPlugin(BaseAdminPlugin):
                 if cursor:
                     cursor.close()
                 db_connshopNameOfficialData.close()
-                
+        
+        ShNameData = ""
+        if AAA == 't_report_sales_daily' or AAA=='t_report_sales_daily_byshopname':
+            cursor = connection.cursor()
+            cursor.execute("select DISTINCT ShopName from t_report_sales_daily_byShopName WHERE  ShopName != ''")
+            ShNameDataTmp = cursor.fetchall()
+            ShNameData = [t[0].encode('utf-8') for t in ShNameDataTmp]
+            cursor.close()
+        
         #Task_handlerData = ""
         Create_manData = ""
         #IdentifierData = ""
@@ -126,8 +154,26 @@ class search_boxPlugin(BaseAdminPlugin):
             search_dict = eval(line)                                 #转换为字典  因为有{ }         [ ] ==> 列表    ( ) ==> 元组
             if search_dict['model_name'] == AAA:                     #model_name等于访问的网址
                 if search_dict['inputs'] == '1':
-                    if  '{' in search_dict['defult_value1']:
-                        search_dict['defult_value1'] = eval(search_dict['defult_value1'])
+                    if search_dict['selection'] == 5:
+                        if '[' in search_dict['defult_value1']:
+                            search_dict['defult_value1'] = eval(search_dict['defult_value1'])
+                    elif  '{' in search_dict['defult_value1']:
+                        if AAA == 't_product_suvering' and search_dict['id_name'] == 'saler' and search_dict['id'] == '3':
+                            salers_tmp = t_product_suvering.objects.values('saler')
+                            salersdict = {}
+                            for obj in salers_tmp :
+                                if obj['saler']:
+                                    salersdict[obj['saler']] = obj['saler']
+                            search_dict['defult_value1'] = salersdict
+                        elif AAA == 't_product_suvering' and search_dict['id_name'] == 'getinfo_cate' and search_dict['id'] == '7':
+                            getinfo_cate_tmp = t_product_suvering.objects.values("getinfo_cate")
+                            getinfo_catedict = {}
+                            for obj in getinfo_cate_tmp :
+                                if obj['getinfo_cate']:
+                                    getinfo_catedict[obj['getinfo_cate']] = obj['getinfo_cate']
+                            search_dict['defult_value1'] = getinfo_catedict
+                        else:
+                            search_dict['defult_value1'] = eval(search_dict['defult_value1'])
                         search_dict['defult_value1'] = OrderedDict(sorted(search_dict['defult_value1'].items(),key=lambda  item:item[0]))
                     inputs1.append(search_dict)
                     inputs_id1.append(search_dict['id'])
@@ -171,6 +217,26 @@ class search_boxPlugin(BaseAdminPlugin):
         else:
             newUrl += "?"
 
-        nodes.append(loader.render_to_string('search_box_plugin.html',
-                                             {'newUrl': newUrl, 'inputs1': inputs1, 'inputs2': inputs2,
-                                              'inputs_id1': inputs_id1, 'inputs_id2': inputs_id2, 'ShopNameData':ShopNameData, 'SupplierData':SupplierData, 'shopNData':shopNData,'Create_manData':Create_manData,'AAA':AAA,'cat_Dic':cat_Dic,'shopNameOfficialData':shopNameOfficialData}))
+        warning = {'code': 0, 'messages' : ''}
+        if self.model._meta.model_name in ['t_work_flow_of_plate_house', ]:
+            warning = {
+                'code': 1,
+                'messages': '超时告警规则: </br>1、确定面辅料:需求提出后两天内完成</br>2、纸样样衣:确定面辅料后三天内完成</br>3、审核样衣、报价、跟单领取:均于当天完成</br>4、发货完成:需要跟单员在确定跟单领取后7天内完成'
+            }
+        if self.model._meta.model_name in ['t_work_battledore',]:
+            warning = {
+                'code': 1,
+                'messages': '超时告警规则: </br>1、确定面辅料:需求提出后两天内完成</br>2、纸样样衣:确定面辅料后三天内完成</br>3、审核样衣、报价:均于当天完成'
+            }
+
+        nodes.append(
+            loader.render_to_string('search_box_plugin.html',
+                 {'newUrl': newUrl, 'inputs1': inputs1, 'inputs2': inputs2,
+                  'inputs_id1': inputs_id1, 'inputs_id2': inputs_id2, 'ShopNameData':ShopNameData,
+                  'SupplierData':SupplierData, 'shopNData':shopNData,'Create_manData':Create_manData,
+                  'AAA':AAA,'cat_Dic':cat_Dic,'shopNameOfficialData':shopNameOfficialData,
+                  'ShNameData': ShNameData,
+                  'warning':warning
+                  }
+            )
+        )

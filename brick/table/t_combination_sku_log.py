@@ -33,12 +33,12 @@ class t_combination_sku_log():
             msku = obj[0]
         return msku
 
-    def INSERTZHSKU(self,sSKU,cSKU,cName,cSID,cTime):
+    def INSERTZHSKU(self,sSKU,cSKU,cName,cSID,cTime,title=''):
         try:
             cursor = self.db_conn.cursor()
             cursor.execute("insert into t_combination_sku_log "
-                           "SET Pro_SKU=%s,Com_SKU=%s,CreateName=%s,CreateStaffID=%s,CreateTime=%s;",
-                           (sSKU,cSKU,cName,cSID,cTime))
+                           "SET Pro_SKU=%s,Com_SKU=%s,CreateName=%s,CreateStaffID=%s,CreateTime=%s,ZHName=%s;",
+                           (sSKU,cSKU,cName,cSID,cTime,title))
             cursor.execute("commit;")
             return 0
         except:

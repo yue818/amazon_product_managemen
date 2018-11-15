@@ -36,13 +36,12 @@ class t_use_productsku_apply_for_shopsku_Admin(object):
     def to_banding(self,request,objs):
         insertlist = []
         for obj in objs:
-            if obj.BStatus == 'notyet':
-                insertlist.append(t_shopsku_information_binding(SKU=obj.ProductSKU,ShopSKU=obj.ShopSKU,Filename = u'SKU申请',
-                                                                PersonCode=obj.Applicant,Memo=obj.ShopName,Submitter=request.user.first_name,
-                                                                SubmitTime = datime.now(),BindingStatus = 'wait'
-                                                                ))
-                obj.BStatus = 'already'
-                obj.save()
+            insertlist.append(t_shopsku_information_binding(SKU=obj.ProductSKU,ShopSKU=obj.ShopSKU,Filename = u'SKU申请',
+                                                            PersonCode=obj.Applicant,Memo=obj.ShopName,Submitter=request.user.first_name,
+                                                            SubmitTime = datime.now(),BindingStatus = 'wait'
+                                                            ))
+            obj.BStatus = 'already'
+            obj.save()
         t_shopsku_information_binding.objects.bulk_create(insertlist)
     to_banding.short_description = u'确定进行绑定'
 

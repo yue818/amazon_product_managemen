@@ -14,11 +14,13 @@ from Project.settings import ACCESS_KEY_ID, ACCESS_KEY_SECRET, PREFIX, ENDPOINT,
 
 
 class upload_to_oss():
-    def __init__(self, BUCKETNAME):
+    def __init__(self, BUCKETNAME, POINTURL=None):
         self.bucketName = BUCKETNAME
         self.auth = oss2.Auth(ACCESS_KEY_ID, ACCESS_KEY_SECRET)
-        self.bucket = oss2.Bucket(self.auth, ENDPOINT, BUCKETNAME)
-        # self.bucket = oss2.Bucket(self.auth, ENDPOINT_OUT, BUCKETNAME)
+        if not POINTURL:
+            POINTURL = ENDPOINT
+            # POINTURL = ENDPOINT_OUT
+        self.bucket = oss2.Bucket(self.auth, POINTURL, BUCKETNAME)
         self.bucket.create_bucket(oss2.BUCKET_ACL_PUBLIC_READ)
 
     def upload_to_oss(self, params):
@@ -36,11 +38,13 @@ class upload_to_oss():
 
 
 class get_obj_from_oss():
-    def __init__(self, BUCKETNAME):
+    def __init__(self, BUCKETNAME, POINTURL=None):
         self.bucketName = BUCKETNAME
+        if not POINTURL:
+            POINTURL = ENDPOINT
+            # POINTURL = ENDPOINT_OUT
         self.auth = oss2.Auth(ACCESS_KEY_ID, ACCESS_KEY_SECRET)
-        self.bucket = oss2.Bucket(self.auth, ENDPOINT, BUCKETNAME)
-        # self.bucket = oss2.Bucket(self.auth, ENDPOINT_OUT, BUCKETNAME)
+        self.bucket = oss2.Bucket(self.auth, POINTURL, BUCKETNAME)
         self.bucket.create_bucket(oss2.BUCKET_ACL_PUBLIC_READ)
 
     def get_obj_from_oss(self, params):

@@ -42,6 +42,9 @@ class t_templet_amazon_published_variation(models.Model):
     prodcut_variation_id= models.CharField(u'主从关系',max_length=32,blank=True,null=True)
     item_quantity       = models.CharField(u'包装数', max_length=12, default=u'1',blank=False, null=False)
 
+    fit_type            = models.CharField(u'合身类型', max_length=32, blank=True, null=True)
+    sleeve_type         = models.CharField(u'袖筒类型', max_length=32, blank=True, null=True)
+
     class Meta:
         verbose_name = u'Amazon待刊登商品变体信息'
         verbose_name_plural = verbose_name
