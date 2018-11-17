@@ -2,5 +2,6 @@
 <project version="4">
   <component name="SqlDialectMappings">
     <file url="file://$PROJECT_DIR$/brick/amazon/product_refresh/fba_refresh-20181016.py" dialect="MySQL" />
+    <file url="file://$PROJECT_DIR$/brick/amazon/product_refresh/fba_refresh-20181117(批量提交改造).py" dialect="MySQL" />
   </component>
 </project>

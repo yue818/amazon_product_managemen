@@ -243,7 +243,7 @@ class t_online_info_amazon_listing_Admin(object):
 
                 product_sku_html = obj.SKU
                 if obj.SKU is not None and obj.SKU != '' and obj.SKU[0:2] == 'ZH':
-                    zh_sku_obj = t_combination_sku_log.objects.filter(Com_SKU=sinfor['SKU'])
+                    zh_sku_obj = t_combination_sku_log.objects.filter(Com_SKU=obj.SKU)
                     if zh_sku_obj:
                         product_sku_html = str(obj.SKU) + '<br/>↓<br/>' + str(zh_sku_obj[0].Pro_SKU)
 
@@ -505,6 +505,7 @@ class t_online_info_amazon_listing_Admin(object):
         if check_permission_legality(self):
             # return u'<br><a href = "/syndata_by_amazon_api/?operation_type=%s&pri_id=%s" style=" padding-top: 10px;">修改</a>' % ('change', obj.id)
             # <a href = "/syndata_by_amazon_api/?operation_type=change&ShopName=%s&seller_sku=%s" style=" padding-top: 10px;">修改</a>
+            sku_str = urllib.quote(str(obj.seller_sku).decode('gbk', 'replace').encode('utf-8', 'replace'))
             return '''<a href = "/syndata_by_amazon_api/?operation_type=change&ShopName=%s&seller_sku=%s" style=" padding-top: 10px;">修改</a>
                           <br/>
                           <a onclick="enable_id_%s(\'%s\', \'%s\')">上架</a>
@@ -555,7 +556,7 @@ class t_online_info_amazon_listing_Admin(object):
                                     }
                                 );
                             }
-                          </script>''' % (obj.ShopName, obj.seller_sku, obj.id, obj.ShopName, obj.seller_sku, obj.id, obj.id, obj.ShopName, obj.seller_sku,obj.id,)
+                          </script>''' % (obj.ShopName, sku_str, obj.id, obj.ShopName, obj.seller_sku, obj.id, obj.id, obj.ShopName, obj.seller_sku,obj.id,)
         else:
             return ''
 

@@ -235,68 +235,98 @@ class GetProductInfoByUrl:
         print 'new_source_url is: %s' % new_source_url
 
         try:
+            sql_insert = 'insert into t_templet_amazon_follow (url, query_user, query_time, img_url, title, second_category, price, crawl_result) value (%s, %s, %s, %s, %s, %s, %s,%s)'
             head = {'User-Agent': 'Mozilla/5.0 (X11; U; Linux x86_64; zh-CN; rv:1.9.2.10) Gecko/20100922 Ubuntu/10.10 (maverick) Firefox/3.6.10'}
             req = urllib2.Request(new_source_url, headers=head)
             data_bytes = urllib2.urlopen(req, timeout=30).read()
             print 'get data_bytes success'
-            # data_bytes = None
+            crawl_result = 'OK'
+
             if data_bytes is not None:
                 soup = BeautifulSoup(data_bytes, "lxml")
 
                 [style.extract() for style in soup.find_all('style')]
                 [script.extract() for script in soup.find_all('script')]
-
                 print datetime.datetime.now()
 
                 # 图片
-                image_dic = dict(soup.find("div", id="imgTagWrapperId").find("img").attrs)
-                images = []
-                if image_dic['src'].endswith(('.jpg',)):
-                    images.append(image_dic['src'])
-                if image_dic['data-old-hires'].endswith(('.jpg',)):
-                    images.append(image_dic['data-old-hires'])
-                image_match = re.findall('"(https?://.*?.jpg)"', image_dic['data-a-dynamic-image'])
-                for ima in image_match:
-                    images.append(ima)
-                print 'Image_url: %s' % images[0]
+                try:
+                    image_dic = dict(soup.find("div", id="imgTagWrapperId").find("img").attrs)
+                    images = []
+                    if image_dic['src'].endswith(('.jpg',)):
+                        images.append(image_dic['src'])
+                    if image_dic['data-old-hires'].endswith(('.jpg',)):
+                        images.append(image_dic['data-old-hires'])
+                    image_match = re.findall('"(https?://.*?.jpg)"', image_dic['data-a-dynamic-image'])
+                    for ima in image_match:
+                        images.append(ima)
+                    image_url = images[0]
+                    print 'Image_url: %s' % images[0]
 
-                # 店铺信息
-                shop_info = soup.find("a", id=["bylineInfo", "brand"]).get_text().strip().replace("'", '`')
-                pattern = '\\b' + shop_info + '\\b'
-                # 商品标题
-                title = soup.find("span", id="productTitle").get_text().strip().replace("'", '`')
-                title = re.sub(pattern, '', title)
-                print 'Title: %s' % title
+                except Exception as pic_ex:
+                    image_url = ''
+                    crawl_result = 'Warn: failed to get image due to %s;' % pic_ex
+
+                try:
+                    # 店铺信息
+                    shop_info = soup.find("a", id=["bylineInfo", "brand"]).get_text().strip().replace("'", '`')
+                    pattern = '\\b' + shop_info + '\\b'
+                    # 商品标题
+                    title = soup.find("span", id="productTitle").get_text().strip().replace("'", '`')
+                    title = re.sub(pattern, '', title)
+                    print 'Title: %s' % title
+                except Exception as title_ex:
+                    title = ''
+                    if crawl_result == 'OK':
+                        crawl_result = 'Warn: failed to get title due to %s;' % title_ex
+                    else:
+                        crawl_result += 'failed to get title due to %s;' % title_ex
 
                 # 二级类目
-                item_all_html = soup.find("div", id=["wayfinding-breadcrumbs_container"]).find_all('span', "a-list-item")
-                item_all = ''
-                second_category = ''
-                for idx, item in enumerate(item_all_html):
-                    item_all += item.get_text().strip().replace("'", '`')
-                    if idx == 2:
-                        second_category = item.get_text().strip().replace("'", '`')
-                print 'item_all: %s' % item_all
-                print 'second_category: %s' % second_category
+                try:
+                    item_all_html = soup.find("div", id=["wayfinding-breadcrumbs_container"]).find_all('span', "a-list-item")
+                    item_all = ''
+                    second_category = ''
+                    for idx, item in enumerate(item_all_html):
+                        item_all += item.get_text().strip().replace("'", '`')
+                        if idx == 2:
+                            second_category = item.get_text().strip().replace("'", '`')
+                    print 'item_all: %s' % item_all
+                    print 'second_category: %s' % second_category
+                except Exception as second_category_ex:
+                    second_category = ''
+                    if crawl_result == 'OK':
+                        crawl_result = 'Warn: failed to get second_category due to %s;' % second_category_ex
+                    else:
+                        crawl_result += 'failed to get second_category due to %s;' % second_category_ex
 
                 # 价格
-                price = soup.find("span", id=["priceblock_ourprice"]).get_text()
-                price = filter(lambda ch: ch in '0123456789.', str(price))
-                print 'price: %s' % price
+                try:
+                    price = soup.find("span", id=["priceblock_ourprice"])
+                    if not price:
+                        price = soup.find("div", id=["buyNew_noncbb"])
+                    price = price.get_text()
+                    price = filter(lambda ch: ch in '0123456789.', str(price))
+                    print 'price: %s' % price
+                except Exception as price_ex:
+                    price = ''
+                    if crawl_result == 'OK':
+                        crawl_result = 'Warn: failed to get price due to %s;' % price_ex
+                    else:
+                        crawl_result += 'failed to get price due to %s;' % price_ex
+                data_tuple = (url, query_user, datetime.datetime.now(), image_url, title, second_category, price, crawl_result)
 
-                sql_insert = 'insert into t_templet_amazon_follow (url, query_user, query_time, img_url, title, second_category, price, crawl_result) value ("%s", "%s", "%s", "%s", "%s", "%s", "%s","%s")' \
-                             % (url, query_user, datetime.datetime.now(), images[0], title, second_category, price, 'OK')
             else:
                 print 'Warn: feed back is null'
-                sql_insert = 'insert into t_templet_amazon_follow (url, query_user, query_time, img_url, title, second_category, price, crawl_result) value ("%s", "%s", "%s", "%s", "%s", "%s", "%s","%s")' \
-                             % (url, query_user, datetime.datetime.now(), '', '', '', '', 'Warn: feed back is null')
+                data_tuple = (url, query_user, datetime.datetime.now(), '', '', '', '', 'Warn: feed back is null')
         except Exception as ex:
             print traceback.print_exc()
             error_msg = 'Error: %s' % ex
-            sql_insert = 'insert into t_templet_amazon_follow (url, query_user, query_time, img_url, title, second_category, price, crawl_result) value ("%s", "%s", "%s", "%s", "%s", "%s", "%s","%s")' \
-                         % (url, query_user, datetime.datetime.now(), '', '', '', '', error_msg)
+            data_tuple = (url, query_user, datetime.datetime.now(), '', '', '', '', error_msg)
         print sql_insert
-        self.execute_sql(sql_insert)
+        with self.db_conn.cursor() as cursor:
+            cursor.execute(sql_insert, data_tuple)
+            self.db_conn.commit()
 
     def has_child_tag(self, tag):
         return tag.children is not None

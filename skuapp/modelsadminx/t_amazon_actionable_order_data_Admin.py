@@ -54,7 +54,7 @@ class t_amazon_actionable_order_data_Admin(object):
         sheet.write(0, 7, u'购买的数量')
         sheet.write(0, 8, u'已配送数量')
         sheet.write(0, 9, u'待配送数量')
-        sheet.write(0, 10, u'运输方式	')
+        sheet.write(0, 10, u'运输方式')
         sheet.write(0, 11, u'更新时间')
 
         # 写数据

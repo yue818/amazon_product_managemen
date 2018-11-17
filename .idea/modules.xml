@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../Python-2.5/.idea/Python-2.5.iml" filepath="$PROJECT_DIR$/../Python-2.5/.idea/Python-2.5.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/amazon_product_managemen.iml" filepath="$PROJECT_DIR$/.idea/amazon_product_managemen.iml" />
       <module fileurl="file://$PROJECT_DIR$/../tool_project/.idea/tool_project.iml" filepath="$PROJECT_DIR$/../tool_project/.idea/tool_project.iml" />
     </modules>

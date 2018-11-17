@@ -319,7 +319,7 @@ class MessageToRabbitMq:
 class AmazonAutoLoad:
     def __init__(self):
         # self.batch_id = str(uuid.uuid4())
-        self.batch_id = '5a0cacaa-8604-478a-b624-94093e91183c'
+        self.batch_id = '1dd05c06-a8d5-46b0-ad57-8a3ae40476f3'
         self.online_conn = pymysql.connect(user="by15161458383",
                                            passwd="K120Esc1",
                                            host="rm-uf6kd5a4wee2n2ze6o.mysql.rds.aliyuncs.com",

@@ -5,8 +5,8 @@
  @author: wuchongxiang 
  @site: 
  @software: PyCharm
- @file: fba_refresh-20181115.py
- @time: 2018/11/15 10:22
+ @file: fba_refresh-20181117.py
+ @time: 2018/11/17 10:50
 """
 import logging.handlers
 from mws import Reports, Products, Finances, MWSError
@@ -375,7 +375,7 @@ def refresh_db_tables(auth_info, sql_execute_obj):
                                                            case
                                                              when bb.goodsstatus is null THEN
                                                               CONCAT(aa.product_sku, ':未找到状态信息;')
-                                                           
+
                                                              when bb.goodsstatus not IN ('正常', '在售') then
                                                               CONCAT(bb.sku, ':', bb.goodsstatus, ';')
                                                            end product_sku_status_remark,
@@ -533,6 +533,11 @@ def refresh_db_tables(auth_info, sql_execute_obj):
     logging.debug("sql_seller is : %s" % sql_seller)
     sql_execute_obj.execute_db(sql_seller)
 
+    # 需在获取状态前关联组合SKU
+    print "sql_com_pro_relation is : %s" % sql_com_pro_relation
+    logging.debug("sql_com_pro_relation is : %s" % sql_com_pro_relation)
+    sql_execute_obj.execute_db(sql_com_pro_relation)
+
     encode_type_sql = chardet.detect(sql_product_status)['encoding']
     sql_product_status_utf8 = sql_product_status.decode(encode_type_sql).encode('utf-8')
     print "sql_product_status is : %s" % sql_product_status
@@ -549,9 +554,9 @@ def refresh_db_tables(auth_info, sql_execute_obj):
     logging.debug("sql_refund_rate is : %s" % sql_refund_rate)
     sql_execute_obj.execute_db(sql_refund_rate)
 
-    print "sql_com_pro_relation is : %s" % sql_com_pro_relation
-    logging.debug("sql_com_pro_relation is : %s" % sql_com_pro_relation)
-    sql_execute_obj.execute_db(sql_com_pro_relation)
+    # print "sql_com_pro_relation is : %s" % sql_com_pro_relation
+    # logging.debug("sql_com_pro_relation is : %s" % sql_com_pro_relation)
+    # sql_execute_obj.execute_db(sql_com_pro_relation)
 
 
 class ReportPublic:
@@ -574,7 +579,7 @@ class ReportPublic:
                 self.db_conn.close()
         except Exception as ex:
             print ex
-            logging.error('class  ReportPublic close db connection failed!' )
+            logging.error('class  ReportPublic close db connection failed!')
             logging.error('traceback.format_exc():\n%s' % traceback.format_exc())
 
     def submit_report_request(self, report_type, start_date, end_date):
@@ -591,7 +596,7 @@ class ReportPublic:
             logging.error('request_report error')
             logging.error('traceback.format_exc():\n%s' % traceback.format_exc())
             logging.debug('wait for 5 minutes ……')
-            time.sleep(60*5)
+            time.sleep(60 * 5)
             report_response = self.report_public.request_report(report_type,
                                                                 start_date=start_date,
                                                                 end_date=end_date,
@@ -649,7 +654,7 @@ class ReportPublic:
     def report_flow(self, report_type, start_date=None, end_date=None):
         try:
             logging.debug('******************************************************')
-            logging.debug('begin report flow, report_type  is: %s. start_date: %s, end_date:%s' % (report_type, start_date,end_date))
+            logging.debug('begin report flow, report_type  is: %s. start_date: %s, end_date:%s' % (report_type, start_date, end_date))
             begin_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             report_request_id = self.submit_report_request(report_type, start_date, end_date)
             time_sleep = 20
@@ -715,48 +720,46 @@ class ReportPublic:
         elif report_type == '_GET_FLAT_FILE_ODR_DATA_':
             self.odr_order_insert(get_report_data)
         elif report_type == '_GET_MERCHANT_LISTINGS_ALL_DATA_':
-            table_column = self.get_column(get_report_data)
-            for i, value in enumerate(get_report_data):
-                if i == 0:
-                    continue
-                table_val = self.get_value(value)
-                self.shop_update_all(table_column, table_val, value.split('\t'))
+            self.listing_insert(get_report_data)
             self.update_really_table()
         else:
             pass
 
     def fba_insert(self, get_report_data):
         sql_insert = '''INSERT INTO t_online_amazon_fba_inventory
-                                        (sku, fnsku, asin, product_name, condition_a, your_price, mfn_listing_exists, mfn_fulfillable_quantity, afn_listing_exists, afn_warehouse_quantity, afn_fulfillable_quantity, afn_unsellable_quantity, afn_reserved_quantity, afn_total_quantity, per_unit_volume, afn_inbound_working_quantity, afn_inbound_shipped_quantity, afn_inbound_receiving_quantity, RefreshTime, ShopName)
-                                      VALUES
-                                        (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
-                                    '''
+                                  (sku, fnsku, asin, product_name, condition_a, your_price, mfn_listing_exists, 
+                                  mfn_fulfillable_quantity, afn_listing_exists, afn_warehouse_quantity, afn_fulfillable_quantity, 
+                                  afn_unsellable_quantity, afn_reserved_quantity, afn_total_quantity, per_unit_volume, 
+                                  afn_inbound_working_quantity, afn_inbound_shipped_quantity, afn_inbound_receiving_quantity, 
+                                  RefreshTime, ShopName)
+                                VALUES
+                                  (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);'''
+        sql_delete = "delete from t_online_amazon_fba_inventory where ShopName ='%s' " % (self.auth_info['ShopName'])
+        sql_inventory_history = '''INSERT INTO t_online_amazon_fba_inventory
+                                  (sku, fnsku, asin, product_name, condition_a, your_price, mfn_listing_exists, 
+                                  mfn_fulfillable_quantity, afn_listing_exists, afn_warehouse_quantity, afn_fulfillable_quantity, 
+                                  afn_unsellable_quantity, afn_reserved_quantity, afn_total_quantity, per_unit_volume, 
+                                  afn_inbound_working_quantity, afn_inbound_shipped_quantity, afn_inbound_receiving_quantity, 
+                                  RefreshTime, ShopName)
+                                VALUES
+                                  (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);'''
+
+        fba_record_list = list()
+        for idx, value in enumerate(get_report_data):
+            if idx == 0:
+                continue
+            report_data = value.split('\t')
+            report_data.append(datetime.datetime.now())
+            report_data.append(self.auth_info['ShopName'])
+            fba_record_list.append(report_data)
+
         with self.db_conn.cursor() as cursor:
-            fba_record_list = list()
-            for idx, value in enumerate(get_report_data):
-                if idx == 0:
-                    continue
-                report_data = value.split('\t')
-                refresh_time = datetime.datetime.now()
-                shop_name = self.auth_info['ShopName']
-                report_data.append(refresh_time)
-                report_data.append(shop_name)
-                fba_record_list.append(report_data)
-
-            sql_delete = "delete from t_online_amazon_fba_inventory where ShopName ='%s' " % (self.auth_info['ShopName'])
-
+            logging.debug('There are %d fba inventory records, begin time is %s' % (len(fba_record_list), datetime.datetime.now()))
             logging.debug(sql_delete)
             cursor.execute(sql_delete)
             cursor.executemany(sql_insert, fba_record_list)
-
-            sql_inventory_history = '''INSERT INTO t_online_amazon_fba_inventory_history
-                                        (sku, fnsku, asin, product_name, condition_a, your_price, mfn_listing_exists, mfn_fulfillable_quantity, afn_listing_exists, afn_warehouse_quantity, afn_fulfillable_quantity, afn_unsellable_quantity, afn_reserved_quantity, afn_total_quantity, per_unit_volume, afn_inbound_working_quantity, afn_inbound_shipped_quantity, afn_inbound_receiving_quantity, RefreshTime, ShopName)
-                                      select sku, fnsku, asin, product_name, condition_a, your_price, mfn_listing_exists, mfn_fulfillable_quantity, afn_listing_exists, afn_warehouse_quantity, afn_fulfillable_quantity, afn_unsellable_quantity, afn_reserved_quantity, afn_total_quantity, per_unit_volume, afn_inbound_working_quantity, afn_inbound_shipped_quantity, afn_inbound_receiving_quantity, RefreshTime, ShopName
-                                      from t_online_amazon_fba_inventory
-                                      where ShopName ='%s'
-            ''' % self.auth_info['ShopName']
-            logging.debug(sql_inventory_history)
-            cursor.execute(sql_inventory_history)
+            cursor.executemany(sql_inventory_history, fba_record_list)
+            logging.debug('There are %d fba inventory records, end time is %s' % (len(fba_record_list), datetime.datetime.now()))
             self.db_conn.commit()
 
     def get_last_order_time(self):
@@ -804,58 +807,34 @@ class ReportPublic:
         return last_order_time
 
     def order_insert(self, get_report_data):
-        cursor = self.db_conn.cursor()
-        for i, value in enumerate(get_report_data):
-            if i == 0:
+        sql_order_delete = '''delete from t_amazon_all_orders_data where shop_name =%s and sku =%s and amazon_order_id=%s and asin=%s '''
+        sql_order_insert = '''INSERT INTO t_amazon_all_orders_data
+                                              (amazon_order_id, merchant_order_id, purchase_date, last_updated_date, order_status, 
+                                              fulfillment_channel, sales_channel, order_channel, url, ship_service_level, product_name, 
+                                              sku, asin, item_status, quantity, currency, item_price, item_tax, shipping_price, 
+                                              shipping_tax, gift_wrap_price, gift_wrap_tax, item_promotion_discount, 
+                                              ship_promotion_discount, ship_city, ship_state, ship_postal_code, ship_country, 
+                                              promotion_ids, shop_name)
+                                            VALUES
+                                              (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 
+                                              %s, %s, %s, %s, %s, %s, %s);'''
+
+        order_delete_list = list()
+        order_record_list = list()
+        for idx, value in enumerate(get_report_data):
+            if idx == 0:
                 continue
             report_data = value.split('\t')
+            order_delete_list.append([self.auth_info['ShopName'], report_data[11], report_data[0], report_data[12]])
+            report_data.append(self.auth_info['ShopName'])
+            order_record_list.append(report_data)
 
-            amazon_order_id = report_data[0]
-            merchant_order_id = report_data[1]
-            purchase_date = report_data[2]
-            last_updated_date = report_data[3]
-            order_status = report_data[4]
-            fulfillment_channel = report_data[5]
-            sales_channel = report_data[6]
-            order_channel = report_data[7]
-            url = report_data[8]
-            ship_service_level = report_data[9]
-            product_name = report_data[10].replace("'", "`")
-            sku = report_data[11]
-            asin = report_data[12]
-            item_status = report_data[13]
-            quantity = report_data[14]
-            currency = report_data[15]
-            item_price = report_data[16]
-            item_tax = report_data[17]
-            shipping_price = report_data[18]
-            shipping_tax = report_data[19]
-            gift_wrap_price = report_data[20]
-            gift_wrap_tax = report_data[21]
-            item_promotion_discount = report_data[22]
-            ship_promotion_discount = report_data[23]
-            ship_city = report_data[24].replace("'", "`")
-            ship_state = report_data[25]
-            ship_postal_code = report_data[26]
-            ship_country = report_data[27]
-            promotion_ids = report_data[28]
-
-            shop_name = self.auth_info['ShopName']
-
-            sql_delete = "delete from t_amazon_all_orders_data where shop_name ='%s' and sku ='%s' and amazon_order_id='%s' and asin='%s' " % (self.auth_info['ShopName'], sku, amazon_order_id, asin)
-            print sql_delete
-            logging.debug(sql_delete)
-            cursor.execute(sql_delete)
-            sql_insert = '''INSERT INTO t_amazon_all_orders_data
-                  (amazon_order_id,merchant_order_id,purchase_date,last_updated_date,order_status,fulfillment_channel,sales_channel,order_channel,url,ship_service_level,product_name,sku,asin,item_status,quantity,currency,item_price,item_tax,shipping_price,shipping_tax,gift_wrap_price,gift_wrap_tax,item_promotion_discount,ship_promotion_discount,ship_city,ship_state,ship_postal_code,ship_country,promotion_ids,shop_name)
-                VALUES
-                ("%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s");''' \
-                    % (amazon_order_id, merchant_order_id, purchase_date, last_updated_date, order_status, fulfillment_channel, sales_channel, order_channel, url, ship_service_level, product_name, sku, asin, item_status, quantity, currency, item_price, item_tax, shipping_price, shipping_tax, gift_wrap_price, gift_wrap_tax, item_promotion_discount, ship_promotion_discount, ship_city, ship_state, ship_postal_code, ship_country, promotion_ids, shop_name)
-            print sql_insert
-            logging.debug(sql_insert)
-            cursor.execute(sql_insert)
-        self.db_conn.commit()
-        cursor.close()
+        with self.db_conn.cursor() as cursor:
+            logging.debug('There are %d order records (delete), begin time is %s' % (len(order_delete_list), datetime.datetime.now()))
+            cursor.executemany(sql_order_delete, order_delete_list)
+            cursor.executemany(sql_order_insert, order_record_list)
+            logging.debug('There are %d order records (insert), end time is %s' % (len(order_record_list), datetime.datetime.now()))
+            self.db_conn.commit()
 
     def get_last_receive_time(self):
         cursor = self.db_conn.cursor()
@@ -876,32 +855,31 @@ class ReportPublic:
         return max_update_time
 
     def fba_receive_insert(self, get_report_data):
-        cursor = self.db_conn.cursor()
-        for i, value in enumerate(get_report_data):
-            if i == 0:
+        sql_receive_delete = '''delete from t_report_fba_fulfillment_inventory_receipts_data 
+                                              where Shop_Name =%s and received_date =%s and sku = %s '''
+        sql_reveive_insert = '''INSERT INTO t_report_fba_fulfillment_inventory_receipts_data
+                                              (received_date, fnsku, sku, product_name, quantity, fba_shipment_id, 
+                                              fulfillment_center_id, shop_name)
+                                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s);'''
+
+        receive_delete_list = list()
+        receive_record_list = list()
+        for idx, value in enumerate(get_report_data):
+            if idx == 0:
                 continue
-
             report_data = value.split('\t')
-            shop_name = self.auth_info['ShopName']
-            received_date = time.strftime("%Y-%m-%d %H:%M:%S",time.strptime(report_data[0][0:19], "%Y-%m-%dT%H:%M:%S"))
-            fnsku = report_data[1]
-            sku = report_data[2]
-            product_name = report_data[3].replace("'", "`")
-            quantity = report_data[4]
-            fba_shipment_id = report_data[5]
-            fulfillment_center_id = report_data[6]
+            received_date = time.strftime("%Y-%m-%d %H:%M:%S", time.strptime(report_data[0][0:19], "%Y-%m-%dT%H:%M:%S"))
+            receive_delete_list.append([self.auth_info['ShopName'], received_date, report_data[2]])
+            report_data[0] = received_date
+            report_data.append(self.auth_info['ShopName'])
+            receive_record_list.append(report_data)
 
-            sql_delete = "delete from t_report_fba_fulfillment_inventory_receipts_data where Shop_Name ='%s' and received_date ='%s' and sku = '%s'" % (shop_name, received_date, sku)
-            print sql_delete
-            logging.debug(sql_delete)
-            cursor.execute(sql_delete)
-            sql_insert = '''INSERT INTO t_report_fba_fulfillment_inventory_receipts_data(Shop_Name, received_date, fnsku, sku, product_name, quantity, fba_shipment_id, fulfillment_center_id) 
-                         VALUES ("%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s"); ''' % (shop_name, received_date, fnsku, sku, product_name, quantity, fba_shipment_id, fulfillment_center_id)
-            print sql_insert
-            logging.debug(sql_insert)
-            cursor.execute(sql_insert)
-        self.db_conn.commit()
-        cursor.close()
+        with self.db_conn.cursor() as cursor:
+            logging.debug('There are %d receive records (delete), begin time is %s' % (len(receive_delete_list), datetime.datetime.now()))
+            cursor.executemany(sql_receive_delete, receive_delete_list)
+            cursor.executemany(sql_reveive_insert, receive_record_list)
+            logging.debug('There are %d receive records (insert), end time is %s' % (len(receive_record_list), datetime.datetime.now()))
+            self.db_conn.commit()
 
     def fba_fees_insert(self, get_report_data):
         cursor = self.db_conn.cursor()
@@ -990,7 +968,10 @@ class ReportPublic:
             cursor.execute(sql_delete)
             sql_insert = '''INSERT INTO t_amazon_estimated_fba_fees (shop_name, sku, fnsku, asin, product_name, product_group, brand, fulfilled_by, your_price, sales_price, longest_side, median_side, shortest_side, length_and_girth, unit_of_dimension, item_package_weight, unit_of_weight, product_size_tier, currency, estimated_fee, estimated_referral_fee_per_unit, estimated_variable_closing_fee, estimated_order_handling_fee_per_order, estimated_pick_pack_fee_per_unit, estimated_weight_handling_fee_per_unit, expected_fulfillment_fee_per_unit)
                                     values ("%s","%s", "%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s")
-                                ''' % (shop_name, sku, fnsku, asin, product_name, product_group, brand, fulfilled_by, your_price, sales_price, longest_side, median_side, shortest_side, length_and_girth, unit_of_dimension, item_package_weight, unit_of_weight, product_size_tier, currency, estimated_fee, estimated_referral_fee_per_unit, estimated_variable_closing_fee, estimated_order_handling_fee_per_order, estimated_pick_pack_fee_per_unit, estimated_weight_handling_fee_per_unit, expected_fulfillment_fee_per_unit)
+                                ''' % (
+            shop_name, sku, fnsku, asin, product_name, product_group, brand, fulfilled_by, your_price, sales_price, longest_side, median_side, shortest_side, length_and_girth, unit_of_dimension,
+            item_package_weight, unit_of_weight, product_size_tier, currency, estimated_fee, estimated_referral_fee_per_unit, estimated_variable_closing_fee, estimated_order_handling_fee_per_order,
+            estimated_pick_pack_fee_per_unit, estimated_weight_handling_fee_per_unit, expected_fulfillment_fee_per_unit)
             print sql_insert
             logging.debug(sql_insert)
             cursor.execute(sql_insert)
@@ -1056,7 +1037,9 @@ class ReportPublic:
             # logging.debug(sql_delete)
             # cursor.execute(sql_delete)
             sql_insert = '''INSERT INTO t_amazon_removal_order_detail(shop_name, request_date, order_id, order_type, order_status, last_updated_date, sku, fnsku, disposition, requested_quantity, cancelled_quantity, disposed_quantity, shipped_quantity, in_process_quantity, removal_fee)
-                         VALUES ("%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s"); ''' % (shop_name, request_date, order_id, order_type, order_status, last_updated_date, sku, fnsku, disposition, requested_quantity, cancelled_quantity, disposed_quantity, shipped_quantity, in_process_quantity, removal_fee)
+                         VALUES ("%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s"); ''' % (
+            shop_name, request_date, order_id, order_type, order_status, last_updated_date, sku, fnsku, disposition, requested_quantity, cancelled_quantity, disposed_quantity, shipped_quantity,
+            in_process_quantity, removal_fee)
             print sql_insert
             logging.debug(sql_insert)
             cursor.execute(sql_insert)
@@ -1064,53 +1047,32 @@ class ReportPublic:
         cursor.close()
 
     def actionable_order_insert(self, get_report_data):
-        cursor = self.db_conn.cursor()
-        sql_delete = "delete from t_amazon_actionable_order_data where shop_name ='%s' " % self.auth_info['ShopName']
-        print sql_delete
-        logging.debug(sql_delete)
-        cursor.execute(sql_delete)
+        sql_actionable_delete = '''delete from t_amazon_actionable_order_data 
+                                                    where shop_name ='%s' ''' % self.auth_info['ShopName']
+        sql_actionable_insert = '''INSERT INTO t_amazon_actionable_order_data
+                                                      (order_id, order_item_id, purchase_date, payments_date, reporting_date, 
+                                                      promise_date, days_past_promise, buyer_email, buyer_name, buyer_phone_number, 
+                                                      sku, product_name, quantity_purchased, quantity_shipped, quantity_to_ship, 
+                                                      ship_service_level, recipient_name, ship_address_1, ship_address_2, ship_address_3, 
+                                                      ship_city, ship_state, ship_postal_code, ship_country, shop_name)
+                                                    VALUES
+                                                      (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, 
+                                                      %s, %s, %s);'''
+        actionable_record_list = list()
         if get_report_data:
-            for i, value in enumerate(get_report_data):
-                if i == 0:
+            for idx, value in enumerate(get_report_data):
+                if idx == 0:
                     continue
                 report_data = value.split('\t')
+                report_data.append(self.auth_info['ShopName'])
+                actionable_record_list.append(report_data)
 
-                order_id = report_data[0]
-                order_item_id = report_data[1]
-                purchase_date = report_data[2]
-                payments_date = report_data[3]
-                reporting_date = report_data[4]
-                promise_date = report_data[5]
-                days_past_promise = report_data[6]
-                buyer_email = report_data[7]
-                buyer_name = report_data[8]
-                buyer_phone_number = report_data[9]
-                sku = report_data[10]
-                product_name = report_data[11]
-                quantity_purchased = report_data[12]
-                quantity_shipped = report_data[13]
-                quantity_to_ship = report_data[14]
-                ship_service_level = report_data[15]
-                recipient_name = report_data[16]
-                ship_address_1 = report_data[17]
-                ship_address_2 = report_data[18]
-                ship_address_3 = report_data[19]
-                ship_city = report_data[20]
-                ship_state = report_data[21]
-                ship_postal_code = report_data[22]
-                ship_country = report_data[23]
-                shop_name = self.auth_info['ShopName']
-
-                sql_insert = '''INSERT INTO t_amazon_actionable_order_data
-                             (order_id, order_item_id, purchase_date, payments_date, reporting_date, promise_date, days_past_promise, buyer_email, buyer_name, buyer_phone_number, sku, product_name, quantity_purchased, quantity_shipped, quantity_to_ship, ship_service_level, recipient_name, ship_address_1, ship_address_2, ship_address_3, ship_city, ship_state, ship_postal_code, ship_country,shop_name)
-                           VALUES
-                           ("%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s");''' \
-                             % (order_id, order_item_id, purchase_date, payments_date, reporting_date, promise_date, days_past_promise, buyer_email, buyer_name, buyer_phone_number, sku, product_name, quantity_purchased, quantity_shipped, quantity_to_ship, ship_service_level, recipient_name, ship_address_1, ship_address_2, ship_address_3, ship_city, ship_state, ship_postal_code, ship_country,shop_name)
-                print sql_insert
-                logging.debug(sql_insert)
-                cursor.execute(sql_insert)
-        self.db_conn.commit()
-        cursor.close()
+        with self.db_conn.cursor() as cursor:
+            logging.debug('There are %d actionable records, begin time is %s' % (len(actionable_record_list), datetime.datetime.now()))
+            cursor.execute(sql_actionable_delete)
+            cursor.executemany(sql_actionable_insert, actionable_record_list)
+            logging.debug('There are %d actionable records, end time is %s' % (len(actionable_record_list), datetime.datetime.now()))
+            self.db_conn.commit()
 
     def odr_order_insert(self, get_report_data):
         cursor = self.db_conn.cursor()
@@ -1139,65 +1101,50 @@ class ReportPublic:
         self.db_conn.commit()
         cursor.close()
 
-    def shop_update_all(self, col, value, value_all):
+    def listing_insert(self, get_report_data):
+        listing_delete = '''delete from t_online_info_amazon_for_update where ShopName = '%s' ''' % (self.auth_info['ShopName'])
+        table_column, table_column_cnt = self.get_column(get_report_data)
         if self.auth_info['ShopSite'] == 'JP':
-            if self.auth_info['ShopSite'] == 'JP':
-                item_name = value_all[0]
-                listing_id = value_all[1]
-                seller_sku = value_all[2]
-                price = value_all[3]
-                quantity = value_all[4]
-                open_date = value_all[5]
-                product_id_type = value_all[6]
-                item_note = value_all[7]
-                item_condition = value_all[8]
-                zshop_category1 = value_all[9]
-                expedited_shipping = value_all[10]
-                product_id = value_all[11]
-                pending_quantity = value_all[12]
-                fulfillment_channel = value_all[13]
-                merchant_shipping_group = value_all[14]
-                status = value_all[15]
-
-                sql_insert = 'insert into %s ( item_name,listing_id,seller_sku,price,quantity,open_date,product_id_type,item_note,item_condition,zshop_category1,expedited_shipping,product_id,pending_quantity,fulfillment_channel,merchant_shipping_group,status, shopname, shopsite) values ("%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s")' \
-                             % (self.auth_info['table_name'], item_name, listing_id, seller_sku, price, quantity, open_date, product_id_type, item_note, item_condition, zshop_category1,
-                                expedited_shipping, product_id, pending_quantity, fulfillment_channel, merchant_shipping_group, status, self.auth_info['ShopName'], self.auth_info['ShopSite'])
+            listing_insert = '''insert into t_online_info_amazon_for_update
+                                                        (item_name, listing_id, seller_sku, price, quantity, open_date, product_id_type, item_note, 
+                                                        item_condition, zshop_category1, expedited_shipping, product_id, 
+                                                        pending_quantity, fulfillment_channel, merchant_shipping_group, status, 
+                                                        shopname, shopsite)
+                                                      values
+                                                        (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)'''
         else:
-            sql_insert = "insert into %s ( %s, shopname, shopsite) values (%s, '%s', '%s')" \
-                         % (self.auth_info['table_name'], col, value, self.auth_info['ShopName'], self.auth_info['ShopSite'])
-        print '\n sql_insert is %s' % sql_insert
-        logging.debug('sql_insert is %s' % sql_insert)
-        self.execute_db(sql_insert)
+            value_str = '%s,' * (table_column_cnt+2)
+            listing_insert = "insert into t_online_info_amazon_for_update (%s, shopname, shopsite) values (%s)" % (table_column, value_str[:-1])
+
+        listing_record_list = list()
+        for idx, value in enumerate(get_report_data):
+            if idx == 0:
+                continue
+            report_data = value.split('\t')
+            report_data.append(self.auth_info['ShopName'])
+            report_data.append(self.auth_info['ShopSite'])
+            listing_record_list.append(report_data)
+
+        with self.db_conn.cursor() as cursor:
+            logging.debug('There are %d listing records, begin time is %s' % (len(listing_record_list), datetime.datetime.now()))
+            cursor.execute(listing_delete)
+            cursor.executemany(listing_insert, listing_record_list)
+            logging.debug('There are %d listing records, end time is %s' % (len(listing_record_list), datetime.datetime.now()))
 
     def get_column(self, report_result_data):
         for i, value in enumerate(report_result_data):
             if i == 0:  # get  information's column
                 report_result_data_column = value.split('\t')
+                table_column_cnt = len(report_result_data_column)
                 table_column = str(report_result_data_column)
                 table_column = table_column.replace('[', '')
                 table_column = table_column.replace(']', '')
                 table_column = table_column.replace("'", '')
                 table_column = table_column.replace('-', '_')
                 break
-        return table_column
-
-    def get_value(self, value):
-        report_result_data = value.split('\t')
-        table_val = str(report_result_data)
-        table_val = table_val[1:-1]
-        return table_val
-
-    def delete_mid_table(self):
-        sql_del = "delete from %s where ShopName = '%s' " % (self.auth_info['table_name'], self.auth_info['ShopName'])
-        print 'sql_mid_table_del is: %s' % sql_del
-        logging.debug('sql_mid_table_del is: %s' % sql_del)
-        self.execute_db(sql_del)
+        return table_column, table_column_cnt
 
     def update_really_table(self):
-        # sql_relation = "update %s a, %s b " \
-        #                "set  a.parent_asin = b.parent_asin, a.asin1 = b.asin1, a.product_type = b.product_type, a.image_url=b.image_url " \
-        #                "where a.seller_sku=b.seller_sku and  a.ShopName = b.ShopName and a.ShopName = '%s'" \
-        #                % (self.auth_info['table_name'], self.auth_info['table_name_really'], self.auth_info['ShopName'])
         sql_relation = '''update %s a, %s b
            set a.image_url               = b.image_url,
                a.inventory_received_date = b.inventory_received_date,
@@ -1513,7 +1460,7 @@ class GetProductInfoBySellerSku:
                 self.db_conn.close()
         except Exception as ex:
             print ex
-            logging.error('class GetProductInfoBySellerSku close db connection failed!' )
+            logging.error('class GetProductInfoBySellerSku close db connection failed!')
             logging.error('traceback.format_exc():\n%s' % traceback.format_exc())
 
     def get_product_info_by_seller_sku(self, seller_sku):
@@ -1626,7 +1573,7 @@ class GetProductInfoByAsin:
                 self.db_conn.close()
         except Exception as ex:
             print ex
-            logging.error('class  GetProductInfoByAsin close db connection failed!' )
+            logging.error('class  GetProductInfoByAsin close db connection failed!')
             logging.error('traceback.format_exc():\n%s' % traceback.format_exc())
 
     def get_product_info(self, asin_list):
@@ -1663,14 +1610,12 @@ class GetProductInfoByAsin:
 
     def deal_worker(self, product):
         main_asin = product['ASIN']['value']
-        print 'main_asin is: %s' % main_asin
         logging.debug('main_asin is: %s' % main_asin)
         try:
             image_url = product['Product']['AttributeSets']['SmallImage']['URL']['value']
         except Exception as e:
             print e
             image_url = product['Product']['AttributeSets']['ItemAttributes']['SmallImage']['URL']['value']
-        print 'image_url is: %s' % image_url
         logging.debug('image_url is: %s' % image_url)
 
         # parent -> child
@@ -1812,7 +1757,7 @@ class GetShippingPrice:
                 self.db_conn.close()
         except Exception as ex:
             print ex
-            logging.error('class  GetShippingPrice close db connection failed!' )
+            logging.error('class  GetShippingPrice close db connection failed!')
             logging.error('traceback.format_exc():\n%s' % traceback.format_exc())
 
     def get_price_info_by_seller_sku(self, seller_sku):
@@ -1964,7 +1909,7 @@ class FinancesPublic:
                 self.db_conn.close()
         except Exception as ex:
             print ex
-            logging.error('class  FinancesPublic close db connection failed!' )
+            logging.error('class  FinancesPublic close db connection failed!')
             logging.error('traceback.format_exc():\n%s' % traceback.format_exc())
 
     def update_shop_status_finance(self, auth_info_public, begin_time, end_time, status, remark):
@@ -2124,14 +2069,16 @@ class FinancesPublic:
                     feed_currency_code = val.get('FeeAmount').get('CurrencyCode').get('value')
                     feed_currency_amount = val.get('FeeAmount').get('CurrencyAmount').get('value')
                     if feed_currency_amount != '0.0':
-                        data_list_feed = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, feed_currency_code, feed_currency_amount, order_item_id, report_type]
+                        data_list_feed = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, feed_currency_code, feed_currency_amount,
+                                          order_item_id, report_type]
                         self.insert_finance_record(data_list_feed, file_name)
             else:
                 feed_type = fee_component.get('FeeType').get('value')
                 feed_currency_code = fee_component.get('FeeAmount').get('CurrencyCode').get('value')
                 feed_currency_amount = fee_component.get('FeeAmount').get('CurrencyAmount').get('value')
                 if feed_currency_amount != '0.0':
-                    data_list_feed = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, feed_currency_code, feed_currency_amount, order_item_id, report_type]
+                    data_list_feed = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, feed_currency_code, feed_currency_amount,
+                                      order_item_id, report_type]
                     self.insert_finance_record(data_list_feed, file_name)
 
         # charge 部分
@@ -2149,14 +2096,16 @@ class FinancesPublic:
                     charge_currency_code = val.get('ChargeAmount').get('CurrencyCode').get('value')
                     charge_currency_amount = val.get('ChargeAmount').get('CurrencyAmount').get('value')
                     if charge_currency_amount != '0.0':
-                        data_list_charge = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, charge_currency_code, charge_currency_amount, order_item_id, report_type]
+                        data_list_charge = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, charge_currency_code,
+                                            charge_currency_amount, order_item_id, report_type]
                         self.insert_finance_record(data_list_charge, file_name)
             else:
                 feed_type = charge_component.get('ChargeType').get('value')
                 charge_currency_code = charge_component.get('ChargeAmount').get('CurrencyCode').get('value')
                 charge_currency_amount = charge_component.get('ChargeAmount').get('CurrencyAmount').get('value')
                 if charge_currency_amount != '0.0':
-                    data_list_charge = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, charge_currency_code, charge_currency_amount, order_item_id, report_type]
+                    data_list_charge = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, charge_currency_code, charge_currency_amount,
+                                        order_item_id, report_type]
                     self.insert_finance_record(data_list_charge, file_name)
 
         # Promotion 部分
@@ -2175,14 +2124,16 @@ class FinancesPublic:
                     promotion_currency_code = val.get('PromotionAmount').get('CurrencyCode').get('value')
                     promotion_currency_amount = val.get('PromotionAmount').get('CurrencyAmount').get('value')
                     if promotion_currency_amount != '0.0':
-                        data_list_promotion = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, promotion_currency_code, promotion_currency_amount, order_item_id, report_type]
+                        data_list_promotion = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, promotion_currency_code,
+                                               promotion_currency_amount, order_item_id, report_type]
                         self.insert_finance_record(data_list_promotion, file_name)
             else:
                 feed_type = promotion_component.get('PromotionType').get('value')
                 promotion_currency_code = promotion_component.get('PromotionAmount').get('CurrencyCode').get('value')
                 promotion_currency_amount = promotion_component.get('PromotionAmount').get('CurrencyAmount').get('value')
                 if promotion_currency_amount != '0.0':
-                    data_list_promotion = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, promotion_currency_code, promotion_currency_amount, order_item_id, report_type]
+                    data_list_promotion = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, promotion_currency_code,
+                                           promotion_currency_amount, order_item_id, report_type]
                     self.insert_finance_record(data_list_promotion, file_name)
 
     def parse_report(self, finance_report_each, report_type, file_name):
@@ -2298,7 +2249,7 @@ class GetLocalIPAndAuthInfo:
                 self.db_conn.close()
         except Exception as ex:
             print ex
-            logging.error('class  GetLocalIPAndAuthInfo close db connection failed!' )
+            logging.error('class  GetLocalIPAndAuthInfo close db connection failed!')
             logging.error('traceback.format_exc():\n%s' % traceback.format_exc())
 
     @staticmethod
@@ -2375,6 +2326,7 @@ while True:
             print ex
             from json import load
             from urllib2 import urlopen
+
             local_ip = load(urlopen('https://api.ipify.org/?format=json'))['ip']
 
         if local_ip is not None:
@@ -2390,7 +2342,6 @@ while True:
     except Exception as e:
         print e
         local_ip = None
-
 
 auth_info_all = get_info_obj.get_auth_info_by_ip(local_ip)
 get_info_obj.close_db_conn()
@@ -2408,8 +2359,10 @@ for key, val in auth_info_all.items():
         auth_info['table_name'] = auth_info['table_name'] + '_for_update'
         get_data_public_obj = ReportPublic(auth_info)
 
+        # FBA 库存数据
         get_data_public_obj.report_flow('_GET_FBA_MYI_ALL_INVENTORY_DATA_')
 
+        # 订单数据
         submit_time_list = get_data_public_obj.get_last_order_time()
         for i in range(len(submit_time_list) - 1):
             start_date_order = submit_time_list[i]
@@ -2418,20 +2371,26 @@ for key, val in auth_info_all.items():
             logging.debug('now wait for 60 seconds')
             time.sleep(60)
 
+        # 未发货订单
         get_data_public_obj.report_flow('_GET_FLAT_FILE_ACTIONABLE_ORDER_DATA_')
 
+        # 缺陷订单
         # get_data_public_obj.report_flow('_GET_FLAT_FILE_ODR_DATA_') # 缺陷订单无法获取
 
+        # 已接收库存（到货日期）
         start_date_receive = get_data_public_obj.get_last_receive_time()
         end_date_receive = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
         get_data_public_obj.report_flow('_GET_FBA_FULFILLMENT_INVENTORY_RECEIPTS_DATA_', start_date_receive, end_date_receive)
 
+        # 预览费用
         get_data_public_obj.report_flow('_GET_FBA_ESTIMATED_FBA_FEES_TXT_DATA_')
 
+        # 移除订单
         start_date_remove = get_data_public_obj.get_last_remove_time()
         end_date_remove = datetime.datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%S')
         get_data_public_obj.report_flow('_GET_FBA_FULFILLMENT_REMOVAL_ORDER_DETAIL_DATA_', start_date_remove, end_date_remove)
 
+        # 交易明细（退款、付款）
         finace_obj = FinancesPublic(auth_info, DATABASE)
         retry_cnt = 0
         exe_result = None
@@ -2443,7 +2402,6 @@ for key, val in auth_info_all.items():
                 # 结果写入的文件名
                 file_num = start_date + '_' + end_date + '_' + datetime.datetime.now().strftime("%Y%m%d%H%M%S")
                 file_name = 'C:\\fba_server\\finance_record_%s.log' % file_num.replace(':', '').replace('-', '')
-
                 finance_return = finace_obj.finance_flow(begin_time=start_date, end_time=end_date, retry_cnt=retry_cnt, file_name=file_name)
                 logging.debug('exe_return is %s -------------------------------------------------------' % str(finance_return))
                 if finance_return[0] == 'retry':  # 跳出for循环，进入while，重新获取交易时间列表进行数据抓取
@@ -2460,24 +2418,23 @@ for key, val in auth_info_all.items():
                     if os.path.exists(file_name):  # 无交易记录数据时不会创建文件
                         finace_obj.insert_finance_record_file(file_name)
                     retry_cnt = 0
-
                 # 完成所有批次数据获取后，需跳出最外层的重试循环
                 if i == len(max_finance_time_list) - 2:
                     exe_result = 'complete'
                     break
-
                 logging.debug('now wait 60 seconds')
                 time.sleep(60)
 
+        # Listing信息
         if not 12 <= this_hour < 18:  # 中午时间不做全量刷新
-            get_data_public_obj.delete_mid_table()
             get_data_public_obj.report_flow('_GET_MERCHANT_LISTINGS_ALL_DATA_')
             auth_info['table_name'] = auth_info['table_name_really']
 
+        # Listing 数据更新操作
         refresh_db_tables(auth_info, get_data_public_obj)
-
         get_data_public_obj.close_db_conn()
 
+        # 运费、图片、父子链接关系
         if not 12 <= this_hour < 18:  # 中午时间不做全量刷新
             ship_price_obj = GetShippingPrice(auth_info, DATABASE)
             ship_price_obj.get_seller_sku_list()

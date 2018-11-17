@@ -5,8 +5,8 @@
  @author: wuchongxiang 
  @site: 
  @software: PyCharm
- @file: fba_refresh-20181115.py
- @time: 2018/11/15 10:22
+ @file: fba_refresh-20181116.py
+ @time: 2018/11/16 9:12
 """
 import logging.handlers
 from mws import Reports, Products, Finances, MWSError
@@ -375,7 +375,7 @@ def refresh_db_tables(auth_info, sql_execute_obj):
                                                            case
                                                              when bb.goodsstatus is null THEN
                                                               CONCAT(aa.product_sku, ':未找到状态信息;')
-                                                           
+
                                                              when bb.goodsstatus not IN ('正常', '在售') then
                                                               CONCAT(bb.sku, ':', bb.goodsstatus, ';')
                                                            end product_sku_status_remark,
@@ -533,6 +533,11 @@ def refresh_db_tables(auth_info, sql_execute_obj):
     logging.debug("sql_seller is : %s" % sql_seller)
     sql_execute_obj.execute_db(sql_seller)
 
+    # 需在获取状态前关联组合SKU
+    print "sql_com_pro_relation is : %s" % sql_com_pro_relation
+    logging.debug("sql_com_pro_relation is : %s" % sql_com_pro_relation)
+    sql_execute_obj.execute_db(sql_com_pro_relation)
+
     encode_type_sql = chardet.detect(sql_product_status)['encoding']
     sql_product_status_utf8 = sql_product_status.decode(encode_type_sql).encode('utf-8')
     print "sql_product_status is : %s" % sql_product_status
@@ -549,9 +554,9 @@ def refresh_db_tables(auth_info, sql_execute_obj):
     logging.debug("sql_refund_rate is : %s" % sql_refund_rate)
     sql_execute_obj.execute_db(sql_refund_rate)
 
-    print "sql_com_pro_relation is : %s" % sql_com_pro_relation
-    logging.debug("sql_com_pro_relation is : %s" % sql_com_pro_relation)
-    sql_execute_obj.execute_db(sql_com_pro_relation)
+    # print "sql_com_pro_relation is : %s" % sql_com_pro_relation
+    # logging.debug("sql_com_pro_relation is : %s" % sql_com_pro_relation)
+    # sql_execute_obj.execute_db(sql_com_pro_relation)
 
 
 class ReportPublic:
@@ -574,7 +579,7 @@ class ReportPublic:
                 self.db_conn.close()
         except Exception as ex:
             print ex
-            logging.error('class  ReportPublic close db connection failed!' )
+            logging.error('class  ReportPublic close db connection failed!')
             logging.error('traceback.format_exc():\n%s' % traceback.format_exc())
 
     def submit_report_request(self, report_type, start_date, end_date):
@@ -591,7 +596,7 @@ class ReportPublic:
             logging.error('request_report error')
             logging.error('traceback.format_exc():\n%s' % traceback.format_exc())
             logging.debug('wait for 5 minutes ……')
-            time.sleep(60*5)
+            time.sleep(60 * 5)
             report_response = self.report_public.request_report(report_type,
                                                                 start_date=start_date,
                                                                 end_date=end_date,
@@ -649,7 +654,7 @@ class ReportPublic:
     def report_flow(self, report_type, start_date=None, end_date=None):
         try:
             logging.debug('******************************************************')
-            logging.debug('begin report flow, report_type  is: %s. start_date: %s, end_date:%s' % (report_type, start_date,end_date))
+            logging.debug('begin report flow, report_type  is: %s. start_date: %s, end_date:%s' % (report_type, start_date, end_date))
             begin_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             report_request_id = self.submit_report_request(report_type, start_date, end_date)
             time_sleep = 20
@@ -850,7 +855,10 @@ class ReportPublic:
                   (amazon_order_id,merchant_order_id,purchase_date,last_updated_date,order_status,fulfillment_channel,sales_channel,order_channel,url,ship_service_level,product_name,sku,asin,item_status,quantity,currency,item_price,item_tax,shipping_price,shipping_tax,gift_wrap_price,gift_wrap_tax,item_promotion_discount,ship_promotion_discount,ship_city,ship_state,ship_postal_code,ship_country,promotion_ids,shop_name)
                 VALUES
                 ("%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s");''' \
-                    % (amazon_order_id, merchant_order_id, purchase_date, last_updated_date, order_status, fulfillment_channel, sales_channel, order_channel, url, ship_service_level, product_name, sku, asin, item_status, quantity, currency, item_price, item_tax, shipping_price, shipping_tax, gift_wrap_price, gift_wrap_tax, item_promotion_discount, ship_promotion_discount, ship_city, ship_state, ship_postal_code, ship_country, promotion_ids, shop_name)
+                         % (
+                         amazon_order_id, merchant_order_id, purchase_date, last_updated_date, order_status, fulfillment_channel, sales_channel, order_channel, url, ship_service_level, product_name,
+                         sku, asin, item_status, quantity, currency, item_price, item_tax, shipping_price, shipping_tax, gift_wrap_price, gift_wrap_tax, item_promotion_discount,
+                         ship_promotion_discount, ship_city, ship_state, ship_postal_code, ship_country, promotion_ids, shop_name)
             print sql_insert
             logging.debug(sql_insert)
             cursor.execute(sql_insert)
@@ -883,7 +891,7 @@ class ReportPublic:
 
             report_data = value.split('\t')
             shop_name = self.auth_info['ShopName']
-            received_date = time.strftime("%Y-%m-%d %H:%M:%S",time.strptime(report_data[0][0:19], "%Y-%m-%dT%H:%M:%S"))
+            received_date = time.strftime("%Y-%m-%d %H:%M:%S", time.strptime(report_data[0][0:19], "%Y-%m-%dT%H:%M:%S"))
             fnsku = report_data[1]
             sku = report_data[2]
             product_name = report_data[3].replace("'", "`")
@@ -990,7 +998,10 @@ class ReportPublic:
             cursor.execute(sql_delete)
             sql_insert = '''INSERT INTO t_amazon_estimated_fba_fees (shop_name, sku, fnsku, asin, product_name, product_group, brand, fulfilled_by, your_price, sales_price, longest_side, median_side, shortest_side, length_and_girth, unit_of_dimension, item_package_weight, unit_of_weight, product_size_tier, currency, estimated_fee, estimated_referral_fee_per_unit, estimated_variable_closing_fee, estimated_order_handling_fee_per_order, estimated_pick_pack_fee_per_unit, estimated_weight_handling_fee_per_unit, expected_fulfillment_fee_per_unit)
                                     values ("%s","%s", "%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s","%s")
-                                ''' % (shop_name, sku, fnsku, asin, product_name, product_group, brand, fulfilled_by, your_price, sales_price, longest_side, median_side, shortest_side, length_and_girth, unit_of_dimension, item_package_weight, unit_of_weight, product_size_tier, currency, estimated_fee, estimated_referral_fee_per_unit, estimated_variable_closing_fee, estimated_order_handling_fee_per_order, estimated_pick_pack_fee_per_unit, estimated_weight_handling_fee_per_unit, expected_fulfillment_fee_per_unit)
+                                ''' % (
+            shop_name, sku, fnsku, asin, product_name, product_group, brand, fulfilled_by, your_price, sales_price, longest_side, median_side, shortest_side, length_and_girth, unit_of_dimension,
+            item_package_weight, unit_of_weight, product_size_tier, currency, estimated_fee, estimated_referral_fee_per_unit, estimated_variable_closing_fee, estimated_order_handling_fee_per_order,
+            estimated_pick_pack_fee_per_unit, estimated_weight_handling_fee_per_unit, expected_fulfillment_fee_per_unit)
             print sql_insert
             logging.debug(sql_insert)
             cursor.execute(sql_insert)
@@ -1056,7 +1067,9 @@ class ReportPublic:
             # logging.debug(sql_delete)
             # cursor.execute(sql_delete)
             sql_insert = '''INSERT INTO t_amazon_removal_order_detail(shop_name, request_date, order_id, order_type, order_status, last_updated_date, sku, fnsku, disposition, requested_quantity, cancelled_quantity, disposed_quantity, shipped_quantity, in_process_quantity, removal_fee)
-                         VALUES ("%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s"); ''' % (shop_name, request_date, order_id, order_type, order_status, last_updated_date, sku, fnsku, disposition, requested_quantity, cancelled_quantity, disposed_quantity, shipped_quantity, in_process_quantity, removal_fee)
+                         VALUES ("%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s"); ''' % (
+            shop_name, request_date, order_id, order_type, order_status, last_updated_date, sku, fnsku, disposition, requested_quantity, cancelled_quantity, disposed_quantity, shipped_quantity,
+            in_process_quantity, removal_fee)
             print sql_insert
             logging.debug(sql_insert)
             cursor.execute(sql_insert)
@@ -1105,7 +1118,9 @@ class ReportPublic:
                              (order_id, order_item_id, purchase_date, payments_date, reporting_date, promise_date, days_past_promise, buyer_email, buyer_name, buyer_phone_number, sku, product_name, quantity_purchased, quantity_shipped, quantity_to_ship, ship_service_level, recipient_name, ship_address_1, ship_address_2, ship_address_3, ship_city, ship_state, ship_postal_code, ship_country,shop_name)
                            VALUES
                            ("%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s", "%s");''' \
-                             % (order_id, order_item_id, purchase_date, payments_date, reporting_date, promise_date, days_past_promise, buyer_email, buyer_name, buyer_phone_number, sku, product_name, quantity_purchased, quantity_shipped, quantity_to_ship, ship_service_level, recipient_name, ship_address_1, ship_address_2, ship_address_3, ship_city, ship_state, ship_postal_code, ship_country,shop_name)
+                             % (order_id, order_item_id, purchase_date, payments_date, reporting_date, promise_date, days_past_promise, buyer_email, buyer_name, buyer_phone_number, sku, product_name,
+                                quantity_purchased, quantity_shipped, quantity_to_ship, ship_service_level, recipient_name, ship_address_1, ship_address_2, ship_address_3, ship_city, ship_state,
+                                ship_postal_code, ship_country, shop_name)
                 print sql_insert
                 logging.debug(sql_insert)
                 cursor.execute(sql_insert)
@@ -1513,7 +1528,7 @@ class GetProductInfoBySellerSku:
                 self.db_conn.close()
         except Exception as ex:
             print ex
-            logging.error('class GetProductInfoBySellerSku close db connection failed!' )
+            logging.error('class GetProductInfoBySellerSku close db connection failed!')
             logging.error('traceback.format_exc():\n%s' % traceback.format_exc())
 
     def get_product_info_by_seller_sku(self, seller_sku):
@@ -1626,7 +1641,7 @@ class GetProductInfoByAsin:
                 self.db_conn.close()
         except Exception as ex:
             print ex
-            logging.error('class  GetProductInfoByAsin close db connection failed!' )
+            logging.error('class  GetProductInfoByAsin close db connection failed!')
             logging.error('traceback.format_exc():\n%s' % traceback.format_exc())
 
     def get_product_info(self, asin_list):
@@ -1812,7 +1827,7 @@ class GetShippingPrice:
                 self.db_conn.close()
         except Exception as ex:
             print ex
-            logging.error('class  GetShippingPrice close db connection failed!' )
+            logging.error('class  GetShippingPrice close db connection failed!')
             logging.error('traceback.format_exc():\n%s' % traceback.format_exc())
 
     def get_price_info_by_seller_sku(self, seller_sku):
@@ -1964,7 +1979,7 @@ class FinancesPublic:
                 self.db_conn.close()
         except Exception as ex:
             print ex
-            logging.error('class  FinancesPublic close db connection failed!' )
+            logging.error('class  FinancesPublic close db connection failed!')
             logging.error('traceback.format_exc():\n%s' % traceback.format_exc())
 
     def update_shop_status_finance(self, auth_info_public, begin_time, end_time, status, remark):
@@ -2124,14 +2139,16 @@ class FinancesPublic:
                     feed_currency_code = val.get('FeeAmount').get('CurrencyCode').get('value')
                     feed_currency_amount = val.get('FeeAmount').get('CurrencyAmount').get('value')
                     if feed_currency_amount != '0.0':
-                        data_list_feed = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, feed_currency_code, feed_currency_amount, order_item_id, report_type]
+                        data_list_feed = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, feed_currency_code, feed_currency_amount,
+                                          order_item_id, report_type]
                         self.insert_finance_record(data_list_feed, file_name)
             else:
                 feed_type = fee_component.get('FeeType').get('value')
                 feed_currency_code = fee_component.get('FeeAmount').get('CurrencyCode').get('value')
                 feed_currency_amount = fee_component.get('FeeAmount').get('CurrencyAmount').get('value')
                 if feed_currency_amount != '0.0':
-                    data_list_feed = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, feed_currency_code, feed_currency_amount, order_item_id, report_type]
+                    data_list_feed = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, feed_currency_code, feed_currency_amount,
+                                      order_item_id, report_type]
                     self.insert_finance_record(data_list_feed, file_name)
 
         # charge 部分
@@ -2149,14 +2166,16 @@ class FinancesPublic:
                     charge_currency_code = val.get('ChargeAmount').get('CurrencyCode').get('value')
                     charge_currency_amount = val.get('ChargeAmount').get('CurrencyAmount').get('value')
                     if charge_currency_amount != '0.0':
-                        data_list_charge = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, charge_currency_code, charge_currency_amount, order_item_id, report_type]
+                        data_list_charge = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, charge_currency_code,
+                                            charge_currency_amount, order_item_id, report_type]
                         self.insert_finance_record(data_list_charge, file_name)
             else:
                 feed_type = charge_component.get('ChargeType').get('value')
                 charge_currency_code = charge_component.get('ChargeAmount').get('CurrencyCode').get('value')
                 charge_currency_amount = charge_component.get('ChargeAmount').get('CurrencyAmount').get('value')
                 if charge_currency_amount != '0.0':
-                    data_list_charge = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, charge_currency_code, charge_currency_amount, order_item_id, report_type]
+                    data_list_charge = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, charge_currency_code, charge_currency_amount,
+                                        order_item_id, report_type]
                     self.insert_finance_record(data_list_charge, file_name)
 
         # Promotion 部分
@@ -2175,14 +2194,16 @@ class FinancesPublic:
                     promotion_currency_code = val.get('PromotionAmount').get('CurrencyCode').get('value')
                     promotion_currency_amount = val.get('PromotionAmount').get('CurrencyAmount').get('value')
                     if promotion_currency_amount != '0.0':
-                        data_list_promotion = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, promotion_currency_code, promotion_currency_amount, order_item_id, report_type]
+                        data_list_promotion = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, promotion_currency_code,
+                                               promotion_currency_amount, order_item_id, report_type]
                         self.insert_finance_record(data_list_promotion, file_name)
             else:
                 feed_type = promotion_component.get('PromotionType').get('value')
                 promotion_currency_code = promotion_component.get('PromotionAmount').get('CurrencyCode').get('value')
                 promotion_currency_amount = promotion_component.get('PromotionAmount').get('CurrencyAmount').get('value')
                 if promotion_currency_amount != '0.0':
-                    data_list_promotion = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, promotion_currency_code, promotion_currency_amount, order_item_id, report_type]
+                    data_list_promotion = [posted_date, amazon_order_id, marketplace_name, seller_sku, quantity_shipped, order_adjustment_item_id, feed_type, promotion_currency_code,
+                                           promotion_currency_amount, order_item_id, report_type]
                     self.insert_finance_record(data_list_promotion, file_name)
 
     def parse_report(self, finance_report_each, report_type, file_name):
@@ -2298,7 +2319,7 @@ class GetLocalIPAndAuthInfo:
                 self.db_conn.close()
         except Exception as ex:
             print ex
-            logging.error('class  GetLocalIPAndAuthInfo close db connection failed!' )
+            logging.error('class  GetLocalIPAndAuthInfo close db connection failed!')
             logging.error('traceback.format_exc():\n%s' % traceback.format_exc())
 
     @staticmethod
@@ -2375,6 +2396,7 @@ while True:
             print ex
             from json import load
             from urllib2 import urlopen
+
             local_ip = load(urlopen('https://api.ipify.org/?format=json'))['ip']
 
         if local_ip is not None:
@@ -2390,7 +2412,6 @@ while True:
     except Exception as e:
         print e
         local_ip = None
-
 
 auth_info_all = get_info_obj.get_auth_info_by_ip(local_ip)
 get_info_obj.close_db_conn()

@@ -3062,3 +3062,9 @@ def virtual_overseas_warehouse_task():
 def py_Syn_walmart_main_task():
     from brick.walmart.py_Syn_walmart import py_Syn_walmart_main
     py_Syn_walmart_main()
+
+@app.task
+def amazon_auto_load():
+    from brick.amazon.product_refresh.amazon_auto_load import AmazonAutoLoad
+    auto_load_obj = AmazonAutoLoad()
+    auto_load_obj.auto_start()

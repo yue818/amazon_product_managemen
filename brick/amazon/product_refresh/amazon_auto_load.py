@@ -9,26 +9,20 @@
  @time: 2018/11/2 9:22
 """  
 import uuid
-import pymysql
 import redis
 from brick.amazon.product_refresh.get_auth_info import GetAuthInfo
 from brick.amazon.product_refresh.generate_feed_xml import GenerateFeedXml
 from brick.amazon.upload_product.message_to_rabbitmq import MessageToRabbitMq
 import json
 import datetime
+from django.db import connection
 # import chardet
 
 
 class AmazonAutoLoad:
     def __init__(self):
         self.batch_id = str(uuid.uuid4())
-        # self.batch_id = '8165be3f-68f6-4846-be8f-a8392cbc5d4f'
-        self.online_conn = pymysql.connect(user="by15161458383",
-                                           passwd="K120Esc1",
-                                           host="rm-uf6kd5a4wee2n2ze6o.mysql.rds.aliyuncs.com",
-                                           db="hq_db",
-                                           port=3306,
-                                           charset='utf8')
+        self.online_conn = connection
         self.rd_conn = redis.Redis(host='r-uf6206e9df36e854.redis.rds.aliyuncs.com',
                                    password='K120Esc1',
                                    port=6379,
@@ -43,132 +37,45 @@ class AmazonAutoLoad:
             print ex
 
     def get_operate_records(self):
-        record_sql_com = '''insert into t_amazon_auto_load
-                                      (batch_id,
-                                       shop_name,
-                                       seller_sku,
-                                       sku_type,
-                                       sku,
-                                       com_pro_sku,
-                                       status,
-                                       product_status_detail,
-                                       product_sku_status)
-                                      select "''' + self.batch_id + '''",
-                                             f.shopname,
-                                             seller_sku,
-                                             2,
-                                             sku,
-                                             com_pro_sku,
-                                             status,
-                                             GROUP_CONCAT(product_sku_status_remark) product_status_detail,
-                                             min(product_sku_status) product_sku_status
-                                        from (select aa.*,
-                                                     CONCAT(bb.sku, ':', bb.goodsstatus, ';') product_sku_status_remark,
-                                                     CASE
-                                                       when bb.goodsstatus is null or bb.goodsstatus = '清仓（合并）' THEN
-                                                        -2
-                                                       WHEN bb.goodsstatus IN ('正常', '在售') THEN
-                                                        1
-                                                       when bb.goodsstatus IN
-                                                            ('临时下架', '停售', '暂停销售', '清仓') THEN
-                                                        -1
-                                                       when bb.goodsstatus IN ('售完下架', '处理库尾') THEN
-                                                        0
-                                                     END product_sku_status
-                                                from (select ShopName,
-                                                             seller_sku,
-                                                             sku,
-                                                             com_pro_sku,
-                                                             substring_index(substring_index(substring_index(if(com_pro_sku is not null,
-                                                                                                                com_pro_sku,
-                                                                                                                sku),
-                                                                                                             '+',
-                                                                                                             b.help_topic_id),
-                                                                                             '+',
-                                                                                             -1),
-                                                                             '*',
-                                                                             1) product_sku,
-                                                             a.status
-                                                        from t_online_info_amazon a, t_amazon_help_topic b
-                                                       where b.help_topic_id <=
-                                                             (LENGTH(if(com_pro_sku is not null, com_pro_sku, sku)) -
-                                                             length(replace(if(com_pro_sku is not null,
-                                                                                com_pro_sku,
-                                                                                sku),
-                                                                             '+',
-                                                                             '')) + 1)
-                                                         and refresh_status = 0
-                                                         and a.is_fba = 0
-                                                         and a.shopname in (select ShopName from t_config_shop_alias where ShopStatus = 1)
-                                                         and a.shopname = 'AMZ-0033-YJQ-US/PJ'
-                                                         and a.status in ('Active', 'Inactive')
-                                                         and (a.sku like 'ZH%' or a.sku like '%+%')
-                                                         and b.help_topic_id > 0) aa
-                                                left join py_db.b_goods bb
-                                                  on aa.product_sku = bb.sku) f
-                                       group by f.shopname, seller_sku, sku, com_pro_sku, status
-                                      having(status = 'Active' and min(product_sku_status) in(0, -1)) or (status = 'Inactive' and min(product_sku_status) = 1) or min(product_sku_status) = -2;'''
-
-        record_sql_single = '''insert into t_amazon_auto_load
-                                      (batch_id,
-                                       shop_name,
-                                       seller_sku,
-                                       sku_type,
-                                       sku,
-                                       com_pro_sku,
-                                       status,
-                                       product_status_detail,
-                                       product_sku_status)
-                                      SELECT "''' + self.batch_id + '''",
-                                             a.shopname,
-                                             a.seller_sku,
-                                             1,
-                                             a.sku,
-                                             a.com_pro_sku,
-                                             a.status,
-                                             b.goodsstatus product_status_detail,
-                                             CASE
-                                               when b.goodsstatus is null or b.goodsstatus = '清仓（合并）' THEN
-                                                -2
-                                               WHEN b.goodsstatus IN ('正常', '在售') THEN
-                                                1
-                                               when b.goodsstatus IN ('临时下架', '停售', '暂停销售', '清仓') THEN
-                                                -1
-                                               when b.goodsstatus IN ('售完下架', '处理库尾') THEN
-                                                0
-                                             END product_sku_status
-                                        FROM t_online_info_amazon a, py_db.b_goods b
-                                       WHERE a.sku = b.sku
-                                         and a.shopname in (select ShopName from t_config_shop_alias where ShopStatus = 1)
-                                         and a.shopname = 'AMZ-0033-YJQ-US/PJ'
-                                         and refresh_status = 0
-                                         and a.is_fba = 0
-                                         and a.STATUS IN ('Active', 'Inactive')
-                                         and a.sku not like 'ZH%'
-                                         and a.sku not like '%+%'
-                                         and ((a.status = 'Active' and
-                                             b.goodsstatus in ('临时下架',
-                                                                 '停售',
-                                                                 '售完下架',
-                                                                 '处理库尾',
-                                                                 '暂停销售',
-                                                                 '清仓',
-                                                                 '清仓（合并）')) or
-                                             (a.status = 'Inactive' and b.goodsstatus in ('在售', '正常')));'''
-        sql_upload = "update t_amazon_auto_load set deal_type = 'upload' where batch_id = '%s' and product_sku_status = 1" % self.batch_id
-        sql_unload = "update t_amazon_auto_load set deal_type = 'unload' where batch_id = '%s' and product_sku_status = -1 or (product_sku_status = 0 and quantity = 0);" % self.batch_id
-        sql_remind = "update t_amazon_auto_load set deal_type = 'remind' where batch_id = '%s' and product_sku_status = -2;" % self.batch_id
+        # 组合的产品不自动（zh, +）; AMZ-0042-Anjun-US/PJ 这个店铺不自动上下架
+        unload_record = '''insert into t_amazon_auto_load
+                                      (batch_id, shop_name, seller_sku, sku, status, product_sku_status, deal_type, deal_user)
+                                      select "''' + self.batch_id + '''", ShopName, seller_sku, sku,status,product_status,'unload' deal_type, 'system' deal_user
+                                            FROM t_online_info_amazon
+                                         WHERE is_fba = 0
+                                           and shopname like 'AMZ-0140%'
+                                           AND STATUS = 'Active'
+                                           AND product_status IN (2, 3, 4)
+                                           AND seller_sku NOT LIKE 'ZH%'
+                                           AND seller_sku NOT LIKE '%+%'
+                                           AND shopname IN
+                                               (SELECT ShopName FROM t_config_shop_alias WHERE ShopStatus = 1)
+                                           and shopname not in ('AMZ-0042-Anjun-US/PJ') '''
+        # 亚马逊精品事业部人员的账号不自动上架; 跟卖账号不自动上架; 组合的产品不自动（zh,+）; AMZ-0042-Anjun-US/PJ 这个店铺不自动上下架
+        load_record = '''insert into t_amazon_auto_load
+                                      (batch_id, shop_name, seller_sku, sku, status, product_sku_status, deal_type, deal_user, seller)
+                                      SELECT "''' + self.batch_id + '''", ShopName, seller_sku, sku, status, product_status, 'load' deal_type, 'system' deal_user, seller
+                                      FROM t_online_info_amazon
+                                     WHERE is_fba = 0
+                                        and shopname like 'AMZ-0140%'
+                                       AND STATUS = 'Inactive'
+                                       AND product_status = 1
+                                       AND seller_sku NOT LIKE 'ZH%'
+                                       AND seller_sku NOT LIKE '%+%'
+                                       AND shopname IN
+                                           (SELECT ShopName FROM t_config_shop_alias WHERE ShopStatus = 1)
+                                       and shopname not in ('AMZ-0042-Anjun-US/PJ','AMZ-0013-GBY-US/PJ','AMZ-0017-LXY-US/PJ','AMZ-0052-Bohonan-US/PJ','AMZ-0056-Chengcaifengye01-US/PJ','AMZ-0061-Peoria-US/PJ','AMZ-0078-Fuyamp-US/PJ','AMZ-0099-Fuguan-US/PJ','AMZ-0143-KZXX-US/PJ','AMZ-0145-SH-US/PJ','AMZ-0152-DL-US/PJ','AMZ-0154-HY-US/PJ','AMZ-0162-ZS-US/PJ','AMZ-0173-XL-US/PJ','AMZ-0182-FXXR-JP/HF','AMZ-0186-BL-US/HF','AMZ-0208-CHT-US/HF','AMZ-9900-YWGM-US/HF')
+                                       and seller not in ('陈赛','周梦梅','马曼曼','夏娟 ','葛冰雪','马静','苏蕊 ','周园园','郑丽','刘丹阳','罗洁','彭立康 ','陈梦','孙竹','徐梅');'''
 
         with self.online_conn.cursor() as cursor:
             # char_set = chardet.detect(record_sql_com)['encoding']
             # print char_set
             # record_sql_com = record_sql_com.decode(char_set).encode('utf-8')
             # print record_sql_com
-            cursor.execute(record_sql_com)
-            cursor.execute(record_sql_single)
-            cursor.execute(sql_upload)
-            cursor.execute(sql_unload)
-            cursor.execute(sql_remind)
+            print unload_record
+            cursor.execute(unload_record)
+            print load_record
+            cursor.execute(load_record)
             self.online_conn.commit()
 
     def get_com_sku_quantity(self, com_sku):
@@ -188,7 +95,7 @@ class AmazonAutoLoad:
         return min(quantity_list)
 
     def get_product_sku_quantity(self):
-        sql_quantity = "select id, sku, com_pro_sku from t_amazon_auto_load where product_sku_status = 0 and batch_id = '%s'" % self.batch_id
+        sql_quantity = "select id, sku, com_pro_sku from t_amazon_auto_load where product_sku_status = 2 and batch_id = '%s'" % self.batch_id
         sql_update = "update t_amazon_auto_load set quantity = %s where id = %s"
         update_list = list()
         with self.online_conn.cursor() as cursor:
@@ -199,7 +106,7 @@ class AmazonAutoLoad:
                 quantity_record_list.append((obj[0], obj[1], obj[2]))
                 self.pipe.hget(obj[1], 'Number')
                 self.pipe.hget(obj[1], 'ReservationNum')
-            print quantity_record_list
+            # print quantity_record_list
             quantity_result = self.pipe.execute()
 
             for ind, id_sku in enumerate(quantity_record_list):
@@ -212,12 +119,17 @@ class AmazonAutoLoad:
                 update_list.append((quantity, id_sku[0]))
             print update_list
             cursor.executemany(sql_update, update_list)
+            # 售完下架只下架库存为0的
+            sql_remain = "update t_amazon_auto_load set deal_type = 'remain' where batch_id = '%s' and deal_type ='unload' and product_sku_status=2 and quantity > 0" % self.batch_id
+            print sql_remain
+            cursor.execute(sql_remain)
             self.online_conn.commit()
 
     def deal_feed_record(self):
-        sql_upload = "select shop_name,seller_sku from t_amazon_auto_load where deal_type = 'upload' and batch_id = '%s'" % self.batch_id
+        sql_upload = "select shop_name,seller_sku from t_amazon_auto_load where deal_type = 'load' and batch_id = '%s'" % self.batch_id
         sql_unload = "select shop_name,seller_sku from t_amazon_auto_load where deal_type = 'unload' and batch_id = '%s'" % self.batch_id
 
+        print sql_upload
         with self.online_conn.cursor() as cursor_upload:
             cursor_upload.execute(sql_upload)
             print cursor_upload.rowcount
@@ -227,6 +139,7 @@ class AmazonAutoLoad:
                 upload_records = None
         self.get_feed_xml(upload_records, 'auto_load_product')
 
+        print sql_unload
         with self.online_conn.cursor() as cursor_unload:
             cursor_unload.execute(sql_unload)
             print cursor_unload.rowcount
@@ -266,7 +179,7 @@ class AmazonAutoLoad:
                     feed_xml = None
                 auth_info['feed_xml'] = feed_xml
                 print auth_info
-                # self.put_message_to_mq(auth_info)
+                self.put_message_to_mq(auth_info)
 
     def put_message_to_mq(self, auth_info):
         message_to_rabbit_obj = MessageToRabbitMq(auth_info, self.online_conn)
@@ -279,8 +192,9 @@ class AmazonAutoLoad:
         self.deal_feed_record()
 
 
-auto_load_obj = AmazonAutoLoad()
-print datetime.datetime.now()
-auto_load_obj.auto_start()
-auto_load_obj.close_db_conn()
-print datetime.datetime.now()
+# if __name__ == 'main':
+#     auto_load_obj = AmazonAutoLoad()
+#     print datetime.datetime.now()
+#     auto_load_obj.auto_start()
+#     auto_load_obj.close_db_conn()
+#     print datetime.datetime.now()

@@ -25,8 +25,6 @@ class t_amazon_auto_load_Admin(object):
 
     show_sku_detail.short_description = mark_safe('<p align="center"style="color:#428bca;">商品SKU</p>')
 
-
-
     list_display = ('shop_name', 'seller_sku', 'status', 'insert_time', 'deal_type', 'deal_user', 'deal_result', 'deal_remark','deal_time')
-    # search_fields = ('shop_name', 'seller_sku', 'sku_modify', 'modify_user','modify_time')
-    # list_filter = ('shop_name', 'seller_sku', 'sku_modify', 'modify_user','modify_time')
+    search_fields = ('shop_name', 'seller_sku', 'insert_time', 'deal_type', 'deal_user','deal_result')
+    list_filter = ('shop_name', 'seller_sku', 'insert_time', 'deal_type', 'deal_user','deal_result')
