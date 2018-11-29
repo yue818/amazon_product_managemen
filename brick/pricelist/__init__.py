@@ -15,6 +15,8 @@ for t_cfg_b_emsfare2_obj in t_cfg_b_emsfare2_objs:
     cfg_b_emsfare2[t_cfg_b_emsfare2_obj.platform_country_code + '_' + t_cfg_b_emsfare2_obj.countrycode + '_category_id'] = t_cfg_b_emsfare2_obj.category_id
     cfg_b_emsfare2[t_cfg_b_emsfare2_obj.platform_country_code + '_' + t_cfg_b_emsfare2_obj.countrycode + '_extra_id'] = t_cfg_b_emsfare2_obj.extra_id
     cfg_b_emsfare2[t_cfg_b_emsfare2_obj.platform_country_code + '_' + t_cfg_b_emsfare2_obj.countrycode + '_logisticway_desc'] = t_cfg_b_emsfare2_obj.logisticwaycode_desc
+    cfg_b_emsfare2[t_cfg_b_emsfare2_obj.platform_country_code + '_' + t_cfg_b_emsfare2_obj.countrycode + '_standard_id'] = t_cfg_b_emsfare2_obj.standard_id
+    cfg_b_emsfare2[t_cfg_b_emsfare2_obj.platform_country_code + '_' + t_cfg_b_emsfare2_obj.countrycode + '_price_point'] = t_cfg_b_emsfare2_obj.price_point
 from skuapp.table.t_cfg_category import t_cfg_category
 cfg_category = {}
 t_cfg_category_objs = t_cfg_category.objects.all()
@@ -46,6 +48,7 @@ cfg_b_emsfare_country2 = {}
 t_cfg_b_emsfare_country2_objs = t_cfg_b_emsfare_country2.objects.all()
 for t_cfg_b_emsfare_country2_obj in t_cfg_b_emsfare_country2_objs:
     cfg_b_emsfare_country2[t_cfg_b_emsfare_country2_obj.country_code+'_'+t_cfg_b_emsfare_country2_obj.logisticwaycode+'_getprice'] = t_cfg_b_emsfare_country2_obj.getprice
+    cfg_b_emsfare_country2[t_cfg_b_emsfare_country2_obj.country_code+'_'+t_cfg_b_emsfare_country2_obj.logisticwaycode+'_getprice_desc'] = t_cfg_b_emsfare_country2_obj.getprice_desc
     cfg_b_emsfare_country2[t_cfg_b_emsfare_country2_obj.country_code+'_'+t_cfg_b_emsfare_country2_obj.logisticwaycode+'_bracketid'] = t_cfg_b_emsfare_country2_obj.Bracketid
     
 from skuapp.table.t_cfg_extra_fee import t_cfg_extra_fee
@@ -60,4 +63,12 @@ for t_cfg_extra_fee_obj in t_cfg_extra_fee_objs:
     cfg_extra_fee[str(t_cfg_extra_fee_obj.id)+'_yj_rate'] = t_cfg_extra_fee_obj.yj_rate
     cfg_extra_fee[str(t_cfg_extra_fee_obj.id)+'_xss_rate'] = t_cfg_extra_fee_obj.xss_rate
     cfg_extra_fee[str(t_cfg_extra_fee_obj.id)+'_CURRENCYCODE'] = t_cfg_extra_fee_obj.CURRENCYCODE
+
+from skuapp.table.t_cfg_standard_large_small import t_cfg_standard_large_small
+cfg_standard_large_small = {}
+t_cfg_standard_large_small_objs = t_cfg_standard_large_small.objects.all()
+for t_cfg_standard_large_small_obj in t_cfg_standard_large_small_objs:
+    cfg_standard_large_small[str(t_cfg_standard_large_small_obj.standard_id)+str(t_cfg_standard_large_small_obj.standard_large_code)+str(t_cfg_standard_large_small_obj.standard_small_code)+'_CURRENCYCODE'] = t_cfg_standard_large_small_obj.CURRENCYCODE
+    cfg_standard_large_small[str(t_cfg_standard_large_small_obj.standard_id)+str(t_cfg_standard_large_small_obj.standard_large_code)+str(t_cfg_standard_large_small_obj.standard_small_code)+'_getprice'] = t_cfg_standard_large_small_obj.getprice
+    cfg_standard_large_small[str(t_cfg_standard_large_small_obj.standard_id)+str(t_cfg_standard_large_small_obj.standard_large_code)+str(t_cfg_standard_large_small_obj.standard_small_code)+'_getprice_desc'] = t_cfg_standard_large_small_obj.getprice_desc
 

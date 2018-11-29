@@ -20,6 +20,7 @@ from django.db import connection
 """
 from django.db import connection
 from brick.table.t_store_configuration_file import t_store_configuration_file
+from skuapp.table.t_store_configuration_file import t_store_configuration_file as tt
 
 import copy
 from django.contrib import messages
@@ -31,6 +32,34 @@ class store_config_plugin(BaseAdminPlugin):
     def init_request(self, *args, **kwargs):
         return bool(self.store_config_flag)
 
+    def get_plat(self,s):
+        if s == u'未知平台':
+            r = None
+        else:
+            r = s
+        return r
+
+    def get_status(self,s):
+        if s == 's':
+            r = '0'
+        elif s == 'e':
+            r = '-1'
+        elif s == 'o':
+            r = None
+        return r
+
+    def get_layerd(self,s):
+        if s == 'A':
+            r = 'A'
+        elif s == 'B':
+            r = 'B'
+        elif s == 'C':
+            r = 'C'
+        elif s == 'D':
+            r = 'D'
+        elif s == u'未知分层':
+            r = None
+        return r
 
     def show_select_flag(self, m_list, flag):
         show_flag = 0
@@ -69,59 +98,107 @@ class store_config_plugin(BaseAdminPlugin):
         nResult = t_store_configuration_file_obj.status_num()
         if nResult['errorcode'] == 1 :
             for obj in nResult['data']:
-                PlatformID = obj[1] if obj[1] else u'未知平台'
+                PlatformID = obj[1] if obj[1] else u'unknown'
 
                 ndict = copy.deepcopy(sdict[PlatformID]) if sdict.get(PlatformID) else {}
 
-                sdict[obj[1]] = {}
-                sdict[obj[1]]['s'] = ndict.get('s', 0)
-                sdict[obj[1]]['e'] = ndict.get('e', 0)
-                sdict[obj[1]]['o'] = ndict.get('o', 0)
+                sdict[PlatformID] = {}
+                sdict[PlatformID]['s'] = ndict.get('s', 0)
+                sdict[PlatformID]['e'] = ndict.get('e', 0)
+                sdict[PlatformID]['o'] = ndict.get('o', 0)
 
                 if obj[2] == '0':
-                    sdict[obj[1]]['s'] = obj[0] + ndict.get('s', 0)
+                    sdict[PlatformID]['s'] = obj[0] + ndict.get('s', 0)
 
                 if obj[2] == '-1':
-                    sdict[obj[1]]['e'] = obj[0] + ndict.get('e', 0)
+                    sdict[PlatformID]['e'] = obj[0] + ndict.get('e', 0)
 
                 if not obj[2]:
-                    sdict[obj[1]]['o'] = obj[0] + ndict.get('o', 0)
+                    sdict[PlatformID]['o'] = obj[0] + ndict.get('o', 0)
 
         slist = []
+        if sdict.get('Wish'):
+            slist.append({'Wish':sdict.get('Wish')})
+        if sdict.get('eBay'):
+            slist.append({'eBay':sdict.get('eBay')})
+        if sdict.get('AMZ'):
+            slist.append({'AMZ':sdict.get('AMZ')})
+        if sdict.get('Ali'):
+            slist.append({'Ali':sdict.get('Ali')})
+        for i in sdict:
+            if i not in ['eBay','Wish','AMZ','Ali'] and i != 'unknown':
+                slist.append({i:sdict[i]})
+        if sdict.get('unknown'):
+            slist.append({'unknown':sdict['unknown']})
+
+
         i = 0
-        for k, v in sdict.items():
-            i = i + 1
-            cdict = {
-                "name": u"%s" % k,
-                "code": "%s%s" % (k, i),
-                "icon": "icon-minus-sign",
-                "parentCode": "00",
-                "selected": "",
-                "to_url": '',
-                "flag": "",
-                "child": []
-            }
-            j = 0
-            for ok, ov in v.items():
-                j = j + 1
-                if ok == 's':
-                    fname = u'正常'
-                elif ok == 'e':
-                    fname = u'异常'
-                else:
-                    fname = u'未知'
-                codict = {
-                    "name": u"%s(%s)" % (fname, ov),
-                    "icon": "",
-                    "code": "%s%s%s" % (k, i, j),
-                    "parentCode": "%s%s" % (k, i),
+        for dict in slist:
+            for k, v in dict.items():
+                i = i + 1
+                cdict = {
+                    "name": u"%s" % k,
+                    "code": u"%s%s" % (k, i),
+                    "icon": "icon-minus-sign",
+                    "parentCode": "00",
                     "selected": "",
-                    "to_url": '/Project/admin/skuapp/t_store_configuration_file/?status=%s_%s' % (k, ok),
-                    "flag": '%s_%s' % (k, ok),
+                    "to_url": '',
+                    "flag": "",
                     "child": []
                 }
+                j = 0
+                for ok, ov in v.items():
+                    j = j + 1
+                    if ok == 's':
+                        fname = u'正常'
+                    elif ok == 'e':
+                        fname = u'异常'
+                    else:
+                        fname = u'未知状态'
+                    codict = {
+                        "name": u"%s(%s)" % (fname, ov),
+                        "icon": "",
+                        "code": u"%s%s%s" % (k, i, j),
+                        "parentCode": u"%s%s" % (k, i),
+                        "selected": "",
+                        "to_url": u'/Project/admin/skuapp/t_store_configuration_file/?status=%s_%s' % (k, ok),
+                        "flag": u'%s_%s' % (k, ok),
+                        "child": []
+                    }
+                    m = 0
+                    if k in ['Wish', 'eBay', 'AMZ', 'Ali']:
+                        if k == u'AMZ':
+                            for x in ['A','B','C','D',u'未知分层']:
+                                m = m + 1
+                                cou = tt.objects.all().filter(PlatformID=self.get_plat(k), Status=self.get_status(ok), ShopLayered=self.get_layerd(x)).count()
+                                coodict = {
+                                    "name": u"%s(%s)" % (x,cou),
+                                    "icon": "",
+                                    "code": u"%s%s%s%s" % (k, i, j, m),
+                                    "parentCode": u"%s%s%s" % (k, i, j),
+                                    "selected": "",
+                                    "to_url": u'/Project/admin/skuapp/t_store_configuration_file/?status=%s_%s_%s' % (k, ok, x),
+                                    "flag": u'%s_%s_%s' % (k, ok, x),
+                                    "child": []
+                                }
+                                codict['child'].append(coodict)
+                        else:
+                            for x in ['A','B','C',u'未知分层']:
+                                m = m + 1
+                                cou = tt.objects.all().filter(PlatformID=self.get_plat(k), Status=self.get_status(ok), ShopLayered=self.get_layerd(x)).count()
+                                coodict = {
+                                    "name": u"%s(%s)" % (x,cou),
+                                    "icon": "",
+                                    "code": u"%s%s%s%s" % (k, i, j, m),
+                                    "parentCode": u"%s%s%s" % (k, i, j),
+                                    "selected": "",
+                                    "to_url": u'/Project/admin/skuapp/t_store_configuration_file/?status=%s_%s_%s' % (k, ok, x),
+                                    "flag": u'%s_%s_%s' % (k, ok, x),
+                                    "child": []
+                                }
+                                codict['child'].append(coodict)
 
-                cdict['child'].append(codict)
+                    cdict['child'].append(codict)
 
             menu_list[0]['child'].append(cdict)
         flag = self.request.GET.get('status')

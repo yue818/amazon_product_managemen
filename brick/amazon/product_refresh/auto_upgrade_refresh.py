@@ -27,7 +27,7 @@ def put_file(oss_file_name, local_file):
 
 # auth = oss2.Auth(ACCESS_KEY_ID, ACCESS_KEY_SECRET)
 # bucket = oss2.Bucket(auth, ENDPOINT_OUT, BUCKETNAME_APIVERSION)
-# bucket.delete_object('fba_refresh-20181114.exe')
+# bucket.delete_object('fba_refresh-20181129a.exe')
 
 class MessageToRabbitMq:
     def __init__(self, db_connection):
@@ -235,7 +235,7 @@ ip_list = [
 '121.199.71.223']
 
 
-put_file('fba_refresh-20181115.exe', 'D:\\fba_refresh-20181115.exe')
+put_file('fba_refresh-20181129a.exe', 'D:\\fba_refresh-20181129a.exe')
 
 
 # cnxn = MySQLdb.connect(DATABASES['HOST'],DATABASES['USER'],DATABASES['PASSWORD'],DATABASES['NAME'] )

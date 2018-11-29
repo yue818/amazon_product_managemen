@@ -202,7 +202,7 @@
                 <td>
                     {% for v in extra_image_list %}
                         <a class="thumbnail" style="float: left;margin-top: 1px;margin-left: 1px">
-                            <img id="id_{{ forloop.counter }}" onclick="change_image({{ forloop.counter }})" name="extra_images" width="80" height="80" src="{% if v %}{{ v }}{% else %}http://ou3qh0g46.bkt.clouddn.com/fancyqube.jpg{% endif %}"  alt="附图_{{ forloop.counter }}" />
+                            <img id="id_{{ forloop.counter }}" onclick="change_image({{ forloop.counter }})" name="extra_images" width="80" height="80" src="{% if v %}{{ v }}{% else %}https://fancyqube-wish.oss-cn-shanghai.aliyuncs.com/Nobackground.png{% endif %}"  alt="附图_{{ forloop.counter }}" />
                             <input id="{{ forloop.counter }}" type="hidden" name="extraimg" value="{{ v }}" />
                             <input id="{{ forloop.counter }}_copy" type="hidden" name="extraimg_copy" value="{{ v }}" />
                             <input id="{{ forloop.counter }}_flag" type="hidden" name="extraimg_flag" value="0" />

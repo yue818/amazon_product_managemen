@@ -16,6 +16,7 @@ from django.contrib.auth.models import Group
 from django.http import HttpResponse
 import json
 
+
 from storeapp.models import t_online_info_wish_store,t_add_variant_information,t_wish_product_api_log
 from skuapp.table.t_store_configuration_file import t_store_configuration_file
 from skuapp.table.t_store_marketplan_execution import t_store_marketplan_execution
@@ -39,7 +40,7 @@ from storeapp.plugin.syn_the_shop_data_by_api_plugin import syn_the_shop_data_by
 from storeapp.plugin.site_left_menu_plugin_wish import site_left_menu_Plugin_wish
 from storeapp.plugin.change_shipping_plugin import change_shipping_plugin
 from storeapp.plugin.site_left_menu_tree_Plugin_wish import site_left_menu_tree_Plugin_wish
-from storeapp.plugin.store_config_plugin import store_config_plugin
+
 from storeapp.plugin.wish_store_sort_bar_plugin import wish_store_sort_bar_plugin
 from storeapp.plugin.help_select_plugin import help_select_plugin
 
@@ -54,8 +55,12 @@ from storeapp.plugin.wish_listing_readonly import wish_listing_readonly_P
 from skuapp.table.t_wish_pb_campaignproductstats import t_wish_pb_campaignproductstats
 # from chart_app.table.t_chart_wish_listing_refund_statistics import t_chart_wish_listing_refund_statistics as wish_score
 from skuapp.public.check_permission_legality import check_permission_legality
+# from brick.wish.wishlisting.refresh_fbw_flag import warehousecode
 
-from datetime import datetime as timetime
+# from brick.classredis.class_tortword import class_tortword
+from storeapp.public.show_tort_title import tortwords, show_tort_title
+
+from datetime import datetime as timetime, timedelta
 logger = logging.getLogger('sourceDns.webdns.views')
 
 redis_conn = get_redis_connection(alias='product')
@@ -70,11 +75,8 @@ t_wish_store_oplogs_obj = t_wish_store_oplogs(connection)
 
 t_online_info_wish_fbw_obj = t_online_info_wish_fbw(connection=connection)
 
-warehousecode = [
-    {'code': 'FBW-LAX', 'name': u'FBW-US-LAX (美国)'},
-    {'code': 'FBW-SF', 'name': u'SF Express (爱沙尼亚)'},
-    {'code': 'FBW-CVG', 'name': u'FBW-US-CVG (美国)'},
-]
+fbw_country_code = ['FBW-US', 'FBW-EU']
+warehouse_code_list = ['LAX', 'TLL', 'CVG']
 
 class t_online_info_wish_store_Admin(object):
     #syn_data = True
@@ -87,6 +89,7 @@ class t_online_info_wish_store_Admin(object):
     help_select = True
 
     list_per_page = 20
+    tortwordsdict = {}
     def tortInfo(self, TortInfo):
         if TortInfo == 'WY':
             rt = u'<div title="Wish侵权" style="float:left;width: 20px;height: 20px;background-color: #FF3333;text-align: center;line-height: 20px;border-radius: 4px">W</div>'
@@ -166,7 +169,7 @@ class t_online_info_wish_store_Admin(object):
         url = u'%s' % str(obj.Image)
         rt = '<div><img src="%s" width="120" height="120"/></div>' % (url,)
         z_url = u'http://fancyqube-wish.oss-cn-shanghai.aliyuncs.com/Wish_Diamonds_pic%5Chuangzuan.png'
-        h_url = u'http://main.cdn.wish.com/4fe4c5486817/img/product_badges/express_shipping/badge.png?v=13'
+        h_url = u'https://fancyqube-wish.oss-cn-shanghai.aliyuncs.com/badge.png'
         if obj.is_promoted == 'True':
             rt = rt + '<div style="float:left"><img src="%s"  width="20" height="20"  alt = "%s"  title="%s" /></div>' % (
             z_url, z_url, obj.is_promoted)
@@ -179,7 +182,8 @@ class t_online_info_wish_store_Admin(object):
     show_Picture.short_description = mark_safe(u'<p align="center"style="color:#428bca;">图片</p>')
 
     def show_Title_ProductID(self, obj):
-        rt = django_wrap(obj.Title,' ', 6)
+        rt = u'<div style="max-width: 300px;">{}</div>'.format(show_tort_title(obj.Title, self.tortwordsdict))
+
         rt = u'%s<br>产品ID:<a href=" https://www.wish.com/c/%s" target="_blank">%s</a>'%(rt,obj.ProductID,obj.ProductID)
         if obj.ReviewState == 'rejected' and obj.BeforeReviewState in ['approved', 'pending']:
             rt = rt + u'<br><span style="color:red">拒绝前状态:%s</span>' % obj.BeforeReviewState
@@ -253,10 +257,10 @@ class t_online_info_wish_store_Admin(object):
                 fbw_flag = ''
                 if obj.FBW_Flag == 'True':
                     f_list = []
-                    for warecode in warehousecode:
-                        iResult = t_online_info_wish_fbw_obj.select_some_infor(obj.ProductID, sinfor['ShopSKU'], warecode['code'])
+                    for warehouse_code in warehouse_code_list:
+                        iResult = t_online_info_wish_fbw_obj.select_some_infor_api(obj.ProductID, sinfor['ShopSKU'], warehouse_code)
                         if iResult['errorcode'] == 1:
-                            f_list.append(warecode['name'])
+                            f_list.append(warehouse_code)
                     if f_list:
                         fbw_flag = u'<span class="glyphicon glyphicon-asterisk" title="{}"></span>'.format(','.join(f_list))
                 try:
@@ -342,41 +346,42 @@ class t_online_info_wish_store_Admin(object):
         return rt
 
     def fbw_shopsku_attrinfor(self, obj):
+        change_text = u"/wish_store_management/get_fbw_shipping/"
+        main_change_text = u"{}?shopname={}&product_id={}".format(change_text, obj.ShopName, obj.ProductID)
+
         rt = u'<table class="table table-bordered table-striped table-hover">' \
              u'<thead>' \
              u'<tr>' \
              u'<th rowspan="2">店铺SKU</th>' \
              u'<th rowspan="2">价格</th>' \
-             u'<th colspan="5">FBW-US-LAX (美国)</th>' \
-             u'<th colspan="5">SF Express (爱沙尼亚)</th>' \
-             u'<th colspan="5">FBW-US-CVG (美国)</th>' \
+             u'<th colspan="3">FBW-US-LAX (美国)</th>' \
+             u'<th colspan="3">FBW-EU-TLL (欧洲)</th>' \
+             u'<th colspan="3">FBW-US-CVG (美国)</th>' \
              u'</tr>' \
              u'<tr>' \
-             u'<th>在线库存</th><th>备货数</th><th>已发货</th><th>销售数量</th><th>运费</th>' \
-             u'<th>在线库存</th><th>备货数</th><th>已发货</th><th>销售数量</th><th>运费</th>' \
-             u'<th>在线库存</th><th>备货数</th><th>已发货</th><th>销售数量</th><th>运费</th>' \
+             u'<th>活动</th><th>待确认</th><th><a onclick="change_fbw_shipping_show(\'{}&fbw_warehouse=LAX\')">运费</a></th>' \
+             u'<th>活动</th><th>待确认</th><th><a onclick="change_fbw_shipping_show(\'{}&fbw_warehouse=TLL\')">运费</a></th>' \
+             u'<th>活动</th><th>待确认</th><th><a onclick="change_fbw_shipping_show(\'{}&fbw_warehouse=CVG\')">运费</a></th>' \
              u'</tr>' \
-             u'</thead><tbody>'
+             u'</thead><tbody>'.format(main_change_text, main_change_text, main_change_text)
 
         if obj.FBW_Flag == 'True':
             shopskulist = listingobjs.getShopSKUList(obj.ProductID)
             classshopskuobjs = classshopsku(db_conn=connection, redis_conn=redis_conn, shopname=obj.ShopName)
             for shopsku in shopskulist:
                 rt = rt + u'<tr><td>{}</td><td>{}</td>'.format(shopsku.replace('<','&lt;').replace('>','&gt;'),classshopskuobjs.getPrice(shopsku))
-                for warecode in warehousecode:
-                    iResult = t_online_info_wish_fbw_obj.select_some_infor(obj.ProductID,shopsku,warecode['code'])
+                for warehouse_code in warehouse_code_list:
+                    vani_change_text = u"{}?{}".format(change_text, urlencode({'shopsku': shopsku, 'shopname': obj.ShopName}))
+                    iResult = t_online_info_wish_fbw_obj.select_some_infor_api(obj.ProductID,shopsku,warehouse_code)
                     if iResult['errorcode'] != -1:
-                        rt = rt + u'<td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td>'\
-                            .format(iResult['datadict'].get('online_stock', 0),
-                                    iResult['datadict'].get('demand_stock', 0),
-                                    iResult['datadict'].get('deliver_stock', 0),
-                                    iResult['datadict'].get('of_sales', 0),
-                                    iResult['datadict'].get('goodsshipping') if iResult['datadict'].get('goodsshipping') else '--'
+                        rt = rt + u'<td>{}</td><td>{}</td><td><a onclick="change_fbw_shipping_show(\'{}&fbw_warehouse={}\')">运费</a></td>'\
+                            .format(iResult['datadict'].get('active', 0),
+                                    iResult['datadict'].get('pending', 0),
+                                    vani_change_text, warehouse_code
                                     )
                 rt = rt + u'</tr>'
         rt = rt + u'</tbody></table>'
         return rt
-
 
 
     def show_SKU_list(self, obj):
@@ -429,7 +434,7 @@ class t_online_info_wish_store_Admin(object):
 
     def sync_online_data(self, obj):
         if check_permission_legality(self):
-            return u'<br><a onclick= "static_refresh(\'%s\')" title="同步在线数据">同步</a>' % ('/syndata_by_wish_api/?syn=%s' % obj.ProductID,)
+            return u'<br><a onclick= "static_refresh(\'%s\')" title="同步在线数据">同步</a>' % ('/syndata_by_wish_api/?syn=%s&warehouse=%s' % (obj.ProductID, self.request.GET.get('EXPRESS', 'STANDARD')))
         return ''
 
     def update_online_data(self, obj):
@@ -521,9 +526,11 @@ class t_online_info_wish_store_Admin(object):
     list_display_links = ('',)
 
     actions = ['_batch_update_data_by_api', '_batch_en_data_by_api', '_batch_dis_data_by_api',
-               'batch_update_title_by_api', '_batch_download_excel', '_batch_to_publish']
+               'batch_update_title_by_api', '_batch_download_excel', '_batch_to_publish', 'batch_update_shipping',
+               'TortWordsDealWith']
     
     def _batch_update_data_by_api(self, request, objs):
+        warehouse = self.request.GET.get('EXPRESS', 'STANDARD')
         sResult = {'rcode': '0', 'messages': ''}  # 初始状态
         opnum = 'Syn_%s_%s' % (timetime.now().strftime('%Y%m%d%H%M%S'), request.user.username)
         try:
@@ -544,7 +551,7 @@ class t_online_info_wish_store_Admin(object):
             iResult = t_wish_store_oplogs_obj.createLog(param)
             assert iResult['errorcode'] == 0, "insert log error."
             for obj in objs:
-                syndata_by_wish_api.delay([obj.ShopName, obj.ProductID, obj.ParentSKU], 'syn', opnum)
+                syndata_by_wish_api([obj.ShopName, obj.ProductID, obj.ParentSKU, warehouse], 'syn', opnum)
             sResult['rcode'] = 1
             sResult['KEY'] = opnum
         except Exception, ex:
@@ -596,7 +603,7 @@ class t_online_info_wish_store_Admin(object):
             iResult = t_wish_store_oplogs_obj.createLog(param)
             assert iResult['errorcode'] == 0, "insert log error."
             for obj in objs:
-                syndata_by_wish_api.delay([obj.ShopName, obj.ProductID, obj.ParentSKU], 'enable', opnum)
+                syndata_by_wish_api([obj.ShopName, obj.ProductID, obj.ParentSKU], 'enable', opnum)
             sResult['rcode'] = 1
             sResult['KEY'] = opnum
         except Exception, ex:
@@ -648,7 +655,7 @@ class t_online_info_wish_store_Admin(object):
             iResult = t_wish_store_oplogs_obj.createLog(param)
             assert iResult['errorcode'] == 0, "insert log error."
             for obj in objs:
-                syndata_by_wish_api.delay([obj.ShopName, obj.ProductID, obj.ParentSKU], 'disable', opnum)
+                syndata_by_wish_api([obj.ShopName, obj.ProductID, obj.ParentSKU], 'disable', opnum)
             sResult['rcode'] = 1
             sResult['KEY'] = opnum
         except Exception, ex:
@@ -687,7 +694,7 @@ class t_online_info_wish_store_Admin(object):
             plist = []
             for obj in objs:
                 plist.append([obj.ShopName, obj.ProductID, obj.ParentSKU])
-            syndata_by_wish_api.delay(plist, 'download', opnum, warehouse)
+            syndata_by_wish_api(plist, 'download', opnum, warehouse)
             sResult['rcode'] = 1
             sResult['KEY'] = opnum
         except Exception, ex:
@@ -708,6 +715,46 @@ class t_online_info_wish_store_Admin(object):
             messages.error(request,u'请选择要替换修改的记录。')
 
     batch_update_title_by_api.short_description = u'批量替换修改标题'
+
+
+    def batch_update_shipping(self, request, objs):
+        sResult = {'rcode': '0', 'messages': ''}  # 初始状态
+        opnum = 'BU_Shipping_%s_%s' % (timetime.now().strftime('%Y%m%d%H%M%S'), request.user.username)
+        try:
+            json_str = request.POST.get('update_data_json_str', '[]')
+            DataList = eval(json_str)
+            product_id_list = objs.values_list("ProductID", flat=True)
+            keylist = ['{}_{}'.format(product_id, tmp['country']) for product_id in product_id_list for tmp in DataList]
+
+            param = {}  # 操作日志的参数
+            param['OpNum'] = opnum
+            param['OpKey'] = keylist
+            param['OpType'] = 'BU_Shipping'
+            param['Status'] = 'runing'
+            param['ErrorInfo'] = ''
+            param['OpPerson'] = request.user.first_name
+            param['OpTime'] = timetime.now()
+            param['OpStartTime'] = timetime.now()
+            param['OpEndTime'] = None
+            param['aNum'] = len(keylist)
+            param['rNum'] = 0
+            param['eNum'] = 0
+
+            iResult = t_wish_store_oplogs_obj.createLog(param)
+            assert iResult['errorcode'] == 0, "insert log error."
+
+            warehouse = request.GET.get('warehouse', 'STANDARD')
+            for obj in objs:
+                syndata_by_wish_api([obj.ShopName, obj.ProductID, json_str], 'BU_Shipping', opnum, warehouse)
+
+            sResult['rcode'] = 1
+            sResult['KEY'] = opnum
+        except Exception, ex:
+            sResult['rcode'] = -1
+            sResult['messages'] = '%s:%s' % (Exception, ex)
+
+        return HttpResponse(json.dumps(sResult))
+    batch_update_shipping.short_description = u'批量更新产品运费'
 
 
     def _batch_to_publish(self, request, objs):
@@ -731,7 +778,7 @@ class t_online_info_wish_store_Admin(object):
             iResult = t_wish_store_oplogs_obj.createLog(param)
             assert iResult['errorcode'] == 0, "insert log error."
             for obj in objs:
-                syndata_by_wish_api.delay([obj.ShopName, obj.ProductID, obj.ParentSKU], 'topub', opnum, opPerson=request.user.first_name)
+                syndata_by_wish_api([obj.ShopName, obj.ProductID, obj.ParentSKU], 'topub', opnum, opPerson=request.user.first_name)
             sResult['rcode'] = 1
             sResult['KEY'] = opnum
         except Exception, ex:
@@ -742,7 +789,26 @@ class t_online_info_wish_store_Admin(object):
     _batch_to_publish.short_description = u'选中转到---待刊登'
 
 
+    def TortWordsDealWith(self, request, objs):
+        tortremark = request.POST.get('batch_remark_text')
+        # messages.error(request, tortremark)
+        for i, obj in enumerate(objs):
+            if obj.Status == 'Enabled' and obj.TortFlag == 1:
+                if not obj.Remarks and not tortremark:
+                    messages.error(request, u'ProductID: {}, 修改侵权处理标记前，请输入备注！'.format(obj.ProductID))
+                else:
+                    obj.Remarks = u'{};{}'.format(obj.Remarks, tortremark)
+                    obj.TortFlag=2
+                    obj.save()
+            if i >= 20:
+                break
+
+    TortWordsDealWith.short_description = u'修改侵权词处理标记'
+
+
     def get_list_queryset(self,):
+        self.tortwordsdict = tortwords(connection, redis_conn)
+
         request = self.request
         qs = super(t_online_info_wish_store_Admin, self).get_list_queryset()
         try:
@@ -913,8 +979,10 @@ class t_online_info_wish_store_Admin(object):
                 qs = qs.exclude(MainSKU__icontains=',')
 
             USExpressType = request.GET.get('USExpressType')
-            if USExpressType:
+            if USExpressType and USExpressType in ['virtual', 'real']:
                 seachfilter['WishExpressType__exact'] = USExpressType
+            elif USExpressType and USExpressType in ['null', '']:
+                qs = qs.exclude(WishExpressType__in=['virtual', 'real'])
 
             adshow = request.GET.get('adshow')
             if adshow:
@@ -935,20 +1003,43 @@ class t_online_info_wish_store_Admin(object):
             if express == 'FBW':  # fbw
                 seachfilter['FBW_Flag__exact'] = 'True'
 
+            tortflag = request.GET.get('tortflag')   # 新加的标题关键词侵权标记 用于左侧菜单的过滤
+            if tortflag == '1':
+                seachfilter['TortFlag__exact'] = 1
+                seachfilter['Status__exact'] = 'Enabled'
+            elif tortflag == '2':
+                seachfilter['TortFlag__exact'] = 2
+                seachfilter['Status__exact'] = 'Enabled'
+
             # 商品状态查询
             skustatus = request.GET.get('skustatus')  # 商品SKU状态
             goodsstatus = []
             if skustatus == '1':
                 goodsstatus = [1000, 1100, 1010, 1001, 1110, 1101, 1011, 1111]  # 正常
-            if skustatus == '2':
+            elif skustatus == '2':
                 goodsstatus = [100, 1100, 110, 101, 1110, 1101, 111, 1111]  # 售完下架
-            if skustatus == '3':
+            elif skustatus == '3':
                 goodsstatus = [10, 1010, 110, 11, 1011, 1110, 111, 1111]  # 临时下架
-            if skustatus == '4':
+            elif skustatus == '4':
                 goodsstatus = [1, 1001, 101, 11, 1101, 111, 1011, 1111]  # 停售
             if goodsstatus:
                 seachfilter['GoodsFlag__in'] = goodsstatus
                 # qs = qs.filter(GoodsFlag__in=goodsstatus)
+
+            riskgrade = request.GET.get('riskgrade')  # 侵权风险等级
+            risklist = []
+            if riskgrade == '3':
+                risklist = [8, 9, 10, 11, 12, 13, 14, 15]  # 绝对禁止
+            elif riskgrade == '2':
+                risklist = [4, 5, 6, 7, 12, 13, 14, 15]  # 限定范围
+            elif riskgrade == '1':
+                risklist = [2, 3, 6, 7, 10, 11, 14, 15]  # 潜在风险
+            elif riskgrade == '0':
+                risklist = [1, 3, 5, 7, 9, 11, 13, 15]   # 其它
+            elif riskgrade == 'o':
+                risklist = [1, 2, 3, 4, 5, 6, 7]   # 除了绝对禁止 以外的
+            if risklist:
+                seachfilter['RiskGrade__in'] = risklist
 
             # 店铺SKU状态查询
             shopskustatus = request.GET.get('shopskustatus')  # 店铺SKU状态
@@ -1106,7 +1197,7 @@ xadmin.site.register_plugin(change_shipping_plugin,ListAdminView)
 xadmin.site.register_plugin(t_online_info_wish_store_secondplugin,ListAdminView)
 xadmin.site.register_plugin(site_left_menu_tree_Plugin_wish,ListAdminView)
 xadmin.site.register_plugin(wish_listing_readonly_P,ListAdminView)
-xadmin.site.register_plugin(store_config_plugin,ListAdminView)
+
 xadmin.site.register_plugin(wish_store_sort_bar_plugin,ListAdminView)
 xadmin.site.register_plugin(help_select_plugin,ListAdminView)
 
@@ -1125,5 +1216,23 @@ xadmin.site.register_plugin(wish_daily_sales_statistics_chart_plugin, ListAdminV
 from storeapp.table.t_online_info_wish_low_inventory import t_online_info_wish_low_inventory
 from storeapp.StoreXadmin.t_online_info_wish_low_inventory_admin import t_online_info_wish_low_inventory_admin
 xadmin.site.register(t_online_info_wish_low_inventory, t_online_info_wish_low_inventory_admin)
+
+
+# Wish 订单罚款信息
+from storeapp.table.t_wish_information_of_order_fine import t_wish_information_of_order_fine
+from storeapp.StoreXadmin.t_wish_information_of_order_fine_admin import t_wish_information_of_order_fine_admin
+xadmin.site.register(t_wish_information_of_order_fine, t_wish_information_of_order_fine_admin)
+
+
+# Wish_FBW运输计划管理
+from storeapp.table.t_wish_fbw_shipping_plan_list import t_wish_fbw_shipping_plan_list
+from storeapp.StoreXadmin.t_wish_fbw_shippng_plan_list_admin import t_wish_fbw_shippng_plan_list_admin
+xadmin.site.register(t_wish_fbw_shipping_plan_list, t_wish_fbw_shippng_plan_list_admin)
+
+
+# Wish FBW低库存预警
+from storeapp.table.t_online_info_wish_fbw_api_low_inventory import t_online_info_wish_fbw_api_low_inventory
+from storeapp.StoreXadmin.t_online_info_wish_fbw_api_low_inventory_admin import t_online_info_wish_fbw_api_low_inventory_admin
+xadmin.site.register(t_online_info_wish_fbw_api_low_inventory, t_online_info_wish_fbw_api_low_inventory_admin)
 
 

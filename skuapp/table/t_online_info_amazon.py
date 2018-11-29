@@ -8,7 +8,7 @@ class t_online_info_amazon(models.Model):
     listing_id = models.CharField(u'listing_id', max_length=64, blank=True, null=True)
     seller_sku = models.CharField(u'店铺SKU', max_length=128, blank=True, null=True)
     price = models.FloatField(u'售价', max_length=64, blank=True, null=True)
-    quantity = models.IntCharFieldegerField(u'库存', max_length=32, blank=True, null=True)
+    quantity = models.CharField(u'库存', max_length=32, blank=True, null=True)
     open_date = models.DateTimeField(u'open_date(PDT)', blank=True, null=True)
     image_url = models.TextField(u'图片', max_length=100, blank=True, null=True)
     item_is_marketplace = models.CharField(u'item_is_marketplace', max_length=64, blank=True, null=True)
@@ -24,11 +24,11 @@ class t_online_info_amazon(models.Model):
     ShopName = models.CharField(u'店铺名', max_length=64, blank=True, null=True)
     SKU = models.CharField(u'SKU', max_length=31, blank=True, null=True)
     UpdateTime = models.DateTimeField(u'更新时间', blank=True, null=True)
-    order7days = models.IntegerField(u'7天销量', max_length=10, blank=True, null=True )
-    orderydays = models.IntegerField(u'昨日销量', max_length=10, blank=True, null=True )
-    ordertdays = models.IntegerField(u'今日销量', max_length=10, blank=True, null=True )
-    ordercdays = models.IntegerField(u'销量差值', max_length=10, blank=True, null=True )
-    allorder = models.IntegerField(u'总销量', max_length=10, blank=True, null=True )
+    # order7days = models.IntegerField(u'7天销量', max_length=10, blank=True, null=True )
+    # orderydays = models.IntegerField(u'昨日销量', max_length=10, blank=True, null=True )
+    # ordertdays = models.IntegerField(u'今日销量', max_length=10, blank=True, null=True )
+    # ordercdays = models.IntegerField(u'销量差值', max_length=10, blank=True, null=True )
+    # allorder = models.IntegerField(u'总销量', max_length=10, blank=True, null=True )
     is_fba = models.IntegerField(u'是否FBA',  max_length=1,  blank=True,  null=True)
     orders_7days = models.IntegerField(u'7天订单量',  max_length=5,  blank=True,  null=True)
     orders_15days = models.IntegerField(u'15天订单量',  max_length=10,  blank=True,  null=True)
@@ -54,9 +54,9 @@ class t_online_info_amazon(models.Model):
     bullet_point4 = models.CharField(u'商品描述4',  max_length=248,  blank=True,  null=True)
     bullet_point5 = models.CharField(u'商品描述5',  max_length=248,  blank=True,  null=True)
     generic_keywords1 = models.CharField(u'关键词1',  max_length=48,  blank=True,  null=True)
-    generic_keywords2 = models.CharField(u'关键词2',  max_length=48,  blank=True,  null=True)
-    generic_keywords3 = models.CharField(u'关键词3',  max_length=48,  blank=True,  null=True)
-    generic_keywords4 = models.CharField(u'关键词4',  max_length=48,  blank=True,  null=True)
+    # generic_keywords2 = models.CharField(u'关键词2',  max_length=48,  blank=True,  null=True)
+    # generic_keywords3 = models.CharField(u'关键词3',  max_length=48,  blank=True,  null=True)
+    # generic_keywords4 = models.CharField(u'关键词4',  max_length=48,  blank=True,  null=True)
     generic_keywords5 = models.CharField(u'关键词5',  max_length=48,  blank=True,  null=True)
     sale_price = models.DecimalField(u'促销价格',  max_digits=10, decimal_places=2, blank=True,  null=True)
     sale_from_date = models.DateTimeField(u'促销开始时间',  blank=True,  null=True)
@@ -76,11 +76,17 @@ class t_online_info_amazon(models.Model):
     product_status = models.CharField(u'商品状态',  max_length=32,  blank=True,  null=True)
 
     com_pro_sku = models.CharField(u'商品sku合集',  max_length=2000,  blank=True,  null=True)
+    merge_pro_sku = models.CharField(u'清仓合并后的商品SKU',  max_length=2000,  blank=True,  null=True)
     product_size_tier = models.CharField(u'商品尺寸分段',  max_length=32,  blank=True,  null=True)
     sale_rank = models.CharField(u'销售排名',  max_length=32,  blank=True,  null=True)
+    package_weight = models.CharField(u'包装重量',  max_length=32,  blank=True,  null=True)
+    lg_flag = models.SmallIntegerField(u'轻小件标识', blank=True, null=True)
+    online_upload_flag = models.SmallIntegerField(u'online系统刊登标识', blank=True, null=True)
+    tortflag = models.IntegerField(u'标题关键词侵权标记', blank=True, null=True)
+    RiskGrade = models.IntegerField(u'侵权风险等级', blank=True, null=True)
 
     class Meta:
-        verbose_name = u'AMA商品信息'
+        verbose_name = u'AMZ商品信息'
         verbose_name_plural = verbose_name
         db_table = 't_online_info_amazon'
         

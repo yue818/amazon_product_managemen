@@ -2,6 +2,7 @@
 var info = '';
 var synurl = '';
 var ACTIONSNAME = 'batch_update_shipping';
+var ACTIONSTORTFLAG = 'TortWordsDealWith';
 $(document).ready(function() {
     var divdown = document.getElementById('div_items');
     var shopss = document.getElementById('list_id');
@@ -52,7 +53,8 @@ $(document).ready(function() {
         }
     });
 
-    $('#'+ACTIONSNAME).attr('onclick', 'batch_update_shipping_entrance()')
+    $('#'+ACTIONSNAME).attr('onclick', 'batch_update_shipping_entrance()');
+    $('#'+ACTIONSTORTFLAG).attr('onclick', 'TortWordsDealWith_BatchRemarks()');
 });
 
 //移入移出效果
@@ -190,7 +192,7 @@ function change_shopsku(flag) {
 }
 
 function ityzl_SHOW_LOAD_LAYER(){
-    return parent.layer.msg('努力修改中...', {icon: 16,shade: [0.5, '#f5f5f5'],scrollbar: false,offset: '50%', time:100000}) ;
+    return parent.layer.msg('努力修改中...', {icon: 16,shade: [0.5, '#f5f5f5'],scrollbar: false,offset: '50%', time:10000000}) ;
 }
 function ityzl_CLOSE_LOAD_LAYER(index){
     parent.layer.close(index);
@@ -277,6 +279,11 @@ function setExpressType(sel, id) {
 
 
 function batch_update_shipping_entrance() {
+    if (!check_box_num()){
+        alert('请选择需要修改的数据！');
+        return null;
+    }
+
     $('#model_id_batch_update_shipping').modal({backdrop: 'static', keyboard: false});
     click_num_prompt();
 }
@@ -332,11 +339,6 @@ function click_num_prompt() {
 
 
 function batch_update_shipping_func() {
-    if (!check_box_num()){
-        alert('请选择需要修改的数据！');
-        return null;
-    }
-
     var Tmp_dom = document.getElementsByName('countrycode');
     var dom_lenght = Tmp_dom.length;
 
@@ -410,7 +412,6 @@ function return_selected(obj) {
 }
 
 
-
 function to_sub_form(jsontext) {
     var model_info = document.getElementById('id_prompt_span');
     model_info.innerHTML = model_info.innerHTML + '<span id="zt">正在进行操作，请稍等。。。</span>';
@@ -431,6 +432,7 @@ function to_sub_form(jsontext) {
         beforeSend: function(xhr, settings) {
             xhr.setRequestHeader("X-CSRFToken", csrftoken);
             $('#brPress_id').val('1');
+            $('#sub_part').attr('disabled', 'disabled');
         },
         success: function (result) {
             if (result.rcode == '1'){
@@ -471,3 +473,32 @@ $(function () {
         location.reload();
     })
 });
+
+
+function TortWordsDealWith_BatchRemarks() {
+    if (!check_box_num()){
+        alert('请选择需要修改的数据！');
+        return null;
+    }
+
+    $('#idFor_BatchRemarks').modal({backdrop: 'static', keyboard: false});
+}
+
+
+function to_batch_update_tort_remark() {
+    $('#action').val(ACTIONSTORTFLAG);
+
+    var myform=$('#changelist-form'); //得到form对象
+    var tmptext=$('<input name="batch_remark_text">');
+    tmptext.attr("value", $('#batch_remark_id').val());
+    myform.append(tmptext);
+
+    $('#idFor_BatchRemarks').modal('hide');
+    $.do_action(ACTIONSTORTFLAG, '修改侵权词处理标记');
+}
+
+
+
+
+
+

@@ -318,7 +318,7 @@
             <td>
                 <a class="thumbnail" style="float: left;margin-top: 1px;margin-left: 1px;margin-bottom: 1px">
                     <img id="{{ forloop.counter }}" name="shopsku_image" width="40" height="40"
-                          src="{% if my.ShopSKUImage %}{{ my.ShopSKUImage }}{% else %}http://ou3qh0g46.bkt.clouddn.com/fancyqube.jpg{% endif %} "
+                          src="{% if my.ShopSKUImage %}{{ my.ShopSKUImage }}{% else %}https://fancyqube-wish.oss-cn-shanghai.aliyuncs.com/Nobackground.png{% endif %} "
                            onclick="change_image({{ forloop.counter }})"/>
                     <input id="imgs_{{ forloop.counter }}" type="hidden" name="main_image" value="{{ my.ShopSKUImage }}" />
                     <input id="imgs_{{ forloop.counter }}_copy" type="hidden" name="main_image_copy" value="{{ my.ShopSKUImage }}" />

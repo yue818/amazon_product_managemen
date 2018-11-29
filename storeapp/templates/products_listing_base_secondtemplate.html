@@ -21,11 +21,13 @@
                 EXPRESS-US
             </a>
         </li>
+        {% if readonly != 'readonly' %}
         <li {% if activeflag == 'FBW' %} class="active" {% endif %}>
             <a href="{{ nowurl }}EXPRESS=FBW">
                 FBW
             </a>
         </li>
+        {% endif %}
     </ul>
     <div>
         <span style="height: 50px;width: 240px;font-size: 20px; color:red;">
@@ -97,13 +99,23 @@
     <div>
         <a class="sybutton" type="button" style="display: inline; width: 180px ; float: right;" target="_blank" href="/Project/admin/wishpubapp/t_templet_wish_publish_draft/add/">产品刊登(公测版)</a>
     </div>
-{% endif %}
-<div class="btn btn-default" style="bottom: 20px;right: 300px;height: 56px;width: 150px;position: fixed;box-shadow: 2px 2px 16px rgba(0, 0, 0, 0.5);background-color: #f5f5f5;z-index: 295"
-        onclick="javaScrip: var height_val = document.documentElement.scrollTop; var topval = 0; if (height_val > 400){topval=0}else {topval=5000000000} document.body.scrollTop = document.documentElement.scrollTop = topval;">
-    <div style="background-color: #5cb85c;color: white;height: 80%;line-height: 30px;margin-top: 3%;">
-        回到顶部(底部)
+    {% if activeflag == 'FBW' %}
+    <div>
+        <a class="sybutton" type="button" style="display: inline; width: 180px ; float: right;" data-toggle="modal" data-target="#idFor_OrderExcel">FBW订单导出</a>
     </div>
-</div>
+    {% endif %}
+{#    <div class="dropdown" style="float: right;">#}
+{#        <button type="button" class="btn dropdown-toggle sybutton" id="id_batch_update_shipping" onclick="batch_update_shipping_entrance()">#}
+{#            批量修改产品运费#}
+{#        </button>#}
+{#    </div>#}
+{% endif %}
+{#<div class="btn btn-default" style="bottom: 20px;right: 300px;height: 56px;width: 150px;position: fixed;box-shadow: 2px 2px 16px rgba(0, 0, 0, 0.5);background-color: #f5f5f5;z-index: 295"#}
+{#        onclick="javaScrip: var height_val = document.documentElement.scrollTop; var topval = 0; if (height_val > 400){topval=0}else {topval=5000000000} document.body.scrollTop = document.documentElement.scrollTop = topval;">#}
+{#    <div style="background-color: #5cb85c;color: white;height: 80%;line-height: 30px;margin-top: 3%;">#}
+{#        回到顶部(底部)#}
+{#    </div>#}
+{#</div>#}
     <!-- 模态框（Modal）全量刷新店铺 -->
     <div class="modal fade" id="shopname_full" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -175,4 +187,182 @@
             </div><!-- /.modal-content -->
         </div><!-- /.modal -->
     </div>
+
+    <!-- 模态框（Modal）批量修改产品运费 -->
+    <div class="modal fade" id="model_id_batch_update_shipping" tabindex="-1" role="dialog" aria-labelledby="ModelID" aria-hidden="true">
+        <div class="modal-dialog" style="width: 1200px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title" id="ModelID">
+                        批量修改产品运费
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <span id="id_warning_text" style="color: red;">***请务必选择需要修改的国家</span>
+                    <br>
+                    <span id="id_prompt_span"></span>
+                    <div class="progress progress-striped active" id="div_id_progress" style="display: none">
+                        <div class="progress-bar progress-bar-success" role="progressbar"
+                             aria-valuenow="60" aria-valuemin="0" aria-valuemax="100"
+                             style="width: 0%;" id="id_progress">
+                            <span class="sr-only">0% 完成</span>
+                        </div>
+                    </div>
+                    <span id="id_prompt_text"></span>
+                    <div  id="div_id_table" style="height: 800px; overflow-y:scroll">
+                        <table align="center" class="table table-bordered table-striped table-hover">
+                            <thead>
+                                <tr align="center">
+                                    <th style="text-align:center; min-width: 55px;max-width: 120px;">
+                                        <input type="text" class="form-control" name="seach_country" placeholder="搜索国家" onkeyup="show_seach_country(this)">
+                                    </th>
+                                    <th style="text-align:center">运费类型</th>
+                                    <th style="text-align:center">运费</th>
+                                    <th style="text-align:center">启用<br>WishExpress</th>
+                                    <th style="text-align:center">启用<br>选中国家可以售卖</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for k, v in countrys_code_dict %}
+                                    {% if activeflag == 'STANDARD' or activeflag == '' or activeflag == k %}
+                                    <tr align="center">
+                                        <td>
+                                            <div class="checkbox">
+                                                <input type="checkbox" id="id_countrycode_{{ forloop.counter0 }}" name="countrycode" value="{{ k }}">
+                                                <label for="id_countrycode_{{ forloop.counter0 }}" name="countryname">{{ v }}</label>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <select name="shipping_type" class='text-field admintextinputwidget form-control' onchange="set_shipping_price(this)">
+                                                <option value="IOOV" selected>在原有运费上增加</option>  {# Increases on the original value #}
+                                                <option value="True">使用产品运费</option>
+                                                <option value="False">使用设置运费</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <div class="input-group" style="max-width: 150px;">
+                                                <input type="text" style="margin-top: 0px" class="form-control" name="shipping_value" value="0" onkeyup="value=value.replace(/[^\d.]/g,'');">
+                                                <span class="input-group-addon">USD</span>
+                                            </div>
+                                        </td>
+                                        <td style="text-align:center">
+                                            <div class="checkbox">
+                                                <input type="checkbox" id="id_WishExpress_{{ forloop.counter0 }}" name="WishExpress">
+                                                <label for="id_WishExpress_{{ forloop.counter0 }}">是否启用</label>
+                                            </div>
+                                        </td>
+                                        <td style="text-align:center">
+                                            <div class="checkbox">
+                                                <input type="checkbox" id="id_enabled_{{ forloop.counter0 }}" name="enabled" checked>
+                                                <label for="id_enabled_{{ forloop.counter0 }}">是否可售</label>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="batch_update_shipping_func()" id="sub_part">
+                        提交更新
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+
+    <!-- 导出FBW订单 -->
+    <div class="modal fade" id="idFor_OrderExcel" tabindex="-1" role="dialog" aria-labelledby="forOrderExcel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">
+                        请输入需要导出订单的时间范围（UTC）
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <div id="div_id_InputTime">
+                        <label for="id_OrderDate_Start">开始时间: </label>
+                        <input type="date" id="id_OrderDate_Start" class="form-control"  name="OrderDate_Start" value="">
+                        --
+                        <label for="id_OrderDate_End">开始时间: </label>
+                        <input type="date" id="id_OrderDate_End" class="form-control"  name="OrderDate_End" value="">
+                    </div>
+                    <div id="download_href_div" style="display: none;">
+                        <a id="download_href" href="">点击下载</a>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="to_excel(this)">
+                        提交导出
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+
+
+    <!-- 侵权备注 -->
+    <div class="modal fade" id="idFor_BatchRemarks" tabindex="-1" role="dialog" aria-labelledby="forBatchRemarks" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title">
+                        请输入侵权备注
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <span id="idFor_TortRemarksPrompted"></span>
+                    <textarea name="batch_remark_name" id="batch_remark_id" style="width: 100%;"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="to_batch_update_tort_remark()">
+                        提交修改
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

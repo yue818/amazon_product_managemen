@@ -26,6 +26,14 @@ from skuapp.table.t_config_amazon_template import *
 from skuapp.table.t_config_shop_alias import t_config_shop_alias
 from skuapp.table.t_amazon_removal_order_detail import t_amazon_removal_order_detail
 from skuapp.table.t_amazon_all_orders_data import t_amazon_all_orders_data
+from skuapp.table.t_templet_amazon_publish_draft_from_ebay import t_templet_amazon_publish_draft_from_ebay
+from skuapp.table.t_templet_amazon_follow import t_templet_amazon_follow
+from skuapp.table.t_amazon_actionable_order_data import t_amazon_actionable_order_data
+from skuapp.table.t_amazon_finance_record import t_amazon_finance_record
+from skuapp.table.t_amazon_auto_load import t_amazon_auto_load
+from skuapp.table.t_amazon_fba_inventory_age import t_amazon_fba_inventory_age
+from django.db.models import Q
+
 
 class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
     amazon_site_left_menu_tree_flag = False
@@ -56,6 +64,22 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
             inactive_shop_cnt = t_online_info_amazon_listing.objects.filter(ShopName=shopname, shop_status=1, Status__in=('Active', 'Inactive')).values('id').count()
             t_remove_order_cnt = t_amazon_removal_order_detail.objects.filter(shop_name=shopname).values('id').count()
             all_orders_cnt = t_amazon_all_orders_data.objects.filter(shop_name=shopname).values('id').count()
+            actionable_order_cnt = t_amazon_actionable_order_data.objects.filter(shop_name=shopname).values('id').count()
+            finance_record_cnt = t_amazon_finance_record.objects.filter(shop_name=shopname).values('id').count()
+            can_load_cnt = t_online_info_amazon_listing.objects.filter(ShopName=shopname, shop_status=0, refresh_status=0, is_fba=0, Status='Inactive', product_status=1).values('id').count()
+            can_unload_cnt = t_online_info_amazon_listing.objects.filter(ShopName=shopname, shop_status=0, refresh_status=0, is_fba=0, Status='Active', product_status__in=(2,3,4)).values('id').count()
+            load_cnt = t_amazon_auto_load.objects.filter(shop_name=shopname, deal_type='load').values('id').count()
+            unload_cnt = t_amazon_auto_load.objects.filter(shop_name=shopname, deal_type='unload').values('id').count()
+            inventory_age_cnt = t_amazon_fba_inventory_age.objects.filter(shop_name=shopname).filter(Q(qty_to_be_charged_ltsf_6_mo__gt=0)|Q(qty_to_be_charged_ltsf_12_mo__gt=0)).values('id').count()
+            tort_cnt_obj = t_online_info_amazon_listing.objects.filter(ShopName=shopname, shop_status=0, refresh_status=0, Status='Active')
+            no_ban_cnt = tort_cnt_obj.filter(tortflag=1, RiskGrade__in=[8, 9, 10, 11, 12, 13, 14, 15]).count()
+            no_scope_cnt = tort_cnt_obj.filter(tortflag=1, RiskGrade__in=[4, 5, 6, 7, 12, 13, 14, 15]).count()
+            no_pot_cnt = tort_cnt_obj.filter(tortflag=1, RiskGrade__in=[2, 3, 6, 7, 10, 11, 14, 15]).count()
+            no_other_cnt = tort_cnt_obj.filter(tortflag=1, RiskGrade__in=[1, 3, 5, 7, 9, 11, 13, 15]).count()
+            yes_ban_cnt = tort_cnt_obj.filter(tortflag=2, RiskGrade__in=[8, 9, 10, 11, 12, 13, 14, 15]).count()
+            yes_scope_cnt = tort_cnt_obj.filter(tortflag=2, RiskGrade__in=[4, 5, 6, 7, 12, 13, 14, 15]).count()
+            yes_pot_cnt = tort_cnt_obj.filter(tortflag=2, RiskGrade__in=[2, 3, 6, 7, 10, 11, 14, 15]).count()
+            yes_other_cnt = tort_cnt_obj.filter(tortflag=2, RiskGrade__in=[1, 3, 5, 7, 9, 11, 13, 15]).count()
             if is_fba:
                 try:
                     is_fba = int(is_fba)
@@ -66,7 +90,6 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
                 remove_list_cnt = t_online_info_amazon_listing.objects.filter(ShopName=shopname, refresh_status=1, is_fba=is_fba, Status__in=('Active', 'Inactive'), shop_status=0).values('id').count()
                 active_shop_cnt = active_list_cnt + inactive_list_cnt + remove_list_cnt
                 all_list_cnt = active_shop_cnt + inactive_shop_cnt
-                
             else:
                 active_list_cnt = t_online_info_amazon_listing.objects.filter(ShopName=shopname,  Status='Active', refresh_status=0, shop_status=0).values('id').count()
                 inactive_list_cnt = t_online_info_amazon_listing.objects.filter(ShopName=shopname, Status='Inactive', refresh_status=0, shop_status=0).values('id').count()
@@ -111,6 +134,25 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
             else:
                 t_remove_order_cnt = t_amazon_removal_order_detail.objects.all().values('id').count()
                 all_orders_cnt = t_amazon_all_orders_data.objects.all().values('id').count()
+
+            actionable_order_cnt = t_amazon_actionable_order_data.objects.all().values('id').count()
+            finance_record_cnt = t_amazon_finance_record.objects.all().values('id').count()
+            can_load_cnt = t_online_info_amazon_listing.objects.filter(shop_status=0, refresh_status=0, is_fba=0, Status='Inactive', product_status=1).values('id').count()
+            can_unload_cnt = t_online_info_amazon_listing.objects.filter(shop_status=0, refresh_status=0, is_fba=0, Status='Active', product_status__in=(2, 3, 4)).values(
+                'id').count()
+            load_cnt = t_amazon_auto_load.objects.filter(deal_type='load').values('id').count()
+            unload_cnt = t_amazon_auto_load.objects.filter(deal_type='unload').values('id').count()
+            inventory_age_cnt = t_amazon_fba_inventory_age.objects.filter(Q(qty_to_be_charged_ltsf_6_mo__gt=0)|Q(qty_to_be_charged_ltsf_12_mo__gt=0)).values('id').count()
+            tort_cnt_obj = t_online_info_amazon_listing.objects.filter(shop_status=0, refresh_status=0, Status='Active')
+            no_ban_cnt = tort_cnt_obj.filter(tortflag=1, RiskGrade__in=[8, 9, 10, 11, 12, 13, 14, 15]).count()
+            no_scope_cnt = tort_cnt_obj.filter(tortflag=1, RiskGrade__in=[4, 5, 6, 7, 12, 13, 14, 15]).count()
+            no_pot_cnt = tort_cnt_obj.filter(tortflag=1, RiskGrade__in=[2, 3, 6, 7, 10, 11, 14, 15]).count()
+            no_other_cnt = tort_cnt_obj.filter(tortflag=1, RiskGrade__in=[1, 3, 5, 7, 9, 11, 13, 15]).count()
+            yes_ban_cnt = tort_cnt_obj.filter(tortflag=2, RiskGrade__in=[8, 9, 10, 11, 12, 13, 14, 15]).count()
+            yes_scope_cnt = tort_cnt_obj.filter(tortflag=2, RiskGrade__in=[4, 5, 6, 7, 12, 13, 14, 15]).count()
+            yes_pot_cnt = tort_cnt_obj.filter(tortflag=2, RiskGrade__in=[2, 3, 6, 7, 10, 11, 14, 15]).count()
+            yes_other_cnt = tort_cnt_obj.filter(tortflag=2, RiskGrade__in=[1, 3, 5, 7, 9, 11, 13, 15]).count()
+
             if is_fba:
                 try:
                     is_fba = int(is_fba)
@@ -155,9 +197,10 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
                     'id').count()
                 template_count = t_config_amazon_template.objects.filter(CreateName=self.request.user.first_name).values('id').count()
 
+        t_templet_amazon_publish_draft_from_ebay_count = t_templet_amazon_publish_draft_from_ebay.objects.all().values('id').count()
 
         amazon_upload = {
-            "name": u"刊登" ,
+            "name": u"刊登",
             "code": "12",
             "icon": "icon-minus-sign",
             "parentCode": "01",
@@ -166,7 +209,17 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
             "flag": "pub_all",
             "child": [
                 {
-                    "name": u"草稿箱(%s)" % t_templet_amazon_collection_box_count ,
+                    "name": u"eBay待刊登模板(%s)" % t_templet_amazon_publish_draft_from_ebay_count,
+                    "code": "128",
+                    "icon": "",
+                    "parentCode": "12",
+                    "selected": "",
+                    "to_url": '/Project/admin/skuapp/t_templet_amazon_publish_draft_from_ebay/',
+                    "flag": "8",
+                    "child": []
+                },
+                {
+                    "name": u"草稿箱(%s)" % t_templet_amazon_collection_box_count,
                     "code": "121",
                     "icon": "",
                     "parentCode": "12",
@@ -197,7 +250,7 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
                 },
                 {
                     "name": u"发布失败(%s)" % t_templet_amazon_wait_upload_count_failed,
-                    "code": "123",
+                    "code": "124",
                     "icon": "",
                     "parentCode": "12",
                     "selected": "",
@@ -207,7 +260,7 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
                 },
                 {
                     "name": u"发布成功(%s)" % t_templet_amazon_wait_upload_count_success,
-                    "code": "123",
+                    "code": "125",
                     "icon": "",
                     "parentCode": "12",
                     "selected": "",
@@ -216,8 +269,8 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
                     "child": []
                 },
                 {
-                    "name": u"发布后图片缺失(%s)" % t_templet_amazon_upload_result_lose_pic_count ,
-                    "code": "123",
+                    "name": u"发布后图片缺失(%s)" % t_templet_amazon_upload_result_lose_pic_count,
+                    "code": "126",
                     "icon": "",
                     "parentCode": "12",
                     "selected": "",
@@ -227,7 +280,7 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
                 },
                 {
                     "name": u"回收站(%s)" % t_templet_amazon_recycle_bin_count,
-                    "code": "123",
+                    "code": "127",
                     "icon": "",
                     "parentCode": "12",
                     "selected": "",
@@ -255,6 +308,8 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
             flag = '6'
         if 't_templet_amazon_recycle_bin' in self.request.get_full_path():
             flag = '7'
+        if 't_templet_amazon_publish_draft_from_ebay' in self.request.get_full_path():
+            flag = '8'
 
         search_str = ''
         inactive_shop_str = ''
@@ -338,7 +393,7 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
         }
 
         amazon_online_info_inactive_shop = {
-            "name": u"已关闭店铺(%s)" % inactive_shop_cnt,
+            "name": u"已关闭店铺",
             "code": "1102",
             "icon": "icon-minus-sign",
             "parentCode": "11",
@@ -348,7 +403,7 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
             "child":
                 [
                     {
-                        "name": u"商品列表" ,
+                        "name": u"商品列表(%s)" % inactive_shop_cnt,
                         "icon": "",
                         "code": "110201",
                         "parentCode": "1102",
@@ -381,16 +436,6 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
                         "child": []
                     },
 
-                    {
-                        "name": u"已移除订单(%s)" % t_remove_order_cnt,
-                        "icon": "",
-                        "code": "110302",
-                        "parentCode": "1103",
-                        "selected": "",
-                        "to_url": '/Project/admin/skuapp/t_amazon_removal_order_detail/',
-                        "flag": 'removal_order',
-                        "child": []
-                    },
 
                     {
                         "name": u"移除订单统计",
@@ -403,16 +448,6 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
                         "child": []
                     },
 
-                    {
-                        "name": u"订单详情(%s)" % all_orders_cnt,
-                        "icon": "",
-                        "code": "110304",
-                        "parentCode": "1103",
-                        "selected": "",
-                        "to_url": '/Project/admin/skuapp/t_amazon_all_orders_data/',
-                        "flag": 'all_orders',
-                        "child": []
-                    },
 
                     {
                         "name": u"Pending订单统计",
@@ -433,17 +468,6 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
                         "selected": "",
                         "to_url": '/Project/admin/skuapp/t_amazon_orders_by_receive_day_total/',
                         "flag": 'orders_by_receive_day',
-                        "child": []
-                    },
-
-                    {
-                        "name": u"未发货订单",
-                        "icon": "",
-                        "code": "110307",
-                        "parentCode": "1103",
-                        "selected": "",
-                        "to_url": '/Project/admin/skuapp/t_amazon_actionable_order_data/',
-                        "flag": 'actionable_order_data',
                         "child": []
                     },
 
@@ -476,7 +500,7 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
             "child":
                 [
                     {
-                        "name": u"可上架",
+                        "name": u"可上架(%s)" % can_load_cnt,
                         "icon": "",
                         "code": "110401",
                         "parentCode": "1104",
@@ -487,7 +511,7 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
                     },
 
                     {
-                        "name": u"上架记录",
+                        "name": u"上架记录(%s)" % load_cnt,
                         "icon": "",
                         "code": "110402",
                         "parentCode": "1104",
@@ -498,7 +522,6 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
                     },
                 ]
         }
-
 
         amazon_auto_unload = {
             "name": u"亚马逊下架",
@@ -511,7 +534,7 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
             "child":
                 [
                     {
-                        "name": u"可下架",
+                        "name": u"可下架(%s)" % can_unload_cnt,
                         "icon": "",
                         "code": "110501",
                         "parentCode": "1105",
@@ -522,7 +545,7 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
                     },
 
                     {
-                        "name": u"下架记录",
+                        "name": u"下架记录(%s)" % unload_cnt,
                         "icon": "",
                         "code": "110502",
                         "parentCode": "1105",
@@ -532,6 +555,232 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
                         "child": []
                     },
                 ]
+        }
+
+        qs = t_templet_amazon_follow.objects.exclude(crawl_result__contains=u'删除')
+        follow1 = qs.filter(SKU__isnull=True, price__gte=0.0).values('id').count()
+        follow2 = qs.filter(ispublish__isnull=True, SKU__isnull=False).values('id').count()
+        follow4 = qs.filter(price=0.0).values('id').count()
+        follow5 = qs.filter(ispublish__isnull=False).values('id').count()
+        amazon_follow = {
+            "name": u"亚马逊跟卖",
+            "code": "1106",
+            "icon": "icon-minus-sign",
+            "parentCode": "11",
+            "selected": "",
+            "to_url": '',
+            "flag": "",
+            "child": [
+                {
+                    "name": u"待判定SKU(%s)" % follow1,
+                    "icon": "",
+                    "code": "110601",
+                    "parentCode": "1106",
+                    "selected": "",
+                    "to_url": '/Project/admin/skuapp/t_templet_amazon_follow/?dataflag=1',
+                    "flag": 'follow1',
+                    "child": []
+                },
+                {
+                    "name": u"待确认刊登(%s)" % follow2,
+                    "icon": "",
+                    "code": "110602",
+                    "parentCode": "1106",
+                    "selected": "",
+                    "to_url": '/Project/admin/skuapp/t_templet_amazon_follow/?dataflag=2',
+                    "flag": 'follow2',
+                    "child": []
+                },
+                {
+                    "name": u"刊登情况(%s)" % follow5,
+                    "icon": "",
+                    "code": "110605",
+                    "parentCode": "1106",
+                    "selected": "",
+                    "to_url": '/Project/admin/skuapp/t_templet_amazon_follow/?dataflag=5',
+                    "flag": 'follow5',
+                    "child": []
+                },
+                {
+                    "name": u"采集异常(%s)" % follow4,
+                    "icon": "",
+                    "code": "110604",
+                    "parentCode": "1106",
+                    "selected": "",
+                    "to_url": '/Project/admin/skuapp/t_templet_amazon_follow/?dataflag=4',
+                    "flag": 'follow4',
+                    "child": []
+                },
+            ]
+
+        }
+        
+        amazon_online_report_data = {
+            "name": u"报告数据",
+            "code": "1107",
+            "icon": "icon-minus-sign",
+            "parentCode": "11",
+            "selected": "",
+            "to_url": '',
+            "flag": "",
+            "child":
+                [
+
+                    {
+                        "name": u"已移除订单(%s)" % t_remove_order_cnt,
+                        "icon": "",
+                        "code": "110701",
+                        "parentCode": "1107",
+                        "selected": "",
+                        "to_url": '/Project/admin/skuapp/t_amazon_removal_order_detail/',
+                        "flag": 'removal_order',
+                        "child": []
+                    },
+
+                    {
+                        "name": u"订单详情(%s)" % all_orders_cnt,
+                        "icon": "",
+                        "code": "110702",
+                        "parentCode": "1107",
+                        "selected": "",
+                        "to_url": '/Project/admin/skuapp/t_amazon_all_orders_data/',
+                        "flag": 'all_orders',
+                        "child": []
+                    },
+
+                    {
+                        "name": u"未发货订单(%s)" % actionable_order_cnt,
+                        "icon": "",
+                        "code": "110703",
+                        "parentCode": "1107",
+                        "selected": "",
+                        "to_url": '/Project/admin/skuapp/t_amazon_actionable_order_data/',
+                        "flag": 'actionable_order_data',
+                        "child": []
+                    },
+
+                    {
+                        "name": u"订单交易数据(%s)" % finance_record_cnt,
+                        "icon": "",
+                        "code": "110704",
+                        "parentCode": "1107",
+                        "selected": "",
+                        "to_url": '/Project/admin/skuapp/t_amazon_finance_record/',
+                        "flag": 'finance_record',
+                        "child": []
+                    },
+
+                    {
+                        "name": u"库龄数据(%s)" % inventory_age_cnt,
+                        "icon": "",
+                        "code": "110705",
+                        "parentCode": "1107",
+                        "selected": "",
+                        "to_url": '/Project/admin/skuapp/t_amazon_fba_inventory_age/',
+                        "flag": 'inventory_age',
+                        "child": []
+                    },
+                ]
+        }
+
+        active_listing_url = '/Project/admin/skuapp/t_online_info_amazon_listing/?Status=Active&_p_shop_status=0&_p_refresh_status=0' + shop_str
+        title_tort_word = {
+            "name": u"在线链接标题侵权",
+            "code": "1108",
+            "icon": "icon-minus-sign",
+            "parentCode": "11",
+            "selected": "",
+            "to_url": '',
+            "flag": "",
+            "child": [
+                {
+                    "name": u"未处理绝对禁止(%s)" % no_ban_cnt,
+                    "icon": "",
+                    "code": "110801",
+                    "parentCode": "1108",
+                    "selected": "",
+                    "to_url": active_listing_url + '&_p_tortflag=1&riskgrade=3',
+                    "flag": 'no_ban',
+                    "child": []
+                },
+
+                {
+                    "name": u"未处理限定范围(%s)" % no_scope_cnt,
+                    "icon": "",
+                    "code": "110802",
+                    "parentCode": "1108",
+                    "selected": "",
+                    "to_url": active_listing_url + '&_p_tortflag=1&riskgrade=2',
+                    "flag": 'no_scope',
+                    "child": []
+                },
+
+                {
+                    "name": u"未处理潜在风险(%s)" % no_pot_cnt,
+                    "icon": "",
+                    "code": "110803",
+                    "parentCode": "1108",
+                    "selected": "",
+                    "to_url": active_listing_url + '&_p_tortflag=1&riskgrade=1',
+                    "flag": 'no_pot',
+                    "child": []
+                },
+
+                {
+                    "name": u"未处理其他(%s)" % no_other_cnt,
+                    "icon": "",
+                    "code": "110804",
+                    "parentCode": "1108",
+                    "selected": "",
+                    "to_url": active_listing_url + '&_p_tortflag=1&riskgrade=0',
+                    "flag": 'no_other',
+                    "child": []
+                },
+
+                {
+                    "name": u"已处理绝对禁止(%s)" % yes_ban_cnt,
+                    "icon": "",
+                    "code": "110805",
+                    "parentCode": "1108",
+                    "selected": "",
+                    "to_url": active_listing_url + '&_p_tortflag=2&riskgrade=3',
+                    "flag": 'yes_ban',
+                    "child": []
+                },
+
+                {
+                    "name": u"已处理限定范围(%s)" % yes_scope_cnt,
+                    "icon": "",
+                    "code": "110806",
+                    "parentCode": "1108",
+                    "selected": "",
+                    "to_url": active_listing_url + '&_p_tortflag=2&riskgrade=2',
+                    "flag": 'yes_scope',
+                    "child": []
+                },
+
+                {
+                    "name": u"已处理潜在风险(%s)" % yes_pot_cnt,
+                    "icon": "",
+                    "code": "110807",
+                    "parentCode": "1108",
+                    "selected": "",
+                    "to_url": active_listing_url + '&_p_tortflag=2&riskgrade=1',
+                    "flag": 'yes_pot',
+                    "child": []
+                },
+
+                {
+                    "name": u"已处理其他(%s)" % yes_other_cnt,
+                    "icon": "",
+                    "code": "110808",
+                    "parentCode": "1108",
+                    "selected": "",
+                    "to_url": active_listing_url + '&_p_tortflag=2&riskgrade=0',
+                    "flag": 'yes_other',
+                    "child": []
+                },
+            ]
         }
 
         amazon_online_info = {
@@ -545,8 +794,11 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
             "child": [
                 amazon_online_info_active_shop,
                 amazon_online_info_inactive_shop,
+                title_tort_word,
                 amazon_auto_upload,
                 amazon_auto_unload,
+                amazon_follow,
+                amazon_online_report_data,
                 amazon_online_info_analysis,
             ]
         }
@@ -562,7 +814,7 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
             "flag": "shop_all",
             "child": [
                 {
-                    "name": u"运费模板(%s)" %template_count,
+                    "name": u"运费模板(%s)" % template_count,
                     "icon": "",
                     "code": "101",
                     "parentCode": "10",
@@ -619,6 +871,35 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
             flag = 'refresh_status'
         elif 't_amazon_actionable_order_data' in self.request.get_full_path():
             flag = 'actionable_order_data'
+        elif 't_templet_amazon_follow' in self.request.get_full_path():
+            if 'dataflag=1' in self.request.get_full_path():
+                flag = 'follow1'
+            elif 'dataflag=2' in self.request.get_full_path():
+                flag = 'follow2'
+            elif 'dataflag=4' in self.request.get_full_path():
+                flag = 'follow4'
+            elif 'dataflag=5' in self.request.get_full_path():
+                flag = 'follow5'
+        elif 't_amazon_finance_record' in self.request.get_full_path():
+            flag = 'finance_record'
+        elif 't_amazon_fba_inventory_age' in self.request.get_full_path():
+            flag = 'inventory_age'
+        elif '_p_tortflag=1&riskgrade=3' in self.request.get_full_path():
+            flag = 'no_ban'
+        elif '_p_tortflag=1&riskgrade=2' in self.request.get_full_path():
+            flag = 'no_scope'
+        elif '_p_tortflag=1&riskgrade=1' in self.request.get_full_path():
+            flag = 'no_pot'
+        elif '_p_tortflag=1&riskgrade=0' in self.request.get_full_path():
+            flag = 'no_other'
+        elif '_p_tortflag=2&riskgrade=3' in self.request.get_full_path():
+            flag = 'yes_ban'
+        elif '_p_tortflag=2&riskgrade=2' in self.request.get_full_path():
+            flag = 'yes_scope'
+        elif '_p_tortflag=2&riskgrade=1' in self.request.get_full_path():
+            flag = 'yes_pot'
+        elif '_p_tortflag=2&riskgrade=0' in self.request.get_full_path():
+            flag = 'yes_other'
 
         if '_p_refresh_status=1' in self.request.get_full_path():
             flag = 'remove'
@@ -626,15 +907,13 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
         if '_p_shop_status=1' in self.request.get_full_path():
             flag = 'inactive_shop'
 
-        # if '_p_Status=Active' in self.request.get_full_path():
         if self.request.GET.get('_p_Status') == 'Active':
             flag = 'can_unload'
 
-        # if '_p_Status=Inactive' in self.request.get_full_path():
         if self.request.GET.get('_p_Status') == 'Inactive':
             flag = 'can_upload'
 
-        if '_p_deal_type=upload' in self.request.get_full_path():
+        if '_p_deal_type=load' in self.request.get_full_path():
             flag = 'upload_log'
 
         if '_p_deal_type=unload' in self.request.get_full_path():
@@ -686,13 +965,6 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
                                 if menu_l['flag'] == flag:
                                     menu_l['selected'] = 'selected'
                                     show_flag = 1
-                                # if menu_l['child']:
-                                #     for menu_l_l in menu_['child']:
-                                #         if not menu_l_l:
-                                #             continue
-                                #         if menu_l_l['flag'] == flag:
-                                #             menu_l_l['selected'] = 'selected'
-                                #             show_flag = 1
        
         # if show_flag == 1:
             # messages.error(self.request, 'count-------%s' % self.request.result_count)

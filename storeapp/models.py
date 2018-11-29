@@ -62,6 +62,9 @@ class t_online_info_wish_store(models.Model):
     OfsalesFBW        = models.PositiveSmallIntegerField(u'总订单量(FBW)', blank=True, null=True)
     FBW_Flag          = models.CharField(u'FBW标记',max_length=16, blank=True, null=True)
 
+    TortFlag          = models.PositiveSmallIntegerField(u'标题关键词侵权标记', blank=True, null=True) # 0 不侵权， 1 侵权 未处理， 2 侵权 已处理
+    RiskGrade         = models.PositiveSmallIntegerField(u'侵权风险等级', blank=True, null=True) # 0 不侵权， 1 侵权 未处理， 2 侵权 已处理
+
     class Meta:
         verbose_name = u'Wish 店铺管理'
         verbose_name_plural = verbose_name
@@ -114,5 +117,9 @@ class t_wish_product_api_log(models.Model):
 
     def __unicode__(self):
         return u'SynName:%s;Person:%s'%(self.SynName,self.Person)
+
+
+
+
 
 

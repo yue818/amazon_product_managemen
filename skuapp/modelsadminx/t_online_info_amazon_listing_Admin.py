@@ -41,7 +41,10 @@ from skuapp.table.t_online_info_amazon import t_online_info_amazon
 import urllib
 from django.http import HttpResponseRedirect
 from django.db.models import Q
-
+from pyapp.models import b_goods
+from skuapp.table.t_amazon_estimated_fba_fees import t_amazon_estimated_fba_fees
+from storeapp.public.show_tort_title import tortwords, show_tort_title
+import traceback
 
 redis_conn = get_redis_connection(alias='product')
 py_SynRedis_tables_obj = py_SynRedis_tables()
@@ -68,6 +71,7 @@ class t_online_info_amazon_listing_Admin(object):
     amazon_site_left_menu_tree_flag = True
     downloadxls = True
     amzon_sort_bar = True
+    tortwordsdict = {}
 
     def show_sku_list(self, obj):
         try:
@@ -190,7 +194,37 @@ class t_online_info_amazon_listing_Admin(object):
                     else:
                         profitrate = ''
                 else:
-                    profitrate = ''
+                    # params = calculate_price(SKU='WF-2304-BK-S').calculate_profitRate_fba(sellingPrice='25.74', PackWeight='245', cm='10*10*10', logistic_way='PT', platformCountryCode='AMAZON-FBA',DestinationCountryCode='US', cp='FFZ')
+                    size_obj = t_amazon_estimated_fba_fees.objects.filter(shop_name=obj.ShopName, sku=obj.seller_sku)
+                    longest_side,median_side,shortest_side,unit_of_dimension,item_package_weight,unit_of_weight = \
+                        (size_obj[0].longest_side, size_obj[0].median_side, size_obj[0].shortest_side,
+                         size_obj[0].unit_of_dimension, size_obj[0].item_package_weight, size_obj[0].unit_of_weight) if size_obj.exists() else (0, 0, 0, 0, 0, 0)
+
+                    longest_side, median_side, shortest_side = (float(longest_side)*2.54, float(median_side)*2.54, float(shortest_side)*2.54) if unit_of_dimension == 'inches' else (longest_side, median_side, shortest_side)
+                    item_package_weight = float(item_package_weight)*454 if unit_of_weight == 'pounds' else item_package_weight
+
+                    price_all = 0
+                    weight_all = 0
+                    sku_for_calc = obj.com_pro_sku if obj.com_pro_sku is not None and obj.com_pro_sku != '' else obj.SKU
+                    for sku in sku_for_calc.split('+'):
+                        sku_this, num = (sku.split('*')[0], sku.split('*')[1]) if len(sku.split('*')) == 2 else (sku, 1)
+                        b_goods_obj = b_goods.objects.filter(SKU=sku_this).values('CostPrice', 'Weight')
+                        this_price = float(b_goods_obj[0]['CostPrice']) * float(num) if b_goods_obj.exists() else 0
+                        this_weight = float(b_goods_obj[0]['Weight']) * float(num) if b_goods_obj.exists() else 0
+                        price_all += this_price
+                        weight_all += this_weight
+
+                    calculate_price_obj = calculate_price(SKU='', Money=str(price_all), Weight=str(weight_all))
+                    profit_result = calculate_price_obj.calculate_profitRate_fba(
+                        sellingPrice=str(obj.price),
+                        PackWeight=str(item_package_weight),
+                        cm=str(longest_side) + '*' + str(median_side) + '*' + str(shortest_side),
+                        logistic_way='PT',
+                        platformCountryCode='AMAZON-FBA',
+                        DestinationCountryCode='US',
+                        cp='FFZ')
+
+                    profitrate = profit_result['profit_qxj'] if 'profit_qxj' in profit_result else profit_result['profit_fba']
 
                 profit_id = 'profit_id' + '_' + str(sinfor['SKU'])
 
@@ -247,6 +281,9 @@ class t_online_info_amazon_listing_Admin(object):
                     if zh_sku_obj:
                         product_sku_html = str(obj.SKU) + '<br/>↓<br/>' + str(zh_sku_obj[0].Pro_SKU)
 
+                if obj.merge_pro_sku is not None and obj.merge_pro_sku != '':
+                    product_sku_html += '<br/>↓<br/>' + str(obj.merge_pro_sku)
+
                 goods_status_html = goodsstatus
                 if obj.SKU is not None and obj.SKU != '' and (obj.SKU[0:2] == 'ZH' or '+' in obj.SKU) and obj.product_status != '1':
                     goods_status_html = str(goodsstatus) + '<br/>↓<br/>' + str(obj.generic_keywords5)
@@ -277,15 +314,30 @@ class t_online_info_amazon_listing_Admin(object):
                        shopskuShipping,
                        profit_id, profitrate
                        )
+                if obj.is_fba != 1:
+                    rt = u"%s<script>$('#%s').on('click',function()" \
+                         u"{layer.open({type:2,skin:'layui-layer-lan',title:'算价表'," \
+                         u"fix:false,shadeClose: true,maxmin:true,area:['1300px','900px']," \
+                         u"content:'/price_list/?SKU=%s&sellingPrice=%s&platformCountryCode=%s&DestinationCountryCode=%s',});});" \
+                         u"</script>" % (rt, profit_id, sinfor['SKU'], shopskuPrice, 'AMAZONGNZF', CountryCode)
 
-                rt = u"%s<script>$('#%s').on('click',function()" \
-                     u"{layer.open({type:2,skin:'layui-layer-lan',title:'算价表'," \
-                     u"fix:false,shadeClose: true,maxmin:true,area:['1300px','900px']," \
-                     u"content:'/price_list/?SKU=%s&sellingPrice=%s&platformCountryCode=%s&DestinationCountryCode=%s',});});" \
-                     u"</script>" % (rt, profit_id, sinfor['SKU'], shopskuPrice, 'AMAZONGNZF', CountryCode)
                 seller_sku = urllib.quote(obj.seller_sku.decode('gbk', 'replace').encode('utf-8', 'replace'))
-
                 if obj.is_fba == 1:
+                    rt += '''<script> $('#%s').on('click',
+                                    function() {
+                                        layer.open({
+                                            type: 2,
+                                            skin: 'layui-layer-lan',
+                                            title: '算价表',
+                                            fix: false,
+                                            shadeClose: true,
+                                            maxmin: true,
+                                            area: ['1300px', '900px'],
+                                            content: '/price_list_new/?SKU=%s&Money=%s&Weight=%s&sellingPrice=%s&PackWeight=%s&cm=%s&logistic_way=%s&platformCountryCode=%s&DestinationCountryCode=%s&cp=%s',
+                                        });
+                                    }); </script>
+                    ''' % (profit_id, '', str(price_all), str(weight_all), str(obj.price), str(item_package_weight),
+                           str(longest_side) + '*' + str(median_side) + '*' + str(shortest_side), 'PT', 'AMAZON-FBA', 'US', 'FFZ')
                     rt += '''
                                 <script>
                                     a = screen.width*0.8
@@ -328,7 +380,9 @@ class t_online_info_amazon_listing_Admin(object):
 
             rt += u"</tbody></table>"
         except Exception as e:
-            rt = ''
+            rt = '/price_list_new/?SKU=%s&Money=%s&Weight=%s&sellingPrice=%s&PackWeight=%s&cm=%s&logistic_way=%s&platformCountryCode=%s&DestinationCountryCode=%s&cp=%s' % ('', str(price_all), str(weight_all), str(obj.price), str(item_package_weight),
+                           str(longest_side) + '*' + str(median_side) + '*' + str(shortest_side), 'PT', 'AMAZON-FBA', 'US', 'FFZ')
+            rt += traceback.format_exc()
         return mark_safe(rt)
     show_sku_list.short_description = mark_safe('<p align="center"style="color:#428bca;">子SKU</p>')
 
@@ -356,29 +410,32 @@ class t_online_info_amazon_listing_Admin(object):
             site_url = site_url_dict[obj.ShopSite]
         else:
             site_url = 'https://www.amazon.com/'
-        rt = u'<p style="word-break:break-all;">%s</p><br>店铺:%s<br>店长/销售员:%s<br>销售排名：%s<br><a href="%sdp/%s" target="_blank">%s</a><br/>' % (obj.item_name, obj.ShopName, obj.seller, obj.sale_rank, site_url, obj.asin1, obj.asin1)
+        rt = u'<div style="max-width: 300px;">{}</div>'.format(show_tort_title(obj.item_name, self.tortwordsdict))
+        rt += u'<br>店铺:%s<br>店长/销售员:%s<br>销售排名：%s<br><a href="%sdp/%s" target="_blank">%s</a><br/>' % ( obj.ShopName, obj.seller, obj.sale_rank, site_url, obj.asin1, obj.asin1)
+
         #  轻小件标识展示
-        if obj.is_fba == 1:
-            if obj.lg_flag > 0:
-                if obj.lg_flag == 1:
-                    _rt = u' <div title="轻小件已注册" style="float:left;width: 80px;height: 20px;background-color: #7FFF00;text-align: center;line-height: 20px;border-radius: 4px">轻小件已注册</div><br/>'
-                elif obj.lg_flag == 2:
-                    _rt = u' <div title="轻小件可注册" style="float:left;width: 80px;height: 20px;background-color: #00BFFF;text-align: center;line-height: 20px;border-radius: 4px">轻小件可注册</div><br/>'
-                elif obj.lg_flag == 3:
-                    _rt = u' <div title="轻小件销量不足" style="float:left;width: 100px;height: 20px;background-color: #FF4500;text-align: center;line-height: 20px;border-radius: 4px">轻小件销量不足</div><br/>'
-                else:
-                    _rt = u' <div title="轻小件库存过高" style="float:left;width: 100px;height: 20px;background-color: #FFD700;text-align: center;line-height: 20px;border-radius: 4px">轻小件库存过高</div><br/>'
+        if obj.lg_flag > 0:
+            if obj.lg_flag == 1:
+                _rt = u' <div title="轻小件已注册" style="float:left;width: 80px;height: 20px;background-color: #7FFF00;text-align: center;line-height: 20px;border-radius: 4px">轻小件已注册</div><br/>'
+            elif obj.lg_flag == 2:
+                _rt = u' <div title="轻小件可注册" style="float:left;width: 80px;height: 20px;background-color: #00BFFF;text-align: center;line-height: 20px;border-radius: 4px">轻小件可注册</div><br/>'
+            elif obj.lg_flag == 3:
+                _rt = u' <div title="轻小件销量不足" style="float:left;width: 100px;height: 20px;background-color: #FF4500;text-align: center;line-height: 20px;border-radius: 4px">轻小件销量不足</div><br/>'
+            elif obj.lg_flag == 4:
+                _rt = u' <div title="轻小件库存过高" style="float:left;width: 100px;height: 20px;background-color: #FFD700;text-align: center;line-height: 20px;border-radius: 4px">轻小件库存过高</div><br/>'
+            else:
+                _rt = u' <div title="不建议注册轻小件" style="float:left;width: 100px;height: 20px;background-color: #FFFF80;text-align: center;line-height: 20px;border-radius: 4px">不建议注册轻小件</div><br/>'
 
-                rt += _rt
-            elif obj.ShopSite in ('US', 'UK', 'DE', 'JP') and obj.product_size_tier:
-                if 'Oversize' in obj.product_size_tier:
-                    size_tier = u'大件'
-                else:
-                    size_tier = u'标件'
+            rt += _rt
+        elif obj.is_fba == 1 and obj.ShopSite in ('US', 'UK', 'DE', 'JP') and obj.product_size_tier:
+            if 'Oversize' in obj.product_size_tier:
+                size_tier = u'大件'
+            else:
+                size_tier = u'标件'
 
-                _rt = u' <div title="%s" style="float:left;width: 30px;height: 20px;background-color: #AAAAAA;text-align: center;line-height: 20px;border-radius: 4px">%s</div><br/>'%(obj.product_size_tier, size_tier)
+            _rt = u' <div title="%s" style="float:left;width: 30px;height: 20px;background-color: #AAAAAA;text-align: center;line-height: 20px;border-radius: 4px">%s</div><br/>'%(obj.product_size_tier, size_tier)
 
-                rt += _rt
+            rt += _rt
 
         if obj.is_fba == 1 or obj.is_fba == 0:
             t_cloth_factory_dispatch_needpurchase_objs = t_cloth_factory_dispatch_needpurchase.objects.filter(SKU=obj.SKU).\
@@ -422,6 +479,8 @@ class t_online_info_amazon_listing_Admin(object):
                 if obj.is_fba == 1 and (obj.orders_7days/7 + obj.orders_15days/15 + obj.orders_30days/30) > 0 and obj.afn_warehouse_quantity*3/(obj.orders_7days/7 + obj.orders_15days/15 + obj.orders_30days/30) < 20:
                     # rt += '<a href = "/Project/admin/skuapp/t_cloth_factory_dispatch_plan" target = "_blank" > <p style="color:red;"><b>请及时制定采购计划</b></p> </a>'
                     rt += '<p style="color:red;"><b>请及时制定采购计划</b></p> '
+
+        # rt_test = u'<div style="max-width: 300px;">{}</div>'.format(show_tort_title(obj.item_name, self.tortwordsdict))
         return mark_safe(rt)
     show_item_name_and_product_id.short_description = u'<span style="color:#428BCA; width:50px">标题/产品ID</span>'
 
@@ -601,7 +660,7 @@ class t_online_info_amazon_listing_Admin(object):
         return mark_safe(rt)
     show_deal_result.short_description = u'<span style="color:#428BCA">处理状态</span>'
 
-    actions = ['to_excel', 'change_price', 'load_amazon_products']
+    actions = ['to_excel', 'get_stocking_demand', 'deal_tort_word',  'change_price', 'load_amazon_products']
 
     def change_price(self, request, objs):
         modify_type = request.POST.get('modify_type', '')
@@ -841,7 +900,6 @@ class t_online_info_amazon_listing_Admin(object):
         sku_str = urllib.quote(sku_str.decode('gbk', 'replace').encode('utf-8', 'replace'))
         if len(objs) <= self.list_per_page:
             return HttpResponseRedirect('/Project/admin/skuapp/t_online_info_amazon_listing/?SKU=%s' % sku_str)
-
     load_amazon_products.short_description = u' '
 
     def to_excel(self, request, queryset):
@@ -956,12 +1014,157 @@ class t_online_info_amazon_listing_Admin(object):
         messages.success(request, u'%s%s.%s/%s/%s' % (PREFIX, BUCKETNAME_XLS, ENDPOINT_OUT, request.user.username, filename) + u':成功导出,可点击Download下载到本地............................。')
     to_excel.short_description = u'导出库存价格数据'
 
+    def get_stocking_demand(self, request, queryset):
+        from pyapp.models import b_goods
+        from pyapp.models import B_Supplier
+        from skuapp.table.t_stocking_demand_fba import t_stocking_demand_fba
+        from skuapp.table.t_stocking_demand_fba_detail import t_stocking_demand_fba_detail
+        from django.db.models import Sum
+        from brick.pydata.py_syn.py_conn import py_conn
+
+        demand_record = list()
+        detail_record = list()
+        fail_record = list()
+        row = 0
+        for obj in queryset:
+            try:
+                inventory_objs = t_online_amazon_fba_inventory.objects.filter(sku=obj.seller_sku, ShopName=obj.ShopName)
+                if inventory_objs.exists():
+                    afn_total_quantity = inventory_objs[0].afn_total_quantity
+                else:
+                    afn_total_quantity = 0
+                product_sku = obj.com_pro_sku if (obj.com_pro_sku is not None and obj.com_pro_sku != '') else obj.SKU
+                if product_sku:
+                    for product_sku_each in product_sku.split('+'):
+                        row += 1
+                        product_sku_for_query = product_sku_each.split('*')[0]
+                        # 备货计划号(一键备货的，在序号前加0)
+                        stocking_plan_number = datetime.datetime.now().strftime('%Y%m%d%H%M%S') + '_0' + str(row)
+                        # 获取商品图片、商品名称、商品成本价、商品重量、供应商链接、供应商名
+                        py_b_goods_objs = b_goods.objects.filter(SKU=product_sku_for_query)
+                        if py_b_goods_objs.exists():
+                            product_image = u'http://fancyqube.net:89/ShopElf/images/%s.jpg' % py_b_goods_objs[0].SKU.replace('OAS-', '').replace('FBA-', '')
+                            product_name = py_b_goods_objs[0].GoodsName
+                            product_price = py_b_goods_objs[0].CostPrice
+                            product_weight = py_b_goods_objs[0].Weight
+                            supplier_link = py_b_goods_objs[0].LinkUrl
+                            buyer = py_b_goods_objs[0].Purchaser
+                        py_b_supplier_objs = B_Supplier.objects.filter(NID=py_b_goods_objs[0].SupplierID)
+                        if py_b_supplier_objs.exists():
+                            supplier = py_b_supplier_objs[0].SupplierName
+                        # 目的仓库
+                        destination_warehouse = 'FBA-' + str(obj.ShopSite)
+                        # 紧急程度
+                        level = 'urgent'
+                        # 产品性质
+                        nature = 'generalcargo'
+                        pyconn = py_conn()
+                        sqlserver_info = pyconn.py_conn_database()
+                        if sqlserver_info['errorcode'] != 0:
+                            raise Exception('普元库链接失败，请重新提交;')
+                        else:
+                            str_sql = "select AttributeName from B_GoodsAttribute where GoodsID = (select nid from B_Goods where SKU='%s')" % product_sku_for_query
+                            sqlserver_info['py_cursor'].execute(str_sql)
+                            return_result = sqlserver_info['py_cursor'].fetchone()
+                            if return_result:
+                                if str(return_result[0]).replace(";", "") == u"其余违禁品":
+                                    nature = 'contraband'
+                                elif str(return_result[0]).replace(";", "") == u"纯电池商品":
+                                    nature = 'pureelectric'
+                                elif str(return_result[0]).replace(";", "") == u"内置电池商品" or str(return_result[0]).replace(";", "") == u"带电商品" or str(return_result[0]).replace(";", "") == u"纽扣电池商品":
+                                    nature = 'withelectric'
+                                elif str(return_result[0]).replace(";", "") == u"粉末商品" or str(return_result[0]).replace(";", "") == u"其余化妆品":
+                                    nature = 'powderpaste'
+                                elif str(return_result[0]).replace(";", "") == u"带磁商品":
+                                    nature = 'withmagnetism'
+                                elif str(return_result[0]).replace(";", "") == u"液体商品":
+                                    nature = 'liquid'
+                                elif str(return_result[0]).replace(";", "") == u"普货":
+                                    nature = 'generalcargo'
+                                else:
+                                    nature = 'specialclass'
+                            else:
+                                nature = 'generalcargo'
+                        pyconn.py_close_conn_database()
+
+                        amazon_factory = 'no'
+                        stocking_neworold = '2'
+
+                        # 建议采购数量=4*7天销量-库存量-采购未入库量-FBA系统正在备货数量
+                        # number = classsku_obj.get_number_by_sku(product_sku_for_query)
+                        number = afn_total_quantity
+                        uninstore = classsku_obj.get_uninstore_by_sku(product_sku_for_query)
+                        stocking_already_obj = t_stocking_demand_fba.objects.filter(ProductSKU=product_sku_for_query,
+                                                                                    Status__in=('completegenbatch', 'genbatch', 'purchasing', 'check'))
+                        stocking_already = 0
+                        if stocking_already_obj.exists():
+                            stocking_already = stocking_already_obj.aggregate(Sum('Stocking_quantity'))['Stocking_quantity__sum']
+
+                        messages.success(request, product_sku_for_query+': 7天销量 %s, 库存 %s, 采购未入库 %s, FBA系统正在备货 %s' % (str(obj.orders_7days), str(number), str(uninstore), str(stocking_already)))
+
+                        stocking_quantity = 4 * (0 if obj.orders_7days is None or obj.orders_7days == '' else obj.orders_7days) - int(number) - int(uninstore) - int(stocking_already)
+                        stocking_quantity = 0 if stocking_quantity < 0 else stocking_quantity
+
+                        demand_record.append(t_stocking_demand_fba(
+                            Stocking_plan_number=stocking_plan_number,  Stock_plan_date=datetime.datetime.now(),
+                            Demand_people=request.user.first_name, ProductSKU=product_sku_for_query,
+                            ProductImage=product_image,  ProductName=product_name,
+                            ProductPrice=product_price, ProductWeight=product_weight, Supplier=supplier,
+                            Supplierlink=supplier_link,  Buyer=buyer, Status='notgenpurchase',
+                            Stocking_quantity=stocking_quantity, QTY=stocking_quantity,
+                            Destination_warehouse=destination_warehouse,
+                            AccountNum=obj.ShopName, Site='', level=level, Product_nature=nature,
+                            Remarks='stocking from listing', ShopSKU=obj.seller_sku, neworold=stocking_neworold,
+                            AmazonFactory=amazon_factory, Number=int(number), lg_flag=obj.lg_flag, isCheck='0'
+                        ))
+                        detail_record.append(t_stocking_demand_fba_detail(ProductSKU=product_sku_for_query,
+                                                                          Stocking_plan_number=stocking_plan_number,
+                                                                          CreateDate=datetime.datetime.now(), Status='notgenpurchase',
+                                                                          AuditFlag=0))
+            except Exception as e:
+                # import traceback
+                # messages.error(request, str(traceback.format_exc()))
+                fail_record.append(obj.seller_sku)
+                continue
+
+        fail_str = ''
+        if fail_record:
+            for fail in fail_record:
+                fail_str = fail_str + fail + ','
+            messages.error(request, '以下商品一键备货异常：%s' % fail_str[:-1])
+
+        if len(queryset) != len(fail_record):
+            t_stocking_demand_fba.objects.bulk_create(demand_record)
+            t_stocking_demand_fba_detail.objects.bulk_create(detail_record)
+            messages.success(request, '一键备货结果:' + '<a href = "/Project/admin/skuapp/t_stocking_demand_fba/?Status=notgenpurchase&_p_Remarks=stocking%20from%20listing" target = "_blank" > 备货记录 </a>')
+    get_stocking_demand.short_description = u'一键备货'
+
+    def deal_tort_word(self, request, queryset):
+        for obj in queryset:
+            obj.tortflag = 2
+            obj.save()
+        # tortremark = request.POST.get('batch_remark_text')
+        # for i, obj in enumerate(objs):
+        #     if obj.Status == 'Enabled' and obj.TortFlag == 1:
+        #         if not obj.Remarks and not tortremark:
+        #             messages.error(request, u'ProductID: {}, 修改侵权处理标记前，请输入备注！'.format(obj.ProductID))
+        #         else:
+        #             obj.Remarks = u'{};{}'.format(obj.Remarks, tortremark)
+        #             obj.TortFlag=2
+        #             obj.save()
+        #     if i >= 20:
+        #         break
+    deal_tort_word.short_description = u'修改侵权词处理标记'
+
     list_display = ('id', 'show_image_url', 'show_item_name_and_product_id', 'show_order', 'Status', 'show_sku_list', 'show_time', 'action_remark', 'show_operations')
     search_fields = None
     list_filter = None
     list_editable = ('action_remark',)
 
     def get_list_queryset(self, ):
+        self.tortwordsdict = tortwords(connection, redis_conn)
+        # messages.info(self.request, u'{}'.format(self.tortwordsdict))
+
         request = self.request
         qs = super(t_online_info_amazon_listing_Admin, self).get_list_queryset()
         qs = qs.filter(Status__in=('Active', 'Inactive'))
@@ -1018,8 +1221,26 @@ class t_online_info_amazon_listing_Admin(object):
         upload_time_start = request.GET.get('upload_time_start', '')
         upload_time_end = request.GET.get('upload_time_end', '')
 
+        package_weight_start = request.GET.get('package_weight_start', '')
+        package_weight_end = request.GET.get('package_weight_end', '')
+
+        riskgrade = request.GET.get('riskgrade')  # 侵权风险等级
+        risklist = []
+        if riskgrade == '3':
+            risklist = [8, 9, 10, 11, 12, 13, 14, 15]  # 绝对禁止
+        elif riskgrade == '2':
+            risklist = [4, 5, 6, 7, 12, 13, 14, 15]  # 限定范围
+        elif riskgrade == '1':
+            risklist = [2, 3, 6, 7, 10, 11, 14, 15]  # 潜在风险
+        elif riskgrade == '0':
+            risklist = [1, 3, 5, 7, 9, 11, 13, 15]  # 其它
+        elif riskgrade == 'o':
+            risklist = [1, 2, 3, 4, 5, 6, 7]  # 除了绝对禁止 以外的
+
         if product_sku:
-            qs = qs.filter(Q(SKU__icontains=product_sku) | Q(com_pro_sku__icontains=product_sku))
+            qs = qs.filter(Q(SKU__icontains=product_sku)
+                           | Q(com_pro_sku__icontains=product_sku)
+                           | Q(merge_pro_sku__icontains=product_sku))
 
         if shop_follow and not ShopName:
             qs = qs.filter(ShopName__exact=shop_follow)
@@ -1056,7 +1277,11 @@ class t_online_info_amazon_listing_Admin(object):
                       'product_size_tier__icontains': product_size_tier,
                       'ShopSite__exact': shop_site,
                       'lg_flag__exact': lg_flag,
+                      'package_weight__gte': package_weight_start,
+                      'package_weight__lte': package_weight_end,
                       }
+        if risklist:
+            searchList['RiskGrade__in'] = risklist
         sl = {}
         for k, v in searchList.items():
             if isinstance(v, list):

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <link href="/static/js/t_online_info_wish_store_search.css?t=201803211234" rel="stylesheet" type="text/css" />
     <script src="/static/js/t_online_info_wish_store_search.js?t=201803211234"></script>
+    <script src="/static/js/t_online_info_amazon.js"></script>
 
     <title>Title</title>
     <style>
@@ -316,6 +317,34 @@
     <span id="completeURL" style="display: none">{{ completeURL }}</span>
     <span id="platform_flg" style="display: none">{{ platform_flg }}</span>
     <span id="pdURL" style="display:none;">{{ pdURL }}</span>
+
+        <!-- 侵权备注 -->
+    <div class="modal fade" id="id_amazon_tort_remark" tabindex="-1" role="dialog" aria-labelledby="forBatchRemarks" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                        &times;
+                    </button>
+                    <h4 class="modal-title">
+                        请输入侵权备注
+                    </h4>
+                </div>
+                <div class="modal-body">
+                    <span id="idFor_TortRemarksPrompted"></span>
+                    <textarea name="batch_remark_name" id="batch_remark_id" style="width: 100%;"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="submit_tort_remark()">
+                        提交修改
+                    </button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal -->
+    </div>
+
 </body>
 
 <script type="text/javascript" src="/static/xadmin/js/jquery-1.7.1.min.js"></script>

@@ -4,6 +4,7 @@ import json
 import logging
 import re
 import oss2
+import xlwt
 from Project.settings import *
 from urllib import urlencode
 from django.http import JsonResponse
@@ -64,8 +65,11 @@ from brick.wish.wish_store import Wish_Data_Syn
 from skuapp.table.t_product_enter_ed import t_product_enter_ed
 from skuapp.table.t_product_mainsku_sku import t_product_mainsku_sku
 from brick.shopee.t_shopee_oplogs import t_shopee_oplogs
+from brick.table.t_order import t_order_V2
+from brick.public.create_dir import mkdir_p
+from brick.jumia.t_jumia_oplogs import t_jumia_oplogs
 
-# from Project.settings import connRedis
+
 redis_coon = get_redis_connection(alias='product')
 # redis_conn = connRedis
 logger = logging.getLogger('sourceDns.webdns.views')
@@ -86,6 +90,8 @@ def syndata(request):
                 fe = flag
                 productid = request.GET.get(flag)
                 break
+
+        warehouse = request.GET.get('warehouse') # 仓库
         opnum = fe+'_%s_%s' % (mydatetime.now().strftime('%Y%m%d%H%M%S'), request.user.username)
 
         param = {}  # 操作日志的参数
@@ -106,7 +112,7 @@ def syndata(request):
         assert iResult['errorcode'] == 0, fe + " insert log error."
 
         storeobj = t_online_info_wish_store.objects.get(ProductID=productid)
-        storeResult = syndata_by_wish_api([storeobj.ShopName, storeobj.ProductID, storeobj.ParentSKU],fe,opnum)
+        storeResult = syndata_by_wish_api([storeobj.ShopName, storeobj.ProductID, storeobj.ParentSKU, warehouse],fe,opnum)
         sResult['resultCode'] = storeResult['Code']
         sResult['messages'] = storeResult['messages']
     except Exception,e:
@@ -139,7 +145,8 @@ def syndata_shopname(request):
                 shopstatus = classshopname_obj.get_api_status_by_shopname(shopname)
                 if shopstatus is None or shopstatus == '':
                     classshopname_obj.set_api_status_by_shopname(shopname,u'开始刷新店铺数据')
-                    syndata_by_wish_api_shopname.delay(shopname,int(flag))
+                    classshopname_obj.set_api_time_by_shopname(shopname, mydatetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+                    # syndata_by_wish_api_shopname.delay(shopname,int(flag))
                     # messages.success(request, '正在同步 %s，请稍后刷新页面。。。' % shopname)
                     sResult['messages'] = u'开始刷新店铺数据'
                     sResult['resultCode'] = '0'
@@ -811,16 +818,54 @@ def refresh_process(request):
             log_shopee = shopee_log_obj.selectLogs(name)
             assert log_shopee['errorcode'] == 0,u"操作日志查询错误"
             sLogsList = []
+            rNum = 0
+            eNum = 0
+            aNum = 0
             for logobj in log_shopee['OpLogs']:
-                sResult['StartTime'] = logobj[7]
-                sResult['EndTime'] = logobj[8]
-                sResult['aNum'] = logobj[9]
-                sResult['rNum'] = logobj[10]
-                sResult['eNum'] = logobj[11]
-                sResult['etype'] = logobj[1]
-                sResult['downinfo'] = logobj[4]
-                if logobj[3] == 'error':
-                    sLogsList.append({'key':logobj[2],'mag':logobj[4]})
+                sResult['StartTime'] = logobj[2]
+                sResult['EndTime'] = logobj[3]
+                aNum = aNum + 1
+                if logobj[10] == 'syn':
+                    rNum = int(logobj[12])
+                    eNum = int(logobj[13])
+                else:
+                    rNum += int(logobj[12])
+                    eNum += int(logobj[13])
+                sResult['etype'] = logobj[9]
+                sResult['downinfo'] = logobj[5]
+                if logobj[4] == 'error':
+                    sLogsList.append({'key':logobj[0],'mag':logobj[4]})
+            sResult['rNum'] = rNum
+            sResult['eNum'] = eNum
+            sResult['aNum'] = aNum
+            sResult['eSynLog']   = sLogsList
+        elif name.split('_')[0] == 'Jumia':
+            # Jumia店铺批量操作日志和进度条
+            jumia_log_obj = t_jumia_oplogs(connection)
+            sResult['resultCode'] = 1 # 正在进行操作
+            p_count = jumia_log_obj.DoneOrNot(name)
+            assert p_count['errorcode'] == 0, u"完成状态查询失败"
+            if p_count['count'] == 0:
+                sResult['resultCode'] = 2  # 所有操作已经完成
+            log_jumia = jumia_log_obj.selectLogs(name)
+            assert log_jumia['errorcode'] == 0,u"操作日志查询错误"
+            sLogsList = []
+            rNum = 0
+            eNum = 0
+            aNum = 0
+            for logobj in log_jumia['OpLogs']:
+                sResult['StartTime'] = logobj[2]
+                sResult['EndTime'] = logobj[3]
+                aNum = aNum + 1
+                rNum += int(logobj[13])
+                eNum += int(logobj[14])
+                sResult['etype'] = logobj[10]
+                sResult['downinfo'] = logobj[5]
+                if logobj[4] == 'error':
+                    sLogsList.append({'key':logobj[0],'mag':logobj[5]})
+            sResult['rNum'] = rNum
+            sResult['eNum'] = eNum
+            sResult['aNum'] = aNum
             sResult['eSynLog']   = sLogsList
         else:
             sResult['resultCode'] = 1  # 正在进行操作
@@ -900,6 +945,8 @@ def update_store_status(request):
 def seach_sku_infor(request):
     try:
         product_mainsku = request.GET.get('product_mainsku')
+        clothesflag = request.GET.get('clothes', '0')  # 服装定做，只记录本体主SKU
+
         classmainsku_obj = classmainsku(db_cnxn=connection)
         product_sku_list = classmainsku_obj.get_sku_by_mainsku(product_mainsku)
         product_sku_list = product_sku_list if product_sku_list else [product_mainsku,]
@@ -948,7 +995,12 @@ def seach_sku_infor(request):
                 'DevDate':DevDate.strftime('%Y-%m-%dT%H:%M:%S'),'ReverseLink':ReverseLink, 'SupplierLink':SupplierLink,
                 'SalerName2':py_b_goods_obj.SalerName2
             }
-            datalist.append(e_sku_infor)
+            if clothesflag == 0:
+                datalist.append(e_sku_infor)
+            else:
+                e_sku_infor['product_sku'] = product_mainsku
+                datalist.append(e_sku_infor)
+                break
 
         if datalist:
             sResult = {'errorcode': 1, 'datalist': datalist}
@@ -1088,8 +1140,19 @@ def edit_shipping(request):
             if warehouse == 'STANDARD':
                 rsp = cwishapi().Get_All_Shipping_Prices_of_a_Product({'access_token': access_token, 'product_id': product_id})
                 if rsp['errorcode'] == 1:
-                    for detail_shipping in rsp['shiping_infors']['ProductCountryAllShipping']['shipping_prices']:
-                        rsplist.append(detail_shipping['ProductCountryShipping'])
+                    for detail_shipping in rsp['shiping_infors']['ProductCountryAllShipping']['DataV2']['ProductCountryWarehouseAllShipping']['countries']:
+                        shipping_dict = {
+                            'country_code': detail_shipping['ProductCountryWarehouseShipping']['country_code'],
+                            'enabled': detail_shipping['ProductCountryWarehouseShipping']['enabled'],
+                            'wish_express': detail_shipping['ProductCountryWarehouseShipping']['wish_express'],
+                        }
+
+                        for each in detail_shipping['ProductCountryWarehouseShipping']['warehouses']:
+                            if each['WarehouseShipping']['warehouse_name'] == 'STANDARD':
+                                shipping_dict['use_product_shipping'] = each['WarehouseShipping']['use_product_shipping']
+                                shipping_dict['shipping_price'] = '' if each['WarehouseShipping']['price'] == 'None' else each['WarehouseShipping']['price']
+
+                        rsplist.append(shipping_dict)
                 else:
                     raise Exception(rsp['errortext'])
             elif warehouse == 'FBW':
@@ -1183,12 +1246,223 @@ def ergodic_shipping_setting(request, shippingDataList):
 # def batch_update_shipping(request):
 
 
+@csrf_exempt
+def update_param(request):
+    try:
+        transaction.set_autocommit(False)
+
+        id = request.GET.get('id')
+        value = request.GET.get('value')
+        type = request.GET.get('type')
+        if request.method == 'POST':
+            id = request.POST.get('id')
+            value = request.POST.get('value')
+            s = str(value)
+            data = urllib.unquote(s).decode('utf8')
+            # print data
+            type = request.POST.get('type')
+
+        config_objs = store_config.objects.filter(id=id)
+        assert config_objs.exists(), u'id 未查到相关记录 id: %s' % id
+
+        if type == 'f1':
+            config_objs.update(NFPerformance=value)
+        elif type == 'f2':
+            config_objs.update(FPerformance1=value)
+        elif type == 'f3':
+            config_objs.update(FPerformance2=value)
+        elif type == 'l1':
+            config_objs.update(LogisticsStandard1=value)
+        elif type == 'l2':
+            config_objs.update(LogisticsStandard2=value)
+        elif type == 'l3':
+            config_objs.update(LogisticsStandard3=value)
+        elif type == 'l4':
+            config_objs.update(OverseasStandard=value)
+        elif type == 'c1':
+            config_objs.update(IPComplaint=value)
+        elif type == 'c2':
+            config_objs.update(CAComplaint=value)
+        elif type == 'c3':
+            config_objs.update(CSComplaint=value)
+        elif type == 'c4':
+            config_objs.update(SPViolation=value)
+        elif type == 'la':
+            config_objs.update(ShopLayered=value)
+        elif type == 'msg':
+            config_objs.update(ShopMsg=data)
+        elif type == 'grade':
+            config_objs.update(SellerGrade=data)
+
+        transaction.commit()
+        sResult = {'errorcode': 1, 'id': id, 'value': value}
+    except Exception as e:
+        transaction.rollback()
+        sResult = {'errorcode': -1, 'errorText': u'%s' % e}
+
+    return JsonResponse(sResult)
+
+
+@csrf_exempt
+def op_store_config(request):
+
+    url = request.path
+
+    if 'shopmsg' in url:
+        try:
+            id = request.GET.get('id', '')
+            return render(request, 'store_config_msg.html', locals())
+        except Exception, ex:
+            return JsonResponse({'result': repr(ex)})
+
+    elif 'sellergrade' in url:
+        try:
+            id = request.GET.get('id', '')
+            return render(request, 'store_config_grade.html', locals())
+        except Exception, ex:
+            return JsonResponse({'result': repr(ex)})
 
 
 
 
 
+def fbw_order_to_excel(request):
+    try:
+        startdate = request.GET.get('startdate')
+        enddate = request.GET.get('enddate')
 
+        fbw_data = t_order_V2(cnxn=connection).get_fbw_order(startdate, enddate)
+
+        path = MEDIA_ROOT + 'download_xls/' + request.user.username
+        mkdir_p(MEDIA_ROOT + 'download_xls')
+        os.popen('chmod 777 %s' % (MEDIA_ROOT + 'download_xls'))
+
+        mkdir_p(path)
+        os.popen('chmod 777 %s' % (path,))
+
+        workbook = xlwt.Workbook(encoding='utf-8')
+        worksheet = workbook.add_sheet('Sheet1')
+
+        for index, item in enumerate(fbw_data[0]):
+            worksheet.write(0, index, item)
+
+        row = 0
+        for i in range(1, len(fbw_data)):
+            row = row + 1
+            for idx, val in enumerate(fbw_data[i]):
+                worksheet.write(row, idx, val)
+
+        filename = request.user.username + '_' + mydatetime.now().strftime('%Y%m%d%H%M%S') + '.xls'
+        workbook.save(path + '/' + filename)
+        os.popen(r'chmod 777 %s' % (path + '/' + filename))
+
+        # 上传oss对象
+        auth = oss2.Auth(ACCESS_KEY_ID, ACCESS_KEY_SECRET)
+        bucket = oss2.Bucket(auth, ENDPOINT, BUCKETNAME_XLS)
+        bucket.create_bucket(oss2.BUCKET_ACL_PUBLIC_READ)
+        # 删除现有的
+        for object_info in oss2.ObjectIterator(bucket, prefix='%s/%s_' % (request.user.username, request.user.username)):
+            bucket.delete_object(object_info.key)
+        bucket.put_object(u'%s/%s' % (request.user.username, filename), open(path + '/' + filename))
+
+        downloadLink = u'%s%s.%s/%s/%s' % (PREFIX, BUCKETNAME_XLS, ENDPOINT_OUT, request.user.username, filename)
+        return JsonResponse({'errorcode': 1, 'downloadLink': downloadLink})
+    except Exception as error:
+        return JsonResponse({'errorcode': -1, 'messages': u'{}'.format(error)})
+
+
+def get_fbw_shipping(request):
+    shopname = request.GET.get('shopname')
+    product_id = request.GET.get('product_id', '')
+    shopsku = request.GET.get('shopsku', '')
+    fbw_warehouse = request.GET.get('fbw_warehouse')
+
+    auth_infor = verb_token(shopname=shopname, conn=connection)
+    if auth_infor['errorcode'] == 1:
+        access_token = auth_infor['access_token']
+    else:
+        raise Exception(auth_infor['errortext'])
+
+    shipping_param = {
+        "access_token": access_token,
+        "shopsku": shopsku,
+        "product_id": product_id,
+        "warehouse_code": fbw_warehouse,
+    }
+
+    def pxkey(elem):
+        return elem['FBWShippingPrice']['country_code']
+
+    m_shipping_set = {}
+
+    rt = cwishapi().get_fbw_shipping_price(param=shipping_param)
+    if rt['errorcode'] == 1:
+        rt['dataobjs'].sort(key=pxkey)
+
+        for dataobj in rt['dataobjs']:
+            if dataobj['FBWShippingPrice']['country_code'] == 'D': # 默认运费价格
+                m_shipping_set = dataobj
+                rt['dataobjs'].remove(dataobj)
+            if dataobj['FBWShippingPrice'].get('source') == '1':
+                dataobj['FBWShippingPrice']['datasource'] = 'sku specified price'
+            elif dataobj['FBWShippingPrice'].get('source') == '2':
+                dataobj['FBWShippingPrice']['datasource'] = 'sku default price'
+            elif dataobj['FBWShippingPrice'].get('source') == '3':
+                dataobj['FBWShippingPrice']['datasource'] = 'product specified price'
+            elif dataobj['FBWShippingPrice'].get('source') == '4':
+                dataobj['FBWShippingPrice']['datasource'] = 'product default price'
+            elif dataobj['FBWShippingPrice'].get('source') == '0':
+                dataobj['FBWShippingPrice']['datasource'] = 'none of above(should not happen)'
+            else:
+                dataobj['FBWShippingPrice']['datasource'] = ''
+
+        rt['dataobjs'].insert(0, m_shipping_set)
+
+    countrys_code = t_country_code_name_table(connection).GetAllCountryCode()
+    if countrys_code['errorcode'] == 1:
+        countrys_code['data']['D'] = u'默认运费价格'
+
+    param_kv = u'?{}'.format(urlencode({'shopname': shopname,'product_id': product_id,'shopsku': shopsku,'fbw_warehouse': fbw_warehouse}))
+
+    return render(request, 'change_fbw_shipping_price.html',{'rt': rt, 'countrys_code': countrys_code.get('data',[]), 'param_kv': param_kv})
+
+
+@csrf_exempt
+def set_fbw_shipping(request):
+    try:
+        shopname = request.GET.get('shopname')
+        product_id = request.GET.get('product_id', '')
+        shopsku = request.GET.get('shopsku', '')
+        fbw_warehouse = request.GET.get('fbw_warehouse')
+
+        auth_infor = verb_token(shopname=shopname, conn=connection)
+        if auth_infor['errorcode'] == 1:
+            access_token = auth_infor['access_token']
+        else:
+            raise Exception(auth_infor['errortext'])
+
+        countrycode_list = request.POST.getlist('countrycode', [])
+        shipping_value_list = request.POST.getlist('shipping_value', [])
+
+        update_dict = {}
+        for i in range(0, len(countrycode_list)):
+            update_dict[countrycode_list[i]] = shipping_value_list[i]
+
+        shipping_param = {
+            "access_token": access_token,
+            "shopsku": shopsku,
+            "product_id": product_id,
+            "warehouse_code": fbw_warehouse,
+            'updates': json.dumps(update_dict)
+        }
+
+        rt = cwishapi().set_fbw_shipping_price(param=shipping_param)
+        if rt['errorcode'] == 1:
+            return HttpResponse(json.dumps({'errorcode': 1, 'message': rt['message']}))
+        else:
+            raise Exception(rt['errortext'])
+    except Exception as error:
+        return HttpResponse(json.dumps({'errorcode': -1, 'errortext': u'{}'.format(error)}))
 
 
 

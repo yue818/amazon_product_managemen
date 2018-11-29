@@ -181,10 +181,20 @@ def CexportRefundCSVTask(params):
 @app.task
 def wish_product_infomation():
     from brick.wish.create_order_onlineinfo_task import create_order_onlineinfo_task
+    from brick.wish.wishlisting.refresh_listing_fbw_flag_api import refresh_shop_fbw
     Task_obj = create_order_onlineinfo_task(connection)
     objs = Task_obj.Get_order_online_info_data()
     for obj in objs:
         F_EXE_SHOP_ONLINE_INFO.delay(connection, obj, 1)
+        # 下面是刷新该店铺中fbw数据的
+        obj['CMDID'] = 'FBWInfo'
+        wish_fbw_product.delay(obj)
+
+# fbw数据刷新
+@app.task
+def wish_fbw_product(obj):
+    from brick.wish.wishlisting.refresh_listing_fbw_flag_api import refresh_shop_fbw
+    refresh_shop_fbw(obj)
 
 
 
@@ -327,7 +337,7 @@ from brick.joom.create_collection_box_from_wish import create_collection_box_fro
 def joom_info_from_wish(joom_id, user, time):
     """wish生成公共模板的同时生成joom采集箱信息"""
     create_collection_box_from_wish(joom_id, user, time)
-
+import json
 from brick.amazon.download_trackinfo_pdf import download_trackinfo_pdf
 from brick.public.upload_to_oss import upload_to_oss
 from brick.public.create_dir import *
@@ -344,11 +354,20 @@ def download_trackInfo_pdf(params):
     clear_p(filePath)
     mkdir_p(filePath)
     for i in range(0, len(trackNumbers)):
-        pdfData = download_trackinfo_pdf_obj.get_each_trackinfo_pdf({'trackNumber': trackNumbers[i]})
+        # pdfData = download_trackinfo_pdf_obj.get_each_trackinfo_pdf({'trackNumber': trackNumbers[i]})
+        url = 'http://api.cnilink.com/v1.0.0/shpping/label?awb='
+        req = urllib2.Request(url=url + trackNumbers[i])
+        req.add_header("Content-Type", "application/json")
+        req.add_header("AuthToken", "YWU0MDliYmIwZTExODA3MjNmMTFjMmNjOWIzMDM1MzI=")
+        respons = urllib2.urlopen(req)
+        responsData = respons.read()
+        respons_ison = json.loads(responsData)
+        labledata = respons_ison["info"]["labelUrl"]
         filename = str(i) + '.pdf'
-        outputStr = open(filePath + filename, 'wb')
-        outputStr.write(pdfData)
-        outputStr.close()
+        f = urllib2.urlopen(labledata)
+        data = f.read()
+        with open(filePath + filename, "wb") as code:
+            code.write(data)
 
     filename = params['filename']
     download_trackinfo_pdf_obj.MergePDF({'filepath': filePath, 'outfile': filename, 'fileCount': len(trackNumbers)})
@@ -714,7 +733,7 @@ def import_fba_excel_file(file_obj,user_name):
     from brick.classredis.classsku import classsku
     classskuObj = classsku()
 
-    #商品sku(0) 店铺sku(1)   数量(2)  目的仓库(3)    账号(4)  紧急程度(5)  1-新品/2-补品(6)  亚马逊服装(7) 备注(8)
+    #商品sku(0) 店铺sku(1)   数量(2)  目的仓库(3)    账号(4)  紧急程度(5)  1-新品/2-补品(6)  亚马逊服装(7) 质检标志(8) 备注(9)
     insertinto = []
     insertSKU = []
     wb = xlrd.open_workbook(filename=None, file_contents=file_obj.read())  # 关键点在于这里
@@ -798,6 +817,12 @@ def import_fba_excel_file(file_obj,user_name):
                 if (col[7]).strip() == u'是' or (col[7]).strip() == u'yes':
                     AmazonFactory = 'yes'
 
+                CheckFlag = '0'
+                if (col[8]).strip() == u'抽检':
+                    CheckFlag = '1'
+                elif (col[8]).strip() == u'免检':
+                    CheckFlag = '2'
+
                 #采购数量、新/补品
                 Stocking_quantity = 0
                 if str(col[2]).strip() != '':
@@ -815,7 +840,7 @@ def import_fba_excel_file(file_obj,user_name):
                     Supplier=Supplier, Supplierlink=Supplierlink,Buyer=Buyer,
                     Status='notgenpurchase', Stocking_quantity=Stocking_quantity,QTY=Stocking_quantity, Destination_warehouse=Destination_warehouse,
                     AccountNum=col[4], Site='', level=level,Product_nature=nature,
-                    Remarks=col[8],ShopSKU=ShopSKU,neworold=Stocking_NewOrOld,AmazonFactory=AmazonFactory,Number=int(Number)
+                    Remarks=col[9],ShopSKU=ShopSKU,neworold=Stocking_NewOrOld,AmazonFactory=AmazonFactory,Number=int(Number),isCheck=CheckFlag
                 ))
                 #sku 插入t_stocking_demand_fba_detail
                 insertSKU.append(t_stocking_demand_fba_detail(ProductSKU=ProductSKU,Stocking_plan_number=Stocking_plan_number,CreateDate=dattime.now(),Status='notgenpurchase',AuditFlag=0))
@@ -943,11 +968,15 @@ def import_excel_clothfactory_file(file_obj,user_name):
                     SpecialPurchaseFlag = 'firstorder'
                 elif str(col[2]).strip() == u'定做':
                     SpecialPurchaseFlag = 'customermade'
-                elif str(col[2]).strip() == u'其他':
+                elif str(col[2]).strip() == u'其他' or str(col[2]).strip() == u'浦江仓库':
                     SpecialPurchaseFlag = 'other'
+                elif str(col[2]).strip() == u'年底备货':
+                    SpecialPurchaseFlag = 'endyearstock'
+                elif str(col[2]).strip() == u'测试翻单':
+                    SpecialPurchaseFlag = 'returnorder'
                 else:
                     result['errorcode'] = -1
-                    result['errortext'] = '第%d行转退标志为空，请补全后重新上传' % (i + 1)
+                    result['errortext'] = '第%d行排单类型为空，请修改排单类型后重新上传' % (i + 1)
                     break
                 purchaser = ''
                 if str(col[3]).strip() != '':
@@ -972,6 +1001,8 @@ def import_excel_clothfactory_file(file_obj,user_name):
                     OSCode = resultRecord[24]
                     if resultRecord[24] not in ['OS901', 'OS902', 'OS903', 'OS904', 'OS905', 'OS906', 'OS909']:
                         OSCode = 'OS905'
+                    if SpecialPurchaseFlag == 'endyearstock':
+                        OSCode = 'OS903'
                     insertinto.append(t_cloth_factory_dispatch_needpurchase(
                         SKU=ProductSKU, BmpUrl=resultRecord[0],TortInfo=resultRecord[2],goodsState = resultRecord[3],buyer=purchaser,
                         SalerName2=resultRecord[5],sevenSales = resultRecord[6],fifteenSales = resultRecord[7],thirtySales = resultRecord[8],
@@ -995,6 +1026,227 @@ def import_excel_clothfactory_file(file_obj,user_name):
         result['errortext'] = 'Exception = %s ex=%s,第%s行数据异常,请修改后重新上传。' % (Exception, ex,strLine)
     return result
 
+@app.task
+def import_ad_info_data_file(file_obj, user_name):
+    import xlrd
+    from xlrd import xldate_as_tuple
+    from django.db import connection
+    from skuapp.table.t_ad_info_reportform import t_ad_info_reportform
+    from datetime import datetime as dattime
+    from skuapp.table.public import *
+    import sys
+    from brick.pydata.py_syn.py_conn import py_conn
+    import calendar
+    import time
+    from decimal import *
+
+    day_now = time.localtime()
+    day_begin = '%d-%02d-01' % (day_now.tm_year, day_now.tm_mon)  # 月初肯定是1号
+    wday, monthRange = calendar.monthrange(day_now.tm_year, day_now.tm_mon)  # 得到本月的天数 第一返回为月第一日为星期几（0-6）, 第二返回为此月天数
+    day_end = '%d-%02d-%02d' % (day_now.tm_year, day_now.tm_mon, monthRange)
+
+    #普元链接
+    py_connObj = py_conn()
+    sqlconnInfo = py_connObj.py_conn_database()
+
+    insertinto = []
+    wb = xlrd.open_workbook(filename=None, file_contents=file_obj.read())  # 关键点在于这里
+    #xls_sheet = wb.sheet_by_index(0)
+    table = wb.sheets()[0]
+    row = table.nrows
+    result = {'errorcode': 0, 'errortext': u'导入成功'}
+    strLine = ""
+    try:
+        #开始删除本月已经导入的数据
+        # 平台	卖家简称	ShopSKU	货币	花费	销售员	开始日期	结束日期
+        for i in xrange(1, row):
+            try:
+                col = table.row_values(i)
+                platName = col[0].lower()
+                ShopSKU = str(col[2]).strip()
+                #if ShopSKU.isdigit():
+                #    ShopSKU = str(int(col[2])).strip()
+                #    allInfo = allInfo + ShopSKU + ";"#
+                # 获取广告费、费率代码、人民币
+                pbfee = 0.0
+                if str(col[4]).strip() != '':
+                    pbfee = col[4]
+                CurrencyCode = col[3]
+                strCurrencySql = "select CURRENCYCODE,ExchangeRate from B_CurrencyCode(nolock) where CURRENCYCODE='%s' " % (
+                    CurrencyCode)
+                sqlconnInfo['py_cursor'].execute(strCurrencySql)
+                result_CurrencyRate = sqlconnInfo['py_cursor'].fetchone()
+                rmb = 0.0
+                if result_CurrencyRate:
+                    rmb = float(result_CurrencyRate[1]) * float(pbfee)
+
+                if col[6]:
+                    AdStartDate = str(dattime(*xldate_as_tuple(col[6], 0)))[:10]
+                else:
+                    AdStartDate = day_begin
+                if col[7]:
+                    AdEndDate = str(dattime(*xldate_as_tuple(col[7], 0)))[:10]
+                else:
+                    AdEndDate = day_end
+
+                #判断shopsku是否已在表中，如果在表中费用累加
+                t_ad_info_reportform_obj = t_ad_info_reportform.objects.filter(ShopSKU=ShopSKU).values_list('Fee','RMB','AdStartDate','AdEndDate')
+                if t_ad_info_reportform_obj:
+                    if str(AdStartDate) > str(t_ad_info_reportform_obj[0][2]):
+                        AdStartDate = t_ad_info_reportform_obj[0][2]
+                    if str(AdEndDate) < str(t_ad_info_reportform_obj[0][3]):
+                        AdEndDate = t_ad_info_reportform_obj[0][3]
+                    pbfee = float(pbfee) + float(t_ad_info_reportform_obj[0][0])
+                    rmb = float(rmb) + float(t_ad_info_reportform_obj[0][1])
+                    t_ad_info_reportform.objects.filter(ShopSKU=ShopSKU).update(Fee=pbfee,RMB=rmb,AdStartDate=AdStartDate,AdEndDate=AdEndDate)
+                    continue
+                SKU3 = ""
+                SKU = ""
+                if platName.lower() == 'ebay':
+                    SKU3 =  ShopSKU.split("'")[-1]
+                    strSqlSku = "select top 1 sku from P_TradeDt(nolock) where l_number='%s'" % (SKU3)
+                    sqlconnInfo['py_cursor'].execute(strSqlSku)
+                    result_SKU = sqlconnInfo['py_cursor'].fetchone()
+                    if result_SKU:
+                        SKU = result_SKU[0]
+                else:
+                    SKU3 = ShopSKU.split("+")[0].split("*")[0]
+                    strSqlSku = "select top 1 sku from B_GoodsSKULinkShop(nolock) where shopsku='%s'" % (SKU3)
+                    sqlconnInfo['py_cursor'].execute(strSqlSku)
+                    result_SKU = sqlconnInfo['py_cursor'].fetchone()
+                    if result_SKU:
+                        SKU = result_SKU[0]
+
+                #业绩归属人2
+                salername1 = ""
+                if SKU != '':
+                    strSqlSalername1 = "select  salername from b_goods(nolock) where sku='%s'" % (SKU)
+                    sqlconnInfo['py_cursor'].execute(strSqlSalername1)
+                    result_Salername1 = sqlconnInfo['py_cursor'].fetchone()
+                    if result_Salername1:
+                        salername1 = result_Salername1[0]
+                if col[6]:
+                    AdStartDate = str(dattime(*xldate_as_tuple(col[6], 0)))[:10]
+                else:
+                    AdStartDate = day_begin
+                if col[7]:
+                    AdEndDate = str(dattime(*xldate_as_tuple(col[7], 0)))[:10]
+                else:
+                    AdEndDate = day_end
+                insertinto.append(t_ad_info_reportform(
+                    PlatName=platName, Saler=col[5], Salername1=salername1, ShopName=col[1],ShopSKU=ShopSKU,
+                    CurrencyCode=CurrencyCode,Fee=pbfee,SKU=SKU,RMB=rmb,SKU3=SKU3,AdStartDate=AdStartDate, AdEndDate=AdEndDate,
+                    StartDate=day_begin, EndDate=day_end,ImportMan=user_name,ImportTime=dattime.now()))
+                t_ad_info_reportform.objects.bulk_create(insertinto)
+                insertinto = []
+            except Exception, ex:
+                result['errorcode'] = -1
+                result['errortext'] = '第%d行存在问题:Exception:%s, ex:%s，请修正后重新上传' % (i + 1, Exception, ex)
+                #break
+        if result['errorcode'] == 0:
+            #wish 清空后再插入
+            online_cursor = connection.cursor()
+            strWishDelete = "delete from t_ad_info_reportform where PlatName='wish' and StartDate >='%s' and EndDate <='%s'"%(day_begin,day_end)
+            online_cursor.execute(strWishDelete)
+            strWishSql = '''
+            insert into t_ad_info_reportform(PlatName,SKU,ShopSKU,SKU3,Salername1,ShopName,RMB,AdStartDate, AdEndDate,StartDate,EndDate)
+            (select 'wish', productsku,l_number,l_number,SalerName1,suffix,sum(ifnull(pbspend,0)),min(closingdate),max(closingdate),'%s','%s' 
+            from report_db.t_saler_profit_report_dd
+            WHERE closingdate >='%s' and closingdate <='%s'
+            and addressowner='wish' GROUP BY productsku,salername2,suffix
+            HAVING sum(ifnull(pbspend,0)) > 0);
+            '''%(day_begin,day_end,day_begin,day_end)
+            online_cursor.execute(strWishSql)
+            connection.commit()
+            online_cursor.close()
+
+            py_connObj.py_close_conn_database()
+    except Exception, ex:
+        py_connObj.py_close_conn_database()
+        result['errorcode'] = -1
+        result['errortext'] = 'Exception = %s ex=%s,第%s行数据异常,请修改后重新上传。' % (Exception, ex, strLine)
+
+    return result
+
+@app.task
+def import_fba_sku_headcourse(file_obj, user_name):
+    import xlrd
+    from xlrd import xldate_as_tuple
+    from django.db import connection
+    from skuapp.table.t_stocking_demand_fba_sku_headcourse import t_stocking_demand_fba_sku_headcourse
+    from datetime import datetime as dattime
+    from skuapp.table.public import *
+    import sys
+    from brick.pydata.py_syn.py_conn import py_conn
+    import calendar
+    import time
+    from decimal import *
+    import re
+
+    insertinto = []
+    wb = xlrd.open_workbook(filename=None, file_contents=file_obj.read())  # 关键点在于这里
+    #xls_sheet = wb.sheet_by_index(0)
+    table = wb.sheets()[0]
+    row = table.nrows
+    ncols = table.ncols
+    result = {'errorcode': 0, 'errortext': u'导入成功'}
+    strLine = ""
+    try:
+        # 平台	卖家简称	ShopSKU	货币	花费	销售员	开始日期	结束日期
+        perRecordInfo = ""
+        deliverList = ""
+        batchlist = ""
+        remarks = ""
+        ALLInfo = ""
+        nCountSku = 0
+        '''
+        http://blog.51cto.com/12573822/2048820
+        colspan = {}
+        if table.merged_cells:
+            for item in table.merged_cells:
+                # print 'item: ' + str(item)
+                # 通过循环进行组合，从而得出所有的合并单元格的坐标
+                for row in range(item[0], item[1]):
+                    for col in range(item[2], item[3]):
+                        # 合并单元格的首格是有值的，所以在这里进行了去重
+                        if (row, col) != (item[0], item[2]):
+                            colspan.update({(row, col): (item[0], item[2])})
+        '''
+
+        for i in xrange(0, row):
+            try:
+
+                col = table.row_values(i)
+                oneCloumn = str(col[0]).strip()
+                if u"清单号" in oneCloumn:
+                    deliverList = str(col[1]).strip()
+                elif  u"序号" in oneCloumn:
+                    continue
+                elif u"批次号" in oneCloumn:
+                    batchlist = str(col[1]).strip()
+                elif u"备注" in oneCloumn:
+                    remarks = str(col[1]).strip()
+                else:
+                    if ncols < 13:
+                        continue
+                    nCountSku = nCountSku + 1
+                    if perRecordInfo != "":
+                        perRecordInfo = perRecordInfo + ","
+                    perRecordInfo = perRecordInfo + "{\"sku\":\"" + str(col[1]).strip() + "\",\"GoodsName\":\""+str(col[2]).strip()+"\",\"ShopSKU\":\""+str(col[3]).strip()+"\",\"Asin\":\""+str(col[4]).strip()+\
+                                    "\",\"BarCode\":\""+str(col[5]).strip()+"\",\"PlanDeliverNum\":\""+str(col[6]).strip()+\
+                                    "\",\"SetNumber\":\""+str(col[7]).strip()+"\",\"PackSpec\":\""+str(col[8]).strip()+"\",\"ActDeliverNum\":\""+str(col[9]).strip()+"\",\"Position\":\""+str(col[10]).strip()+\
+                                    "\",\"HeavyVolumePackage\":\""+str(col[11]).strip()+"\",\"Remark\":\""+re.sub(r'{}\[\]\"\'\r\n\t', "", str(col[12]).strip())+"\",\"id\":\""+str(nCountSku)+"\"}";
+            except Exception, ex:
+                result['errorcode'] = -1
+                result['errortext'] = '第%d行存在问题:Exception:%s, ex:%s，请修正后重新上传' % (i + 1, Exception, ex)
+        ALLInfo = "{\"deliverlist\":\"" + deliverList + "\",\"skuinfo\":[" + perRecordInfo + "],\"batchlist\":\"" + str(batchlist) + "\",\"remarks\":\"" + str(remarks) + "\"}"
+        if result['errorcode'] == 0:
+            t_stocking_demand_fba_sku_headcourse.objects.create(DeliverDate=time.strftime('%Y-%m-%d', time.localtime(time.time())),
+                                                                ResponsibleMan=user_name,Shippinglist=str(ALLInfo),AddMan=user_name,AddTime=dattime.now(),DealStatus='salers')
+    except Exception, ex:
+        result['errorcode'] = -1
+        result['errortext'] = 'Exception = %s ex=%s,第%s行数据异常,请修改后重新上传。' % (Exception, ex, strLine)
+    return result
 
 @app.task
 def import_fbw_excel_file(file_obj,user_name):
@@ -1003,6 +1255,7 @@ def import_fbw_excel_file(file_obj,user_name):
     from pyapp.models import b_goods as py_b_goods, B_Supplier as py_b_Supplier
     from datetime import datetime as dattime
     from skuapp.table.public import *
+    # from brick.wish.wishlisting.refresh_fbw_flag import refresh_fbw_flag
     import sys
     from brick.classredis.classsku import classsku
     classskuObj = classsku()
@@ -1015,6 +1268,7 @@ def import_fbw_excel_file(file_obj,user_name):
     result = {'errorcode':0,'errortext':u'导入成功'}
     strLine = ""
     try:
+        # refresh_fbw_list = []
         for i in xrange(1, row):
             try:
                 col = table.row_values(i)
@@ -1112,12 +1366,17 @@ def import_fbw_excel_file(file_obj,user_name):
                     Remarks=col[7],Demand_people=user_name,FBW_US=FBW_US,canSellCount=canSellCount,Product_nature=nature,ProductName = ProductName,
                     ProductWeight = ProductWeight,packFormat=packInfo,position=position,OplogTime=dattime.now(),Status='notyet',deliver_way=deliver_way,newold=newold
                 ))
+                # refresh_fbw_list.append({'product_id': col[2], 'shopsku': ShopSKU, 'shopname': col[1]})
             except Exception, ex:
                 result['errorcode'] = -1
                 result['errortext'] = '第%d行存在问题:Exception:%s, ex:%s，请修正后重新上传' % (i + 1, Exception, ex)
                 break
         if result['errorcode'] == 0:
             t_stocking_demand_fbw.objects.bulk_create(insertinto)
+            #
+            # for each in refresh_fbw_list:   # 刷新fbw备货数量
+            #     refresh_fbw_flag(each['product_id'], each['shopsku'], each['shopname'], connection)  # 刷新fbw备货数量
+
     except Exception, ex:
         result['errorcode'] = -1
         result['errortext'] = 'Exception = %s ex=%s,第%s行数据异常,请修改后重新上传%s。' % (Exception, ex,strLine,str(tmp))
@@ -1376,6 +1635,105 @@ def import_affiliate_excel_file(file_obj,user_name):
     return result
 
 @app.task
+def import_marketplan_excel_file(file_obj, user_name):
+    import xlrd
+    import datetime
+    create_time = datetime.datetime.now().strftime('%Y-%m-%d')
+    from skuapp.table.t_store_marketplan_execution_ebay import t_store_marketplan_execution_ebay as marketplan_model
+    # 打开Excel文件读取数据 文件名以及路径，如果路径或者文件名有中文给前面加一个r拜师原生字符。
+    wb = xlrd.open_workbook(filename=None, file_contents=file_obj.read())
+    table = wb.sheets()[0]    # 通过索引顺序获取
+    nrow = table.nrows        # 获取该sheet中的有效行数
+    result = {'errorcode': 0, 'errortext': u'导入成功'}
+    try:
+        insertinto = []
+        # table.row_values(rowx, start_colx=0, end_colx=None)  # 返回由该行中所有单元格的数据组成的列表
+        if len(table.row_values(0)) != 5:
+            raise Exception('Template error!')
+
+        for i in range(1, nrow):
+            try:
+                row = table.row_values(i)
+                platform = row[0].strip()
+                shop_account = row[1].strip()
+                product_code = str(int(row[2]))
+                product_sku = row[3].strip()
+                execution_count = row[4]
+
+                insertinto.append(marketplan_model(createman=user_name, create_time=create_time, platform=platform,
+                                                   shop_account=shop_account, product_code=product_code, product_sku=product_sku,
+                                                   execution_count=execution_count
+                                                   )
+                                  )
+
+            except Exception, ex:
+                result['errorcode'] = -1
+                result['errortext'] = '解析第%d行时:Exception:%s，请修正后重新上传.' % (i + 1, repr(ex))
+                break
+        if result['errorcode'] == 0:
+            # model.objects.bulk_create(数据)  批量插入数据，django1.4之后加入的特性，比save性能更好
+            marketplan_model.objects.bulk_create(insertinto)
+    except Exception, ex:
+        result['errorcode'] = -1
+        result['errortext'] = 'Exception = %s,数据上传时异常,请检查后重新上传.' % (repr(ex),)
+
+    return result
+
+@app.task
+def import_SnL_excel_file(file_obj,user_name):
+    from django.contrib import messages
+    import xlrd
+    from skuapp.table.t_amazon_SnL_record import t_amazon_SnL_record as SnL_modle
+    wb = xlrd.open_workbook(filename=None, file_contents=file_obj.read())  # 关键点在于这里
+    table = wb.sheets()[0]
+    nrow = table.nrows
+    result = {'errorcode': 0, 'errortext': u'导入成功'}
+
+    try:
+
+        if len(table.row_values(0)) != 11:
+            raise Exception('Template error!')
+        insertinto = []
+        splist = []
+
+        for i in xrange(1, nrow):
+            try:
+                row = table.row_values(i)
+                shopname = row[0].strip()
+                seller = row[1].strip()
+                sku = row[2].strip()
+                fnsku = row[3].strip()
+                asin = row[4].strip()
+                productname = row[5].strip()
+                SnL = row[6].strip()
+                marketplace = row[7].strip()
+                Price = row[8]
+                SnL_Inventory = row[9]
+                Non_SnL_Inventory = row[10]
+
+                insertinto.append(SnL_modle(shopname=shopname,seller=seller,sku=sku,fnsku=fnsku,asin=asin,
+                                            productname=productname,SnL=SnL,marketplace=marketplace,Price=Price,
+                                            SnL_Inventory=SnL_Inventory,Non_SnL_Inventory=Non_SnL_Inventory
+
+                                              ))
+                splist.append((shopname, sku))
+
+            except Exception, ex:
+                result['errorcode'] = -1
+                result['errortext'] = '解析第%d行时:Exception:%s，请修正后重新上传.' % (i + 1, repr(ex))
+                break
+        if result['errorcode'] == 0:
+            for v in splist:
+                SnL_modle.objects.filter(shopname=v[0], sku=v[1]).delete()
+
+            SnL_modle.objects.bulk_create(insertinto)
+
+    except Exception, ex:
+        result['errorcode'] = -1
+        result['errortext'] = 'Exception = %s,数据上传时异常,请检查后重新上传.' % (repr(ex),)
+
+    return result
+	
 def get_shopsku_sku_excel(idlist,user_name,downid):
     import os
     from Project.settings import MEDIA_ROOT,BUCKETNAME_DOWNLOAD
@@ -1543,6 +1901,20 @@ def Amazon_india_auto_feed_trackNo():
         feed_dict = {'order_item_infos': new_order_item_infos, 'shopName': shopName['ShopName']}
         feed_Amazon_trackNo_tmp.deal_Amazon_trackNo_to_schedule(feed_dict)
         t_order_amazon_india_tmp.update_status_and_warning(amazonOrderIds)
+
+@app.task
+def refresh_trackinfo_by_CNI():
+    from brick.table.t_order_track_info_amazon_india import  t_order_track_info_amazon_india
+    from brick.amazon.get_info_api.refresh_amazon_india_trackinfo import AMZTrackApiSchedule
+    t_order_track_info_amazon_india_Imp = t_order_track_info_amazon_india(connection)
+    trackNumbers = t_order_track_info_amazon_india_Imp.get_trackNo_list()
+    AMZTrackApiScheduleImp = AMZTrackApiSchedule()
+    AMZTrackApiScheduleImp.searchTrackInfo(trackNumbers=trackNumbers)
+
+@app.task
+def update_trackinfo_warning():
+    from brick.amazon.get_info_api import update_amazon_trackinfo_warning
+    update_amazon_trackinfo_warning.update_warning_api()
 
 @app.task
 def order_out_of_stock_task(file_obj, now_time, first_name, plateform):
@@ -2361,8 +2733,8 @@ def joom_update_products_sevenordernum():
     joom_update_seven_orders()
     update_can_price_parity_status()
     mymall_update_seven_orders_task()
-    from brick.mymall.mymall_update_seven_orders import mymall_update_seven_orders
-    mymall_update_seven_orders()
+    # from brick.mymall.mymall_update_seven_orders import mymall_update_seven_orders
+    # mymall_update_seven_orders()
     # from brick.ebay.ebayapp_update_seven_orders import ebayapp_update_seven_orders
     # ebayapp_update_seven_orders()
     from brick.joom.update_joom_cate import update_joom_cate
@@ -2830,7 +3202,7 @@ def get_saler_profit_data(selmonth):
         effDate = eff_exp_date['effexp' + str(i)]['effdate']
         expDate = eff_exp_date['effexp' + str(i)]['expdate']
         # 获取配置表数据
-        strHQSql = "select SalerName,PlatformName,ShopName from t_saler_profit_config where StatisticsMonth='%s'" % (
+        strHQSql = "select SalerName,PlatformName,ShopName,Department from t_saler_profit_config where StatisticsMonth='%s'" % (
             selmonth)  # and SalerName='邢亚萍'
         cursor.execute(strHQSql)
         distinctSaler = cursor.fetchall()
@@ -2861,8 +3233,8 @@ def get_saler_profit_data(selmonth):
                                    "values(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
 
                     cursor.executemany(strOnlineSql, resultSalerProfit)
-                    strUpdate = "update t_saler_profit_reportform set SalerName='%s',StatisticsMonth='%s',effdate='%s',expdate='%s',platform='%s',allShopName='%s' where SalerName is NULL and StatisticsMonth is NULL" \
-                                % (row_distinctSaler[0], selmonth, effDate, expDate,row_distinctSaler[1],row_distinctSaler[2])
+                    strUpdate = "update t_saler_profit_reportform set SalerName='%s',StatisticsMonth='%s',effdate='%s',expdate='%s',platform='%s',allShopName='%s',department='%s' where SalerName is NULL and StatisticsMonth is NULL" \
+                                % (row_distinctSaler[0], selmonth, effDate, expDate,row_distinctSaler[1],row_distinctSaler[2],row_distinctSaler[3])
                     cursor.execute(strUpdate)
                     connection.commit()
     cursor.close()
@@ -2895,7 +3267,7 @@ def gen_execl_saler_profit_data(username,selmonth,filename):
     sheetlist = [u'销售额',u'销售成本',u'ebay成交费',u'PP手续费',u'包装成本',u'运费成本',u'实收利润', u'退款金额',u'店铺SKU', u'SKU',
                  u'库存平均单价',u'采购员',u'供应商',u'规格', u'款式1', u'款式2',u'商品编码',u'商品创建时间',u'商品类别',u'商品名称',u'实得金额',
                  u'销售数量',u'销售员',u'型号',u'买家付运费',u'业绩归属人1', u'业绩归属人2',
-                 u'业绩归属人', u'统计月份',u'汇率改变开始时间', u'汇率改变结束时间','平台','店铺名称' ]
+                 u'业绩归属人', u'统计月份',u'汇率改变开始时间', u'汇率改变结束时间',u'部门',u'平台',u'店铺名称' ]
     row = 0
     for index, item in enumerate(sheetlist):
         sheet.write(row, index, item)
@@ -2968,6 +3340,8 @@ def gen_execl_saler_profit_data(username,selmonth,filename):
         column = column + 1
         sheet.write(row, column, str(obj.expdate))  # 失效时间
         column = column + 1
+        sheet.write(row, column, obj.department)  # 部门
+        column = column + 1
         sheet.write(row, column, obj.platform)  # 平台
         column = column + 1
         sheet.write(row, column, obj.allShopName)  # 店铺名称
@@ -2989,7 +3363,12 @@ def gen_execl_saler_profit_data(username,selmonth,filename):
 @app.task
 def update_profitrate_ebay_task():
     from brick.ebay.update_profitrate_ebay_listing_task import update_profitrate_ebay_listing_task
-    update_profitrate_ebay_listing_task()
+    from brick.ebay.update_profitrate_ebay_listing_task import update_profitrate_ebay_listing_task2
+    curdateH = time.strftime('%H', time.localtime(time.time()))
+    if curdateH > 20 or curdateH < 7:
+        update_profitrate_ebay_listing_task()
+    else:
+        update_profitrate_ebay_listing_task2()
 
 @app.task
 def syn_shopee_data(shopname='', partner_id='', shopid='', opid='', flag=''):
@@ -3062,9 +3441,136 @@ def virtual_overseas_warehouse_task():
 def py_Syn_walmart_main_task():
     from brick.walmart.py_Syn_walmart import py_Syn_walmart_main
     py_Syn_walmart_main()
+    
+@app.task
+def b_goods_sales_count_task():
+    from brick.pydata.py_syn.b_goods_sales_count_syn import b_goods_sales_count_syn
+    obj = b_goods_sales_count_syn()
+    obj.deal_data() 
+    
+    
 
 @app.task
-def amazon_auto_load():
-    from brick.amazon.product_refresh.amazon_auto_load import AmazonAutoLoad
-    auto_load_obj = AmazonAutoLoad()
-    auto_load_obj.auto_start()
+def generate_track_info():
+    """生成Wish运单状态"""
+    from brick.wish.trackingmore.generate_track import main
+    main()
+
+@app.task
+def refresh_track_info(datas=None):
+    """刷新Wish运单状态"""
+    from brick.wish.trackingmore.refresh_track import *
+    refresh_track(datas)
+
+@app.task
+def aliexpress_auto_off_shelf_task():
+    """aliexpress停售产品自动上下架"""
+    from brick.aliexpress.aliexpress_auto_off_shelf import aliexpress_auto_off_shelf
+    aliexpress_auto_off_shelf()
+
+@app.task
+def funmart_update_pro_qty():
+    from funmart_app.function.FunMart_Pro_Update import update_products_and_quantity
+    update_products_and_quantity()
+
+
+@app.task
+def ebay_vow_task_funnel_task():
+    """ebay的虚拟海外仓任务漏斗"""
+    from brick.ebay.ebay_vow_task_funnel import ebay_vow_task_funnel
+    ebay_vow_task_funnel()
+
+
+@app.task
+def mall_platform_refund_sku_task(file_obj, user_name):
+    import xlrd
+    from xlrd import xldate_as_tuple
+    import time
+    from decimal import *
+    from datetime import datetime as dattime
+
+    wb = xlrd.open_workbook(filename=None, file_contents=file_obj.read())  # 关键点在于这里
+    # xls_sheet = wb.sheet_by_index(0)
+    table = wb.sheets()[0]
+    row = table.nrows
+    result = {'errorcode': 0, 'errortext': u'导入成功'}
+
+    from brick.pydata.py_syn.py_conn import py_conn
+    py_connObj = py_conn()
+    sqlconnInfo = py_connObj.py_conn_database()
+
+    from django.db import connection
+    conn_mysql = connection
+    cursor_mysql = conn_mysql.cursor()
+
+    Salesnumber = ''
+    RefundType = u'其他'
+    AfterSaleType = u'其他'
+    Number = 1
+    try:
+        for i in xrange(1, row):
+            try:
+                col = table.row_values(i)
+                OrderID = col[0]
+
+                Date = str(dattime(*xldate_as_tuple(col[1], 0)))[:10]
+                Money = col[2]
+                Incoming = col[3]
+                Store = col[4]
+                import_date = time.strftime('%Y-%m-%d', time.localtime(time.time()))
+
+                sql = """SELECT b.sku,a.suffix FROM P_Trade(nolock) a INNER JOIN p_tradedt(nolock) b on b.tradenid = a.nid  where a.ACK = %s"""
+                args = (OrderID)
+                sqlconnInfo['py_cursor'].execute(sql, args)
+                skus = sqlconnInfo['py_cursor'].fetchall()
+
+                sql = """SELECT b.sku,a.suffix  FROM P_Trade_His(nolock) a INNER JOIN P_TradeDt_His(nolock) b on b.tradenid = a.nid  where a.ACK = %s"""
+                args = (OrderID)
+                sqlconnInfo['py_cursor'].execute(sql, args)
+                skus = skus + sqlconnInfo['py_cursor'].fetchall()
+
+                if skus:
+                    for sku_i in skus:
+                        sku = sku_i[0]
+
+                        sql = """INSERT into platform_refund_sku_match
+                              (OrderID,Salesnumber,RefundType,AfterSaleType,SKU,Number,Money,Date,Incoming,Store,import_date)
+                              VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
+                        args = (OrderID, Salesnumber, RefundType, AfterSaleType, sku, Number, Money, Date, Incoming, Store,import_date)
+                        cursor_mysql.execute(sql, args)
+                        conn_mysql.commit()
+                else:
+                    sku = ''
+
+                    sql = """INSERT into platform_refund_sku_match
+                          (OrderID,Salesnumber,RefundType,AfterSaleType,SKU,Number,Money,Date,Incoming,Store,import_date)
+                          VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"""
+                    args = (OrderID, Salesnumber, RefundType, AfterSaleType, sku, Number, Money, Date, Incoming, Store,import_date)
+                    cursor_mysql.execute(sql, args)
+                    conn_mysql.commit()
+            except Exception, ex:
+
+                result['errorcode'] = -1
+                result['errortext'] = '第%d行存在问题:Exception:%s, ex:%s，请修正后重新上传' % (i + 1, Exception, ex)
+
+    except:
+        conn_mysql.rollback()
+    conn_mysql.close()
+    py_connObj.py_close_conn_database()
+    return result
+    
+# Walmart店铺管理--按照sku同步数据、上架、下架
+@app.task
+def syndata_by_walmart_api(params, flag, opnum):
+    from django.db import connection
+    from walmart_app.views import syn_sku_walmart,relist_end_item
+    from brick.table.t_wish_store_oplogs import t_wish_store_oplogs
+
+    sResult = None
+    if flag == 'syn':  # 同步数据
+        sResult = syn_sku_walmart(params, opnum)
+    elif flag == 'endItem':
+        sResult = relist_end_item(params, 'endItem', opnum)
+    elif flag == 'relistItem':
+        sResult = relist_end_item(params, 'relistItem', opnum)
+

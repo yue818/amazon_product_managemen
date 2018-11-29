@@ -69,8 +69,8 @@
 
             var shipping_type = document.getElementsByName('shipping_type')[i];
             var defaultselectedvalue = return_selected(shipping_type);
-            if ((shipping_type.value != defaultselectedvalue && defaultselectedvalue != '') || (JSON.stringify(datadict) != '{}')){
-                var shipping_price = document.getElementsByName('shipping_value')[i];
+            var shipping_price = document.getElementsByName('shipping_value')[i];
+            if ((shipping_type.value != defaultselectedvalue && defaultselectedvalue != '') || (JSON.stringify(datadict) != '{}') || (shipping_price.value != shipping_price.defaultValue)){
                 if (shipping_type.value == 'False' && shipping_price.value == ''){ // 单独设置运费时，请输入运费值
                     alert('选择设置运费，请输入运费值！');
                     return null

@@ -2,7 +2,7 @@
 
 from xadmin.views import BaseAdminPlugin
 from django.template import loader
-from django.db import connection
+# from django.db import connection
 from skuapp.table.t_sys_param import t_sys_param
 from brick.table.t_config_online_amazon import t_config_online_amazon
 # from brick.table.t_config_amazon_shop_status import t_config_amazon_shop_status
@@ -23,8 +23,9 @@ from django_redis import get_redis_connection
 from brick.classredis.classshopname import classshopname
 # from Project.settings import connRedis
 from skuapp.table.t_store_configuration_file import t_store_configuration_file
-from datetime import datetime as timetime
+from datetime import datetime as timetime, timedelta
 from skuapp.public.check_permission_legality import check_permission_legality
+from brick.table.t_country_code_name_table import t_country_code_name_table
 
 
 class t_online_info_wish_store_secondplugin(BaseAdminPlugin):
@@ -55,9 +56,16 @@ class t_online_info_wish_store_secondplugin(BaseAdminPlugin):
 
         classshopname_obj = classshopname(redis_cnxn=redis_coon)
         refreshstatus = classshopname_obj.get_api_status_by_shopname(flag)
-        if refreshstatus is None:
-            refreshstatus = ''
+        lastrefreshtime = classshopname_obj.get_api_time_by_shopname(flag)
 
+        if lastrefreshtime and (timetime.now() + timedelta(hours=-2)).strftime('%Y-%m-%d %H:%M:%S') > lastrefreshtime:
+            classshopname_obj.del_api_time_by_shopname(flag)
+            classshopname_obj.del_api_status_by_shopname(flag)
+            refreshstatus = ''
+        elif not lastrefreshtime:
+            classshopname_obj.del_api_status_by_shopname(flag)
+
+        refreshstatus = refreshstatus if refreshstatus else ''
         synurl = ''
         if flag != 'Wish-0000' and refreshstatus == '':
             synurl = '/syndata_by_wish_api_shopname/?shopname=%s' % flag
@@ -94,8 +102,13 @@ class t_online_info_wish_store_secondplugin(BaseAdminPlugin):
         readonly = ''
         if self.model._meta.model_name == 't_online_info_wish' or not self.wish_right_button():
             readonly = 'readonly'
+
+        countrys_code = t_country_code_name_table(connection).GetAllCountryCode()
+        countrys_code_dict = countrys_code.get('data',{})
         # messages.error(self.request, 'search2-------%s' % timetime.now())
-        nodes.append(loader.render_to_string('products_listing_base_secondtemplate.html',
-                                             {'objs': json.dumps(buttonlist), 'synurl': synurl, 'flag': flag,
-                                              'lastupdatetime':lastupdatetime,'refreshstatus':refreshstatus,
-                                              'nowurl': nowurl, 'activeflag': activeflag, 'readonly':readonly}))
+        nodes.append(loader.render_to_string(
+            'products_listing_base_secondtemplate.html',
+             {'objs': json.dumps(buttonlist), 'synurl': synurl, 'flag': flag,'lastupdatetime':lastupdatetime,
+              'refreshstatus':refreshstatus,'nowurl': nowurl, 'activeflag': activeflag, 'readonly':readonly,
+              'countrys_code_dict': sorted(countrys_code_dict.items(), key=lambda x: x[0])}
+        ))

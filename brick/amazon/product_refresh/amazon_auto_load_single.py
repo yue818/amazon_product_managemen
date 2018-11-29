@@ -319,7 +319,7 @@ class MessageToRabbitMq:
 class AmazonAutoLoad:
     def __init__(self):
         # self.batch_id = str(uuid.uuid4())
-        self.batch_id = '1dd05c06-a8d5-46b0-ad57-8a3ae40476f3'
+        self.batch_id = 'e780c315-c9e6-4dc5-ae55-f15b7019d805'
         self.online_conn = pymysql.connect(user="by15161458383",
                                            passwd="K120Esc1",
                                            host="rm-uf6kd5a4wee2n2ze6o.mysql.rds.aliyuncs.com",
@@ -512,8 +512,9 @@ class AmazonAutoLoad:
             self.online_conn.commit()
 
     def deal_feed_record(self):
-        sql_upload = "select shop_name,seller_sku from t_amazon_auto_load where deal_type = 'unload' and batch_id = '%s' and 1=2" % self.batch_id
-        sql_unload = "select shop_name,seller_sku from t_amazon_auto_load where  deal_type = 'unload' and deal_result is null and deal_user != 'wuchongxiang' and batch_id = '%s'" % self.batch_id
+        sql_upload = "select shop_name,seller_sku from t_amazon_auto_load where deal_type = 'load' and batch_id = '%s' and  deal_result is null and shop_name ='AMZ-0158-AST-JP/PJ' and seller_sku not in('ASIE00096Ｈ01','ASIE00096Ｈ02') and 1=2 " % self.batch_id
+        sql_unload = "select shop_name,seller_sku from t_amazon_auto_load where  deal_type = 'unload' and deal_result is null  and batch_id = '%s' " % self.batch_id
+        # sql_unload = "select shop_name,seller_sku from t_amazon_auto_load where  deal_type = 'load'  and batch_id = '%s' and shop_name in('AMZ-0054-Chengcaifengye-US/PJ')" % self.batch_id
         print sql_unload
 
         with self.online_conn.cursor() as cursor_upload:

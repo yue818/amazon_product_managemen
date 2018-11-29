@@ -110,7 +110,7 @@ class t_templet_amazon_base(models.Model):
     prodcut_variation_id            = models.CharField(u'主从关系',max_length=32,blank=True,null=True)
     can_upload                      = models.CharField(u'能否刊登状态', max_length=32, blank=True, null=True)
     number_of_pieces = models.IntegerField(u'拼图块数', max_length=5, blank=True, null=True)
-    item_weight = models.DecimalField(u'重量', max_digits=10, decimal_places=2, blank=True, null=True)
+    item_weight = models.DecimalField(u'重量', max_digits=10, decimal_places=3, blank=True, null=True)
     item_weight_unit = models.CharField(u'重量单位', max_length=32, default=u'KG', choices=getChoices(item_weight_unit), blank=True, null=True)
     color_name_public = models.CharField(u'颜色', max_length=32, blank=True, null=True)
     mrp = models.DecimalField(u'最大销售价格(MRP)', max_digits=10, decimal_places=2, blank=True, null=True)

@@ -54,9 +54,7 @@
     {% csrf_token %}
     <div style="text-align:center;">
         <input type="hidden" id="hidden_id" value="{{ id }}">
-        <textarea name="remark_name" id="remark_id" style="width: 97%;height: 180px;">
-        {{ remark|safe }}
-        </textarea>
+        <textarea name="remark_name" id="remark_id" style="width: 97%;height: 180px;">{{ remark|safe }}</textarea>
         {% if readonly == '' %}
         <button type="button" class="button" onclick="will_submit()">提交</button>
         {% endif %}

@@ -137,7 +137,7 @@ class variation_item_amazon_Plugin(BaseAdminPlugin):
             templates = [shipping_group_sites[searchSite]]
             if template_ama is None or template_ama.strip() == '':
                 template_ama = shipping_group_sites[searchSite]
-            all_shop_name = t_config_shop_alias.objects.filter(ShopName__contains=searchSite).values('ShopName')
+            all_shop_name = t_config_shop_alias.objects.filter(ShopName__contains=searchSite, ShopStatus=1).values('ShopName')
             for each_shop_name in all_shop_name:
                 all_shop_names.append(each_shop_name['ShopName'])
         else:

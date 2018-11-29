@@ -1478,3 +1478,11 @@ xadmin.site.register(t_amazon_shop_refund_status, t_amazon_shopsku_modify_Admin)
 from skuapp.modelsadminx.t_amazon_auto_load_Admin import t_amazon_auto_load_Admin
 from skuapp.table.t_amazon_auto_load import t_amazon_auto_load
 xadmin.site.register(t_amazon_auto_load, t_amazon_auto_load_Admin)
+
+from skuapp.modelsadminx.t_amazon_finance_record_Admin import t_amazon_finance_record_Admin
+from skuapp.table.t_amazon_finance_record import t_amazon_finance_record
+xadmin.site.register(t_amazon_finance_record, t_amazon_finance_record_Admin)
+
+from skuapp.modelsadminx.t_amazon_fba_inventory_age_Admin import t_amazon_fba_inventory_age_Admin
+from skuapp.table.t_amazon_fba_inventory_age import t_amazon_fba_inventory_age
+xadmin.site.register(t_amazon_fba_inventory_age, t_amazon_fba_inventory_age_Admin)
