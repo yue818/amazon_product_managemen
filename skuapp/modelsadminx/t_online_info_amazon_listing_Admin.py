@@ -392,7 +392,7 @@ class t_online_info_amazon_listing_Admin(object):
         else:
             url = u'%s' % obj.image_url
             rt = '<img src="%s"  width="69" height="69"  alt = "%s"  title="%s"  />' % (url, url, url)
-        if obj.ShopName in ('AMZ-0013-GBY-US/PJ','AMZ-0017-LXY-US/PJ','AMZ-0052-Bohonan-US/PJ','AMZ-0056-Chengcaifengye01-US/PJ','AMZ-0061-Peoria-US/PJ','AMZ-0078-Fuyamp-US/PJ','AMZ-0099-Fuguan-US/PJ','AMZ-0143-KZXX-US/PJ','AMZ-0145-SH-US/PJ','AMZ-0152-DL-US/PJ','AMZ-0154-HY-US/PJ','AMZ-0162-ZS-US/PJ','AMZ-0173-XL-US/PJ','AMZ-0182-FXXR-JP/HF','AMZ-0186-BL-US/HF','AMZ-0208-CHT-US/HF','AMZ-9900-YWGM-US/HF',):
+        if obj.ShopName in ('AMZ-0013-GBY-US/PJ','AMZ-0017-LXY-US/PJ','AMZ-0052-Bohonan-US/PJ','AMZ-0056-Chengcaifengye01-US/PJ','AMZ-0061-Peoria-US/PJ','AMZ-0078-Fuyamp-US/PJ','AMZ-0099-Fuguan-US/PJ','AMZ-0143-KZXX-US/PJ','AMZ-0145-SH-US/PJ','AMZ-0152-DL-US/PJ','AMZ-0154-HY-US/PJ','AMZ-0162-ZS-US/PJ','AMZ-0173-XL-US/PJ','AMZ-0182-FXXR-JP/HF','AMZ-0186-BL-US/HF','AMZ-0208-CHT-US/HF','AMZ-9900-YWGM-US/HF', 'AMZ-0084-Solvang-US/PJ','AMZ-0006-ZYN-US/PJ','AMZ-0222-SY-DE/HF'):
             rt += '<div title="跟卖" style="float:left;width: 20px;height: 20px;background-color: #FFCC33;text-align: center;line-height: 20px;border-radius: 4px; font-weight:bold;">跟</div>'
         return mark_safe(rt)
     show_image_url.short_description = u'<span style="color:#428BCA">图片</span>'

@@ -240,6 +240,7 @@ class GetProductInfoByUrl:
             req = urllib2.Request(new_source_url, headers=head)
             data_bytes = urllib2.urlopen(req, timeout=30).read()
             print 'get data_bytes success'
+            print data_bytes
             crawl_result = 'OK'
 
             if data_bytes is not None:
@@ -302,7 +303,7 @@ class GetProductInfoByUrl:
 
                 # 价格
                 try:
-                    price = soup.find("span", id=["priceblock_ourprice"])
+                    price = soup.find("span", id=["priceblock_ourprice", "priceblock_saleprice"])
                     if not price:
                         price = soup.find("div", id=["buyNew_noncbb"])
                     price = price.get_text()

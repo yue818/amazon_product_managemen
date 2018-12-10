@@ -379,16 +379,16 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
                         "child": []
                     },
 
-                    {
-                        "name": u"店铺刷新状态",
-                        "icon": "",
-                        "code": "110104",
-                        "parentCode": "1101",
-                        "selected": "",
-                        "to_url": '/Project/admin/skuapp/t_perf_amazon_refresh_status',
-                        "flag": 'refresh_status',
-                        "child": []
-                    },
+                    # {
+                    #     "name": u"店铺刷新状态",
+                    #     "icon": "",
+                    #     "code": "110104",
+                    #     "parentCode": "1101",
+                    #     "selected": "",
+                    #     "to_url": '/Project/admin/skuapp/t_perf_amazon_refresh_status',
+                    #     "flag": 'refresh_status',
+                    #     "child": []
+                    # },
                 ]
         }
 
@@ -468,6 +468,17 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
                         "selected": "",
                         "to_url": '/Project/admin/skuapp/t_amazon_orders_by_receive_day_total/',
                         "flag": 'orders_by_receive_day',
+                        "child": []
+                    },
+
+                    {
+                        "name": u"周转率",
+                        "icon": "",
+                        "code": "110307",
+                        "parentCode": "1103",
+                        "selected": "",
+                        "to_url": '/Project/admin/skuapp/t_amazon_conversion_result/',
+                        "flag": 'conversion_result',
                         "child": []
                     },
 
@@ -900,6 +911,8 @@ class amazon_site_left_menu_tree_Plugin(BaseAdminPlugin):
             flag = 'yes_pot'
         elif '_p_tortflag=2&riskgrade=0' in self.request.get_full_path():
             flag = 'yes_other'
+        elif 't_amazon_conversion_result' in self.request.get_full_path():
+            flag = 'conversion_result'
 
         if '_p_refresh_status=1' in self.request.get_full_path():
             flag = 'remove'

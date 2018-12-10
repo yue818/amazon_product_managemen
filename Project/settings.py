@@ -111,6 +111,7 @@ INSTALLED_APPS = [
     'mymall_app',
     'wishpubapp',
     'reportapp',
+    'amazon_app'
 ]
 
 MIDDLEWARE_CLASSES = [

@@ -253,42 +253,43 @@ class GenerateFeedXml:
         title.appendChild(title_text)
         description_data.appendChild(title)
 
-        description = doc.createElement('Description')
-        description_text = doc.createTextNode(product_info_dic['item_description'])
-        description.appendChild(description_text)
-        description_data.appendChild(description)
+        if product_info_dic.get('item_description', '').strip():
+            description = doc.createElement('Description')
+            description_text = doc.createTextNode(product_info_dic['item_description'])
+            description.appendChild(description_text)
+            description_data.appendChild(description)
 
-        if product_info_dic.get('bullet_point1'):
+        if product_info_dic.get('bullet_point1', '').strip():
             bullet_point1 = doc.createElement('BulletPoint')
             bullet_point1_text = doc.createTextNode(product_info_dic['bullet_point1'])
             bullet_point1.appendChild(bullet_point1_text)
             description_data.appendChild(bullet_point1)
 
-        if product_info_dic.get('bullet_point2'):
+        if product_info_dic.get('bullet_point2', '').strip():
             bullet_point2 = doc.createElement('BulletPoint')
             bullet_point2_text = doc.createTextNode(product_info_dic['bullet_point2'])
             bullet_point2.appendChild(bullet_point2_text)
             description_data.appendChild(bullet_point2)
 
-        if product_info_dic.get('bullet_point3'):
+        if product_info_dic.get('bullet_point3', '').strip():
             bullet_point3 = doc.createElement('BulletPoint')
             bullet_point3_text = doc.createTextNode(product_info_dic['bullet_point3'])
             bullet_point3.appendChild(bullet_point3_text)
             description_data.appendChild(bullet_point3)
 
-        if product_info_dic.get('bullet_point4'):
+        if product_info_dic.get('bullet_point4', '').strip():
             bullet_point4 = doc.createElement('BulletPoint')
             bullet_point4_text = doc.createTextNode(product_info_dic['bullet_point4'])
             bullet_point4.appendChild(bullet_point4_text)
             description_data.appendChild(bullet_point4)
 
-        if product_info_dic.get('bullet_point5'):
+        if product_info_dic.get('bullet_point5', '').strip():
             bullet_point5 = doc.createElement('BulletPoint')
             bullet_point5_text = doc.createTextNode(product_info_dic['bullet_point5'])
             bullet_point5.appendChild(bullet_point5_text)
             description_data.appendChild(bullet_point5)
 
-        if product_info_dic.get('generic_keywords1'):
+        if product_info_dic.get('generic_keywords1', '').strip():
             generic_keyword = product_info_dic['generic_keywords1']
             if len(generic_keyword) >= 199:
                 key_word1 = generic_keyword[0:130]

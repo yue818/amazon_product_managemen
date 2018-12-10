@@ -13,7 +13,7 @@ from django.db import models
 
 
 class t_amazon_product_inventory_cost(models.Model):
-    is_fba = models.IntegerField(u'是否FBA', max_length=1, blank=True, null=True)
+    is_fba = models.IntegerField(u'是否正常店铺', max_length=1, blank=True, null=True)
     product_sku = models.CharField(u'商品SKU', max_length=32, blank=True, null=True)
     sku_unit_price = models.FloatField(u'商品单价', max_length=10, blank=True, null=True)
     quantity = models.IntegerField(u'库存量', max_length=10, blank=True, null=True)

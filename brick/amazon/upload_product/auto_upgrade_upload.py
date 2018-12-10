@@ -26,7 +26,7 @@ def put_file(oss_file_name, local_file):
 
 # auth = oss2.Auth(ACCESS_KEY_ID, ACCESS_KEY_SECRET)
 # bucket = oss2.Bucket(auth, ENDPOINT_OUT, BUCKETNAME_APIVERSION)
-# bucket.delete_object('fba_refresh-20181029.exe')
+# bucket.delete_object('amazon_upload_product-20181201a.exe')
 
 
 class MessageToRabbitMq:
@@ -225,8 +225,8 @@ fba_config = {
 }
 
 # put_file('amazon_upload_product-20180912.exe','D:\\amazon_upload_product-20180912.exe')
-put_file('fba_refresh-20181126.exe', 'E:\\fba_refresh\\fba_refresh-20181126.exe')
-
+put_file('fba_refresh-20181204.exe', 'D:\\fba_refresh-20181204.exe')
+#
 # cnxn = MySQLdb.connect(DATABASES['HOST'],DATABASES['USER'],DATABASES['PASSWORD'],DATABASES['NAME'] )
 # put_message_obj = MessageToRabbitMq(cnxn)
 # for key in sorted(fba_config.keys()):

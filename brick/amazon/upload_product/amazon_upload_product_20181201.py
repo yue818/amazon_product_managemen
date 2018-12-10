@@ -189,7 +189,9 @@ class UpdateProductInfo:
         self.db_conn = MySQLdb.connect(DATABASES['HOST'],
                                        DATABASES['USER'],
                                        DATABASES['PASSWORD'],
-                                       DATABASES['NAME'])
+                                       DATABASES['NAME'],
+                                       charset='utf8'
+                                       )
 
     @staticmethod
     def submit_feed(auth_info, data, feed_type):
@@ -335,7 +337,7 @@ class UpdateProductInfo:
             cursor.execute(sql)
             cursor.execute('commit;')
         elif auth_info['update_type'] == 'product_info_modify':
-            set_sql = ''
+            set_sql = ''.encode('utf-8')
             for key, val in auth_info['product_info_dic'].items():
                 set_sql += key + '="' + val + '",'
 
@@ -541,7 +543,7 @@ class UpdateProductInfo:
             处理结果中 MessagesWithError 为0表示处理成功
         """
         try:
-            feed_data = auth_info['feed_xml']
+            feed_data = auth_info['feed_xml'].encode('utf-8')
             if auth_info['update_type'] in ('load_product', 'unload_product','auto_load_product', 'auto_unload_product'):
                 feed_type = '_POST_INVENTORY_AVAILABILITY_DATA_'
             elif auth_info['update_type'] == 'product_info_modify':
@@ -748,7 +750,7 @@ class Server():
             print 'Get all data info: %s' % data
             print data[0]
             logger.debug('Get all data info: %s' % data)
-            auth_info = json.loads(data[0])
+            auth_info = json.loads(data[0], encoding='utf-8')
 
             if auth_info.get('operate_type') and auth_info['operate_type'] == 'reupload_image':
                 amazon_upload_id = auth_info.get('amazon_upload_id', '')

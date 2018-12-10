@@ -27,6 +27,8 @@ class t_amazon_product_cost_refresh_plugin(BaseAdminPlugin):
             refresh_type = 'pend_cost'
         elif 't_amazon_orders_by_receive_day_total' in self.request.get_full_path():
             refresh_type = 'orders_by_receive_day'
+        elif 't_amazon_conversion_result' in self.request.get_full_path():
+            refresh_type = 'conversion_result'
         else:
             refresh_type = ''
 

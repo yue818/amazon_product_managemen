@@ -2,61 +2,52 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" readonly="true" id="b01e0c5d-3f4d-4219-90ab-407c676ec563" name="Default" comment="">
-      <change afterPath="$PROJECT_DIR$/brick/amazon/product_refresh/fba_refresh-20181119.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/brick/amazon/product_refresh/fba_refresh-20181120.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/brick/amazon/product_refresh/fba_refresh-20181121.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/brick/amazon/product_refresh/fba_refresh-20181122.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/brick/amazon/product_refresh/fba_refresh-20181126.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/brick/amazon/product_refresh/fba_refresh-20181129.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/brick/amazon/product_refresh/fba_refresh-20181129a.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/brick/amazon/product_refresh/t_amazon_sku_merge_relation.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/brick/amazon/upload_product/amazon_upload_product_20181128.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/skuapp/modelsadminx/t_amazon_fba_inventory_age_Admin.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/skuapp/modelsadminx/t_amazon_finance_record_Admin.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/skuapp/table/t_amazon_fba_inventory_age.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/skuapp/table/t_amazon_finance_record.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/js/t_online_info_amazon.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/wu_test/20181117.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/wu_test/20181119.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/wu_test/20181120-1.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/wu_test/20181120.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/wu_test/20181129-1.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/wu_test/20181129.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/amazon_app/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/amazon_app/adminx.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/amazon_app/modelsadminx/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/amazon_app/modelsadminx/t_amazon_fba_inbound_address_cfg_Admin.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/amazon_app/plugin/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/amazon_app/plugin/amazon_left_menu_tree_plugin.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/amazon_app/table/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/amazon_app/table/t_amazon_fba_inbound_address_cfg.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/amazon_app/table/t_amazon_fba_inbound_plan.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/amazon_app/templates/left_menu_tree_Plugin.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/amazon_app/views.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/brick/amazon/fulfillment_inbound/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/brick/amazon/fulfillment_inbound/fulfillment_inbound_shipment-20181206.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/brick/amazon/fulfillment_inbound/plan_return.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/brick/amazon/fulfillment_inbound/test.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/brick/amazon/product_refresh/fba_refresh-20181204.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/skuapp/modelsadminx/t_amazon_conversion_result_Admin.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/skuapp/table/t_amazon_conversion_detail.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/skuapp/table/t_amazon_conversion_info.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/skuapp/table/t_amazon_conversion_result.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/wu_test/20181130.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/wu_test/20181201.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/wu_test/20181203.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/wu_test/20181204.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/wu_test/20181204a.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/wu_test/convert_address.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app_djcelery/tasks.py" beforeDir="false" afterPath="$PROJECT_DIR$/app_djcelery/tasks.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Project/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/Project/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/brick/amazon/get_info_api/get_product_info_by_url.py" beforeDir="false" afterPath="$PROJECT_DIR$/brick/amazon/get_info_api/get_product_info_by_url.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/brick/amazon/product_refresh/amazon_auto_load.py" beforeDir="false" afterPath="$PROJECT_DIR$/brick/amazon/product_refresh/amazon_auto_load.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/brick/amazon/product_refresh/amazon_auto_load_single.py" beforeDir="false" afterPath="$PROJECT_DIR$/brick/amazon/product_refresh/amazon_auto_load_single.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/brick/amazon/product_refresh/auto_upgrade_refresh.py" beforeDir="false" afterPath="$PROJECT_DIR$/brick/amazon/product_refresh/auto_upgrade_refresh.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/brick/amazon/product_refresh/generate_feed_xml.py" beforeDir="false" afterPath="$PROJECT_DIR$/brick/amazon/product_refresh/generate_feed_xml.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/brick/amazon/upload_product/amazon_upload_product_20181128.py" beforeDir="false" afterPath="$PROJECT_DIR$/brick/amazon/upload_product/amazon_upload_product_20181201.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/brick/amazon/upload_product/auto_upgrade_upload.py" beforeDir="false" afterPath="$PROJECT_DIR$/brick/amazon/upload_product/auto_upgrade_upload.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/brick/pricelist/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/brick/pricelist/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/brick/pricelist/calculate_price.py" beforeDir="false" afterPath="$PROJECT_DIR$/brick/pricelist/calculate_price.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pyapp/adminx.py" beforeDir="false" afterPath="$PROJECT_DIR$/pyapp/adminx.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/skuapp/adminx.py" beforeDir="false" afterPath="$PROJECT_DIR$/skuapp/adminx.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/skuapp/modelsadminx/t_amazon_orders_by_receive_day_total_Admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/skuapp/modelsadminx/t_amazon_orders_by_receive_day_total_Admin.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/skuapp/modelsadminx/t_online_info_amazon_listing_Admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/skuapp/modelsadminx/t_online_info_amazon_listing_Admin.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/skuapp/plugin/amazon_site_left_menu_tree_Plugin.py" beforeDir="false" afterPath="$PROJECT_DIR$/skuapp/plugin/amazon_site_left_menu_tree_Plugin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/skuapp/plugin/variation_item_amazon_Plugin.py" beforeDir="false" afterPath="$PROJECT_DIR$/skuapp/plugin/variation_item_amazon_Plugin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/skuapp/table/t_online_info_amazon.py" beforeDir="false" afterPath="$PROJECT_DIR$/skuapp/table/t_online_info_amazon.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/skuapp/table/t_templet_amazon_base.py" beforeDir="false" afterPath="$PROJECT_DIR$/skuapp/table/t_templet_amazon_base.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/skuapp/templates/t_online_info_amazon_listing_plugin.html" beforeDir="false" afterPath="$PROJECT_DIR$/skuapp/templates/t_online_info_amazon_listing_plugin.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/skuapp/plugin/t_amazon_product_cost_refresh_plugin.py" beforeDir="false" afterPath="$PROJECT_DIR$/skuapp/plugin/t_amazon_product_cost_refresh_plugin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/skuapp/table/t_amazon_orders_by_receive_day_total.py" beforeDir="false" afterPath="$PROJECT_DIR$/skuapp/table/t_amazon_orders_by_receive_day_total.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/skuapp/table/t_amazon_product_inventory_cost.py" beforeDir="false" afterPath="$PROJECT_DIR$/skuapp/table/t_amazon_product_inventory_cost.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/skuapp/templates/product_info_modify_amazon.html" beforeDir="false" afterPath="$PROJECT_DIR$/skuapp/templates/product_info_modify_amazon.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/skuapp/templates/t_amazon_product_cost_refresh_plugin.html" beforeDir="false" afterPath="$PROJECT_DIR$/skuapp/templates/t_amazon_product_cost_refresh_plugin.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/skuapp/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/skuapp/views.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/js/t_online_info_wish_store_search.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/t_online_info_wish_store_search.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/js/t_online_info_wish_store_search.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/t_online_info_wish_store_search.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/static/search_box_plugin_config.txt" beforeDir="false" afterPath="$PROJECT_DIR$/static/search_box_plugin_config.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/storeapp/adminx.py" beforeDir="false" afterPath="$PROJECT_DIR$/storeapp/adminx.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/storeapp/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/storeapp/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/storeapp/plugin/change_shipping_plugin.py" beforeDir="false" afterPath="$PROJECT_DIR$/storeapp/plugin/change_shipping_plugin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/storeapp/plugin/site_left_menu_tree_Plugin_wish.py" beforeDir="false" afterPath="$PROJECT_DIR$/storeapp/plugin/site_left_menu_tree_Plugin_wish.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/storeapp/plugin/store_config_plugin.py" beforeDir="false" afterPath="$PROJECT_DIR$/storeapp/plugin/store_config_plugin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/storeapp/plugin/t_online_info_wish_store_secondplugin.py" beforeDir="false" afterPath="$PROJECT_DIR$/storeapp/plugin/t_online_info_wish_store_secondplugin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/storeapp/templates/change_image.html" beforeDir="false" afterPath="$PROJECT_DIR$/storeapp/templates/change_image.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/storeapp/templates/change_remarks.html" beforeDir="false" afterPath="$PROJECT_DIR$/storeapp/templates/change_remarks.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/storeapp/templates/edit_shipping_other_country.html" beforeDir="false" afterPath="$PROJECT_DIR$/storeapp/templates/edit_shipping_other_country.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/storeapp/templates/edit_update_goods_infor_by_shopsku.html" beforeDir="false" afterPath="$PROJECT_DIR$/storeapp/templates/edit_update_goods_infor_by_shopsku.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/storeapp/templates/products_listing_base_secondtemplate.html" beforeDir="false" afterPath="$PROJECT_DIR$/storeapp/templates/products_listing_base_secondtemplate.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/storeapp/templates/wish_edit_update_store_product.html" beforeDir="false" afterPath="$PROJECT_DIR$/storeapp/templates/wish_edit_update_store_product.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/storeapp/templates/wish_store_add_variant.html" beforeDir="false" afterPath="$PROJECT_DIR$/storeapp/templates/wish_store_add_variant.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/storeapp/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/storeapp/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/w_test/read_excel.py" beforeDir="false" afterPath="$PROJECT_DIR$/w_test/read_excel.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -81,17 +72,21 @@
     <SUITE FILE_PATH="coverage/amazon_product_managemen$test_0914_2.coverage" NAME="test-0914-2 Coverage Results" MODIFIED="1537496047988" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/w_test" />
     <SUITE FILE_PATH="coverage/project_online$os.coverage" NAME="os Coverage Results" MODIFIED="1542777656138" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../tool_project/python/standard_library" />
     <SUITE FILE_PATH="coverage/project_online$SelectionSort.coverage" NAME="SelectionSort Coverage Results" MODIFIED="1542777631941" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../tool_project/python/Algorithm" />
+    <SUITE FILE_PATH="coverage/project_online$test.coverage" NAME="test Coverage Results" MODIFIED="1544064363541" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/brick/amazon/fulfillment_inbound" />
     <SUITE FILE_PATH="coverage/amazon_product_managemen$test_0928.coverage" NAME="test-0928 Coverage Results" MODIFIED="1538102251230" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/w_test" />
     <SUITE FILE_PATH="coverage/project_online$get_info.coverage" NAME="get_info Coverage Results" MODIFIED="1542267458858" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../.." />
     <SUITE FILE_PATH="coverage/amazon_product_managemen$20181017.coverage" NAME="20181017 Coverage Results" MODIFIED="1539758712256" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../tool_project/Test" />
     <SUITE FILE_PATH="coverage/project_online$amazon_auto_load.coverage" NAME="amazon_auto_load Coverage Results" MODIFIED="1543370538197" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/brick/amazon/product_refresh" />
+    <SUITE FILE_PATH="coverage/project_online$20181203.coverage" NAME="20181203 Coverage Results" MODIFIED="1543838449595" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/wu_test" />
     <SUITE FILE_PATH="coverage/amazon_product_managemen$test_1009.coverage" NAME="test-1009 Coverage Results" MODIFIED="1539085633856" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/w_test" />
     <SUITE FILE_PATH="coverage/amazon_product_managemen$context.coverage" NAME="context Coverage Results" MODIFIED="1536910871210" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../../S/python_project/tests" />
     <SUITE FILE_PATH="coverage/amazon_product_managemen$20181023.coverage" NAME="20181023 Coverage Results" MODIFIED="1540264761201" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../tool_project/Test" />
     <SUITE FILE_PATH="coverage/project_online$20181119.coverage" NAME="20181119 Coverage Results" MODIFIED="1542628055695" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/wu_test" />
     <SUITE FILE_PATH="coverage/amazon_product_managemen$auto_upgrade_refresh.coverage" NAME="auto_upgrade_refresh Coverage Results" MODIFIED="1536228386816" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/brick/amazon/product_refresh" />
+    <SUITE FILE_PATH="coverage/project_online$20181204a.coverage" NAME="20181204a Coverage Results" MODIFIED="1543975012082" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/wu_test" />
     <SUITE FILE_PATH="coverage/amazon_product_managemen$test_0914_1.coverage" NAME="test-0914-1 Coverage Results" MODIFIED="1536894059566" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/w_test" />
-    <SUITE FILE_PATH="coverage/project_online$t_amazon_sku_merge_relation.coverage" NAME="t_amazon_sku_merge_relation Coverage Results" MODIFIED="1543281356898" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/brick/amazon/product_refresh" />
+    <SUITE FILE_PATH="coverage/project_online$convert_address.coverage" NAME="convert_address Coverage Results" MODIFIED="1544167747669" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/wu_test" />
+    <SUITE FILE_PATH="coverage/project_online$t_amazon_sku_merge_relation.coverage" NAME="t_amazon_sku_merge_relation Coverage Results" MODIFIED="1544061182643" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/brick/amazon/product_refresh" />
     <SUITE FILE_PATH="coverage/amazon_product_managemen$douban.coverage" NAME="douban Coverage Results" MODIFIED="1536714414752" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/w_test" />
     <SUITE FILE_PATH="coverage/project_online$20181120.coverage" NAME="20181120 Coverage Results" MODIFIED="1542701878534" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/wu_test" />
     <SUITE FILE_PATH="coverage/project_online$20181129_1.coverage" NAME="20181129-1 Coverage Results" MODIFIED="1543489761713" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/wu_test" />
@@ -100,15 +95,19 @@
     <SUITE FILE_PATH="coverage/amazon_product_managemen$20181022.coverage" NAME="20181022 Coverage Results" MODIFIED="1540178811041" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../tool_project/Test" />
     <SUITE FILE_PATH="coverage/amazon_product_managemen$test12.coverage" NAME="test12 Coverage Results" MODIFIED="1533202828233" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/w_test" />
     <SUITE FILE_PATH="coverage/amazon_product_managemen$auto_upgrade_upload.coverage" NAME="auto_upgrade_upload Coverage Results" MODIFIED="1540262741233" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/brick/amazon/upload_product" />
+    <SUITE FILE_PATH="coverage/project_online$plan_return.coverage" NAME="plan_return Coverage Results" MODIFIED="1544426194599" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/brick/amazon/fulfillment_inbound" />
+    <SUITE FILE_PATH="coverage/project_online$20181201.coverage" NAME="20181201 Coverage Results" MODIFIED="1543670624555" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/wu_test" />
     <SUITE FILE_PATH="coverage/amazon_product_managemen$testa.coverage" NAME="testa Coverage Results" MODIFIED="1533278806193" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/brick/amazon/upload_product" />
     <SUITE FILE_PATH="coverage/amazon_product_managemen$20181019.coverage" NAME="20181019 Coverage Results" MODIFIED="1539998899662" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../tool_project/Test" />
-    <SUITE FILE_PATH="coverage/project_online$auto_upgrade_upload.coverage" NAME="auto_upgrade_upload Coverage Results" MODIFIED="1543221761513" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/brick/amazon/upload_product" />
+    <SUITE FILE_PATH="coverage/project_online$auto_upgrade_upload.coverage" NAME="auto_upgrade_upload Coverage Results" MODIFIED="1543914859501" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/brick/amazon/upload_product" />
     <SUITE FILE_PATH="coverage/amazon_product_managemen$test.coverage" NAME="test Coverage Results" MODIFIED="1533781696555" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/w_test" />
     <SUITE FILE_PATH="coverage/amazon_product_managemen$test_1008.coverage" NAME="test-1008 Coverage Results" MODIFIED="1539045720504" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/w_test" />
+    <SUITE FILE_PATH="coverage/project_online$20181130.coverage" NAME="20181130 Coverage Results" MODIFIED="1543980424804" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/wu_test" />
+    <SUITE FILE_PATH="coverage/project_online$20181204.coverage" NAME="20181204 Coverage Results" MODIFIED="1543923742439" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/wu_test" />
     <SUITE FILE_PATH="coverage/amazon_product_managemen$test_0921.coverage" NAME="test-0921 Coverage Results" MODIFIED="1537498288575" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/w_test" />
     <SUITE FILE_PATH="coverage/amazon_product_managemen$walmart.coverage" NAME="walmart Coverage Results" MODIFIED="1539687996399" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../.." />
     <SUITE FILE_PATH="coverage/project_online$20181120_1.coverage" NAME="20181120-1 Coverage Results" MODIFIED="1542854045689" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/wu_test" />
-    <SUITE FILE_PATH="coverage/project_online$amazon_auto_load_single.coverage" NAME="amazon_auto_load_single Coverage Results" MODIFIED="1543454634721" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/brick/amazon/product_refresh" />
+    <SUITE FILE_PATH="coverage/project_online$amazon_auto_load_single.coverage" NAME="amazon_auto_load_single Coverage Results" MODIFIED="1544096684480" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/brick/amazon/product_refresh" />
     <SUITE FILE_PATH="coverage/project_online$BubbleSort.coverage" NAME="BubbleSort Coverage Results" MODIFIED="1542777621065" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/../tool_project/python/Algorithm" />
     <SUITE FILE_PATH="coverage/project_online$auto_upgrade_refresh.coverage" NAME="auto_upgrade_refresh Coverage Results" MODIFIED="1543493426120" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/brick/amazon/product_refresh" />
     <SUITE FILE_PATH="coverage/amazon_product_managemen$prettify.coverage" NAME="prettify Coverage Results" MODIFIED="1531116837784" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/w_test" />
@@ -134,151 +133,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file leaf-file-name="t_online_info_amazon_listing_Admin.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/skuapp/modelsadminx/t_online_info_amazon_listing_Admin.py">
+      <file leaf-file-name="t_amazon_fba_inbound_plan.py" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/amazon_app/table/t_amazon_fba_inbound_plan.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="410">
-              <caret line="396" column="28" lean-forward="true" selection-start-line="396" selection-start-column="28" selection-end-line="396" selection-end-column="28" />
-              <folding>
-                <element signature="e#182#195#0" expanded="true" />
-                <element signature="e#2628#18803#0" />
-                <element signature="e#20567#26317#0" />
-                <element signature="e#21716#22554#0" />
-                <element signature="e#22684#25430#0" />
-                <element signature="e#25582#29040#0" />
-                <element signature="e#29086#29890#0" />
-                <element signature="e#30018#31074#0" />
-                <element signature="e#31302#38079#0" />
-                <element signature="e#38182#43094#0" />
-                <element signature="e#43197#48051#0" />
-                <element signature="e#48160#56427#0" />
-                <element signature="e#48651#55834#0" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="amazon_site_left_menu_tree_Plugin.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/skuapp/plugin/amazon_site_left_menu_tree_Plugin.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="6664">
-              <caret line="794" column="47" lean-forward="true" selection-start-line="794" selection-start-column="47" selection-end-line="794" selection-end-column="47" />
-              <folding>
-                <element signature="e#191#202#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="amazon_upload_product_20181128.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/brick/amazon/upload_product/amazon_upload_product_20181128.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-1848">
-              <caret line="709" column="13" lean-forward="true" selection-end-line="1471" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="auto_upgrade_refresh.py" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/brick/amazon/product_refresh/auto_upgrade_refresh.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="482">
-              <caret line="239" lean-forward="true" selection-start-line="239" selection-end-line="239" />
-              <folding>
-                <element signature="e#157#168#0" expanded="true" />
-                <element signature="e#816#2373#0" />
-                <element signature="e#2654#5375#0" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="20181129.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/wu_test/20181129.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="674">
-              <caret line="289" column="56" lean-forward="true" selection-start-line="288" selection-start-column="8" selection-end-line="289" selection-end-column="56" />
-              <folding>
-                <element signature="e#142#165#0" expanded="true" />
-                <element signature="e#1302#4120#0" />
-                <element signature="e#4155#18703#0" />
-                <element signature="e#232#831#0" />
-                <element signature="e#870#1154#0" />
-                <element signature="e#1262#3130#0" />
-                <element signature="e#16139#18703#0" />
-                <element signature="e#20790#21632#0" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="fba_refresh-20181129a.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/brick/amazon/product_refresh/fba_refresh-20181129a.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="616">
-              <caret line="1416" column="101" lean-forward="true" selection-start-line="1416" selection-start-column="101" selection-end-line="1416" selection-end-column="101" />
-              <folding>
-                <element signature="e#311#334#0" expanded="true" />
-                <element signature="e#1532#3196#0" />
-                <element signature="e#3276#4337#0" />
-                <element signature="e#4395#37922#0" />
-                <element signature="e#96749#102804#0" />
-                <element signature="e#102839#112429#0" />
-                <element signature="e#112460#120625#0" />
-                <element signature="e#120654#139749#0" />
-                <element signature="e#139783#145838#0" />
-                <element signature="e#139845#140444#0" />
-                <element signature="e#140483#140767#0" />
-                <element signature="e#140875#142743#0" />
-                <element signature="e#139785#142603#0" />
-                <element signature="e#143002#143844#0" />
-                <element signature="e#146453#148358#0" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="20181129-1.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/wu_test/20181129-1.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="414">
-              <caret line="62" column="56" lean-forward="true" selection-start-line="62" selection-start-column="56" selection-end-line="62" selection-end-column="56" />
-              <folding>
-                <element signature="e#41884#42361#0" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="mws.py" pinned="false" current-in-tab="false">
-        <entry file="file://C:/Python27/Lib/site-packages/mws/mws.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="280">
-              <caret line="752" column="76" selection-start-line="752" selection-start-column="62" selection-end-line="752" selection-end-column="76" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="fba_refresh-20181129.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/brick/amazon/product_refresh/fba_refresh-20181129.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="304">
-              <caret line="180" column="47" lean-forward="true" selection-end-line="2634" />
-              <folding>
-                <element signature="e#310#333#0" expanded="true" />
-                <element signature="e#120571#139666#0" />
-                <element signature="e#139702#142520#0" />
-                <element signature="e#142919#143761#0" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="t_online_info_amazon.py" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/skuapp/table/t_online_info_amazon.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="554">
-              <caret line="85" column="13" selection-start-line="85" selection-start-column="4" selection-end-line="85" selection-end-column="13" />
+            <state relative-caret-position="192">
+              <caret line="8" column="24" lean-forward="true" selection-start-line="8" selection-start-column="24" selection-end-line="8" selection-end-column="24" />
             </state>
           </provider>
         </entry>
@@ -288,44 +147,44 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="HTML File" />
         <option value="JavaScript File" />
+        <option value="HTML File" />
         <option value="Python Script" />
       </list>
     </option>
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>cost</find>
-      <find>status</find>
-      <find>未处理</find>
-      <find>no_pot</find>
-      <find>shop_str</find>
-      <find>&amp;tortflag</find>
-      <find>tortflag</find>
-      <find>修改侵权词</find>
-      <find>active</find>
-      <find>yes_other</find>
-      <find>修改侵权</find>
-      <find>tortwords</find>
-      <find>show_tort_title</find>
-      <find>connection</find>
-      <find>redis_conn</find>
-      <find>get_redis_connection</find>
-      <find>conne</find>
-      <find>batch_update_shipping_entrance</find>
-      <find>TortWordsDealWith_BatchRemarks</find>
-      <find>idFor_BatchRemarks</find>
-      <find>修改</find>
-      <find>to_batch_update_tort_remark</find>
-      <find>item_name</find>
-      <find>batch_remark_text</find>
-      <find>batch_remark_id</find>
-      <find>remove</find>
-      <find>no_other</find>
-      <find>riskgrade</find>
-      <find>shopname</find>
-      <find>TraceId</find>
+      <find>setf</find>
+      <find>amazon_product_cost_refresh</find>
+      <find>Ful</find>
+      <find>InboundShipments</find>
+      <find>this_hou</find>
+      <find>DATABASE</find>
+      <find>all()</find>
+      <find>跟卖</find>
+      <find>t_online_info_am</find>
+      <find>refresh_status</find>
+      <find>conversion_result</find>
+      <find>TransportContent</find>
+      <find>state_or_province</find>
+      <find>orders_7</find>
+      <find>utf-8</find>
+      <find>traceback</find>
+      <find>DestinationFulfillmentCenterId</find>
+      <find>本地</find>
+      <find>ip</find>
+      <find>_new</find>
+      <find>This operation may be partially successful</find>
+      <find>file_</find>
+      <find>xadmin</find>
+      <find>django</find>
+      <find>amazon_online_info</find>
+      <find>amazon_site_left_menu_tree_Plugin</find>
+      <find>服装类型</find>
+      <find>&quot;code&quot;: &quot;11&quot;</find>
+      <find>orders_7days</find>
+      <find>valid</find>
     </findStrings>
     <replaceStrings>
       <replace>pymysql</replace>
@@ -338,6 +197,7 @@
       <replace>null=</replace>
       <replace>VariationData</replace>
       <replace>&amp;_p_tortflag</replace>
+      <replace>self.data_base</replace>
     </replaceStrings>
   </component>
   <component name="Git.Settings">
@@ -348,57 +208,57 @@
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
-        <option value="$PROJECT_DIR$/../tool_project/Test/20181022.py" />
-        <option value="$PROJECT_DIR$/skuapp/modelsadminx/t_templet_amazon_upload_result_lose_pic_Admin.py" />
-        <option value="$PROJECT_DIR$/brick/amazon/upload_product/amazon_upload_product_20181023.py" />
-        <option value="$PROJECT_DIR$/../tool_project/Test/20181023.py" />
-        <option value="$PROJECT_DIR$/../tool_project/python/standard_library/os.py" />
-        <option value="$PROJECT_DIR$/brick/amazon/stitch_MQ_body.py" />
-        <option value="$PROJECT_DIR$/brick/amazon/product_refresh/fba_refresh-20181024.py" />
-        <option value="$PROJECT_DIR$/../tool_project/Test/20181024.py" />
-        <option value="$PROJECT_DIR$/../../get_info.py" />
-        <option value="$PROJECT_DIR$/wu_test/20181115.py" />
-        <option value="$PROJECT_DIR$/brick/amazon/upload_product/amazon_upload_product_20181112.py" />
-        <option value="$PROJECT_DIR$/brick/amazon/upload_product/amazon_upload_product_20181115.py" />
-        <option value="$PROJECT_DIR$/brick/amazon/product_refresh/fba_refresh-20181115.py" />
-        <option value="$PROJECT_DIR$/brick/amazon/product_refresh/fba_refresh-20181116.py" />
-        <option value="$PROJECT_DIR$/brick/amazon/get_info_api/get_product_info_by_url.py" />
-        <option value="$PROJECT_DIR$/skuapp/modelsadminx/t_amazon_auto_load_Admin.py" />
-        <option value="$PROJECT_DIR$/app_djcelery/tasks.py" />
-        <option value="$PROJECT_DIR$/brick/amazon/product_refresh/fba_refresh-20181117.py" />
-        <option value="$PROJECT_DIR$/brick/amazon/product_refresh/fba_refresh-20181117(批量提交改造).py" />
-        <option value="$PROJECT_DIR$/skuapp/table/t_amazon_finance_record.py" />
-        <option value="$PROJECT_DIR$/skuapp/modelsadminx/t_amazon_finance_record_Admin.py" />
-        <option value="$PROJECT_DIR$/wu_test/20181117.py" />
-        <option value="$PROJECT_DIR$/wu_test/20181119.py" />
-        <option value="$PROJECT_DIR$/brick/amazon/product_refresh/fba_refresh-20181119.py" />
-        <option value="$PROJECT_DIR$/brick/amazon/product_refresh/fba_refresh-20181120.py" />
-        <option value="$PROJECT_DIR$/wu_test/20181120.py" />
-        <option value="$PROJECT_DIR$/brick/amazon/product_refresh/fba_refresh-20181121.py" />
-        <option value="$PROJECT_DIR$/skuapp/adminx.py" />
-        <option value="$PROJECT_DIR$/skuapp/modelsadminx/t_amazon_fba_inventory_age_Admin.py" />
-        <option value="$PROJECT_DIR$/wu_test/20181120-1.py" />
-        <option value="$PROJECT_DIR$/brick/amazon/product_refresh/t_amazon_sku_merge_relation.py" />
-        <option value="$PROJECT_DIR$/brick/amazon/product_refresh/fba_refresh-20181122.py" />
-        <option value="$PROJECT_DIR$/skuapp/table/t_amazon_fba_inventory_age.py" />
-        <option value="$PROJECT_DIR$/skuapp/table/t_templet_amazon_base.py" />
-        <option value="$PROJECT_DIR$/static/search_box_plugin_config.txt" />
-        <option value="$PROJECT_DIR$/brick/amazon/product_refresh/fba_refresh-20181126.py" />
-        <option value="$PROJECT_DIR$/brick/amazon/upload_product/auto_upgrade_upload.py" />
-        <option value="$PROJECT_DIR$/skuapp/plugin/variation_item_amazon_Plugin.py" />
-        <option value="$PROJECT_DIR$/brick/amazon/upload_product/amazon_upload_product_20181128.py" />
-        <option value="$PROJECT_DIR$/brick/amazon/product_refresh/amazon_auto_load.py" />
-        <option value="$PROJECT_DIR$/brick/amazon/product_refresh/amazon_auto_load_single.py" />
-        <option value="$PROJECT_DIR$/skuapp/table/t_online_info_amazon.py" />
-        <option value="$PROJECT_DIR$/skuapp/templates/t_online_info_amazon_listing_plugin.html" />
-        <option value="$PROJECT_DIR$/static/js/t_online_info_amazon.js" />
-        <option value="$PROJECT_DIR$/skuapp/modelsadminx/t_online_info_amazon_listing_Admin.py" />
-        <option value="$PROJECT_DIR$/skuapp/plugin/amazon_site_left_menu_tree_Plugin.py" />
-        <option value="$PROJECT_DIR$/brick/amazon/product_refresh/fba_refresh-20181129.py" />
-        <option value="$PROJECT_DIR$/wu_test/20181129-1.py" />
         <option value="$PROJECT_DIR$/wu_test/20181129.py" />
         <option value="$PROJECT_DIR$/brick/amazon/product_refresh/fba_refresh-20181129a.py" />
         <option value="$PROJECT_DIR$/brick/amazon/product_refresh/auto_upgrade_refresh.py" />
+        <option value="$PROJECT_DIR$/skuapp/table/t_amazon_product_inventory_cost.py" />
+        <option value="$PROJECT_DIR$/skuapp/table/t_amazon_orders_by_receive_day_total.py" />
+        <option value="$PROJECT_DIR$/skuapp/templates/product_info_modify_amazon.html" />
+        <option value="$PROJECT_DIR$/brick/amazon/upload_product/amazon_upload_product_20181128.py" />
+        <option value="$PROJECT_DIR$/brick/amazon/product_refresh/generate_feed_xml.py" />
+        <option value="$PROJECT_DIR$/brick/amazon/get_info_api/get_product_info_by_url.py" />
+        <option value="$PROJECT_DIR$/wu_test/20181201.py" />
+        <option value="$PROJECT_DIR$/brick/amazon/upload_product/amazon_upload_product_20181201.py" />
+        <option value="$PROJECT_DIR$/wu_test/20181203.py" />
+        <option value="$PROJECT_DIR$/brick/amazon/product_refresh/amazon_auto_load.py" />
+        <option value="$PROJECT_DIR$/brick/amazon/upload_product/auto_upgrade_upload.py" />
+        <option value="$PROJECT_DIR$/wu_test/20181204.py" />
+        <option value="$PROJECT_DIR$/wu_test/20181204a.py" />
+        <option value="$PROJECT_DIR$/wu_test/20181130.py" />
+        <option value="$PROJECT_DIR$/skuapp/table/t_amazon_conversion_result.py" />
+        <option value="$PROJECT_DIR$/skuapp/adminx.py" />
+        <option value="$PROJECT_DIR$/skuapp/plugin/t_amazon_product_cost_refresh_plugin.py" />
+        <option value="$PROJECT_DIR$/skuapp/templates/t_amazon_product_cost_refresh_plugin.html" />
+        <option value="$PROJECT_DIR$/brick/amazon/fulfillment_inbound/__init__.py" />
+        <option value="$PROJECT_DIR$/brick/amazon/product_refresh/fba_refresh-20181204.py" />
+        <option value="$PROJECT_DIR$/../tool_project/python/github.py" />
+        <option value="$PROJECT_DIR$/skuapp/table/t_amazon_conversion_info.py" />
+        <option value="$PROJECT_DIR$/skuapp/table/t_amazon_conversion_detail.py" />
+        <option value="$PROJECT_DIR$/skuapp/modelsadminx/t_amazon_conversion_result_Admin.py" />
+        <option value="$PROJECT_DIR$/skuapp/modelsadminx/t_online_info_amazon_listing_Admin.py" />
+        <option value="$PROJECT_DIR$/static/search_box_plugin_config.txt" />
+        <option value="$PROJECT_DIR$/skuapp/plugin/amazon_site_left_menu_tree_Plugin.py" />
+        <option value="$PROJECT_DIR$/skuapp/modelsadminx/t_amazon_orders_by_receive_day_total_Admin.py" />
+        <option value="$PROJECT_DIR$/brick/amazon/fulfillment_inbound/test.py" />
+        <option value="$PROJECT_DIR$/brick/amazon/fulfillment_inbound/fulfillment_inbound_shipment-20181206.py" />
+        <option value="$PROJECT_DIR$/w_test/read_excel.py" />
+        <option value="$PROJECT_DIR$/wu_test/convert_address.py" />
+        <option value="$PROJECT_DIR$/brick/amazon/product_refresh/amazon_auto_load_single.py" />
+        <option value="$PROJECT_DIR$/amazon_app/__init__.py" />
+        <option value="$PROJECT_DIR$/amazon_app/views.py" />
+        <option value="$PROJECT_DIR$/amazon_app/table/__init__.py" />
+        <option value="$PROJECT_DIR$/amazon_app/modelsadminx/__init__.py" />
+        <option value="$PROJECT_DIR$/Project/settings.py" />
+        <option value="$PROJECT_DIR$/amazon_app/plugin/__init__.py" />
+        <option value="$PROJECT_DIR$/amazon_app/templates/left_menu_tree_Plugin.html" />
+        <option value="$PROJECT_DIR$/amazon_app/table/t_amazon_fba_inbound_address_cfg.py" />
+        <option value="$PROJECT_DIR$/skuapp/views.py" />
+        <option value="$PROJECT_DIR$/amazon_app/adminx.py" />
+        <option value="$PROJECT_DIR$/amazon_app/modelsadminx/t_amazon_fba_inbound_address_cfg_Admin.py" />
+        <option value="$PROJECT_DIR$/amazon_app/table/t_amazon_fba_inbound_plan.py" />
+        <option value="$PROJECT_DIR$/amazon_app/modelsadminx/t_amazon_fba_inbound_plan_Admin.py" />
+        <option value="$PROJECT_DIR$/amazon_app/plugin/amazon_left_menu_tree_plugin.py" />
+        <option value="$PROJECT_DIR$/brick/amazon/fulfillment_inbound/plan_return.py" />
       </list>
     </option>
   </component>
@@ -412,8 +272,8 @@
     <packageJsonPaths />
   </component>
   <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="368" />
-    <option name="y" value="80" />
+    <option name="x" value="-4" />
+    <option name="y" value="-4" />
     <option name="width" value="771" />
     <option name="height" value="992" />
   </component>
@@ -425,7 +285,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -436,6 +295,29 @@
             <path>
               <item name="project_online" type="b2602c69:ProjectViewProjectNode" />
               <item name="project_online" type="462c0819:PsiDirectoryNode" />
+              <item name="amazon_app" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="project_online" type="b2602c69:ProjectViewProjectNode" />
+              <item name="project_online" type="462c0819:PsiDirectoryNode" />
+              <item name="amazon_app" type="462c0819:PsiDirectoryNode" />
+              <item name="modelsadminx" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="project_online" type="b2602c69:ProjectViewProjectNode" />
+              <item name="project_online" type="462c0819:PsiDirectoryNode" />
+              <item name="amazon_app" type="462c0819:PsiDirectoryNode" />
+              <item name="plugin" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="project_online" type="b2602c69:ProjectViewProjectNode" />
+              <item name="project_online" type="462c0819:PsiDirectoryNode" />
+              <item name="amazon_app" type="462c0819:PsiDirectoryNode" />
+              <item name="table" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="project_online" type="b2602c69:ProjectViewProjectNode" />
+              <item name="project_online" type="462c0819:PsiDirectoryNode" />
               <item name="brick" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
@@ -449,40 +331,52 @@
               <item name="project_online" type="462c0819:PsiDirectoryNode" />
               <item name="brick" type="462c0819:PsiDirectoryNode" />
               <item name="amazon" type="462c0819:PsiDirectoryNode" />
-              <item name="product_refresh" type="462c0819:PsiDirectoryNode" />
+              <item name="fulfillment_inbound" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="project_online" type="b2602c69:ProjectViewProjectNode" />
               <item name="project_online" type="462c0819:PsiDirectoryNode" />
-              <item name="storeapp" type="462c0819:PsiDirectoryNode" />
+              <item name="skuapp" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="project_online" type="b2602c69:ProjectViewProjectNode" />
-              <item name="project_online" type="462c0819:PsiDirectoryNode" />
-              <item name="wu_test" type="462c0819:PsiDirectoryNode" />
+              <item name="tool_project" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="project_online" type="b2602c69:ProjectViewProjectNode" />
+              <item name="tool_project" type="462c0819:PsiDirectoryNode" />
+              <item name="python" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="project_online" type="b2602c69:ProjectViewProjectNode" />
+              <item name="tool_project" type="462c0819:PsiDirectoryNode" />
+              <item name="Test" type="462c0819:PsiDirectoryNode" />
             </path>
           </expand>
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
-    <property name="SearchEverywhereHistoryKey" value="t_product_in&#9;null&#9;null" />
+    <property name="SearchEverywhereHistoryKey" value="t_amazon_product_inventory_cost&#9;null&#9;null&#10;t_product_in&#9;null&#9;null" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="com.intellij.database.dataSource.DataSourceTemplate" value="MySQL" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../Python-2.5" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
   </component>
   <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\Administrator\Desktop\pro\amazon_cpc_ad" />
-      <recent name="C:\Users\Administrator\Desktop\pro\amazon_product_managemen\brick\amazon\product_refresh" />
-    </key>
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\Administrator\Desktop\pro\amazon_product_managemen\brick\amazon\product_refresh" />
       <recent name="C:\Users\Administrator\Desktop\pro\amazon_product_managemen\skuapp\table" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Administrator\Desktop\pro\project_online\brick\amazon" />
+      <recent name="C:\Users\Administrator\Desktop\pro\project_online\amazon_app" />
+      <recent name="C:\Users\Administrator\Desktop\pro\amazon_cpc_ad" />
+      <recent name="C:\Users\Administrator\Desktop\pro\amazon_product_managemen\brick\amazon\product_refresh" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -497,45 +391,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.auto_upgrade_refresh">
-    <configuration name="20181129-1" type="PythonConfigurationType" factoryName="Python">
-      <module name="amazon_product_managemen" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/wu_test" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/wu_test/20181129-1.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-    </configuration>
-    <configuration name="amazon_auto_load" type="PythonConfigurationType" factoryName="Python" temporary="true">
-      <module name="amazon_product_managemen" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/brick/amazon/product_refresh" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/brick/amazon/product_refresh/amazon_auto_load.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-    </configuration>
+  <component name="RunManager" selected="Python.plan_return">
     <configuration name="amazon_auto_load_single" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="amazon_product_managemen" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -555,7 +411,7 @@
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
-    <configuration name="auto_upgrade_refresh" type="PythonConfigurationType" factoryName="Python" temporary="true">
+    <configuration name="convert_address" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="amazon_product_managemen" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -563,12 +419,31 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/brick/amazon/product_refresh" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/wu_test" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/brick/amazon/product_refresh/auto_upgrade_refresh.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/wu_test/convert_address.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+    </configuration>
+    <configuration name="plan_return" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="amazon_product_managemen" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/brick/amazon/fulfillment_inbound" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/brick/amazon/fulfillment_inbound/plan_return.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -612,7 +487,7 @@
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
     </configuration>
-    <configuration name="test-1008" type="PythonConfigurationType" factoryName="Python">
+    <configuration name="test" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="amazon_product_managemen" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -620,12 +495,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/w_test" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/brick/amazon/fulfillment_inbound" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/w_test/test-1008.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/brick/amazon/fulfillment_inbound/test.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -651,20 +526,20 @@
       <option name="MODULE_MODE" value="false" />
     </configuration>
     <list>
-      <item itemvalue="Python.20181129-1" />
       <item itemvalue="Python.walmart" />
-      <item itemvalue="Python.test-1008" />
       <item itemvalue="Python.python_test" />
-      <item itemvalue="Python.amazon_auto_load" />
-      <item itemvalue="Python.amazon_auto_load_single" />
-      <item itemvalue="Python.auto_upgrade_refresh" />
       <item itemvalue="Python.t_amazon_sku_merge_relation" />
+      <item itemvalue="Python.test" />
+      <item itemvalue="Python.amazon_auto_load_single" />
+      <item itemvalue="Python.plan_return" />
+      <item itemvalue="Python.convert_address" />
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.auto_upgrade_refresh" />
+        <item itemvalue="Python.plan_return" />
+        <item itemvalue="Python.convert_address" />
         <item itemvalue="Python.amazon_auto_load_single" />
-        <item itemvalue="Python.amazon_auto_load" />
+        <item itemvalue="Python.test" />
         <item itemvalue="Python.t_amazon_sku_merge_relation" />
       </list>
     </recent_temporary>
@@ -849,10 +724,17 @@
       <option name="project" value="LOCAL" />
       <updated>1542445659710</updated>
     </task>
-    <option name="localTasksCounter" value="25" />
+    <task id="LOCAL-00025" summary="1129">
+      <created>1543494114204</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1543494114204</updated>
+    </task>
+    <option name="localTasksCounter" value="26" />
     <servers />
   </component>
-  <component name="TodoView">
+  <component name="TodoView" selected-index="3">
     <todo-panel id="selected-file">
       <is-autoscroll-to-source value="true" />
     </todo-panel>
@@ -863,28 +745,29 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="-4" y="-4" width="1928" height="1044" extended-state="6" />
+    <editor active="true" />
     <layout>
       <window_info anchor="bottom" id="TODO" order="6" sideWeight="0.498394" weight="0.3295964" />
       <window_info anchor="bottom" id="Event Log" order="12" sideWeight="0.4277302" side_tool="true" weight="0.49663678" />
       <window_info anchor="bottom" id="Database Changes" order="9" show_stripe_button="false" />
-      <window_info active="true" anchor="bottom" id="Version Control" order="8" sideWeight="0.5722698" visible="true" weight="0.24215247" />
+      <window_info anchor="bottom" id="Version Control" order="8" sideWeight="0.5722698" weight="0.24215247" />
       <window_info anchor="bottom" id="Python Console" order="10" sideWeight="0.49946466" weight="0.3295964" />
-      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.5535332" weight="0.45179373" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.5535332" visible="true" weight="0.49439463" />
       <window_info anchor="bottom" id="Terminal" order="11" weight="0.3295964" />
-      <window_info content_ui="combo" id="Project" order="0" sideWeight="0.49884793" visible="true" weight="0.1611349" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" sideWeight="0.49884793" visible="true" weight="0.2901499" />
       <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
       <window_info anchor="right" id="Database" order="4" sideWeight="0.50224215" side_tool="true" weight="0.32976446" />
-      <window_info anchor="bottom" id="Find" order="1" weight="0.3295964" />
       <window_info anchor="right" id="SciView" order="3" sideWeight="0.49775785" weight="0.32976446" />
       <window_info id="Structure" order="1" sideWeight="0.5011521" side_tool="true" weight="0.116090715" />
       <window_info id="Favorites" order="2" side_tool="true" />
-      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.39910313" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.3295964" />
     </layout>
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -945,7 +828,8 @@
     <MESSAGE value="1024" />
     <MESSAGE value="total" />
     <MESSAGE value="自动上下架 + 店铺刷新批量提交改造" />
-    <option name="LAST_COMMIT_MESSAGE" value="自动上下架 + 店铺刷新批量提交改造" />
+    <MESSAGE value="1129" />
+    <option name="LAST_COMMIT_MESSAGE" value="1129" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -967,12 +851,7 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://C:/Python27/Lib/site-packages/mws/mws.py</url>
-          <line>804</line>
-          <option name="timeStamp" value="17" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://C:/Python27/Lib/site-packages/mws/mws.py</url>
-          <line>115</line>
+          <line>117</line>
           <option name="timeStamp" value="18" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
@@ -1021,472 +900,414 @@
           <option name="timeStamp" value="14" />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="49" />
+      <option name="time" value="57" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://C:/Python27/Lib/site-packages/django/db/models/aggregates.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="288">
-          <caret line="113" column="12" lean-forward="true" selection-start-line="113" selection-start-column="12" selection-end-line="113" selection-end-column="12" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/brick/amazon/upload_product/amazon_upload_product_20181102.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="198">
-          <caret line="516" column="36" selection-start-line="516" selection-start-column="17" selection-end-line="516" selection-end-column="36" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/brick/amazon/product_refresh/fba_refresh-20181122.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="232">
-          <caret line="838" column="65" selection-start-line="838" selection-start-column="36" selection-end-line="838" selection-end-column="65" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skuapp/templates/show_inventory_detail.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="648">
-          <caret line="27" column="57" selection-start-line="27" selection-start-column="39" selection-end-line="27" selection-end-column="57" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/search_box_plugin_config.txt">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="408">
-          <caret line="2817" column="15" selection-start-line="2817" selection-start-column="15" selection-end-line="2817" selection-end-column="15" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/brick/amazon/product_refresh/t_amazon_sku_merge_relation.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="242">
-          <caret line="36" lean-forward="true" selection-start-line="36" selection-end-line="36" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/brick/amazon/upload_product/auto_upgrade_upload.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="276">
-          <caret line="228" lean-forward="true" selection-start-line="228" selection-end-line="228" />
-          <folding>
-            <element signature="e#806#2364#0" />
-            <element signature="e#2662#6709#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skuapp/templates/variation_item_amazon_Plugin.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-5216">
-          <caret line="19" column="29" selection-start-line="19" selection-start-column="29" selection-end-line="19" selection-end-column="29" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skuapp/templates/select_product_type_amazon_Plugin.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="520">
-          <caret line="375" column="117" selection-start-line="375" selection-start-column="104" selection-end-line="375" selection-end-column="117" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skuapp/table/t_config_shop_alias.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="400">
-          <caret line="18" column="14" selection-start-line="18" selection-start-column="4" selection-end-line="18" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skuapp/public/check_permission_legality.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="312">
-          <caret line="13" column="4" selection-start-line="13" selection-start-column="4" selection-end-line="13" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app_djcelery/tasks.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="280">
-          <caret line="842" column="132" lean-forward="true" selection-start-line="842" selection-start-column="125" selection-end-line="842" selection-end-column="132" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/../../amazon_upload_product_20180704_india_160.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-368">
-          <caret line="634" column="51" lean-forward="true" selection-start-line="634" selection-start-column="51" selection-end-line="634" selection-end-column="51" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/brick/amazon/upload_product/amazon_upload_product_20181115.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3088">
-          <caret line="346" column="37" lean-forward="true" selection-start-line="346" selection-start-column="37" selection-end-line="346" selection-end-column="37" />
-          <folding>
-            <element signature="e#3438#5231#0" />
-            <element signature="e#5311#6702#0" />
-            <element signature="e#29917#34455#0" />
-            <element signature="e#35942#36335#0" />
-            <element signature="e#36780#39071#0" />
-            <element signature="e#56496#56861#0" />
-            <element signature="e#56929#57054#0" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skuapp/table/t_stocking_demand_fba.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="664">
-          <caret line="82" column="25" selection-start-line="82" selection-start-column="25" selection-end-line="82" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skuapp/table/t_online_amazon_fba_inventory.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="528">
-          <caret line="23" column="34" selection-start-line="23" selection-start-column="4" selection-end-line="23" selection-end-column="34" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skuapp/views.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="11968">
-          <caret line="12951" column="84" selection-start-line="12951" selection-start-column="84" selection-end-line="12951" selection-end-column="84" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Project/urls.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="352">
-          <caret line="91" column="32" selection-start-line="91" selection-start-column="32" selection-end-line="91" selection-end-column="32" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/pyapp/models.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="158">
-          <caret line="78" column="47" selection-start-line="78" selection-start-column="35" selection-end-line="78" selection-end-column="47" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/brick/pricelist/calculate_price.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="528">
-          <caret line="40" column="15" selection-start-line="40" selection-start-column="15" selection-end-line="40" selection-end-column="15" />
-          <folding>
-            <element signature="e#208#255#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skuapp/table/t_amazon_estimated_fba_fees.py">
+    <entry file="file://C:/Python27/Lib/logging/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="504">
-          <caret line="22" column="18" selection-start-line="22" selection-start-column="4" selection-end-line="22" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/storeapp/models.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="72">
-          <caret line="5" column="6" selection-start-line="5" selection-start-column="6" selection-end-line="5" selection-end-column="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/storeapp/plugin/site_left_menu_tree_Plugin_wish.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="230">
-          <caret line="491" column="95" selection-start-line="491" selection-start-column="86" selection-end-line="491" selection-end-column="95" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/brick/pricelist/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1108">
-          <caret line="74" selection-start-line="74" selection-end-line="74" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/brick/amazon/product_refresh/amazon_auto_load_single.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1828">
-          <caret line="585" selection-start-line="585" selection-end-line="585" />
+          <caret line="1513" column="15" selection-start-line="1513" selection-start-column="4" selection-end-line="1513" selection-end-column="15" />
           <folding>
-            <element signature="e#150#161#0" expanded="true" />
-            <element signature="e#15590#15721#0" />
-            <element signature="e#25242#25801#0" />
+            <element signature="e#53772#56107#0" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/brick/amazon/product_refresh/amazon_auto_load.py">
+    <entry file="file://$USER_HOME$/.PyCharm2018.1/system/python_stubs/-762174762/__builtin__.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1108">
-          <caret line="64" column="44" lean-forward="true" selection-start-line="64" selection-start-column="44" selection-end-line="64" selection-end-column="124" />
+        <state relative-caret-position="24">
+          <caret line="45" column="4" selection-start-line="45" selection-start-column="4" selection-end-line="45" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Python27/Lib/site-packages/mws/utils.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-23">
+          <caret line="53" lean-forward="true" selection-start-line="53" selection-end-line="107" selection-end-column="48" />
           <folding>
-            <element signature="e#150#161#0" expanded="true" />
+            <element signature="e#144#182#0" expanded="true" />
+            <element signature="e#302#1222#0" />
+            <element signature="e#1254#3053#0" />
+            <element signature="e#3096#4034#0" />
+            <element signature="e#4076#4404#0" />
+            <element signature="e#4453#6174#0" />
+            <element signature="e#6219#6555#0" />
+            <element signature="e#6590#7003#0" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://C:/Python27/Lib/site-packages/django/db/__init__.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="280">
-          <caret line="47" selection-start-line="47" selection-end-line="47" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skuapp/modelsadminx/t_templet_amazon_collection_box_Admin.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-216">
-          <caret line="163" column="19" lean-forward="true" selection-start-line="163" selection-start-column="19" selection-end-line="163" selection-end-column="19" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/storeapp/plugin/t_online_info_wish_store_secondplugin.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="576">
-          <caret line="109" column="39" selection-start-line="109" selection-start-column="39" selection-end-line="109" selection-end-column="39" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skuapp/plugin/variation_item_amazon_Plugin.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-2528">
-          <caret line="138" column="63" lean-forward="true" selection-start-line="138" selection-start-column="63" selection-end-line="138" selection-end-column="63" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/storeapp/public/show_tort_title.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="400">
-          <caret line="19" column="36" selection-start-line="19" selection-start-column="27" selection-end-line="19" selection-end-column="45" />
-          <folding>
-            <element signature="e#180#232#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/brick/classredis/class_tortword.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="680">
-          <caret line="74" lean-forward="true" selection-start-line="74" selection-end-line="74" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skuapp/table/t_product_information_modify.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="312">
-          <caret line="16" column="86" selection-start-line="16" selection-start-column="79" selection-end-line="16" selection-end-column="103" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skuapp/table/public.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="712">
-          <caret line="33" column="14" lean-forward="true" selection-start-line="33" selection-start-column="14" selection-end-line="33" selection-end-column="14" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skuapp/plugin/t_online_info_amazon_listing_plugin.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="6024">
-          <caret line="262" column="52" selection-start-line="262" selection-start-column="17" selection-end-line="262" selection-end-column="52" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/storeapp/adminx.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="48">
-          <caret line="791" column="4" lean-forward="true" selection-start-line="791" selection-start-column="4" selection-end-line="805" selection-end-column="54" />
-          <folding>
-            <element signature="e#24#69#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/storeapp/templates/products_listing_base_secondtemplate.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="256">
-          <caret line="330" column="74" selection-start-line="330" selection-start-column="59" selection-end-line="330" selection-end-column="74" />
-          <folding>
-            <element signature="n#ul#0;n#!!top" />
-            <element signature="n#div#0;n#!!top" />
-            <element signature="n#div#1;n#!!top" />
-            <element signature="n#div#2;n#!!top" />
-            <element signature="n#div#3;n#!!top" />
-            <element signature="n#div#8;n#!!top" />
-            <element signature="n#div#9;n#!!top" />
-            <element signature="n#div#10;n#!!top" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/t_online_info_wish_store_search.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="504">
-          <caret line="490" column="48" lean-forward="true" selection-start-line="490" selection-start-column="48" selection-end-line="490" selection-end-column="48" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/js/t_online_info_amazon.js">
+    <entry file="file://$PROJECT_DIR$/../tool_project/python/github.py">
       <provider selected="true" editor-type-id="text-editor">
         <state>
-          <caret column="47" selection-start-column="47" selection-end-column="47" />
+          <caret column="22" lean-forward="true" selection-start-column="22" selection-end-column="22" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/skuapp/templates/t_online_info_amazon_listing_plugin.html">
+    <entry file="file://$PROJECT_DIR$/skuapp/table/t_amazon_conversion_result.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="144">
-          <caret line="6" column="37" selection-start-line="6" selection-start-column="37" selection-end-line="6" selection-end-column="37" />
-          <folding>
-            <element signature="n#style#0;n#textarea#0;n#div#1;n#div#0;n#div#0;n#div#4;n#body#0;n#html#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#div#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#div#1;n#div#0;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#div#2;n#div#0;n#!!top" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/brick/amazon/product_refresh/fba_refresh-20181126.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="248">
-          <caret line="2512" column="47" lean-forward="true" selection-start-line="2512" selection-start-column="47" selection-end-line="2512" selection-end-column="47" />
-          <folding>
-            <element signature="e#154#177#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skuapp/table/t_online_info_amazon.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="554">
-          <caret line="85" column="13" selection-start-line="85" selection-start-column="4" selection-end-line="85" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://C:/Python27/Lib/site-packages/mws/mws.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="280">
-          <caret line="752" column="76" selection-start-line="752" selection-start-column="62" selection-end-line="752" selection-end-column="76" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/brick/amazon/upload_product/amazon_upload_product_20181128.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1848">
-          <caret line="709" column="13" lean-forward="true" selection-end-line="1471" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/skuapp/plugin/amazon_site_left_menu_tree_Plugin.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="6664">
-          <caret line="794" column="47" lean-forward="true" selection-start-line="794" selection-start-column="47" selection-end-line="794" selection-end-column="47" />
-          <folding>
-            <element signature="e#191#202#0" expanded="true" />
-          </folding>
+        <state relative-caret-position="504">
+          <caret line="21" column="79" lean-forward="true" selection-start-line="20" selection-start-column="22" selection-end-line="21" selection-end-column="79" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/skuapp/modelsadminx/t_online_info_amazon_listing_Admin.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="410">
-          <caret line="396" column="28" lean-forward="true" selection-start-line="396" selection-start-column="28" selection-end-line="396" selection-end-column="28" />
+        <state relative-caret-position="520">
+          <caret line="406" column="60" lean-forward="true" selection-start-line="406" selection-start-column="60" selection-end-line="406" selection-end-column="60" />
           <folding>
             <element signature="e#182#195#0" expanded="true" />
-            <element signature="e#2628#18803#0" />
-            <element signature="e#20567#26317#0" />
-            <element signature="e#21716#22554#0" />
-            <element signature="e#22684#25430#0" />
-            <element signature="e#25582#29040#0" />
-            <element signature="e#29086#29890#0" />
-            <element signature="e#30018#31074#0" />
-            <element signature="e#31302#38079#0" />
-            <element signature="e#38182#43094#0" />
-            <element signature="e#43197#48051#0" />
-            <element signature="e#48160#56427#0" />
-            <element signature="e#48651#55834#0" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/brick/amazon/product_refresh/fba_refresh-20181129.py">
+    <entry file="file://$PROJECT_DIR$/static/search_box_plugin_config.txt">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="304">
-          <caret line="180" column="47" lean-forward="true" selection-end-line="2634" />
+        <state relative-caret-position="600">
+          <caret line="2789" column="255" lean-forward="true" selection-start-line="2789" selection-start-column="255" selection-end-line="2789" selection-end-column="255" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skuapp/table/t_amazon_fba_inventory_age.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="744">
+          <caret line="31" column="30" selection-start-line="31" selection-start-column="30" selection-end-line="31" selection-end-column="30" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skuapp/plugin/t_amazon_product_cost_refresh_plugin.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="576">
+          <caret line="34" column="22" selection-start-line="34" selection-start-column="22" selection-end-line="34" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/brick/amazon/upload_product/amazon_upload_product_20181201.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="312">
+          <caret line="465" column="49" selection-start-line="465" selection-start-column="49" selection-end-line="465" selection-end-column="49" />
           <folding>
-            <element signature="e#310#333#0" expanded="true" />
-            <element signature="e#120571#139666#0" />
-            <element signature="e#139702#142520#0" />
-            <element signature="e#142919#143761#0" />
+            <element signature="e#163#192#0" expanded="true" />
+            <element signature="e#20045#20681#0" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wu_test/20181129-1.py">
+    <entry file="file://$PROJECT_DIR$/skuapp/modelsadminx/t_amazon_orders_by_receive_day_total_Admin.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="414">
-          <caret line="62" column="56" lean-forward="true" selection-start-line="62" selection-start-column="56" selection-end-line="62" selection-end-column="56" />
+        <state relative-caret-position="314">
+          <caret line="144" column="37" lean-forward="true" selection-start-line="144" selection-start-column="8" selection-end-line="144" selection-end-column="37" />
           <folding>
-            <element signature="e#41884#42361#0" />
+            <element signature="e#177#222#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/wu_test/20181129.py">
+    <entry file="file://$PROJECT_DIR$/skuapp/modelsadminx/t_aliexpress_refund_info_Admin.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="674">
-          <caret line="289" column="56" lean-forward="true" selection-start-line="288" selection-start-column="8" selection-end-line="289" selection-end-column="56" />
+        <state relative-caret-position="216">
+          <caret line="11" column="9" selection-start-line="9" selection-start-column="3" selection-end-line="11" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/w_test/read_excel.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="456">
+          <caret line="28" column="29" selection-start-line="28" selection-start-column="29" selection-end-line="28" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Python27/Lib/site-packages/mws/mws.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="134">
+          <caret line="249" column="64" lean-forward="true" selection-start-line="249" selection-start-column="64" selection-end-line="249" selection-end-column="64" />
           <folding>
-            <element signature="e#142#165#0" expanded="true" />
-            <element signature="e#1302#4120#0" />
-            <element signature="e#4155#18703#0" />
-            <element signature="e#232#831#0" />
-            <element signature="e#870#1154#0" />
-            <element signature="e#1262#3130#0" />
-            <element signature="e#16139#18703#0" />
-            <element signature="e#20790#21632#0" />
+            <element signature="e#24#62#0" expanded="true" />
+            <element signature="e#31918#32388#0" />
+            <element signature="e#45395#45502#1" />
+            <element signature="e#46478#46741#0" />
+            <element signature="e#46806#47064#0" />
+            <element signature="e#47125#47421#0" />
+            <element signature="e#47478#47742#0" />
+            <element signature="e#47969#48622#0" />
+            <element signature="e#48838#49358#0" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/brick/amazon/product_refresh/fba_refresh-20181129a.py">
+    <entry file="file://$PROJECT_DIR$/brick/amazon/fulfillment_inbound/test.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="616">
-          <caret line="1416" column="101" lean-forward="true" selection-start-line="1416" selection-start-column="101" selection-end-line="1416" selection-end-column="101" />
+        <state relative-caret-position="168">
+          <caret line="13" column="14" lean-forward="true" selection-start-line="13" selection-start-column="14" selection-end-line="13" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/brick/amazon/product_refresh/amazon_auto_load_single.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="821">
+          <caret line="497" column="74" lean-forward="true" selection-start-line="497" selection-start-column="74" selection-end-line="497" selection-end-column="74" />
           <folding>
-            <element signature="e#311#334#0" expanded="true" />
-            <element signature="e#1532#3196#0" />
-            <element signature="e#3276#4337#0" />
-            <element signature="e#4395#37922#0" />
-            <element signature="e#96749#102804#0" />
-            <element signature="e#102839#112429#0" />
-            <element signature="e#112460#120625#0" />
-            <element signature="e#120654#139749#0" />
-            <element signature="e#139783#145838#0" />
-            <element signature="e#139845#140444#0" />
-            <element signature="e#140483#140767#0" />
-            <element signature="e#140875#142743#0" />
-            <element signature="e#139785#142603#0" />
-            <element signature="e#143002#143844#0" />
-            <element signature="e#146453#148358#0" />
+            <element signature="e#150#161#0" expanded="true" />
+            <element signature="e#533#1811#0" />
+            <element signature="e#1841#13264#0" />
+            <element signature="e#13296#14716#0" />
+            <element signature="e#15590#15721#0" />
+            <element signature="e#19381#19940#0" />
+            <element signature="e#19990#21630#0" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/brick/amazon/product_refresh/auto_upgrade_refresh.py">
+    <entry file="file://$PROJECT_DIR$/skuapp/forms.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/amazon_app/table/__init__.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skuapp/table/t_amazon_conversion_detail.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="482">
-          <caret line="239" lean-forward="true" selection-start-line="239" selection-end-line="239" />
+        <state relative-caret-position="98">
+          <caret line="10" selection-start-line="10" selection-end-line="35" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/amazon_app/__init__.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/amazon_app/views.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/brick/amazon/fulfillment_inbound/fulfillment_inbound_shipment-20181206.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="480">
+          <caret line="136" column="23" selection-start-line="136" selection-start-column="12" selection-end-line="136" selection-end-column="23" />
           <folding>
-            <element signature="e#157#168#0" expanded="true" />
-            <element signature="e#816#2373#0" />
-            <element signature="e#2654#5375#0" />
+            <element signature="e#170#202#0" expanded="true" />
+            <element signature="e#949#2279#0" />
+            <element signature="e#2318#2597#0" />
+            <element signature="e#2642#3757#0" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/wu_test/convert_address.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="800">
+          <caret line="43" column="15" lean-forward="true" selection-start-line="43" selection-start-column="15" selection-end-line="43" selection-end-column="15" />
+          <folding>
+            <element signature="e#148#164#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/amazon_app/modelsadminx/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="96">
+          <caret line="10" selection-start-line="10" selection-end-line="35" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skuapp/modelsadminx/t_config_shop_alias_Admin.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="794">
+          <caret line="64" column="17" selection-start-line="10" selection-end-line="64" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pyapp/modelsadminx/kc_currentstock_sku_log_abnormal_all_Admin.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="480">
+          <caret line="30" column="14" lean-forward="true" selection-start-line="30" selection-start-column="14" selection-end-line="30" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pyapp/plugin/site_left_menu_abnormal_Plugin.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skuapp/admin.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="382">
+          <caret line="16" column="11" lean-forward="true" selection-start-line="16" selection-start-column="11" selection-end-line="16" selection-end-column="11" />
+          <folding>
+            <element signature="e#25#64#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/storeapp/adminx.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="120">
+          <caret line="5" column="14" lean-forward="true" selection-start-line="5" selection-start-column="14" selection-end-line="5" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/ebayapp/modelsadmix/t_online_info_ebay_listing_Admin.py">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/aliexpress_app/adminx.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="72">
+          <caret line="3" selection-start-line="3" selection-end-line="4" selection-end-column="53" />
+          <folding>
+            <element signature="e#43#56#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/amazon_app/plugin/__init__.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="240">
+          <caret line="10" lean-forward="true" selection-start-line="10" selection-end-line="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Project/settings.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="960">
+          <caret line="126" column="33" lean-forward="true" selection-start-line="126" selection-start-column="33" selection-end-line="126" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skuapp/modelsadminx/t_amazon_conversion_result_Admin.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="384">
+          <caret line="25" column="16" lean-forward="true" selection-start-line="25" selection-start-column="16" selection-end-line="25" selection-end-column="16" />
+          <folding>
+            <element signature="e#165#210#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skuapp/templates/site_left_menu_Plugin.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="890">
+          <caret line="41" column="9" lean-forward="true" selection-start-line="41" selection-start-column="9" selection-end-line="41" selection-end-column="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skuapp/adminx.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="256">
+          <caret line="324" lean-forward="true" selection-start-line="324" selection-end-line="324" selection-end-column="61" />
+          <folding>
+            <element signature="e#24#107#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skuapp/table/t_templet_amazon_base.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="256">
+          <caret line="35" column="19" selection-start-line="35" selection-start-column="4" selection-end-line="35" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skuapp/templates/site_left_menu_tree_amazon_ad_Plugin.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1152" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/brick/amazon/product_refresh/fba_refresh-20181204.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="208">
+          <caret line="186" column="47" lean-forward="true" selection-start-line="186" selection-start-column="47" selection-end-line="186" selection-end-column="47" />
+          <folding>
+            <element signature="e#153#176#0" expanded="true" />
+            <element signature="e#1374#3038#0" />
+            <element signature="e#3118#4179#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skuapp/views.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="232">
+          <caret line="5642" column="39" lean-forward="true" selection-start-line="5642" selection-start-column="39" selection-end-line="5642" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skuapp/table/t_amazon_conversion_info.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="410">
+          <caret line="22" column="86" lean-forward="true" selection-start-line="22" selection-start-column="19" selection-end-line="22" selection-end-column="86" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skuapp/templates/site_left_menu_tree_Plugin.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="408">
+          <caret line="17" column="29" lean-forward="true" selection-end-line="58" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/amazon_app/table/t_amazon_fba_inbound_address_cfg.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="816">
+          <caret line="34" lean-forward="true" selection-start-line="10" selection-end-line="34" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/skuapp/plugin/amazon_site_left_menu_tree_Plugin.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-572">
+          <caret line="628" column="37" selection-start-line="628" selection-start-column="37" selection-end-line="628" selection-end-column="37" />
+          <folding>
+            <element signature="e#191#202#0" expanded="true" />
+            <element signature="e#31586#33196#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/amazon_app/adminx.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="240">
+          <caret line="10" column="13" lean-forward="true" selection-start-line="10" selection-start-column="13" selection-end-line="10" selection-end-column="13" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/amazon_app/templates/left_menu_tree_Plugin.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="336">
+          <caret line="14" column="2" lean-forward="true" selection-start-line="14" selection-start-column="2" selection-end-line="14" selection-end-column="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/amazon_app/modelsadminx/t_amazon_fba_inbound_address_cfg_Admin.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="122">
+          <caret line="16" column="26" selection-start-line="16" selection-start-column="26" selection-end-line="16" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/amazon_app/modelsadminx/t_amazon_fba_inbound_plan_Admin.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="360">
+          <caret line="21" column="30" lean-forward="true" selection-start-line="21" selection-start-column="30" selection-end-line="21" selection-end-column="30" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/brick/amazon/fulfillment_inbound/plan_return.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-25">
+          <caret line="59" column="45" selection-start-line="59" selection-start-column="45" selection-end-line="59" selection-end-column="45" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/amazon_app/plugin/amazon_left_menu_tree_plugin.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="314">
+          <caret line="149" lean-forward="true" selection-start-line="149" selection-end-line="149" />
+          <folding>
+            <element signature="e#588#1306#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/amazon_app/table/t_amazon_fba_inbound_plan.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="192">
+          <caret line="8" column="24" lean-forward="true" selection-start-line="8" selection-start-column="24" selection-end-line="8" selection-end-column="24" />
         </state>
       </provider>
     </entry>

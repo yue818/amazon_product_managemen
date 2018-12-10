@@ -55,9 +55,17 @@
               v_title = 'Pending订单统计';
              v_content = 'Pending订单统计刷新预计需要2分钟，确定刷新？' ;
          }
-         else if (refresh_type = 'orders_by_receive_day')
+         else if (refresh_type == 'orders_by_receive_day' || refresh_type == 'conversion_result')
          {
-             v_title = '按到货日期统计出单情况';
+             if (refresh_type == 'orders_by_receive_day')
+             {
+                 v_title = '按到货日期统计出单情况';
+             }
+             else
+             {
+                 v_title = '库存周转率统计';
+             }
+
              v_content = ' <div class="row" style="width: 420px;  margin-left:7px; margin-top:10px;">'
 
                     +'<div class="col-sm-12" style="margin-top: 10px">'
@@ -75,7 +83,6 @@
                     +'</div>';
          }
 
-
         width_len = screen.width*0.25;
         height_len = screen.height*0.2;
         layer.open(
@@ -92,7 +99,7 @@
             btn1: function ()
             {
                 var cost_refresh_url = '/amazon_product_cost_refresh/'
-                if (refresh_type == 'remove_cost' || refresh_type =='orders_by_receive_day')
+                if (refresh_type == 'remove_cost' || refresh_type =='orders_by_receive_day'|| refresh_type =='conversion_result')
                 {
                     var begin_time = $("#begin_time").val()
                     var end_time = $("#end_time").val()
@@ -109,7 +116,7 @@
                 }
             },
 
-            btn2:function (index,layero) {
+            btn2:function (index, layero) {
                  layer.close(index);
             }
         })

@@ -5170,7 +5170,7 @@ def product_info_modify_amazon(request):
         auth_info_product['product_info_dic'] = product_info_dic
 
         message_to_rabbit_obj = MessageToRabbitMq(auth_info_product, connection)
-        auth_info_product = json.dumps(auth_info_product)
+        auth_info_product = json.dumps(auth_info_product, ensure_ascii=False).encode('utf-8')
         message_to_rabbit_obj.put_message(auth_info_product)
         # put_message_ins = MessageToRabbitMq(auth_info_product, connection)
         # put_message_ins.put_message(str(auth_info_product))
@@ -5635,7 +5635,7 @@ def select_amazon_menu(request):
 def validation_amazon_product_data(obj):
     is_all_data_done = 1
     department_name_list = ['ClothingAccessories', 'ProductClothing', 'Jewelry']
-    product_subtype_list = ['ClothingAccessories', 'ProductClothing', 'AutoAccessory', 'MechanicalFasteners']
+    product_subtype_list = ['ClothingAccessories', 'ProductClothing', 'MechanicalFasteners']
     clothing_list = ['ClothingAccessories', 'ProductClothing']
     unit_count_list = ['Health', 'Beauty', 'LuxuryBeauty','Baby']
     upload_product_type = obj.upload_product_type
@@ -12737,6 +12737,9 @@ def amazon_product_cost_refresh(request):
     elif refresh_type == 'orders_by_receive_day':
         cursor.execute("select f_amazon_orders_by_receive_day(%s,%s)",(begin_time, end_time))
         return_url = 't_amazon_orders_by_receive_day_total'
+    elif refresh_type == 'conversion_result':
+        cursor.execute("select f_amazon_conversion_result(%s,%s)", (begin_time, end_time))
+        return_url = 't_amazon_conversion_result'
 
     row = cursor.fetchone()
     if row and row[0] == 0:

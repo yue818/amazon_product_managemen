@@ -21,8 +21,7 @@ from django.db import connection
 
 class AmazonAutoLoad:
     def __init__(self):
-        # self.batch_id = str(uuid.uuid4())
-        self.batch_id = '42021767-18ff-412c-b1f1-5980516de75c'
+        self.batch_id = str(uuid.uuid4())
         self.online_conn = connection
         self.rd_conn = redis.Redis(host='r-uf6206e9df36e854.redis.rds.aliyuncs.com',
                                    password='K120Esc1',
@@ -64,6 +63,7 @@ class AmazonAutoLoad:
                                        AND shopname IN
                                            (SELECT ShopName FROM t_config_shop_alias WHERE is_auto_load = 1 and ShopStatus=1)
                                        and shopname in (select name from t_config_online_amazon  where shop_name like 'AMZ-%' and name is not null)
+                                       and seller_sku not in ('!@_!(#(7814','!@_!(#(6113','!@_!(#(5436','!@_!(#(5427','!@_!(#(5417','!@_!(#(5887','!@_!(#(4523')
                                       '''
         # and shopname not in (
         # 'AMZ-0042-Anjun-US/PJ', 'AMZ-0013-GBY-US/PJ', 'AMZ-0017-LXY-US/PJ', 'AMZ-0052-Bohonan-US/PJ', 'AMZ-0056-Chengcaifengye01-US/PJ', 'AMZ-0061-Peoria-US/PJ', 'AMZ-0078-Fuyamp-US/PJ',
@@ -127,8 +127,8 @@ class AmazonAutoLoad:
             self.online_conn.commit()
 
     def deal_feed_record(self):
-        sql_upload = "select shop_name,seller_sku from t_amazon_auto_load where deal_type = 'load' and batch_id = '%s' and  deal_result is null" % self.batch_id
-        sql_unload = "select shop_name,seller_sku from t_amazon_auto_load where deal_type = 'unload' and batch_id = '%s' and 1=2" % self.batch_id
+        sql_upload = "select shop_name,seller_sku from t_amazon_auto_load where deal_type = 'load' and batch_id = '%s' and  deal_result is null order by shop_name" % self.batch_id
+        sql_unload = "select shop_name,seller_sku from t_amazon_auto_load where deal_type = 'unload' and batch_id = '%s' order by shop_name" % self.batch_id
 
         print sql_upload
         with self.online_conn.cursor() as cursor_upload:
@@ -188,8 +188,8 @@ class AmazonAutoLoad:
         message_to_rabbit_obj.put_message(auth_info)
 
     def auto_start(self):
-        # self.get_operate_records()
-        # self.get_product_sku_quantity()
+        self.get_operate_records()
+        self.get_product_sku_quantity()
         self.deal_feed_record()
 
 

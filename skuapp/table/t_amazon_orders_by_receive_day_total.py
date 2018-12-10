@@ -15,10 +15,12 @@ from django.db import models
 class t_amazon_orders_by_receive_day_total(models.Model):
     seller = models.CharField(u'销售员', max_length=32, blank=True, null=True)
     site = models.CharField(u'站点', max_length=32, blank=True, null=True)
+    categorycode = models.CharField(u'品类', max_length=64, blank=True, null=True)
     has_order = models.IntegerField(u'出单', max_length=10, blank=True, null=True)
     no_order = models.IntegerField(u'未出单', max_length=10, blank=True, null=True)
     time_span = models.CharField(u'到货时间范围', max_length=32, blank=True, null=True)
     order_type = models.CharField(u'订单类型', max_length=32, blank=True, null=True)
+    statistic_type = models.IntegerField(u'统计类型', max_length=1, blank=True, null=True)
     refresh_time = models.DateTimeField(u'刷新时间', blank=True, null=True)
 
     class Meta:

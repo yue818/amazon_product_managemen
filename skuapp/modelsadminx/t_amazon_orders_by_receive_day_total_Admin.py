@@ -34,6 +34,16 @@ class t_amazon_orders_by_receive_day_total_Admin(object):
     amazon_product_cost_refresh_plugin = True
     order_type_plugin = True
 
+    def show_statistic_type(self, obj):
+        if obj.statistic_type == 1:
+            type_html = '销售员'
+        elif obj.statistic_type == 2:
+            type_html = '品类'
+        else:
+            type_html = '销售员-品类'
+        return mark_safe(type_html)
+    show_statistic_type.short_description = mark_safe('<p style="color:#428BCA" align="center">统计类型</p>')
+
     def show_seller_detail(self, obj):
         seller_detail = '<p id="seller_detail_%s"><font  color="blue">%s</font><p/>' % (obj.id, obj.seller)
         seller_detail += '''
@@ -58,7 +68,7 @@ class t_amazon_orders_by_receive_day_total_Admin(object):
         return mark_safe(seller_detail)
     show_seller_detail.short_description = mark_safe('<p style="color:#428BCA" align="center">销售员</p>')
 
-    list_display = ('id', 'show_seller_detail', 'site', 'order_type', 'has_order','no_order','time_span', 'refresh_time')
+    list_display = ('id', 'show_statistic_type', 'show_seller_detail', 'categorycode', 'site', 'order_type', 'has_order','no_order','time_span', 'refresh_time')
 
     actions = ['to_excel']
 
@@ -78,6 +88,8 @@ class t_amazon_orders_by_receive_day_total_Admin(object):
         sheet.write(0, 4, u'未出单')
         sheet.write(0, 5, u'到货时间范围')
         sheet.write(0, 6, u'刷新时间')
+        sheet.write(0, 7, u'统计类型')
+        sheet.write(0, 8, u'品类')
 
         sheet_detail = w.add_sheet('product_sku_detail')
         sheet_detail.write(0, 0, u'销售员')
@@ -99,29 +111,35 @@ class t_amazon_orders_by_receive_day_total_Admin(object):
         row_detail = 0
         for qs in queryset:
             row = row + 1
+            if qs.statistic_type == 1:
+                type_html = u'销售员'
+            elif qs.statistic_type == 2:
+                type_html = u'品类'
+            else:
+                type_html = u'销售员-品类'
             refresh_time = qs.refresh_time.strftime('%Y-%m-%d %H:%M')
-            excel_content_list = [qs.seller, qs.site, qs.order_type, qs.has_order, qs.no_order, qs.time_span, refresh_time]
+            excel_content_list = [qs.seller, qs.site, qs.order_type, qs.has_order, qs.no_order, qs.time_span, refresh_time,type_html, qs.categorycode]
             column = 0
             for content in excel_content_list:
                 sheet.write(row, column, content)
                 column += 1
 
-            sku_order_detail = t_amazon_orders_by_receive_day_info.objects.filter(seller=qs.seller, site=qs.site, order_type=qs.order_type).order_by('-orders_after_14days')
-            for detail in sku_order_detail:
-                row_detail += 1
-                sheet_detail.write(row_detail, 0, detail.seller)
-                sheet_detail.write(row_detail, 1, detail.shopname)
-                sheet_detail.write(row_detail, 2, detail.site)
-                sheet_detail.write(row_detail, 3, detail.order_type)
-                sheet_detail.write(row_detail, 4, detail.sku)
-                sheet_detail.write(row_detail, 5, detail.seller_sku)
-                sheet_detail.write(row_detail, 6, detail.asin)
-                sheet_detail.write(row_detail, 7, detail.received_date.strftime('%Y-%m-%d %H:%M'))
-                sheet_detail.write(row_detail, 8, detail.mainsku)
-                sheet_detail.write(row_detail, 9, detail.categorycode)
-                sheet_detail.write(row_detail, 10, detail.orders_after_14days)
-                sheet_detail.write(row_detail, 11, detail.time_span)
-                sheet_detail.write(row_detail, 12, detail.refresh_time.strftime('%Y-%m-%d %H:%M'))
+        sku_order_detail = t_amazon_orders_by_receive_day_info.objects.all()
+        for detail in sku_order_detail:
+            row_detail += 1
+            sheet_detail.write(row_detail, 0, detail.seller)
+            sheet_detail.write(row_detail, 1, detail.shopname)
+            sheet_detail.write(row_detail, 2, detail.site)
+            sheet_detail.write(row_detail, 3, detail.order_type)
+            sheet_detail.write(row_detail, 4, detail.sku)
+            sheet_detail.write(row_detail, 5, detail.seller_sku)
+            sheet_detail.write(row_detail, 6, detail.asin)
+            sheet_detail.write(row_detail, 7, detail.received_date.strftime('%Y-%m-%d %H:%M'))
+            sheet_detail.write(row_detail, 8, detail.mainsku)
+            sheet_detail.write(row_detail, 9, detail.categorycode)
+            sheet_detail.write(row_detail, 10, detail.orders_after_14days)
+            sheet_detail.write(row_detail, 11, detail.time_span)
+            sheet_detail.write(row_detail, 12, detail.refresh_time.strftime('%Y-%m-%d %H:%M'))
 
         filename = request.user.username + '_' + datetime.datetime.now().strftime('%Y%m%d%H%M%S') + '.xls'
         w.save(path + '/' + filename)
