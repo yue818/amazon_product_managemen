@@ -9,7 +9,6 @@
  @time: 2018/12/26 14:46
 """
 from mws import Feeds, Products
-import json
 import time
 import logging.handlers
 import datetime
@@ -462,13 +461,13 @@ class FeedProduct:
         """
          获取处理结果信息，设定总共等待31倍time_sleep时长检查请求是否处理完成（本例等待 31*10=310 秒）
         超过等待时长则设为处理超时
+        返回
+            Error：获取结果出错
+            Timeout：获取结果超时
+            response：正常获取到的结果
         """
         get_result_public = self.feed_public
         feed_id = data['FeedSubmissionInfo']['FeedSubmissionId']['value']
-
-        print '\n'
-        print datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        print 'result id is: %s, now wait for  10 seconds  then check deal status.' % feed_id
         logger.debug('result id is: %s, now wait for  10 seconds  then check deal status.' % feed_id)
 
         time_sleep = 10
@@ -483,53 +482,45 @@ class FeedProduct:
                     logger.debug('now we can get the result')
                     feed_result = get_result_public.get_feed_submission_result(feed_id)
                     logger.debug('get result raw')
-                    response = feed_result._response_dict
-                    print 'get result dict'
+                    response = feed_result.parsed
                     logger.debug('get result dict: %s' % str(response))
                     return response
                 else:
                     logger.debug('processing_status is:%s, we will wait for %s seconds ' %(feed_processing_status,time_sleep))
             except Exception as e:
-                print datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                print 'error: %s' % e
-                logger.error('error: %s' % e)
+                return 'Error'
+                logger.error('traceback.format_exc():\n%s' % traceback.format_exc())
         else:  # 循环超过5次，即总等待时长超过 31*time_sleep，则计为超时
-            print 'Get submit_feed reuslt timeout'
             logger.error('Get submit_feed reuslt timeout')
-            return None
+            return 'Timeout'
 
-    # def getsubmitfeedresult(self, data):
-    #     submitfeed = self.feed_public
-    #     feedid = data['FeedSubmissionInfo']['FeedSubmissionId']['value']
-    #     time_sleep = 10
-    #     count = 0
-    #     while True:
-    #         time.sleep(time_sleep)
-    #         time_sleep += time_sleep
-    #         count += 1
-    #         try:
-    #             feedresult = submitfeed.get_feed_submission_result(feedid)
-    #             response = feedresult.parsed
-    #             if response.get('Message') and \
-    #                     response.get('Message').get('ProcessingReport') and \
-    #                     response.get('Message').get('ProcessingReport').get('StatusCode') and \
-    #                     response.get('Message').get('ProcessingReport').get('StatusCode').get('value'):
-    #                 logger.debug('Get submitfeed result: %s' % response)
-    #                 return response
-    #         except Exception as e:
-    #             print 'error: %s' % e
-    #             logger.error('error: %s' % e)
-    #         if count < 7:
-    #             continue
-    #         else:
-    #             return {}
+    def parse_feed_result(self, feed_result, seller_sku_list, feed_type):
+        # 结果为'Error', 'Timeout'时直接返回
+        if feed_result in ('Error', 'Timeout'):
+            sku_des_dict = {sku: feed_type+feed_result for sku in seller_sku_list}
+            return sku_des_dict
 
-    def parse_feed_result(self, feed_result):
-        if feed_result and \
-                feed_result['Message']['ProcessingReport']['ProcessingSummary']['MessagesWithError']['value'] == '0':
+        report = feed_result['ProcessingReport']
+        # 处理失败记录数，为0时表示成功，不为0提取具体的店铺SKU
+        # {'!$@_(@{!11036': 'Please reduce your generic keyword length to less than "200" bytes.', ……}
+        message_with_error = report['ProcessingSummary']['MessagesWithError']['value']
+        if message_with_error == '0':
             return 'all success'
         else:
-            return  feed_result.get('Message') or 'Get result timeout'
+            report_detail = report['Result']
+            sku_des_dict = dict()
+            if isinstance(report_detail, list):
+                for report_detail_each in report_detail:
+                    sku = report_detail_each.get('AdditionalInfo').get('SKU').get('value') if report_detail_each.get('AdditionalInfo') else None
+                    re_description = report_detail_each.get('ResultDescription').get('value') if report_detail_each.get('ResultDescription') else ''
+                    if sku:
+                        sku_des_dict[sku] = feed_type + ':' + re_description
+            elif isinstance(report_detail, dict):
+                sku = report_detail.get('AdditionalInfo').get('SKU').get('value') if report_detail.get('AdditionalInfo') else None
+                re_description = report_detail.get('ResultDescription').get('value') if report_detail.get('ResultDescription') else ''
+                if sku:
+                    sku_des_dict[sku] = feed_type + ':' + re_description
+            return sku_des_dict
 
     def get_product_info_by_seller_sku(self, seller_sku_list):
         product_public = self.product_public
@@ -539,7 +530,6 @@ class FeedProduct:
                                                                                [seller_sku_list])
             product_info_response_dic = product_info_response.parsed
         except Exception as e:
-            print e
             time.sleep(10)  # 防止超请求限制，重新提交
             product_info_response = product_public.get_matching_product_for_id(self.auth_info['MarketplaceId'],
                                                                                'SellerSKU',
@@ -578,63 +568,65 @@ class FeedProduct:
             except Exception as e:
                 logger.error('Update product info faild, Execute sql: %s, Error info: %s' % (sql, e))
 
-    def update_error_info_to_db(self, updatetime, error_mess, amazon_upload_id, amazon_upload_result_id, is_pic_lost=0):
-        error_mess = str(error_mess)
-        if is_pic_lost == 0:
-            print '----------------------------------------------process_error--------------------------------------------'
-            sql = '''UPDATE t_templet_amazon_upload_result
-                           SET updateTime = '%s', status = '%s', errorMessages = '%s'
-                         WHERE id = %s ''' % (updatetime, 'FAILED', error_mess.replace("'", '`'), amazon_upload_result_id)
-            self.write_result_to_db(sql)
+    def update_error_info_to_db(self, updatetime, error_msg_dic, product_list, is_pic_lost=0):
+        """
+            error_msg_dic ={
+            '!$@_(@{!11036': 'Please reduce your generic keyword length to less than "200" bytes.', '
+            !$@_(@{!11037': 'Please reduce your generic keyword length to less than "200" bytes.', '
+            !$@_(@{!11034': 'Please reduce your generic keyword length to less than "200" bytes.',
+            ……
+            }
+            product_list = [{
+                    "seller_sku_list": ["NBWXH:010150", "NBWXH:010158", "NBWXH:010157", "NBWXH:010156", "NBWXH:010155", "NBWXH:010154", "NBWXH:010153", "NBWXH:010152", "NBWXH:010151"],
+                    "amazon_upload_id": 36202,
+                    "amazon_upload_result_id": 36202
+                },
+                {
+                    "seller_sku_list": ["NBWXH:010150", "NBWXH:010158", "NBWXH:010157", "NBWXH:010156", "NBWXH:010155", "NBWXH:010154", "NBWXH:010153", "NBWXH:010152", "NBWXH:010151"],
+                    "amazon_upload_id": 36203,
+                    "amazon_upload_result_id": 36203
+                }
+                ]
 
-            sql_wait = "UPDATE t_templet_amazon_wait_upload SET status='FAILED' WHERE id=%s;" % amazon_upload_id
-            self.write_result_to_db(sql_wait)
+        """
+        table_column_str = '''upload_product_type,recommended_browse_nodes,recommended_browse_nodes_id,
+                               dataFromUrl,item_sku,external_product_id,external_product_id_type,item_name,manufacturer,
+                               part_number,feed_product_type,item_type,product_subtype,product_description,brand_name,
+                               update_delete,item_package_quantity,standard_price,sale_price,sale_from_date,sale_end_date,
+                               condition_type,quantity,merchant_shipping_group_name,bullet_point1,bullet_point2,bullet_point3,
+                               bullet_point4,bullet_point5,generic_keywords,main_image_url,other_image_url1,other_image_url2,
+                               other_image_url3,other_image_url4,other_image_url5,other_image_url6,other_image_url7,
+                               other_image_url8,fulfillment_center_id,model_name,warranty_description,variation_theme,model,
+                               mfg_minimum,mfg_minimum_unit_of_measure,swatch_image_url,department_name,fit_type,
+                               unit_count,unit_count_type,fulfillment_latency,display_dimensions_unit_of_measure,generic_keywords1,
+                               generic_keywords2,generic_keywords3,generic_keywords4,generic_keywords5,department_name1,
+                               department_name2,department_name3,department_name4,department_name5,material_type,
+                               metal_type,setting_type,ring_size,gem_type,target_audience_keywords1,target_audience_keywords2,
+                               target_audience_keywords3,productSKU,createUser,createTime,updateUser,updateTime,status,
+                               ShopSets,resultInfo,errorMessages,mqResponseInfo,prodcut_variation_id,clothing_color,clothing_size,
+                               toy_color,jewerly_color,item_shape,homes_color,homes_size,can_upload'''
+        for product in product_list:
+            this_product_error_msg = dict()
+            for seller_sku in product['seller_sku_list']:
+                if seller_sku in error_msg_dic:
+                    this_product_error_msg[seller_sku] = error_msg_dic[seller_sku]
+            if this_product_error_msg:
+                sql_upload_result = '''UPDATE t_templet_amazon_upload_result
+                                                           SET updateTime = '%s', status = '%s', errorMessages = '%s'
+                                                         WHERE id = %s
+                                        ''' % (updatetime, 'FAILED', str(this_product_error_msg).replace("'", '`'), product['amazon_upload_result_id'])
+                sql_wait_result = "UPDATE t_templet_amazon_wait_upload SET status='FAILED' WHERE id=%s;" % product['amazon_upload_id']
 
-            # 失败记录插入失败记录表
-            table_column_str = '''upload_product_type,recommended_browse_nodes,recommended_browse_nodes_id,
-                dataFromUrl,item_sku,external_product_id,external_product_id_type,item_name,manufacturer,
-                part_number,feed_product_type,item_type,product_subtype,product_description,brand_name,
-                update_delete,item_package_quantity,standard_price,sale_price,sale_from_date,sale_end_date,
-                condition_type,quantity,merchant_shipping_group_name,bullet_point1,bullet_point2,bullet_point3,
-                bullet_point4,bullet_point5,generic_keywords,main_image_url,other_image_url1,other_image_url2,
-                other_image_url3,other_image_url4,other_image_url5,other_image_url6,other_image_url7,
-                other_image_url8,fulfillment_center_id,model_name,warranty_description,variation_theme,model,
-                mfg_minimum,mfg_minimum_unit_of_measure,swatch_image_url,department_name,fit_type,
-                unit_count,unit_count_type,fulfillment_latency,display_dimensions_unit_of_measure,generic_keywords1,
-                generic_keywords2,generic_keywords3,generic_keywords4,generic_keywords5,department_name1,
-                department_name2,department_name3,department_name4,department_name5,material_type,
-                metal_type,setting_type,ring_size,gem_type,target_audience_keywords1,target_audience_keywords2,
-                target_audience_keywords3,productSKU,createUser,createTime,updateUser,updateTime,status,
-                ShopSets,resultInfo,errorMessages,mqResponseInfo,prodcut_variation_id,clothing_color,clothing_size,
-                toy_color,jewerly_color,item_shape,homes_color,homes_size,can_upload'''
-            sql_insert_fail = "insert into t_templet_amazon_upload_fail (%s) select %s from t_templet_amazon_upload_result where id = %s" \
-                              % (table_column_str, table_column_str, amazon_upload_result_id)
-            self.write_result_to_db(sql_insert_fail)
-        else:
-            print '----------------------------------------------image_lost--------------------------------------------'
-            sql = "UPDATE t_templet_amazon_upload_result SET updateTime='%s', status='%s', errorMessages='%s' " \
-                  "WHERE id=%s;" % (updatetime, 'ERROR', error_mess, amazon_upload_result_id)
-            self.write_result_to_db(sql)
-            # 图片缺失记录插入发布图片缺失表
-            table_column_str = '''upload_product_type,recommended_browse_nodes,recommended_browse_nodes_id,
-                dataFromUrl,item_sku,external_product_id,external_product_id_type,item_name,manufacturer,
-                part_number,feed_product_type,item_type,product_subtype,product_description,brand_name,
-                update_delete,item_package_quantity,standard_price,sale_price,sale_from_date,sale_end_date,
-                condition_type,quantity,merchant_shipping_group_name,bullet_point1,bullet_point2,bullet_point3,
-                bullet_point4,bullet_point5,generic_keywords,main_image_url,other_image_url1,other_image_url2,
-                other_image_url3,other_image_url4,other_image_url5,other_image_url6,other_image_url7,
-                other_image_url8,fulfillment_center_id,model_name,warranty_description,variation_theme,model,
-                mfg_minimum,mfg_minimum_unit_of_measure,swatch_image_url,department_name,fit_type,
-                unit_count,unit_count_type,fulfillment_latency,display_dimensions_unit_of_measure,generic_keywords1,
-                generic_keywords2,generic_keywords3,generic_keywords4,generic_keywords5,department_name1,
-                department_name2,department_name3,department_name4,department_name5,material_type,
-                metal_type,setting_type,ring_size,gem_type,target_audience_keywords1,target_audience_keywords2,
-                target_audience_keywords3,productSKU,createUser,createTime,updateUser,updateTime,status,ShopSets,
-                resultInfo,errorMessages,mqResponseInfo,prodcut_variation_id,clothing_color,clothing_size,toy_color,
-                jewerly_color,item_shape,homes_color,homes_size,can_upload'''
-            sql_insert_image_lost = "insert into t_templet_amazon_upload_result_lose_pic (%s) select %s from t_templet_amazon_upload_result where id = %s" \
-                              % (table_column_str, table_column_str, amazon_upload_result_id)
-            self.write_result_to_db(sql_insert_image_lost)
+                if is_pic_lost == 0:
+                    table_name = 't_templet_amazon_upload_fail'
+                else:
+                    table_name = 't_templet_amazon_upload_result_lose_pic'
+                sql_insert_fail = '''insert into %s (%s) 
+                                                              select %s from t_templet_amazon_upload_result where id = %s
+                                                              ''' % (table_name, table_column_str, table_column_str, product['amazon_upload_result_id'])
+                self.write_result_to_db(sql_upload_result)
+                self.write_result_to_db(sql_wait_result)
+                self.write_result_to_db(sql_insert_fail)
 
     def feed_flow(self, xml_body):
         """
@@ -685,6 +677,7 @@ class FeedProduct:
 
         """
         logger.error("xml body is  %r" % xml_body)
+        logger.info("xml body is  %r" % xml_body)
 
         # 商品信息修改及上下架
         if self.auth_info.get('update_type') and self.auth_info['update_type'] in ('auto_load_product',
@@ -698,21 +691,14 @@ class FeedProduct:
         if self.auth_info.get('operate_type') and self.auth_info['operate_type'] == 'reupload_image':
             pass
 
-        # 刊登
-        amazon_upload_id = self.auth_info.get('product_list')[0].get('amazon_upload_id', '')
-        amazon_upload_result_id = self.auth_info.get('product_list')[0].get('amazon_upload_result_id', '')
-        logger.debug('amazon_upload_id %s' % amazon_upload_id)
-        logger.debug('amazon_upload_result_id %s' % amazon_upload_result_id)
-
-        if not self.auth_info.get('product_list')[0].get('sku'):
-            error_mess = 'Can not get product sku for get product images, auth_info: %s' % self.auth_info
-            logger.error(error_mess)
-            now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            self.update_error_info_to_db(now, error_mess, amazon_upload_id, amazon_upload_result_id)
+        # 刊登部分
+        # 全量店铺SKU信息
+        product_list = self.auth_info.get('product_list')
+        if product_list:
+            seller_sku_list = [sku for product in product_list for sku in product['seller_sku_list']]
+        else:
+            logger.debug('product_list not given')
             return
-
-        # 店铺SKU
-        seller_sku_list = self.auth_info.get('product_list')[0].get('seller_sku_list')
         logger.debug('seller_sku_list %s' % seller_sku_list)
 
         # xml文件
@@ -732,72 +718,78 @@ class FeedProduct:
         time.sleep(60)
         product_response_result = self.get_deal_result(product_submit_data)
         response['_POST_PRODUCT_DATA_'] = product_response_result
-        all_submit_result['_POST_PRODUCT_DATA_'] = self.parse_feed_result(product_response_result)
+        all_submit_result['_POST_PRODUCT_DATA_'] = self.parse_feed_result(product_response_result, seller_sku_list, 'Product')
         if all_submit_result['_POST_PRODUCT_DATA_'] != 'all success':
             now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            self.update_error_info_to_db(now, all_submit_result['_POST_PRODUCT_DATA_'], amazon_upload_id, amazon_upload_result_id)
-            return
+            self.update_error_info_to_db(now, all_submit_result['_POST_PRODUCT_DATA_'], product_list)
+            # 判断是否全部产品失败，若有部分成功则还需提交后续的库存，价格等信息; 若全部失败则直接退出
+            all_upload_id_list = [sku_list['amazon_upload_id'] for sku_list in product_list]
+            fail_upload_id_list = [product['amazon_upload_id'] for product in product_list for seller_sku in product['seller_sku_list'] if seller_sku in all_submit_result['_POST_PRODUCT_DATA_']]
+            if set(all_upload_id_list) == set(fail_upload_id_list):
+                return
 
-        # 库存
+        # 提交其他刊登信息
         if inventory_xml_data:
             inventory_submit_data = self.submitfeed(inventory_xml_data, '_POST_INVENTORY_AVAILABILITY_DATA_')
             logger.debug('inventory_submit_data: %s' % inventory_submit_data)
-
-        # 价格
         if price_xml_data:
             price_submit_data = self.submitfeed(price_xml_data, '_POST_PRODUCT_PRICING_DATA_')
             logger.debug('price_submit_data: %s' % price_submit_data)
-
-        # 主变体关系
         if relationships_xml_data:
             relationships_submit_data = self.submitfeed(relationships_xml_data, '_POST_PRODUCT_RELATIONSHIP_DATA_')
             logger.debug('relationships_submit_data: %s' % relationships_submit_data)
-
-        # 图片
         if image_xml:
             image_submit_data = self.submitfeed(image_xml, '_POST_PRODUCT_IMAGE_DATA_')
             logger.debug('image_submit_data: %s' % image_submit_data)
 
         time.sleep(60)
 
+        # 获取刊登结果
         if inventory_xml_data:
             inventory_response_result = self.get_deal_result(inventory_submit_data)
             response['_POST_INVENTORY_AVAILABILITY_DATA_'] = inventory_response_result
-            all_submit_result['_POST_INVENTORY_AVAILABILITY_DATA_'] = self.parse_feed_result(inventory_response_result)
-
+            all_submit_result['_POST_INVENTORY_AVAILABILITY_DATA_'] = self.parse_feed_result(inventory_response_result, seller_sku_list, 'Inventory')
         if price_xml_data:
             price_response_result = self.get_deal_result(price_submit_data)
             response['_POST_PRODUCT_PRICING_DATA_'] = price_response_result
-            all_submit_result['_POST_PRODUCT_PRICING_DATA_'] = self.parse_feed_result(price_response_result)
-
+            all_submit_result['_POST_PRODUCT_PRICING_DATA_'] = self.parse_feed_result(price_response_result, seller_sku_list)
         if relationships_xml_data:
             relationships_response_result = self.get_deal_result(relationships_submit_data)
             response['_POST_PRODUCT_RELATIONSHIP_DATA_'] = relationships_response_result
-            all_submit_result['_POST_PRODUCT_RELATIONSHIP_DATA_'] = self.parse_feed_result(relationships_response_result)
-
+            all_submit_result['_POST_PRODUCT_RELATIONSHIP_DATA_'] = self.parse_feed_result(relationships_response_result, seller_sku_list, 'Relation')
         if image_xml:
             image_response_result = self.get_deal_result(image_submit_data)
             response['_POST_PRODUCT_IMAGE_DATA_'] = image_response_result
-            is_image_lost = 0
-            if image_response_result and \
-                    image_response_result['Message']['ProcessingReport']['ProcessingSummary']['MessagesWithError']['value'] == '0':
-                all_submit_result['_POST_PRODUCT_IMAGE_DATA_'] = 'all success'
-            else:
-                is_image_lost = 1
-                all_submit_result['_POST_PRODUCT_IMAGE_DATA_'] = image_response_result.get('Message') or 'Get result timeout'
+            all_submit_result['_POST_PRODUCT_IMAGE_DATA_'] = self.parse_feed_result(relationships_response_result, seller_sku_list, 'Image')
 
-        error_messages = []
+        # 仅图片上传失败时置is_image_lost为1，插入图片缺失记录
+        fail_feed_type = [k for k, v in all_submit_result.items() if v != 'all_success']
+        is_image_lost = 1 if len(fail_feed_type) == 1 and '_POST_PRODUCT_IMAGE_DATA_' in fail_feed_type else 0
+
+        # 刊登失败时，将同一店铺SKU的失败信息组合到一起
+        # error_messages = {sku1: 'Inventory: inventory fail reason; Price: price fail reason ……'，sku2: 'Inventory: inventory fail reason; Price: price fail reason ……'}
+        error_messages = dict()
         for i in all_submit_result:
-            if not all_submit_result[i] == 'all success':
-                error_messages.append(json.dumps(all_submit_result[i]))
+            if all_submit_result[i] != 'all success' and i != '_POST_PRODUCT_DATA_':
+                for key, val in all_submit_result[i].items():
+                    if key in error_messages:
+                        error_messages[key] += ';' + val
+                    else:
+                        error_messages[key] = val
+        # 剔除第一步提交商品信息时就报错的商品SKU，因在之前已做失败更新
+        if all_submit_result['_POST_PRODUCT_DATA_'] != 'all success':
+            for product_key in all_submit_result['_POST_PRODUCT_DATA_']:
+                if product_key in error_messages:
+                    del error_messages[product_key]
 
-        print 'Start to update amazon upload result db info'
         logger.debug('Start to update amazon upload result db info')
         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         if not error_messages:
-            sql = "UPDATE t_templet_amazon_upload_result SET updateTime='%s', status='%s', errorMessages='%s' " \
-                  "WHERE id='%s';" % (now, 'SUCCESS', '', amazon_upload_result_id)
-            self.write_result_to_db(sql)
+            for product in product_list:
+                sql = '''UPDATE t_templet_amazon_upload_result 
+                            SET updateTime='%s', status='%s', errorMessages='%s'
+                            WHERE id='%s';''' % (now, 'SUCCESS', '', product['amazon_upload_result_id'])
+                self.write_result_to_db(sql)
             try:
                 logger.debug('Begin refresh data into t_online_info_amazon')
                 self.refresh_data_by_seller_sku(seller_sku_list)
@@ -806,22 +798,12 @@ class FeedProduct:
                     refresh_data_obj.refresh_data_by_seller_sku(seller_sku)
                 logger.debug('End refresh data into t_online_info_amazon')
             except Exception as e:
-                print e
                 logger.error('refresh data into t_online_info_amazon failed!')
                 logger.error('traceback.format_exc():\n%s' % traceback.format_exc())
-
         else:
             logger.debug('errorMessages is:%s' % str(error_messages))
             logger.debug('is_image_lost is:%s' % str(is_image_lost))
-            print error_messages
-            if len(error_messages) == 1 and is_image_lost == 1:
-                error_mess = ','.join(error_messages)
-                error_mess = error_mess.replace('\"', '\\\"').replace('\'', '\\\'')
-                self.update_error_info_to_db(now, error_mess, amazon_upload_id, amazon_upload_result_id, 1)
-            else:
-                error_mess = ','.join(error_messages)
-                error_mess = error_mess.replace('\"', '\\\"').replace('\'', '\\\'')
-                self.update_error_info_to_db(now, error_mess, amazon_upload_id, amazon_upload_result_id)
+            self.update_error_info_to_db(now, error_messages, product_list, is_image_lost)
         logger.debug('End to update amazon upload result db info')
 
 
