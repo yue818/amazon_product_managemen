@@ -14,11 +14,12 @@ import logging.handlers
 import datetime
 import traceback
 from django.db import connection
+import chardet
 
 
 log_day = datetime.datetime.now().strftime("%Y%m%d")
 log_formatter = logging.Formatter('%(asctime)s [%(filename)s %(funcName)s:%(lineno)d] %(thread)d %(levelname)s %(message)s')
-logFile = r'/tmp/amazon_upload_product' + log_day + '.log'
+logFile = r'/tmp/amazon_upload_log/amazon_upload_product' + log_day + '.log'
 my_handler = logging.handlers.RotatingFileHandler(
     logFile,
     mode='a',
@@ -53,7 +54,7 @@ class UpdateProductInfo:
         submit_feed_rsp = submit_feed_public.submit_feed(data, feed_type, marketplaceids=market_place_ids)
         submit_feed_rsp_dict = submit_feed_rsp.parsed
         print submit_feed_rsp_dict
-        logger.debug('submit_feed_rsp_dict: %s' % str(submit_feed_rsp_dict))
+        logger.error('submit_feed_rsp_dict: %s' % str(submit_feed_rsp_dict))
         return submit_feed_rsp_dict
 
     def get_deal_status(self, feed_id):
@@ -77,7 +78,7 @@ class UpdateProductInfo:
         print '\n'
         print datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         print 'result id is: %s, now wait for  10 seconds  then check deal status.' % feed_id
-        logger.debug('result id is: %s, now wait for  10 seconds  then check deal status.' % feed_id)
+        logger.error('result id is: %s, now wait for  10 seconds  then check deal status.' % feed_id)
 
         time_sleep = 10
         count = 0
@@ -90,20 +91,20 @@ class UpdateProductInfo:
                 if feed_processing_status == '_DONE_':
                     print datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     print 'now we can get the result'
-                    logger.debug('now we can get the result')
+                    logger.error('now we can get the result')
                     feed_result = get_result_public.get_feed_submission_result(feed_id)
                     print 'get result raw'
-                    logger.debug('get result raw')
+                    logger.error('get result raw')
                     response = feed_result._response_dict
                     print 'get result dict'
-                    logger.debug('get result dict: %s' % str(response))
+                    logger.error('get result dict: %s' % str(response))
                     print response
                     return response
                 else:
                     print '\n'
                     print datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                     print 'processing_status is:%s, we will wait for %s seconds ' %(feed_processing_status,time_sleep)
-                    logger.debug('processing_status is:%s, we will wait for %s seconds ' %(feed_processing_status,time_sleep))
+                    logger.error('processing_status is:%s, we will wait for %s seconds ' %(feed_processing_status,time_sleep))
             except Exception as e:
                 print datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 print 'error: %s' % e
@@ -121,7 +122,7 @@ class UpdateProductInfo:
                 sql = "update %s set quantity = 999, deal_result = 'Success', status = 'Active', updatetime= '%s' where shopname = '%s' and seller_sku = '%s'" \
                       %(auth_info['table_name'], datetime.datetime.now(), auth_info['ShopName'], sku)
                 print 'load sql: %s' % sql
-                logger.debug('load sql: %s' % sql)
+                logger.error('load sql: %s' % sql)
                 cursor.execute(sql)
                 cursor.execute('commit;')
             cursor.close()
@@ -130,7 +131,7 @@ class UpdateProductInfo:
                 sql = "update %s set quantity = 0 , deal_result = 'Success', status = 'Inactive', updatetime= '%s' where shopname = '%s' and seller_sku = '%s'" \
                       % (auth_info['table_name'], datetime.datetime.now(), auth_info['ShopName'], sku)
                 print 'unload sql: %s' % sql
-                logger.debug('unload sql: %s' % sql)
+                logger.error('unload sql: %s' % sql)
                 cursor.execute(sql)
                 cursor.execute('commit;')
             cursor.close()
@@ -140,8 +141,8 @@ class UpdateProductInfo:
                       % (auth_info['table_name'], datetime.datetime.now(), auth_info['ShopName'], sku)
                 sql_auto = "update  t_amazon_auto_load set deal_result = 'Success', deal_time = '%s' where batch_id = '%s' and shop_name = '%s' and seller_sku = '%s'" \
                            % (datetime.datetime.now(), auth_info['batch_id'], auth_info['ShopName'], sku)
-                logger.debug('load sql: %s' % sql)
-                logger.debug('load sql_auto: %s' % sql_auto)
+                logger.error('load sql: %s' % sql)
+                logger.error('load sql_auto: %s' % sql_auto)
                 cursor.execute(sql)
                 cursor.execute(sql_auto)
                 cursor.execute('commit;')
@@ -152,8 +153,8 @@ class UpdateProductInfo:
                       % (auth_info['table_name'], datetime.datetime.now(), auth_info['ShopName'], sku)
                 sql_auto = "update  t_amazon_auto_load set deal_result = 'Success', deal_time = '%s' where batch_id = '%s' and shop_name = '%s' and seller_sku = '%s'" \
                            % (datetime.datetime.now(), auth_info['batch_id'], auth_info['ShopName'], sku)
-                logger.debug('unload sql: %s' % sql)
-                logger.debug('unload sql_auto: %s' % sql_auto)
+                logger.error('unload sql: %s' % sql)
+                logger.error('unload sql_auto: %s' % sql_auto)
                 cursor.execute(sql)
                 cursor.execute(sql_auto)
                 cursor.execute('commit;')
@@ -162,7 +163,7 @@ class UpdateProductInfo:
                 sql = "update %s set price = '%s', sale_price='%s',sale_from_date='%s',sale_end_date='%s' , deal_result = 'Success',  updatetime= '%s' where shopname = '%s' and seller_sku = '%s'" \
                       % (auth_info['table_name'], auth_info['price_info_dic']['standard_price'], auth_info['price_info_dic']['sale_price'], auth_info['price_info_dic']['start_date'], auth_info['price_info_dic']['end_date'],  datetime.datetime.now(), auth_info['ShopName'], auth_info['seller_sku'])
                 print 'sql is:%s' % sql
-                logger.debug('sql is:%s' % sql)
+                logger.error('sql is:%s' % sql)
                 cursor.execute(sql)
                 cursor.execute('commit;')
         elif auth_info['update_type'] == 'product_price_modify_multi':
@@ -171,14 +172,14 @@ class UpdateProductInfo:
                 sql = "update %s set price = '%s',deal_result = 'Success',  updatetime= '%s' where shopname = '%s' and seller_sku = '%s'" \
                       % (auth_info['table_name'], price, datetime.datetime.now(), auth_info['ShopName'], sku)
                 print 'sql is:%s' % sql
-                logger.debug('sql is:%s' % sql)
+                logger.error('sql is:%s' % sql)
                 cursor.execute(sql)
                 cursor.execute('commit;')
 
                 sql_log = "update t_amazon_operation_log set deal_result = 1, end_time='%s' where batch_id = '%s' and shop_name = '%s' and seller_sku ='%s'" \
                           % (datetime.datetime.now(), auth_info['batch_id'], auth_info['ShopName'], sku)
                 print 'sql_log is:%s' % sql_log
-                logger.debug('sql_log is:%s' % sql_log)
+                logger.error('sql_log is:%s' % sql_log)
                 cursor.execute(sql_log)
                 cursor.execute('commit;')
 
@@ -186,7 +187,7 @@ class UpdateProductInfo:
             sql = "update %s set image_url = '%s', deal_result = 'Success',  updatetime= '%s' where shopname = '%s' and seller_sku = '%s'" \
                   % (auth_info['table_name'], auth_info['image_info_dic']['pic_url'], datetime.datetime.now(), auth_info['ShopName'], auth_info['seller_sku'])
             print 'sql is:%s' % sql
-            logger.debug('sql is:%s' % sql)
+            logger.error('sql is:%s' % sql)
             cursor.execute(sql)
             cursor.execute('commit;')
         elif auth_info['update_type'] == 'product_info_modify':
@@ -197,7 +198,7 @@ class UpdateProductInfo:
             sql = "update %s set %s deal_result = 'Success',  updatetime= '%s' where shopname = '%s' and seller_sku = '%s'" \
                   % (auth_info['table_name'], set_sql, datetime.datetime.now(), auth_info['ShopName'], auth_info['seller_sku'])
             print 'sql is:%s' % sql
-            logger.debug('sql is:%s' % sql)
+            logger.error('sql is:%s' % sql)
             cursor.execute(sql)
             cursor.execute('commit;')
         else:
@@ -228,10 +229,10 @@ class UpdateProductInfo:
                           % (auth_info['table_name'], error_msg.replace("'", '`'), datetime.datetime.now(), auth_info['ShopName'], sku)
 
                     print 'error sql: %s' % sql
-                    logger.debug('error sql: %s' % sql)
+                    logger.error('error sql: %s' % sql)
                     cursor.execute(sql)
 
-                    logger.debug('sql_auto_fail sql: %s' % sql_auto_fail)
+                    logger.error('sql_auto_fail sql: %s' % sql_auto_fail)
                     cursor.execute(sql_auto_fail)
                     cursor.execute('commit;')
             else:
@@ -239,14 +240,14 @@ class UpdateProductInfo:
                     sql = "update %s set deal_result = 'Fail', deal_result_info = '%s', updatetime= '%s' where shopname = '%s' and seller_sku = '%s'" \
                           % (auth_info['table_name'], error_msg.replace("'", '`'), datetime.datetime.now(), auth_info['ShopName'], sku)
                     print 'error sql: %s' % sql
-                    logger.debug('error sql: %s' % sql)
+                    logger.error('error sql: %s' % sql)
                     cursor.execute(sql)
                     cursor.execute('commit;')
                     if auth_info['update_type'] == 'product_price_modify_multi':
                         sql_log = "update t_amazon_operation_log set deal_result = -1, deal_result_info = '%s', end_time='%s' where batch_id = '%s' and shop_name = '%s' and seller_sku ='%s'" \
                                   % (error_msg.replace("'", '`'), datetime.datetime.now(), auth_info['batch_id'], auth_info['ShopName'], sku)
                         print 'sql_log is:%s' % sql_log
-                        logger.debug('sql_log is:%s' % sql_log)
+                        logger.error('sql_log is:%s' % sql_log)
                         cursor.execute(sql_log)
                         cursor.execute('commit;')
 
@@ -330,86 +331,6 @@ class UpdateProductInfo:
             return 'Fail'
 
 
-class GetProductInfoBySellerSku:
-    """
-    按seller_sku值获取产品图片及主、变体关系
-    """
-    def __init__(self, auth_info, db_connect_get_info):
-        self.db_conn = db_connect_get_info
-        self.auth_info = auth_info
-        self.product_public = Products(self.auth_info['AWSAccessKeyId'],
-                                       self.auth_info['SecretKey'],
-                                       self.auth_info['SellerId'],
-                                       self.auth_info['ShopName'].split('/')[0].split('-')[-1])
-
-    def get_product_info_by_seller_sku(self, seller_sku):
-        try:
-            product_info_response = self.product_public.get_matching_product_for_id(self.auth_info['MarketplaceId'], 'SellerSKU', [seller_sku])
-            product_info_response_dic = product_info_response._response_dict
-        except Exception as e:
-            print e
-            time.sleep(10)  # 防止超请求限制，重新提交
-            product_info_response = self.product_public.get_matching_product_for_id(self.auth_info['MarketplaceId'], 'SellerSKU', [seller_sku])
-            product_info_response_dic = product_info_response._response_dict
-        return product_info_response_dic
-
-    def update_asin(self, this_asin, image_url, seller_sku):
-        cursor = self.db_conn.cursor()
-        try:
-            sql = "update t_online_info_amazon set asin1 = '%s' , image_url = '%s' where seller_sku ='%s' and shopname = '%s'" \
-                  % (this_asin,  image_url, seller_sku, self.auth_info['ShopName'])
-            print 'update_parent_asin sql is: %s' % sql
-            cursor.execute(sql)
-            cursor.execute('commit;')
-            cursor.close()
-        except Exception as e:
-            cursor.close()
-            print e
-
-    def execute_db(self, sql):
-        cursor = self.db_conn.cursor()
-        try:
-            cursor.execute(sql)
-            cursor.execute('commit;')
-            cursor.close()
-        except Exception as e:
-            cursor.close()
-            print e
-
-    def update_db_by_product_info(self, product_info, seller_sku):
-        main_asin = product_info['GetMatchingProductForIdResult']['Products']['Product']['Identifiers']['MarketplaceASIN']['ASIN']['value']
-        image_url = product_info['GetMatchingProductForIdResult']['Products']['Product']['AttributeSets']['ItemAttributes']['SmallImage']['URL']['value']
-        self.update_asin(main_asin, image_url, seller_sku)
-
-        if product_info['GetMatchingProductForIdResult']['Products']['Product']['Relationships'].has_key('VariationChild'):
-            child_list = product_info['GetMatchingProductForIdResult']['Products']['Product']['Relationships']['VariationChild']
-            if isinstance(child_list, list):
-                for child in child_list:
-                    child_asin = child['Identifiers']['MarketplaceASIN']['ASIN']['value']
-                    sql_child = "update t_online_info_amazon set parent_asin = '%s' where asin1 ='%s' and shopname = '%s'" \
-                                % (main_asin, child_asin, self.auth_info['ShopName'])
-                    print 'sql_child is: %s' % sql_child
-                    self.execute_db(sql_child)
-            else:
-                child_asin = child_list['Identifiers']['MarketplaceASIN']['ASIN']['value']
-                sql_child = "update t_online_info_amazon set parent_asin = '%s' where asin1 ='%s' and shopname = '%s'" \
-                            % (main_asin, child_asin, self.auth_info['ShopName'])
-                print 'sql_child is: %s' % sql_child
-                self.execute_db(sql_child)
-
-        if product_info['GetMatchingProductForIdResult']['Products']['Product']['Relationships'].has_key('VariationParent'):
-            parent_asin = product_info['GetMatchingProductForIdResult']['Products']['Product']['Relationships']['VariationParent']['Identifiers']['MarketplaceASIN']['ASIN']['value']
-            sql_parent = "update t_online_info_amazon set parent_asin = '%s' where asin1 ='%s' and shopname = '%s'" \
-                         % (parent_asin, main_asin, self.auth_info['ShopName'])
-            print 'parent_asin is: %s' % parent_asin
-            print 'sql_parent is: %s' % sql_parent
-            self.execute_db(sql_parent)
-
-    def refresh_data_by_seller_sku(self, seller_sku):
-        product_info = self.get_product_info_by_seller_sku(seller_sku)
-        self.update_db_by_product_info(product_info, seller_sku)
-
-
 class FeedProduct:
     def __init__(self, auth_info_feed, db_conncetion=connection):
         self.auth_info = auth_info_feed
@@ -426,24 +347,20 @@ class FeedProduct:
         self.db_conn = db_conncetion
 
     def submitfeed(self, data, feed_type):
-        logger.debug('data is %s' % data)
+        logger.error('feed_type is %s' % feed_type)
+        logger.error('data is %s' % data)
         submitfeed = self.feed_public
         marketplaceids = [self.auth_info['MarketplaceId']]
         try:
             submitfeed_rsp = submitfeed.submit_feed(data, feed_type, marketplaceids=marketplaceids)
         except Exception as e:
             logger.error('traceback.format_exc():\n%s' % traceback.format_exc())
-            logger.debug('we will submit feed again after 5 minutes')
+            logger.error('we will submit feed again after 5 minutes')
             time.sleep(300)
             try:
                 submitfeed_rsp = submitfeed.submit_feed(data, feed_type, marketplaceids=marketplaceids)
             except Exception as e:
-                logger.error('traceback.format_exc():\n%s' % traceback.format_exc())
-                self.update_error_info_to_db(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-                                             str(e).replace("'", "`"),
-                                             self.auth_info['amazon_upload_id'],
-                                             self.auth_info['amazon_upload_result_id'])
-                return
+                return 'Error'
         submitfeed_rsp_dict = submitfeed_rsp.parsed
         return submitfeed_rsp_dict
 
@@ -466,9 +383,12 @@ class FeedProduct:
             Timeout：获取结果超时
             response：正常获取到的结果
         """
+        if data == 'Error':
+            return 'Error'
+
         get_result_public = self.feed_public
         feed_id = data['FeedSubmissionInfo']['FeedSubmissionId']['value']
-        logger.debug('result id is: %s, now wait for  10 seconds  then check deal status.' % feed_id)
+        logger.error('result id is: %s, now wait for  10 seconds  then check deal status.' % feed_id)
 
         time_sleep = 10
         count = 0
@@ -479,17 +399,16 @@ class FeedProduct:
             try:
                 feed_processing_status = self.get_deal_status(feed_id)
                 if feed_processing_status == '_DONE_':
-                    logger.debug('now we can get the result')
+                    logger.error('now we can get the result')
                     feed_result = get_result_public.get_feed_submission_result(feed_id)
-                    logger.debug('get result raw')
                     response = feed_result.parsed
-                    logger.debug('get result dict: %s' % str(response))
+                    logger.error('get result dict: %s' % str(response))
                     return response
                 else:
-                    logger.debug('processing_status is:%s, we will wait for %s seconds ' %(feed_processing_status,time_sleep))
-            except Exception as e:
-                return 'Error'
+                    logger.error('processing_status is:%s, we will wait for %s seconds ' % (feed_processing_status,time_sleep))
+            except:
                 logger.error('traceback.format_exc():\n%s' % traceback.format_exc())
+                return 'Error'
         else:  # 循环超过5次，即总等待时长超过 31*time_sleep，则计为超时
             logger.error('Get submit_feed reuslt timeout')
             return 'Timeout'
@@ -497,29 +416,35 @@ class FeedProduct:
     def parse_feed_result(self, feed_result, seller_sku_list, feed_type):
         # 结果为'Error', 'Timeout'时直接返回
         if feed_result in ('Error', 'Timeout'):
-            sku_des_dict = {sku: feed_type+feed_result for sku in seller_sku_list}
+            sku_des_dict = {sku: feed_type + ':' + feed_result for sku in seller_sku_list}
             return sku_des_dict
 
         report = feed_result['ProcessingReport']
         # 处理失败记录数，为0时表示成功，不为0提取具体的店铺SKU
-        # {'!$@_(@{!11036': 'Please reduce your generic keyword length to less than "200" bytes.', ……}
+        # {'!$@_(@{!11036': 'Product:Please reduce your generic keyword length to less than "200" bytes.', ……}
         message_with_error = report['ProcessingSummary']['MessagesWithError']['value']
         if message_with_error == '0':
             return 'all success'
         else:
             report_detail = report['Result']
             sku_des_dict = dict()
+            re_description = ''
+            # 根据返回的详细原因组合出 {SKU: feed类型+失败原因说明} 字典
             if isinstance(report_detail, list):
                 for report_detail_each in report_detail:
                     sku = report_detail_each.get('AdditionalInfo').get('SKU').get('value') if report_detail_each.get('AdditionalInfo') else None
                     re_description = report_detail_each.get('ResultDescription').get('value') if report_detail_each.get('ResultDescription') else ''
                     if sku:
-                        sku_des_dict[sku] = feed_type + ':' + re_description
+                        sku_des_dict[sku] = feed_type + ': ' + re_description
             elif isinstance(report_detail, dict):
                 sku = report_detail.get('AdditionalInfo').get('SKU').get('value') if report_detail.get('AdditionalInfo') else None
                 re_description = report_detail.get('ResultDescription').get('value') if report_detail.get('ResultDescription') else ''
                 if sku:
-                    sku_des_dict[sku] = feed_type + ':' + re_description
+                    sku_des_dict[sku] = feed_type + ': ' + re_description
+            # 未单个指出SKU错误时，认为该批次所有SKU均失败
+            if not sku_des_dict:
+                all_sku_reason = re_description if re_description else 'Error'
+                sku_des_dict = {sku: feed_type + all_sku_reason for sku in seller_sku_list}
             return sku_des_dict
 
     def get_product_info_by_seller_sku(self, seller_sku_list):
@@ -528,19 +453,20 @@ class FeedProduct:
             product_info_response = product_public.get_matching_product_for_id(self.auth_info['MarketplaceId'],
                                                                                'SellerSKU',
                                                                                [seller_sku_list])
-            product_info_response_dic = product_info_response.parsed
-        except Exception as e:
+            product_info_response_dic = product_info_response._response_dict
+        except:
             time.sleep(10)  # 防止超请求限制，重新提交
             product_info_response = product_public.get_matching_product_for_id(self.auth_info['MarketplaceId'],
                                                                                'SellerSKU',
                                                                                [seller_sku_list])
-            product_info_response_dic = product_info_response.parsed
+            product_info_response_dic = product_info_response._response_dict
         return product_info_response_dic
 
     def refresh_data_by_seller_sku(self, seller_sku_list):
         for seller_sku in seller_sku_list:
             product_info = self.get_product_info_by_seller_sku(seller_sku)
             print product_info
+            logger.error('product_info:%s ' % product_info)
             product_result = product_info['GetMatchingProductForIdResult']
             product_asin = product_result['Products']['Product']['Identifiers']['MarketplaceASIN']['ASIN']['value']
             product_infos = product_result['Products']['Product']['AttributeSets']['ItemAttributes']
@@ -554,15 +480,15 @@ class FeedProduct:
             image_url = product_infos['SmallImage']['URL']['value']
             # Manufacturer = product_infos['Manufacturer']['value']
 
-            sql = "INSERT INTO t_online_info_amazon(seller_sku, asin1, item_name, price, image_url, ShopName, shopsite) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s')" \
-                  % (seller_sku, product_asin, item_name, price, image_url, self.auth_info['ShopName'], self.auth_info['ShopName'].split('-')[-1].split('/')[0])
+            sql = "INSERT INTO t_online_info_amazon(seller_sku, asin1, item_name, price, image_url, ShopName, shopsite, status) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" \
+                  % (seller_sku, product_asin, item_name, price, image_url, self.auth_info['ShopName'], self.auth_info['ShopName'].split('-')[-1].split('/')[0], 'Active')
             self.write_result_to_db(sql)
 
     def write_result_to_db(self, sql):
         with self.db_conn.cursor() as cursor:
             try:
                 print 'write_result_to_db sql: ', sql
-                logger.debug('write_result_to_db sql: %s' % sql)
+                logger.error('write_result_to_db sql: %s' % sql)
                 cursor.execute(sql)
                 cursor.execute('commit;')
             except Exception as e:
@@ -586,7 +512,11 @@ class FeedProduct:
                     "amazon_upload_id": 36203,
                     "amazon_upload_result_id": 36203
                 }
-                ]
+            ]
+
+            遍历product_list中的每个seller_sku_list，若sku在error_msg_dic中有记录，则表示该upload_id刊登失败
+            组合该upload_id下所有SKU失败原因，写入errorMessages字段
+            结合is_pic_lost信息，添加失败或图片缺失记录
 
         """
         table_column_str = '''upload_product_type,recommended_browse_nodes,recommended_browse_nodes_id,
@@ -654,30 +584,11 @@ class FeedProduct:
                 },
                 "amazon_upload_result_id": 36202
             },
-
-            {
-                "sku": "BG2694",
-                "seller_sku_list": ["NBWXH:010150", "NBWXH:010158", "NBWXH:010157", "NBWXH:010156", "NBWXH:010155", "NBWXH:010154", "NBWXH:010153", "NBWXH:010152", "NBWXH:010151"],
-                "amazon_upload_id": 36203,
-                "variation": 1,
-                "upcIds": {
-                    "BG2694H07andNL7378andKEY3643H02andOSS4862H04": "NBWXH:010152",
-                    "BG2694H01andNL7378andKEY3643H01andOSS4862H08": "NBWXH:010158",
-                    "BG2694H08andNL7378andKEY3643H04andOSS4862H06": "NBWXH:010151",
-                    "BG2694H06andNL7378andKEY3643H08andOSS4862H05": "NBWXH:010153",
-                    "BG2694H04andNL7378andKEY3643H03andOSS4862H03": "NBWXH:010155",
-                    "BG2694H02andNL7378andKEY3643H06andOSS4862H07": "NBWXH:010157",
-                    "BG2694H03andNL7378andKEY3643H05andOSS4862H02": "NBWXH:010156",
-                    "BG2694H05andNL7378andKEY3643H07andOSS4862H01": "NBWXH:010154"
-                },
-                "amazon_upload_result_id": 36203
-            }
             ]
         }
 
         """
         logger.error("xml body is  %r" % xml_body)
-        logger.info("xml body is  %r" % xml_body)
 
         # 商品信息修改及上下架
         if self.auth_info.get('update_type') and self.auth_info['update_type'] in ('auto_load_product',
@@ -686,10 +597,12 @@ class FeedProduct:
                                                                                    'product_image_modify', 'product_price_modify_multi'):
             server = UpdateProductInfo(self.db_conn, self.auth_info)
             server.feed_start()
+            return
 
         # 图片补传
         if self.auth_info.get('operate_type') and self.auth_info['operate_type'] == 'reupload_image':
             pass
+            return
 
         # 刊登部分
         # 全量店铺SKU信息
@@ -697,73 +610,73 @@ class FeedProduct:
         if product_list:
             seller_sku_list = [sku for product in product_list for sku in product['seller_sku_list']]
         else:
-            logger.debug('product_list not given')
+            logger.error('product_list not given')
             return
-        logger.debug('seller_sku_list %s' % seller_sku_list)
+        logger.error('seller_sku_list %s' % seller_sku_list)
 
-        # xml文件
+        # xml文件 转换为UTF-8编码格式
         product_xml_data = xml_body.get('Product')
+        try:
+            product_xml_data = product_xml_data.encode('utf-8')
+        except UnicodeDecodeError:
+            char_set = chardet.detect(product_xml_data)['encoding']
+            product_xml_data = product_xml_data.decode(char_set).encode('utf-8')
+
         inventory_xml_data = xml_body.get('Inventory')
         price_xml_data = xml_body.get('Price')
         relationships_xml_data = xml_body.get('Relationship')
         image_xml = xml_body.get('Image')
 
-        # 返回信息及结果
-        response = dict()
+        # 返回结果
         all_submit_result = dict()
 
-        # 产品信息
+        # 首先提交产品信息并根据处理结果决定是否提交后续相关信息
         product_submit_data = self.submitfeed(product_xml_data, '_POST_PRODUCT_DATA_')
-        logger.debug('product_submit_data: %s' % product_submit_data)
+        logger.error('product_submit_data: %s' % product_submit_data)
         time.sleep(60)
         product_response_result = self.get_deal_result(product_submit_data)
-        response['_POST_PRODUCT_DATA_'] = product_response_result
         all_submit_result['_POST_PRODUCT_DATA_'] = self.parse_feed_result(product_response_result, seller_sku_list, 'Product')
         if all_submit_result['_POST_PRODUCT_DATA_'] != 'all success':
-            now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            self.update_error_info_to_db(now, all_submit_result['_POST_PRODUCT_DATA_'], product_list)
             # 判断是否全部产品失败，若有部分成功则还需提交后续的库存，价格等信息; 若全部失败则直接退出
             all_upload_id_list = [sku_list['amazon_upload_id'] for sku_list in product_list]
             fail_upload_id_list = [product['amazon_upload_id'] for product in product_list for seller_sku in product['seller_sku_list'] if seller_sku in all_submit_result['_POST_PRODUCT_DATA_']]
             if set(all_upload_id_list) == set(fail_upload_id_list):
+                now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                self.update_error_info_to_db(now, all_submit_result['_POST_PRODUCT_DATA_'], product_list)
                 return
 
         # 提交其他刊登信息
         if inventory_xml_data:
             inventory_submit_data = self.submitfeed(inventory_xml_data, '_POST_INVENTORY_AVAILABILITY_DATA_')
-            logger.debug('inventory_submit_data: %s' % inventory_submit_data)
+            logger.error('inventory_submit_data: %s' % inventory_submit_data)
         if price_xml_data:
             price_submit_data = self.submitfeed(price_xml_data, '_POST_PRODUCT_PRICING_DATA_')
-            logger.debug('price_submit_data: %s' % price_submit_data)
+            logger.error('price_submit_data: %s' % price_submit_data)
         if relationships_xml_data:
             relationships_submit_data = self.submitfeed(relationships_xml_data, '_POST_PRODUCT_RELATIONSHIP_DATA_')
-            logger.debug('relationships_submit_data: %s' % relationships_submit_data)
+            logger.error('relationships_submit_data: %s' % relationships_submit_data)
         if image_xml:
             image_submit_data = self.submitfeed(image_xml, '_POST_PRODUCT_IMAGE_DATA_')
-            logger.debug('image_submit_data: %s' % image_submit_data)
+            logger.error('image_submit_data: %s' % image_submit_data)
 
         time.sleep(60)
 
         # 获取刊登结果
         if inventory_xml_data:
             inventory_response_result = self.get_deal_result(inventory_submit_data)
-            response['_POST_INVENTORY_AVAILABILITY_DATA_'] = inventory_response_result
             all_submit_result['_POST_INVENTORY_AVAILABILITY_DATA_'] = self.parse_feed_result(inventory_response_result, seller_sku_list, 'Inventory')
         if price_xml_data:
             price_response_result = self.get_deal_result(price_submit_data)
-            response['_POST_PRODUCT_PRICING_DATA_'] = price_response_result
-            all_submit_result['_POST_PRODUCT_PRICING_DATA_'] = self.parse_feed_result(price_response_result, seller_sku_list)
+            all_submit_result['_POST_PRODUCT_PRICING_DATA_'] = self.parse_feed_result(price_response_result, seller_sku_list, 'Price')
         if relationships_xml_data:
             relationships_response_result = self.get_deal_result(relationships_submit_data)
-            response['_POST_PRODUCT_RELATIONSHIP_DATA_'] = relationships_response_result
             all_submit_result['_POST_PRODUCT_RELATIONSHIP_DATA_'] = self.parse_feed_result(relationships_response_result, seller_sku_list, 'Relation')
         if image_xml:
             image_response_result = self.get_deal_result(image_submit_data)
-            response['_POST_PRODUCT_IMAGE_DATA_'] = image_response_result
-            all_submit_result['_POST_PRODUCT_IMAGE_DATA_'] = self.parse_feed_result(relationships_response_result, seller_sku_list, 'Image')
+            all_submit_result['_POST_PRODUCT_IMAGE_DATA_'] = self.parse_feed_result(image_response_result, seller_sku_list, 'Image')
 
         # 仅图片上传失败时置is_image_lost为1，插入图片缺失记录
-        fail_feed_type = [k for k, v in all_submit_result.items() if v != 'all_success']
+        fail_feed_type = [k for k, v in all_submit_result.items() if v != 'all success']
         is_image_lost = 1 if len(fail_feed_type) == 1 and '_POST_PRODUCT_IMAGE_DATA_' in fail_feed_type else 0
 
         # 刊登失败时，将同一店铺SKU的失败信息组合到一起
@@ -776,36 +689,43 @@ class FeedProduct:
                         error_messages[key] += ';' + val
                     else:
                         error_messages[key] = val
-        # 剔除第一步提交商品信息时就报错的商品SKU，因在之前已做失败更新
+        # 第一步提交商品信息时就报错的商品SKU 后续图片价格等上传必定失败，仅提供刊登产品信息的失败原因即可
         if all_submit_result['_POST_PRODUCT_DATA_'] != 'all success':
-            for product_key in all_submit_result['_POST_PRODUCT_DATA_']:
+            for product_key, product_val in all_submit_result['_POST_PRODUCT_DATA_'].items():
                 if product_key in error_messages:
-                    del error_messages[product_key]
+                    error_messages[product_key] = product_val
 
-        logger.debug('Start to update amazon upload result db info')
+        logger.error('Start to update amazon upload result db info')
         now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        if not error_messages:
-            for product in product_list:
+
+        # 提取刊登成功的upload_id
+        all_upload_id_list = [product['amazon_upload_id'] for product in product_list]
+        fail_upload_id_list = [product['amazon_upload_id'] for product in product_list for seller_sku in product['seller_sku_list'] if seller_sku in error_messages]
+        success_upload_id_list = list(set(all_upload_id_list) - set(fail_upload_id_list))
+        # 提取刊登成功的seller_sku列表
+        seller_sku_success_list = [sku for product in product_list for sku in product['seller_sku_list'] if product['amazon_upload_id'] in success_upload_id_list]
+
+        if success_upload_id_list:
+            for product_id in success_upload_id_list:
                 sql = '''UPDATE t_templet_amazon_upload_result 
                             SET updateTime='%s', status='%s', errorMessages='%s'
-                            WHERE id='%s';''' % (now, 'SUCCESS', '', product['amazon_upload_result_id'])
+                            WHERE id='%s';''' % (now, 'SUCCESS', '', product_id)
                 self.write_result_to_db(sql)
             try:
-                logger.debug('Begin refresh data into t_online_info_amazon')
-                self.refresh_data_by_seller_sku(seller_sku_list)
-                refresh_data_obj = GetProductInfoBySellerSku(self.auth_info, self.db_conn)
-                for seller_sku in seller_sku_list:
-                    refresh_data_obj.refresh_data_by_seller_sku(seller_sku)
-                logger.debug('End refresh data into t_online_info_amazon')
+                logger.error('Begin refresh data into t_online_info_amazon')
+                self.refresh_data_by_seller_sku(seller_sku_success_list)
+                logger.error('End refresh data into t_online_info_amazon')
             except Exception as e:
-                logger.error('refresh data into t_online_info_amazon failed!')
+                logger.error('refresh data into t_online_info_amazon failed! %s' % e)
                 logger.error('traceback.format_exc():\n%s' % traceback.format_exc())
-        else:
-            logger.debug('errorMessages is:%s' % str(error_messages))
-            logger.debug('is_image_lost is:%s' % str(is_image_lost))
+
+        if error_messages:
+            logger.error('errorMessages is:%s' % str(error_messages))
+            logger.error('is_image_lost is:%s' % str(is_image_lost))
             self.update_error_info_to_db(now, error_messages, product_list, is_image_lost)
-        logger.debug('End to update amazon upload result db info')
+        logger.error('End to update amazon upload result db info')
 
-
-if __name__ == '__main__':
-    feed_product_obj = FeedProduct('', connection)
+    def feed_flow1(self):
+        logger.info('this is info')
+        logger.debug('this is debug')
+        logger.error('this is error')
